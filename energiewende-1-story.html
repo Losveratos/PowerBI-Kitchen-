@@ -4,8 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex">
-<title>Die Billionen-Zahl · Energiewende Teil 1 · Entwurf · Daten-WG</title>
-<meta name="description" content="Entwurf, nicht veröffentlicht. Scroll-Story zur Energiewende-Reihe, Teil 1: Woher kommt die Zahl in der Schlagzeile, was misst sie, und was kostet der Vergleichspfad?">
+<title>Energiewende Teil 1 · Scroll-Story · Entwurf · Daten-WG</title>
+<meta name="description" content="Entwurf, nicht veröffentlicht. Scroll-Story zur Energiewende-Reihe, Teil 1. Alle Texte und Zahlen kommen beim Laden aus dem freigegebenen Datensatz.">
 <meta name="author" content="Michael Tenner · Daten-WG">
 <meta name="color-scheme" content="light dark">
 <link rel="icon" href="assets/favicon.ico" sizes="any">
@@ -14,25 +14,33 @@
 <link rel="stylesheet" href="assets/fonts/jetbrains-mono/jetbrains-mono.css">
 <style>
 /* ------------------------------------------------------------------
-   Farben. Zwei Akzente:
-   --said   (Blau)       = was in Schlagzeile und Papier steht
-   --accent (Terrakotta) = was wir nachgeschlagen, korrigiert, gerechnet haben
-   Grau = nicht am Original gelesen. Farbe ist nie der einzige Träger:
-   jede Markierung hat auch ein Wort.
+   Bau P6-C. Inhalt: energiewende/data/teil1_data.json (v2).
+   Von Hand stehen hier nur Überschriften, Navigation, Bedienhinweise
+   und Beschriftungen ohne Tatsachengehalt.
+
+   Farbcode (identisch auf der Belegseite, CSS-Variablen --c-*):
+   --c-r21   R21 (eine Farbe, Form: Streifen bzw. gestrichelte Linie)
+   --c-g1    G1 Brutto-Gesamtkosten (voll)
+   --c-g2    G2 Brutto-Investitionen (voll)
+   --c-g3a   G3a Mehrinvestitionen (hohl, dicker Rand)
+   --c-g3b   G3b Mehrkosten (voll, dunkel bzw. hell)
+   --c-eigen eigene Rechnung oder Setzung (gepunktet)
+   Grau gestrichelt = nicht am Original gelesen.
 ------------------------------------------------------------------ */
 :root{
   --bg:#FAFAF7; --surface:#FFFFFF; --surface-2:#F2F1EC;
   --ink:#0F1E2E; --ink-2:#334155; --muted:#5B6676;
-  --grid:#E4E2DA; --axis:#C6C2B6; --ring:rgba(15,30,46,.13);
-  --said:#2E5E8E; --said-ink:#244C74; --said-soft:#DCE7F2;
-  --accent:#C25A2D; --accent-ink:#A1461F; --accent-soft:#F7E3D8;
-  --unread:#7D848F; --unread-soft:#ECEBE6;
-  --card:rgba(255,255,255,.95);
+  --grid:#E4E2DA; --axis:#8A8F98; --ring:rgba(15,30,46,.14);
+  --accent:#C25A2D; --accent-ink:#A1461F;
+  --unread:#6E7682; --unread-soft:#EEEDE8;
   --band-bg:#7A2E12; --band-ink:#FFFFFF;
-  --cA-bg:#DDF0EE; --cA-ink:#0F5B57;
-  --cB-bg:#F6EBD3; --cB-ink:#6E4A0B;
-  --cC-bg:#F7DED3; --cC-ink:#8A2F12;
-  --cM-bg:#E6E6EF; --cM-ink:#3B3F63;
+  --link:#2B4FA3;
+  --c-r21:#2B4FA3; --c-g1:#4A4F55; --c-g2:#8C7B66; --c-g3a:#B5532A; --c-g3b:#5A2A0E; --c-eigen:#9A3F86;
+  --c-r21-soft:#E3E9F6; --band-soft:#EDEBE4;
+  --w-b-bg:#F1E7D2; --w-b-ink:#5E420A;
+  --w-c-bg:#F7DDD2; --w-c-ink:#8A2F12;
+  --w-beh-bg:#FBE3E3; --w-beh-ink:#8E1B1B;
+  --w-eig-bg:#F1E1EE; --w-eig-ink:#7A2E69;
   --serif:'Fraunces',Georgia,'Times New Roman',serif;
   --sans:'Geist','Segoe UI',system-ui,-apple-system,Arial,sans-serif;
   --mono:'JetBrains Mono',ui-monospace,Consolas,monospace;
@@ -40,242 +48,255 @@
 @media (prefers-color-scheme: dark){
   :root:not([data-theme="light"]){
     --bg:#0F141A; --surface:#17202A; --surface-2:#1D2732;
-    --ink:#F2F0EA; --ink-2:#C9CED6; --muted:#97A1AE;
-    --grid:#26313C; --axis:#3B4756; --ring:rgba(255,255,255,.15);
-    --said:#7FB0E0; --said-ink:#9CC3EA; --said-soft:#1D3247;
-    --accent:#E07A4F; --accent-ink:#F09A74; --accent-soft:#3A2419;
-    --unread:#8D95A0; --unread-soft:#222A33;
-    --card:rgba(23,32,42,.95);
+    --ink:#F2F0EA; --ink-2:#C9CED6; --muted:#9AA4B1;
+    --grid:#26313C; --axis:#7C8794; --ring:rgba(255,255,255,.16);
+    --accent:#E07A4F; --accent-ink:#F09A74;
+    --unread:#9AA2AD; --unread-soft:#222A33;
     --band-bg:#E07A4F; --band-ink:#14100D;
-    --cA-bg:#12363B; --cA-ink:#86D6DF;
-    --cB-bg:#3A2D15; --cB-ink:#E7C281;
-    --cC-bg:#40251A; --cC-ink:#F2A688;
-    --cM-bg:#2A2C42; --cM-ink:#C3C6EA;
+    --link:#9CC0F5;
+    --c-r21:#8DB1F2; --c-g1:#AEB6C0; --c-g2:#9C8B72; --c-g3a:#E8794A; --c-g3b:#F6CFAE; --c-eigen:#E09BD0;
+    --c-r21-soft:#1E2B45; --band-soft:#222B35;
+    --w-b-bg:#3A2D15; --w-b-ink:#E7C281;
+    --w-c-bg:#40251A; --w-c-ink:#F2A688;
+    --w-beh-bg:#47201F; --w-beh-ink:#F5A9A6;
+    --w-eig-bg:#3A2036; --w-eig-ink:#EDB3E0;
   }
 }
 :root[data-theme="dark"]{
   --bg:#0F141A; --surface:#17202A; --surface-2:#1D2732;
-  --ink:#F2F0EA; --ink-2:#C9CED6; --muted:#97A1AE;
-  --grid:#26313C; --axis:#3B4756; --ring:rgba(255,255,255,.15);
-  --said:#7FB0E0; --said-ink:#9CC3EA; --said-soft:#1D3247;
-  --accent:#E07A4F; --accent-ink:#F09A74; --accent-soft:#3A2419;
-  --unread:#8D95A0; --unread-soft:#222A33;
-  --card:rgba(23,32,42,.95);
+  --ink:#F2F0EA; --ink-2:#C9CED6; --muted:#9AA4B1;
+  --grid:#26313C; --axis:#7C8794; --ring:rgba(255,255,255,.16);
+  --accent:#E07A4F; --accent-ink:#F09A74;
+  --unread:#9AA2AD; --unread-soft:#222A33;
   --band-bg:#E07A4F; --band-ink:#14100D;
-  --cA-bg:#12363B; --cA-ink:#86D6DF;
-  --cB-bg:#3A2D15; --cB-ink:#E7C281;
-  --cC-bg:#40251A; --cC-ink:#F2A688;
-  --cM-bg:#2A2C42; --cM-ink:#C3C6EA;
+  --link:#9CC0F5;
+  --c-r21:#8DB1F2; --c-g1:#AEB6C0; --c-g2:#9C8B72; --c-g3a:#E8794A; --c-g3b:#F6CFAE; --c-eigen:#E09BD0;
+  --c-r21-soft:#1E2B45; --band-soft:#222B35;
+  --w-b-bg:#3A2D15; --w-b-ink:#E7C281;
+  --w-c-bg:#40251A; --w-c-ink:#F2A688;
+  --w-beh-bg:#47201F; --w-beh-ink:#F5A9A6;
+  --w-eig-bg:#3A2036; --w-eig-ink:#EDB3E0;
 }
 *{box-sizing:border-box;margin:0;padding:0}
 html{scroll-behavior:smooth}
 body{background:var(--bg);color:var(--ink-2);font-family:var(--sans);font-size:16.5px;line-height:1.65;
      -webkit-font-smoothing:antialiased;overflow-x:hidden}
-a{color:var(--said-ink)}
-img,svg{max-width:100%}
+a{color:var(--link)}
 b,strong{color:var(--ink);font-weight:600}
+.vh{position:absolute!important;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 
 /* ---------- Entwurfsband ---------- */
 .draft-band{background:var(--band-bg);color:var(--band-ink);font-family:var(--mono);font-size:12.5px;
   letter-spacing:.06em;text-align:center;padding:10px 16px;font-weight:600;display:flex;gap:12px;
   justify-content:center;align-items:center;flex-wrap:wrap}
-.draft-band button{font:inherit;font-weight:500;font-size:11.5px;background:transparent;color:inherit;
+.draft-band button{font:inherit;font-weight:500;font-size:12px;background:transparent;color:inherit;
   border:1px solid currentColor;padding:3px 10px;border-radius:999px;cursor:pointer}
-.draft-corner{position:fixed;right:10px;bottom:10px;z-index:60;font-family:var(--mono);font-size:10.5px;
-  background:var(--band-bg);color:var(--band-ink);padding:4px 8px;letter-spacing:.08em;pointer-events:none}
 
-/* ---------- Hero ---------- */
-.hero{position:relative;min-height:86svh;display:flex;align-items:center;justify-content:center;text-align:center}
-.hero-inner{max-width:860px;padding:72px 20px 56px}
-.home-pill{display:inline-block;font-family:var(--mono);font-size:12px;padding:7px 14px;border:1px solid var(--ring);
-  border-radius:999px;color:var(--ink-2);text-decoration:none;background:var(--surface)}
-.home-pill:hover{color:var(--ink);border-color:var(--accent)}
-.hero .home-pill{position:absolute;top:18px;left:16px}
-.eyebrow{font-family:var(--mono);font-size:11.5px;letter-spacing:.22em;text-transform:uppercase;color:var(--accent-ink);margin-bottom:20px}
-.hero h1{font-family:var(--serif);font-weight:700;font-size:clamp(34px,7vw,74px);line-height:1.05;color:var(--ink);letter-spacing:-.015em}
-.hero h1 .num{font-family:var(--serif);color:var(--said)}
-.hero-sub{margin:26px auto 0;max-width:640px;font-size:clamp(16px,2vw,19px)}
-.hero-meta{margin-top:30px;display:flex;gap:10px 22px;justify-content:center;flex-wrap:wrap;font-family:var(--mono);font-size:12.5px;color:var(--muted)}
-.hero-meta b{font-family:var(--mono)}
-.hero-scroll{margin-top:36px;font-family:var(--mono);font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted)}
-
-#loadnote{display:none;max-width:680px;margin:20px auto;padding:18px 20px;border:2px solid var(--accent);background:var(--accent-soft);color:var(--ink)}
+/* ---------- Kopf ---------- */
+.hero{max-width:860px;margin:0 auto;padding:64px 20px 26px;text-align:center}
+.eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:.2em;text-transform:uppercase;color:var(--accent-ink);margin-bottom:18px}
+.hero h1{font-family:var(--serif);font-weight:700;font-size:clamp(34px,7vw,70px);line-height:1.06;color:var(--ink);letter-spacing:-.015em}
+.hero-sub{margin:18px auto 0;max-width:640px;font-size:clamp(17px,2.1vw,20px);color:var(--ink)}
+.hero-meta{margin-top:22px;display:flex;gap:8px 20px;justify-content:center;flex-wrap:wrap;font-family:var(--mono);font-size:12.5px;color:var(--muted)}
+#loadnote{display:none;max-width:700px;margin:20px auto;padding:18px 20px;border:2px solid var(--accent);background:var(--surface);color:var(--ink)}
 #loadnote.on{display:block}
 #loadnote code{font-family:var(--mono);font-size:13px}
 
 /* ---------- Prosa ---------- */
-.prose{max-width:700px;margin:0 auto;padding:64px 20px}
-.prose.tight{padding:36px 20px}
-.prose h2{font-family:var(--serif);font-weight:700;font-size:clamp(25px,3.6vw,36px);line-height:1.18;color:var(--ink);margin-bottom:16px;letter-spacing:-.01em}
-.prose h3{font-family:var(--serif);font-size:20px;color:var(--ink);margin:26px 0 8px}
-.prose p{margin-bottom:15px}
-.prose .lede{font-size:19px;color:var(--ink)}
-.prose ul,.prose ol{margin:0 0 15px 22px}
-.prose li{margin-bottom:7px}
-.kicker{font-family:var(--mono);font-size:11.5px;letter-spacing:.22em;text-transform:uppercase;color:var(--accent-ink);margin-bottom:12px}
-span[data-v],b[data-v]{font-family:var(--mono);font-weight:600;color:var(--ink);font-size:.93em;font-variant-numeric:tabular-nums}
-.hero h1 span[data-v]{font-family:var(--serif);font-size:1em;color:var(--said)}
+.prose{max-width:720px;margin:0 auto;padding:40px 20px}
+.prose h2{font-family:var(--serif);font-weight:700;font-size:clamp(25px,3.6vw,34px);line-height:1.18;color:var(--ink);margin-bottom:14px;letter-spacing:-.01em}
+.prose h3{font-family:var(--serif);font-size:20px;line-height:1.3;color:var(--ink);margin:24px 0 8px}
+.prose p{margin-bottom:14px}
+.kicker{font-family:var(--mono);font-size:12px;letter-spacing:.2em;text-transform:uppercase;color:var(--accent-ink);margin-bottom:10px}
+.vorspann p.cl{font-size:18.5px;line-height:1.6;color:var(--ink)}
+.hint{font-family:var(--mono);font-size:12.5px;color:var(--muted);margin:6px 0 14px}
 
-/* ---------- Chips und Abzeichen ---------- */
-.cm{display:inline-flex;gap:3px;align-items:center;vertical-align:2px;margin-left:3px;white-space:nowrap}
-a.qc{font-family:var(--mono);font-size:10px;font-weight:600;line-height:1;padding:3px 4px;border:1px solid var(--ring);
-  color:var(--said-ink);text-decoration:none;background:var(--surface)}
-a.qc:hover,a.qc:focus-visible{border-color:var(--said)}
-.bd{font-family:var(--mono);font-size:10px;font-weight:600;line-height:1;padding:3px 5px;letter-spacing:.02em}
-.bd-A{background:var(--cA-bg);color:var(--cA-ink)}
-.bd-B{background:var(--cB-bg);color:var(--cB-ink)}
-.bd-C{background:var(--cC-bg);color:var(--cC-ink)}
-.bd-M{background:var(--cM-bg);color:var(--cM-ink)}
-.bd-X{background:var(--surface-2);color:var(--muted)}
-.hero .cm{vertical-align:1px}
+/* ---------- Aussagen, Zahlen, Abzeichen ---------- */
+p.cl{margin-bottom:12px}
+.vb{color:var(--ink-2);font-style:italic}
+.z{font-family:var(--mono);font-weight:600;font-size:.94em;color:var(--ink);font-variant-numeric:tabular-nums;
+   cursor:pointer;border-bottom:1px dotted var(--axis)}
+.z:hover,.z:focus-visible{border-bottom-color:var(--ink);outline:none;background:var(--surface-2)}
+.bp{display:inline-flex;gap:3px;vertical-align:1px;margin:0 2px 0 4px;white-space:nowrap}
+.bx{font-family:var(--mono);font-size:11px;font-weight:600;line-height:1.2;padding:1px 5px;border-radius:3px;letter-spacing:.01em}
+.bx.zit{background:transparent;color:var(--ink-2);border:1px solid var(--axis)}
+.bx.zit.no{border-style:dashed;color:var(--muted)}
+.bx.w-B{background:var(--w-b-bg);color:var(--w-b-ink)}
+.bx.w-C{background:var(--w-c-bg);color:var(--w-c-ink)}
+.bx.w-Beh{background:var(--w-beh-bg);color:var(--w-beh-ink);border:1px solid currentColor}
+.bx.w-ER,.bx.w-S{background:var(--w-eig-bg);color:var(--w-eig-ink)}
+.bx.w-A{background:var(--surface-2);color:var(--ink)}
+.st{font-family:var(--mono);font-size:11px;font-weight:600;padding:1px 5px;border:1px solid var(--axis);border-radius:3px;
+    color:var(--ink-2);margin-left:4px;white-space:nowrap;vertical-align:1px}
+.st.np{border-style:dashed}
+.srcline{display:block;font-family:var(--mono);font-size:12px;color:var(--muted);margin-top:3px;line-height:1.5}
+.srcline a.qc{color:var(--link);text-decoration:none;border:1px solid var(--ring);padding:0 4px;margin-right:3px;font-weight:600}
+.srcline a.qc:hover{border-color:var(--link)}
+a.gl{color:inherit;text-decoration:none;border-bottom:1px dashed var(--accent)}
+a.gl:hover,a.gl:focus-visible{color:var(--ink)}
 
-/* ---------- Scrolly ---------- */
-.scrolly{position:relative}
-.graphic{position:sticky;top:0;height:100svh;display:flex;align-items:center;justify-content:center;padding:12px 10px}
-.fig{width:100%;max-width:1000px;display:flex;flex-direction:column}
-.fig-title{padding:0 2px 8px}
-.fig-title .t{font-family:var(--serif);font-weight:700;font-size:clamp(15px,1.9vw,20px);color:var(--ink);line-height:1.25}
-.fig-title .s{font-family:var(--mono);font-size:11.5px;color:var(--muted);margin-top:3px}
-.fig svg{display:block;width:100%;height:auto;background:var(--surface);border:1px solid var(--ring)}
-.steps{position:relative;z-index:5;padding-bottom:6vh}
-.step{min-height:86svh;display:flex;align-items:center;justify-content:center;padding:4vh 0}
-.step-card{width:min(440px,92vw);background:var(--card);border:1px solid var(--ring);border-top:3px solid var(--accent);
-  padding:18px 20px;opacity:.45;transform:translateY(8px);transition:opacity .4s ease,transform .4s ease;
-  box-shadow:0 14px 40px rgba(15,30,46,.10)}
-.step.is-active .step-card{opacity:1;transform:none}
-.step-card .n{display:block;font-family:var(--mono);font-size:10.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--accent-ink);margin-bottom:6px}
-.step-card h3{font-family:var(--serif);font-size:20px;line-height:1.25;color:var(--ink);margin-bottom:8px}
-.step-card p{font-size:15px;line-height:1.6}
-.step-card p+p{margin-top:9px}
-.step-card blockquote,.prose blockquote{border-left:3px solid var(--said);padding:2px 0 2px 12px;margin:8px 0;color:var(--ink);font-size:15px}
+/* Popover zu einer Zahl */
+#pop{position:absolute;z-index:80;max-width:min(380px,calc(100vw - 24px));background:var(--surface);color:var(--ink-2);
+  border:1px solid var(--axis);box-shadow:0 10px 30px rgba(0,0,0,.18);padding:12px 14px;font-size:13.5px;line-height:1.5;display:none}
+#pop.on{display:block}
+#pop .pv{font-family:var(--mono);font-weight:700;color:var(--ink);font-size:15px;margin-bottom:6px}
+#pop dl{display:grid;grid-template-columns:auto 1fr;gap:3px 10px}
+#pop dt{font-family:var(--mono);font-size:11.5px;color:var(--muted);padding-top:1px}
+#pop dd{word-break:break-word}
+#pop button{position:absolute;top:6px;right:8px;font:inherit;font-size:16px;background:none;border:none;color:var(--muted);cursor:pointer}
+
+/* ---------- Legende ---------- */
+.legend{background:var(--surface);border:1px solid var(--ring);padding:16px 18px;margin:16px 0}
+.legend h3{margin-top:0}
+.legend dl{display:grid;grid-template-columns:minmax(120px,auto) 1fr;gap:6px 14px;font-size:14.5px;align-items:baseline}
+.legend dt{white-space:nowrap}
+@media (max-width:520px){.legend dl{grid-template-columns:1fr}.legend dt{margin-top:6px}}
+.swl{display:flex;flex-wrap:wrap;gap:8px 16px;font-size:14px;margin-top:8px}
+.swl span{display:inline-flex;align-items:center;gap:6px}
+.sw{display:inline-block;width:22px;height:12px;border-radius:2px}
+
+/* ---------- Akte ---------- */
+.akt-head{max-width:720px;margin:0 auto;padding:56px 20px 6px}
+.akt-head h2{font-family:var(--serif);font-weight:700;font-size:clamp(25px,3.6vw,34px);line-height:1.2;color:var(--ink)}
+.scrolly{position:relative;max-width:1320px;margin:0 auto;padding:0 16px}
+.panel{display:none}
+.step{padding:14px 0 22px}
+.card{background:var(--surface);border:1px solid var(--ring);border-top:3px solid var(--accent);padding:16px 18px}
+.card .n{display:block;font-family:var(--mono);font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--accent-ink);margin-bottom:4px}
+.card h3{font-family:var(--serif);font-size:20px;line-height:1.28;color:var(--ink);margin-bottom:8px}
+.card p.cl{font-size:15.5px;line-height:1.62}
+figure.sf{margin:0 0 10px;background:var(--surface);border:1px solid var(--ring)}
+figure.sf figcaption{padding:10px 12px 4px}
+figure.sf .ft{font-family:var(--serif);font-weight:700;font-size:17px;line-height:1.3;color:var(--ink)}
+figure.sf .fs{font-family:var(--mono);font-size:12px;color:var(--muted);margin-top:2px}
+figure.sf svg{display:block;max-width:none}
+figure.sf .figbody{padding:4px 0 8px}
+.tog{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.tog button{font-family:var(--mono);font-size:12.5px;padding:5px 10px;border:1px solid var(--axis);background:var(--surface);color:var(--ink-2);cursor:pointer;border-radius:999px}
+.tog button[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+details.twin{margin-top:10px;border-top:1px dashed var(--axis);padding-top:8px}
+details.twin summary{cursor:pointer;font-family:var(--mono);font-size:12.5px;color:var(--link)}
+details.twin .tw{overflow-x:auto;margin-top:8px}
+details.twin table{border-collapse:collapse;font-size:13px;width:100%}
+details.twin th{text-align:left;font-family:var(--mono);font-size:11.5px;font-weight:500;color:var(--muted);border-bottom:1px solid var(--axis);padding:4px 6px;vertical-align:bottom}
+details.twin td{padding:5px 6px;border-bottom:1px solid var(--grid);vertical-align:top}
+details.twin td.v{font-family:var(--mono);white-space:nowrap}
+@media (max-width:600px){
+  details.twin table,details.twin tbody,details.twin tr,details.twin td{display:block;width:100%}
+  details.twin thead{display:none}
+  details.twin tr{border-bottom:1px solid var(--grid);padding:6px 0}
+  details.twin td{border:none;padding:1px 0}
+  details.twin td[data-h]::before{content:attr(data-h) ": ";font-family:var(--mono);font-size:11.5px;color:var(--muted)}
+}
+/* HTML-Grafiken (Text-Szenen) */
+.hfig{padding:6px 12px 12px;display:grid;gap:10px}
+.hfig .box{border:1px solid var(--ring);padding:10px 12px;background:var(--surface)}
+.hfig .box h4{font-family:var(--sans);font-size:14.5px;font-weight:600;color:var(--ink);margin-bottom:4px}
+.hfig .box p{font-size:14px;line-height:1.55}
+.hfig.cols2{grid-template-columns:1fr}
+.hfig .gtop{height:6px;margin:-10px -12px 8px}
+.hfig .dir{font-family:var(--mono);font-size:14px;font-weight:700;color:var(--ink);margin-bottom:2px}
+@media (min-width:640px){.hfig.cols2{grid-template-columns:1fr 1fr}}
+
 @media (min-width:1020px){
-  .scrolly{display:grid;grid-template-columns:minmax(340px,420px) minmax(0,1fr);column-gap:8px}
-  .graphic{grid-area:1/2;height:100vh;padding:20px 24px 20px 8px}
-  .steps{grid-area:1/1;padding-left:clamp(12px,2.5vw,36px)}
-  .step{min-height:84vh;justify-content:flex-start}
+  .scrolly{display:grid;grid-template-columns:minmax(360px,430px) minmax(0,1fr);column-gap:28px}
+  .steps{grid-column:1}
+  .panel{display:block;grid-column:2;grid-row:1;position:sticky;top:0;height:100vh}
+  .panel .dslot{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+                opacity:0;visibility:hidden;transition:opacity .35s ease}
+  .panel .dslot.on{opacity:1;visibility:visible}
+  .panel figure.sf{width:100%}
+  .step{min-height:92vh;display:flex;align-items:center;padding:24px 0}
+  .step .card{width:100%}
+  .step .mslot{display:none}
+  .step.is-active .card{border-top-color:var(--ink)}
 }
 @media (max-width:1019px){
-  .graphic{height:auto;max-height:64svh;align-items:flex-start;padding:6px 6px 6px;background:var(--bg);
-           z-index:6;border-bottom:1px solid var(--ring)}
-  .steps{z-index:1;padding-top:14px}
-  .step{min-height:70svh;align-items:flex-start}
+  .step .mslot{display:block}
 }
 
-/* Szenen in den Grafiken */
-.fig .sc{opacity:0;transition:opacity .55s ease;pointer-events:none}
-.fig[data-step="0"] .sc-0,.fig[data-step="1"] .sc-1,.fig[data-step="2"] .sc-2,.fig[data-step="3"] .sc-3{opacity:1;pointer-events:auto}
-.grow{transform:scaleX(0);transform-box:fill-box;transform-origin:left;transition:transform .8s cubic-bezier(.2,.7,.3,1)}
-.fig[data-step="0"] .sc-0 .grow,.fig[data-step="1"] .sc-1 .grow,.fig[data-step="2"] .sc-2 .grow,.fig[data-step="3"] .sc-3 .grow{transform:scaleX(1)}
+/* SVG-Grundstile: Schriftgrößen in Bildpunkten, Grafiken werden nie skaliert */
+svg text{font-family:var(--sans);font-size:13px;fill:var(--ink-2)}
+svg text.t-lab{font-family:var(--sans);font-size:13px;font-weight:400;fill:var(--ink-2)}
+svg text.t-labb{font-family:var(--sans);font-size:13px;font-weight:600;fill:var(--ink)}
+svg text.t-txt{font-family:var(--sans);font-size:14px;font-weight:400;fill:var(--ink-2)}
+svg text.t-num{font-family:var(--mono);font-size:13px;font-weight:600;fill:var(--ink)}
+svg text.t-sm{font-family:var(--mono);font-size:12px;font-weight:400;fill:var(--muted)}
+svg text.t-hd{font-family:var(--serif);font-size:15px;font-weight:700;fill:var(--ink)}
+svg text.t-big{font-family:var(--serif);font-size:24px;font-weight:700;fill:var(--ink)}
+svg text.t-mono{font-family:var(--mono);font-size:14px;font-weight:600;fill:var(--ink)}
+svg text.c-r21{fill:var(--c-r21)} svg text.c-g3a{fill:var(--c-g3a)} svg text.c-g3b{fill:var(--c-g3b)}
+svg text.c-unr{fill:var(--unread)} svg text.c-eigen{fill:var(--c-eigen)} svg text.c-inv{fill:var(--surface)}
+.k-card{fill:var(--surface);stroke:var(--axis);stroke-width:1}
+.k-card.r21{stroke:var(--c-r21);stroke-width:2}
+.k-card.unr{fill:var(--unread-soft);stroke:var(--unread);stroke-dasharray:5 4;stroke-width:1.5}
+.k-axis{stroke:var(--axis);stroke-width:1} .k-grid{stroke:var(--grid);stroke-width:1}
+.k-ink{stroke:var(--ink-2);stroke-width:1.5;fill:none}
+.f-r21{fill:var(--c-r21)} .s-r21{stroke:var(--c-r21)}
+.f-g1{fill:var(--c-g1)} .f-g2{fill:var(--c-g2)} .f-g3b{fill:var(--c-g3b)} .f-g3a{fill:var(--c-g3a)}
+.f-eigen{fill:var(--c-eigen)} .s-eigen{stroke:var(--c-eigen)}
+.h-g3a{fill:var(--surface);stroke:var(--c-g3a);stroke-width:2.5}
+.f-unr{fill:var(--unread-soft);stroke:var(--unread);stroke-dasharray:4 3;stroke-width:1.5}
+.f-band{fill:var(--band-soft)}
+.f-ink{fill:var(--ink)} .f-mid{fill:var(--muted)} .f-surf{fill:var(--surface)}
+.f-zuw{fill:var(--surface);stroke:var(--muted);stroke-width:2;stroke-dasharray:3 2}
 
-/* SVG-Grundstile */
-svg text{font-family:var(--mono);font-size:13px;fill:var(--ink-2)}
-svg text.sm{font-size:12px;fill:var(--muted)}
-svg text.b{font-weight:600;fill:var(--ink)}
-svg text.hl{font-family:var(--serif);font-size:19px;font-weight:700;fill:var(--ink)}
-svg text.said{fill:var(--said-ink)}
-svg text.acc{fill:var(--accent-ink)}
-svg text.unr{fill:var(--unread)}
-svg tspan.mark{fill:var(--accent-ink);font-weight:700;text-decoration:underline}
-svg tspan.markb{fill:var(--said-ink);font-weight:700}
-.card{fill:var(--surface);stroke:var(--axis);stroke-width:1}
-.card.said{stroke:var(--said);stroke-width:2}
-.card.acc{stroke:var(--accent);stroke-width:2}
-.card.unr{fill:var(--unread-soft);stroke:var(--unread);stroke-dasharray:5 4}
-.f-said{fill:var(--said)} .f-said-soft{fill:var(--said-soft)}
-.f-acc{fill:var(--accent)} .f-acc-soft{fill:var(--accent-soft)}
-.f-unr{fill:var(--unread-soft);stroke:var(--unread);stroke-dasharray:4 3}
-.f-neutral{fill:var(--ink-2)} .f-grid{fill:var(--grid)}
-.s-axis{stroke:var(--axis)} .s-grid{stroke:var(--grid)} .s-acc{stroke:var(--accent)} .s-said{stroke:var(--said)} .s-ink{stroke:var(--ink-2)}
-.s-unr{stroke:var(--unread)}
-.card.bare{fill:none;stroke:none}
-.bdg{fill:var(--surface-2);stroke:var(--axis)}
-.bdg.unr{fill:var(--unread-soft);stroke:var(--unread);stroke-dasharray:4 3}
-.bdg.acc{fill:var(--accent-soft);stroke:var(--accent)}
-.bdg.c{fill:var(--cC-bg);stroke:none} .bdg.m{fill:var(--cM-bg);stroke:none}
-svg text.bdg-t{fill:var(--ink);font-weight:600}
-svg text.inbar{fill:var(--surface)}
+/* ---------- Kacheln und Kästen ---------- */
+.kacheln{max-width:1100px;margin:0 auto;padding:0 16px 20px;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:14px}
+.kachel{background:var(--surface);border:1px solid var(--ring);border-top:3px solid var(--c-r21);padding:14px 16px;scroll-margin-top:20px}
+.kachel h3{font-family:var(--serif);font-size:18px;line-height:1.3;color:var(--ink);margin-bottom:6px}
+.kachel p{font-size:15px;line-height:1.58}
+.kasten{background:var(--surface);border:1px solid var(--ring);border-left:4px solid var(--accent);padding:16px 18px;margin:16px 0;scroll-margin-top:20px}
+.kasten .kk{font-family:var(--mono);font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--accent-ink);margin-bottom:6px}
+.kasten h3{font-family:var(--serif);font-size:20px;line-height:1.28;color:var(--ink);margin:0 0 8px}
+.kasten p{font-size:15.5px;line-height:1.6}
+a.more{display:inline-block;margin-top:8px;font-family:var(--mono);font-size:13px}
 
-/* ---------- Kästen ---------- */
-.kasten{width:min(700px,calc(100vw - 32px));margin:26px auto;padding:18px 22px;background:var(--surface);
-  border:1px solid var(--ring);border-left:4px solid var(--said)}
-.kasten.gp{border-left-color:var(--accent)}
-.kasten.grau{border-left-color:var(--unread);background:var(--unread-soft)}
-.kasten-kicker{font-family:var(--mono);font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--said-ink);margin-bottom:8px}
-.kasten.gp .kasten-kicker{color:var(--accent-ink)}
-.kasten h3{font-family:var(--serif);font-size:20px;line-height:1.25;color:var(--ink);margin-bottom:8px}
-.kasten p{font-size:15px;line-height:1.62}
-.kasten p+p{margin-top:9px}
-.kasten .limit{border-top:1px dashed var(--axis);padding-top:9px}
-.kasten-quelle{font-family:var(--mono);font-size:11px;color:var(--muted);margin-top:10px}
-.kasten dl{display:grid;grid-template-columns:minmax(110px,170px) 1fr;gap:4px 14px;font-size:14.5px}
-.kasten dt{font-family:var(--mono);font-size:11.5px;color:var(--muted);padding-top:2px}
-.kasten dd{color:var(--ink-2)}
-@media (max-width:560px){.kasten dl{grid-template-columns:1fr}.kasten dt{padding-top:6px}}
+/* Tabelle der eigenen Korrekturen */
+.ktab{width:100%;border-collapse:collapse;font-size:14px;margin:10px 0}
+.ktab th{text-align:left;font-family:var(--mono);font-size:11.5px;font-weight:500;color:var(--muted);border-bottom:1px solid var(--axis);padding:5px 6px}
+.ktab td{padding:6px;border-bottom:1px solid var(--grid);vertical-align:top}
+.ktab td.r{font-family:var(--mono);font-size:12px;white-space:nowrap}
+@media (max-width:600px){
+  .ktab,.ktab tbody,.ktab tr,.ktab td{display:block;width:100%}
+  .ktab thead{display:none}
+  .ktab tr{border-bottom:1px solid var(--grid);padding:6px 0}
+  .ktab td{border:none;padding:1px 0}
+  .ktab td.r{white-space:normal}
+  .ktab td[data-h]::before{content:attr(data-h) ": ";font-family:var(--mono);font-size:11.5px;color:var(--muted)}
+}
+.bilanz{display:flex;flex-wrap:wrap;gap:6px 14px;font-family:var(--mono);font-size:13px;margin:8px 0}
+.bilanz span b{font-family:var(--mono)}
 
-.fig-src{max-width:1000px;margin:0 auto;padding:8px 20px 6px;font-family:var(--mono);font-size:11.5px;color:var(--muted)}
-.fig-src .cm{margin-right:6px}
+/* Glossar */
+details.gloss{background:var(--surface);border:1px solid var(--ring);margin:8px 0;scroll-margin-top:20px}
+details.gloss>summary{cursor:pointer;font-weight:600;color:var(--ink);padding:11px 14px}
+.gloss-body{padding:0 14px 12px;font-size:15px}
+a.gl-back{display:inline-block;margin-top:6px;font-family:var(--mono);font-size:12.5px}
 
-/* ---------- Tabellen-Zwilling ---------- */
-details.tbl{max-width:1000px;margin:8px auto 24px;padding:0 20px}
-details.tbl summary{cursor:pointer;font-family:var(--mono);font-size:12.5px;color:var(--said-ink)}
-details.tbl .scroll{overflow-x:auto;-webkit-overflow-scrolling:touch;margin-top:10px}
-details.tbl table{border-collapse:collapse;font-size:13px;width:100%;min-width:720px}
-details.tbl caption{text-align:left;font-family:var(--serif);font-weight:700;color:var(--ink);padding:10px 0 6px;font-size:16px}
-details.tbl th{text-align:left;font-family:var(--mono);font-size:11px;font-weight:500;color:var(--muted);border-bottom:1px solid var(--axis);padding:6px 8px;vertical-align:bottom}
-details.tbl td{padding:6px 8px;border-bottom:1px solid var(--grid);vertical-align:top}
-details.tbl td.num{font-family:var(--mono);font-size:12.5px;white-space:nowrap}
-details.tbl table.grau td{color:var(--muted);background:var(--unread-soft)}
-details.tbl tr.r21 td{background:var(--said-soft)}
-
-/* ---------- Grenzen ---------- */
-.limits{max-width:1000px;margin:0 auto;padding:0 20px 40px;display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px}
-.limit-card{background:var(--surface);border:1px solid var(--ring);padding:16px 18px}
-.limit-card h4{font-family:var(--serif);font-size:16.5px;color:var(--ink);margin-bottom:6px;line-height:1.3}
-.limit-card p{font-size:14px;line-height:1.55}
-
-/* ---------- Glossar ---------- */
-details.gloss{background:var(--surface);border:1px solid var(--ring);margin:10px 0;scroll-margin-top:20px}
-details.gloss>summary{cursor:pointer;list-style:none;font-weight:600;color:var(--ink);padding:13px 16px}
-details.gloss>summary::-webkit-details-marker{display:none}
-details.gloss>summary::before{content:"▸ ";font-family:var(--mono);color:var(--accent-ink)}
-details.gloss[open]>summary::before{content:"▾ "}
-.gloss-body{padding:0 16px 14px;font-size:15px}
-.gloss-body p+p{margin-top:8px}
-a.gl{color:inherit;text-decoration:none;border-bottom:1px dotted var(--muted)}
-a.gl:hover,a.gl:focus-visible{color:var(--ink);border-bottom-color:var(--ink)}
-a.gl-back{display:inline-block;margin-top:10px;font-family:var(--mono);font-size:12px;color:var(--said-ink)}
-a.gl-back.is-idle{opacity:.6}
-
-/* ---------- Quellen ---------- */
-.srclist{max-width:900px;margin:0 auto;padding:0 20px 30px;font-size:14px}
-.srcrow{display:grid;grid-template-columns:48px 1fr;gap:10px;padding:10px 0;border-bottom:1px solid var(--grid);scroll-margin-top:24px}
-.srcrow:target{background:var(--said-soft)}
-.srcrow .nr{font-family:var(--mono);color:var(--said-ink);font-size:12.5px;font-weight:600}
+/* Prozess-Tabelle und Quellen */
+.ptab{border-collapse:collapse;font-size:14px;width:100%;margin:10px 0}
+.ptab th{text-align:left;font-family:var(--mono);font-size:11.5px;font-weight:500;color:var(--muted);border-bottom:1px solid var(--axis);padding:5px 6px;vertical-align:bottom}
+.ptab td{padding:5px 6px;border-bottom:1px solid var(--grid)}
+.ptab td.v{font-family:var(--mono);text-align:right;white-space:nowrap}
+.srclist{font-size:14px}
+.srcrow{display:grid;grid-template-columns:44px 1fr;gap:8px;padding:9px 0;border-bottom:1px solid var(--grid);scroll-margin-top:20px}
+.srcrow:target{background:var(--c-r21-soft)}
+.srcrow .nr{font-family:var(--mono);font-weight:600;color:var(--link);font-size:12.5px}
 .srcrow .ti{color:var(--ink);font-weight:500}
-.srcrow .me{font-family:var(--mono);font-size:11.5px;color:var(--muted);word-break:break-word}
+.srcrow .me{font-family:var(--mono);font-size:12px;color:var(--muted);word-break:break-word}
 .srcrow a{word-break:break-all}
-.srcrow .unread{color:var(--accent-ink)}
-
-.entstanden{border-left-color:var(--accent)}
-.entstanden ol{margin:6px 0 10px 20px;font-size:15px}
-.entstanden li{margin-bottom:5px}
-
-.series{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:10px;margin-top:10px}
-.series div{border:1px solid var(--ring);background:var(--surface);padding:10px 12px;font-size:14px}
-.series div b{display:block;font-family:var(--serif)}
+.series{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:8px;margin-top:10px}
+.series div{border:1px solid var(--ring);background:var(--surface);padding:9px 11px;font-size:14px}
 .series div.now{border-color:var(--accent)}
-
-.cta{display:inline-block;margin-top:6px;font-family:var(--mono);font-size:13px;padding:9px 14px;border:1px solid var(--said);color:var(--said-ink);text-decoration:none;background:var(--surface)}
-.cta:hover{background:var(--said-soft)}
-.anm{font-size:13.5px;color:var(--muted)}
-
-footer{border-top:1px solid var(--grid);padding:34px 20px 54px;text-align:center;font-family:var(--mono);font-size:12px;color:var(--muted);line-height:2}
+.cta{display:inline-block;margin-top:4px;font-family:var(--mono);font-size:13.5px;padding:9px 14px;border:1px solid var(--link);text-decoration:none;background:var(--surface)}
+footer{border-top:1px solid var(--grid);padding:30px 20px 50px;text-align:center;font-family:var(--mono);font-size:12.5px;color:var(--muted);line-height:2}
 footer a{color:var(--ink-2)}
-
-@media (prefers-reduced-motion:reduce){
-  *{animation:none!important;transition:none!important}
-  html{scroll-behavior:auto}
-  .grow{transform:none!important}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}html{scroll-behavior:auto}}
+@media print{
+  .draft-band button,#pop{display:none!important}
+  .panel{display:none!important}
+  .step .mslot{display:block!important}
 }
 </style>
 </head>
@@ -286,1794 +307,138 @@ footer a{color:var(--ink-2)}
   <span>Entwurf · noch nicht veröffentlicht · Reviews stehen aus</span>
   <button type="button" id="theme-btn" aria-label="Farbschema wechseln">Hell / Dunkel</button>
 </div>
-<div class="draft-corner" aria-hidden="true">Entwurf</div>
 
-<!-- ================= HERO ================= -->
+<noscript>
+  <div style="max-width:700px;margin:24px auto;padding:16px 20px;border:2px solid #C25A2D">
+    Diese Seite setzt alle Texte und Zahlen beim Laden aus dem Datensatz
+    <code>energiewende/data/teil1_data.json</code> zusammen und braucht dafür JavaScript.
+    Die Freigabeliste mit allen Aussagen steht unter
+    <a href="https://github.com/Losveratos/PowerBI-Kitchen-/blob/main/energiewende/docs/03_teil1_freigabe.md">energiewende/docs/03_teil1_freigabe.md</a>.
+  </div>
+</noscript>
+
 <header class="hero">
-  <a class="home-pill" href="index.html">← Daten-WG Knowledge Kitchen</a>
-  <div class="hero-inner">
-    <div class="eyebrow">Energiewende-Reihe · Teil 1 · Scroll-Story</div>
-    <h1>Die <span data-v="r21_kosten_zitat" data-k="max" data-u="" data-c="0"></span> Billionen</h1>
-    <p class="hero-sub">Eine Schlagzeile sagt, Deutschland werde die Energiewende „nicht überleben“.
-      Sie stützt sich auf ein Papier, das eine Zahl nennt:
-      <span data-v="r21_kosten_zitat" data-u="Billionen Euro"></span>.
-      Wir sind dieser Zahl zu ihrer Quelle gefolgt. Und zur Quelle der Quelle.</p>
-    <div class="hero-meta">
-      <span><b data-v="@counts" data-k="summe" data-u="" data-c="0"></b> Aussagen einzeln geprüft</span>
-      <span><b data-v="@counts" data-k="bestätigt" data-u="" data-c="0"></b> bestätigt</span>
-      <span><b data-v="@counts" data-k="korrigiert" data-u="" data-c="0"></b> korrigiert</span>
-      <span><b data-v="@counts" data-k="nicht prüfbar" data-u=""></b> nicht prüfbar</span>
-    </div>
-    <div class="hero-scroll">▼ scrollen · etwa zehn Minuten</div>
+  <div class="eyebrow">Energiewende-Reihe · Teil 1 · Scroll-Story</div>
+  <h1 id="titel"></h1>
+  <p class="hero-sub" id="untertitel"></p>
+  <div class="hero-meta">
+    <span id="lesezeit"></span>
+    <span id="stand"></span>
   </div>
 </header>
 
 <div id="loadnote" role="alert"></div>
+<div id="live" class="vh" aria-live="polite"></div>
 
-<!-- ================= PROLOG ================= -->
-<section class="prose">
-  <div class="kicker">Prolog</div>
-  <h2>Prüfbar ist, was eine Summe misst</h2>
-  <p class="lede">Ob eine Volkswirtschaft eine Summe „überlebt“, ist keine prüfbare Aussage. Prüfbar ist,
-    was die Summe misst. Darum geht es in diesem ersten Teil: um eine einzige Zahl, ihre Herkunft und ihre Bedeutung.</p>
-  <p>Wir erzählen in fünf Akten. Erst, was im Papier steht. Dann, was in seiner Quelle steht.
-    Dann, was hinter dieser Quelle steht und was wir davon nicht lesen konnten. Dann, warum Kostenstudien
-    drei sehr verschiedene Dinge messen. Und am Ende, was der Vergleichspfad kostet und wo das Papier recht hat.</p>
-  <p>Teil 1 rechnet nicht selbst. Er liest. Die eigene Gesamtrechnung folgt in Teil 6 der Reihe.</p>
+<main id="main">
+  <section class="prose vorspann" id="vorspann" aria-labelledby="h-vorspann">
+    <div class="kicker">Vorspann</div>
+    <h2 id="h-vorspann">Der Befund</h2>
+    <div id="vorspann-body"></div>
+  </section>
 
-  <aside class="kasten">
-    <div class="kasten-kicker">Was wir voraussetzen</div>
-    <p>Der Klimawandel ist real und menschengemacht; der Ausstoß von CO₂ soll sinken. Energie ist eine
-      Hauptressource jeder Volkswirtschaft. Bezahlbarkeit und Versorgungssicherheit sind gleichrangige Ziele,
-      keine Nebenbedingungen.</p>
-    <p>Die Reihe rechnet einen Hauptpfad aus Erneuerbaren und Speichern gegen die Alternativen.
-      Das Ergebnis darf gegen diesen Hauptpfad ausfallen. Wer diese Voraussetzungen nicht teilt, soll das vor der ersten Zahl wissen.</p>
-  </aside>
-
-  <aside class="kasten">
-    <div class="kasten-kicker">So lesen Sie die Zahlen</div>
-    <p>Keine Zahl auf dieser Seite ist von Hand eingetippt. Alle kommen beim Laden aus unserem
-      freigegebenen Datensatz. Hinter jeder Zahl steht ein Quellen-Kürzel wie
-      <a class="qc" href="#quellen">Q</a>: Ein Klick springt in die Quellenliste.
-      Daneben steht ein Abzeichen:</p>
-    <p><span class="bd bd-A">A</span> mehrere unabhängige Quellen stimmen überein ·
-       <span class="bd bd-B">B</span> eine Quelle, plausibel ·
-       <span class="bd bd-C">C</span> kursiert, Original nicht geprüft ·
-       <span class="bd bd-M">Setzung (M)</span> unsere eigene Annahme oder Rechnung.</p>
-    <p>„gelesen“ heißt: Wir haben die Stelle im Originaldokument selbst gelesen. „nicht gelesen“ heißt: nicht.
-      Steht „korrigiert“ dabei, war ein früher Wert falsch; hier steht nur der neue.
-      „nicht prüfbar“ heißt: Das Original liegt uns nicht vor.</p>
-  </aside>
-</section>
-
-<!-- ================= AKT 1 ================= -->
-<section class="scrolly" data-act="1">
-  <div class="graphic">
-    <div class="fig" id="act1" data-step="-1">
-      <div class="fig-title">
-        <div class="t">Akt 1 · Der Satz</div>
-        <div class="s">Schlagzeile und R21-Erklärung · am Original gelesen, außer der Zeitungsartikel</div>
-      </div>
-      <svg id="svg1" role="img" aria-labelledby="svg1-title"><title id="svg1-title">Akt 1: Schlagzeile, die zwei Fassungen des Satzes im Papier, die Umrechnung in Jahres-Wirtschaftsleistung und die Zählung der Quellen im Haupttext</title></svg>
+  <section class="prose" id="lesehilfe" aria-labelledby="h-lesehilfe">
+    <div class="kicker">Lesehilfe</div>
+    <h2 id="h-lesehilfe">So lesen Sie die Zahlen</h2>
+    <div class="legend" id="legende">
+      <h3 id="legende-titel"></h3>
+      <dl>
+        <dt><span class="bx zit">Zitat geprüft</span></dt>
+        <dd>Die Zahl steht so im genannten Dokument an der genannten Stelle; wir haben sie dort gelesen
+          (bei Statistik: aus der Datei nachgerechnet). Das sagt nichts darüber, ob die Zahl stimmt.</dd>
+        <dt><span class="bx w-B">Wert: B</span> <span class="bx w-C">Wert: C</span></dt>
+        <dd>Wie gut der Wert selbst belegt ist: B aus einer Quelle, plausibel, nicht gegengeprüft;
+          C kursiert, Original nicht gelesen oder nur aus zweiter Hand. Stufe A (mehrere unabhängige Quellen) kommt hier nicht vor.</dd>
+        <dt><span class="bx w-Beh">Wert: Behauptung</span></dt>
+        <dd>Das Dokument nennt die Zahl ohne nachprüfbaren Beleg, oder der genannte Beleg trägt sie nicht.</dd>
+        <dt><span class="bx w-ER">Wert: eigene Rechnung</span> <span class="bx w-S">Wert: Setzung (M)</span></dt>
+        <dd>Von uns aus belegten Werten errechnet, Rechenweg offen; oder eine eigene Annahme.</dd>
+      </dl>
+      <p class="hint">Tippen oder klicken Sie auf eine Zahl: Dann erscheinen Quelle, Fundstelle, Abgrenzung und Rechenweg.
+        Die Kürzel Q1, Q2 … springen in die Quellenliste.</p>
+      <h3>Farben und Formen in den Grafiken</h3>
+      <div class="swl" id="farbcode"></div>
     </div>
-  </div>
-  <div class="steps">
-    <div class="step" data-idx="0"><div class="step-card">
-      <span class="n">Akt 1 / Schritt 1</span>
-      <h3>Eine Schlagzeile und ein Papier</h3>
-      <p>Am 20.11.2026 titelte BILD: „Deutschland wird Energiewende ‚nicht überleben‘“. Den Artikel selbst haben
-        wir nicht gelesen. Er steht hinter einer Bezahlschranke. Überschrift und Vorspann berufen sich auf ein Papier
-        der Denkfabrik R21.</p>
-      <p>Dieses Papier haben wir vollständig gelesen. Es heißt „Erklärung des Expertenrates Klima- und
-        Energiepolitik“, erschienen im November 2026. Es ist eine politische Erklärung mit Faktenblättern.
-        Ein Rechenmodell enthält es nicht.</p>
-    </div></div>
-    <div class="step" data-idx="1"><div class="step-card">
-      <span class="n">Akt 1 / Schritt 2</span>
-      <h3>Derselbe Satz, zwei Wörter</h3>
-      <p>Die Zahl steht zweimal im Papier. In der Zusammenfassung (Druckseite 3) beziffere der Wissenschaftliche
-        Dienst des Bundestags „die Kosten der Energiewende bis 2045“ auf
-        <span data-v="r21_kosten_zitat" data-u="Billionen Euro"></span>.
-        Diesen „Wertschöpfungsentzug“ werde die Wirtschaft „nicht überleben“.</p>
-      <p>In Kapitel 3 (Druckseite 12) heißt dieselbe Summe „Investitionskosten“. Einmal Kosten, einmal Investitionen.
-        Das ist nicht dasselbe. Warum, zeigt Akt 4.</p>
-    </div></div>
-    <div class="step" data-idx="2"><div class="step-card">
-      <span class="n">Akt 1 / Schritt 3</span>
-      <h3>Die Umrechnung stimmt</h3>
-      <p>R21 schreibt, das entspreche „dem Zwei- bis Dreifachen der jährlichen Wirtschaftsleistung“. Wir haben nachgerechnet,
-        mit dem Bruttoinlandsprodukt (<a class="gl" id="ref-bip1" href="#gl-bip">BIP</a>) von 2025: Es sind
-        <span data-v="r21_bip_vielfaches" data-u="Jahres-BIP" data-d="1"></span>. Die Rechnung geht auf.</p>
-      <p>Aber R21 nennt die Summe einen „Entzug von Wertschöpfung“, also reinen Verlust. Dass mit dem Geld auch etwas gebaut wird,
-        kommt nicht vor. Und das Papier zieht nicht ab, was ein anderes Energiesystem im selben Zeitraum kosten würde.</p>
-    </div></div>
-    <div class="step" data-idx="3"><div class="step-card">
-      <span class="n">Akt 1 / Schritt 4</span>
-      <h3>Eine Fußnote trägt die Zahl</h3>
-      <p>Wir haben alle Zahlen im Haupttext gezählt: <span data-v="r21_haupttext_zahlen" data-k="gesamt" data-u=""></span>.
-        Davon haben <span data-v="r21_haupttext_zahlen" data-k="mit_fundstelle" data-u="" data-c="0"></span> eine Fundstelle,
-        <span data-v="r21_haupttext_zahlen" data-k="nur_urheber" data-u="" data-c="0"></span> nennen nur einen Urheber,
-        <span data-v="r21_haupttext_zahlen" data-k="ohne_quelle" data-u="" data-c="0"></span> haben keine Quelle.</p>
-      <p>Für die Billionen-Zahl gibt es genau eine: Fußnote 5. Sie ist die einzige externe Fundstelle im ganzen Haupttext
-        und verweist auf eine Kurzinformation des Wissenschaftlichen Dienstes, Aktenzeichen WD 5 – 3000 – 135/24.
-        Dieser Fußnote folgen wir jetzt.</p>
-    </div></div>
-  </div>
-</section>
-<p class="fig-src" data-akt="1"></p>
+    <div id="lesehilfe-body"></div>
+    <p class="hint">Die Prämissen der Reihe stehen im
+      <a href="https://github.com/Losveratos/PowerBI-Kitchen-/blob/main/energiewende/README.md">README des Repositorys</a>.</p>
+  </section>
 
-<section class="prose tight">
-  <aside class="kasten" id="steckbrief">
-    <div class="kasten-kicker">Steckbrief · das Papier</div>
-    <dl>
-      <dt>Titel</dt><dd>Erklärung des Expertenrates Klima- und Energiepolitik</dd>
-      <dt>Herausgeber</dt><dd>REPUBLIK21 e.&nbsp;V. (Denkfabrik R21)</dd>
-      <dt>Erschienen</dt><dd>November 2026</dd>
-      <dt>Art</dt><dd>Erklärung mit Faktenblättern; kein Rechenmodell, keine eigene Kostenrechnung</dd>
-      <dt>Förderhinweis</dt><dd>Auf den Faktenblättern steht: „Gefördert durch das Presse- und Informationsamt der
-        Bundesregierung aufgrund eines Beschlusses des Deutschen Bundestages.“ Wir nennen das, wie wir bei jeder Studie
-        Auftraggeber und Geldgeber nennen.</dd>
-      <dt>Gelesen</dt><dd>vollständig, am Original</dd>
-    </dl>
-    <p class="kasten-quelle">Beleg: R21-Erklärung, Titelblatt und Fußzeilen der Faktenblätter (S02, S03)</p>
-  </aside>
+  <div id="akte"></div>
 
-  <aside class="kasten gp" id="gp6">
-    <div class="kasten-kicker">Gegenposition GP6 · Hier hat R21 recht</div>
-    <h3>Ein Kosten-Monitoring fehlt tatsächlich</h3>
-    <p>R21 schreibt, der Monitoring-Bericht der Bundesregierung enthalte zu den Kosten „nichts“. Die Bundesregierung
-      selbst legt keine Gesamtkostenzahl vor: Sie macht nach eigener Antwort an den Bundestag „keine eigenen Abschätzungen“
-      (Drucksache 21/903, S. 2). Auch die Kurzinformation des Wissenschaftlichen Dienstes hält fest, dass es keine eigene
-      Gesamtkostenrechnung der Regierung gibt (S. 1).</p>
-    <p>Der Bundesrechnungshof geht weiter. Mit Stromgestehungskosten ohne Netzkosten entstehe „außerhalb der
-      Fachöffentlichkeit ein falsches Bild der tatsächlichen Kosten der Transformation“ (Drucksache 20/10585, S. 9).
-      R21 greift also auf die einzige amtliche Fundstelle zurück, die es gibt.</p>
-    <p class="limit"><b>Einschränkung:</b> Dieselbe Antwort der Bundesregierung sagt auch, dass die großen
-      Investitionsstudien von Verbänden und Unternehmen „keine energiewendebedingten Zusatzkosten“ darstellen, weil
-      Ersatzinvestitionen enthalten und eingesparte fossile Energie nicht abgezogen ist.</p>
-    <p class="kasten-quelle">Beleg: WD 5 – 3000 – 135/24, S. 1 · BT-Drs. 21/903, S. 2 · BT-Drs. 20/10585, S. 9 (F09, G10, N08)</p>
-  </aside>
-</section>
+  <section aria-labelledby="h-kacheln" id="r21-recht">
+    <div class="akt-head"><div class="kicker">Akt 5 · Schluss</div><h2 id="h-kacheln"></h2></div>
+    <p class="hint" style="max-width:720px;margin:4px auto 12px;padding:0 20px">Jede Kachel ist die Kurzfassung eines Kastens; die Langfassung steht auf der Belegseite.</p>
+    <div class="kacheln" id="kacheln"></div>
+  </section>
 
-<!-- ================= AKT 2 ================= -->
-<section class="scrolly" data-act="2">
-  <div class="graphic">
-    <div class="fig" id="act2" data-step="-1">
-      <div class="fig-title">
-        <div class="t">Akt 2 · Die Fußnote</div>
-        <div class="s">Kurzinformation WD 5 – 3000 – 135/24 vom 16.09.2024 · alle Seiten am Original gelesen</div>
-      </div>
-      <svg id="svg2" role="img" aria-labelledby="svg2-title"><title id="svg2-title">Akt 2: Das Zitat im Papier neben dem Satz in der Kurzinformation, die Suche nach der Zahl, wer rechnet, und der fehlende Vergleich</title></svg>
+  <section class="prose" id="gegenpositionen" aria-labelledby="h-gp">
+    <div class="kicker">Gegenpositionen</div>
+    <h2 id="h-gp"></h2>
+    <div id="gp-body"></div>
+  </section>
+
+  <section class="prose" id="korrekturen" aria-labelledby="h-korr">
+    <div class="kicker">Eigene Fehler</div>
+    <h2 id="h-korr"></h2>
+    <div id="korr-body"></div>
+  </section>
+
+  <section class="prose" id="klima" aria-labelledby="h-klima">
+    <div id="klima-body"></div>
+  </section>
+
+  <section class="prose" id="nicht-zeigt" aria-labelledby="h-nz">
+    <div class="kicker">Grenzen</div>
+    <h2 id="h-nz"></h2>
+    <div id="nz-body"></div>
+  </section>
+
+  <section class="prose" id="glossar" aria-labelledby="h-gl">
+    <div class="kicker">Begriffe</div>
+    <h2 id="h-gl">Glossar</h2>
+    <div id="gl-body"></div>
+  </section>
+
+  <section class="prose" id="entstanden" aria-labelledby="h-ent">
+    <div class="kicker">Transparenz</div>
+    <h2 id="h-ent">So ist diese Seite entstanden</h2>
+    <div id="ent-body"></div>
+  </section>
+
+  <section class="prose" id="quellen" aria-labelledby="h-q">
+    <div class="kicker">Quellen</div>
+    <h2 id="h-q">Quellen</h2>
+    <div class="srclist" id="q-body"></div>
+  </section>
+
+  <section class="prose" id="weiter" aria-labelledby="h-weiter">
+    <div class="kicker">Weiter</div>
+    <h2 id="h-weiter">Nachprüfen und weiterlesen</h2>
+    <p><a class="cta" href="energiewende-1-belege.html">Zur Belegseite von Teil 1 →</a></p>
+    <div class="series">
+      <div class="now"><b>Teil 1</b><br>diese Seite</div>
+      <div><b>Teil 2</b><br>in Arbeit</div>
+      <div><b>Teil 3</b><br>in Arbeit</div>
+      <div><b>Teil 4</b><br>in Arbeit</div>
+      <div><b>Teil 5</b><br>in Arbeit</div>
+      <div><b>Teil 6</b><br>in Arbeit</div>
     </div>
-  </div>
-  <div class="steps">
-    <div class="step" data-idx="0"><div class="step-card">
-      <span class="n">Akt 2 / Schritt 1</span>
-      <h3>Was in der Quelle steht</h3>
-      <p>Die <a class="gl" id="ref-wd1" href="#gl-wd">Kurzinformation</a> trägt den Titel „Zur Berechnung der
-        Investitionskosten für die Energiewende“. Auf Seite 2 steht:</p>
-      <blockquote>„Je nach Betrachtungszeitraum werden die Kosten auf Beträge zwischen
-        <span data-v="wd_kosten_pro_jahr" data-u="Milliarden Euro" data-c="0"></span> pro Jahr oder
-        <span data-v="wd_kosten_gesamt" data-u="Billionen Euro" data-c="0"></span> insgesamt bis zum Jahr 2045 beziffert.“</blockquote>
-      <p>Belege: <span data-v="wd_kosten_pro_jahr" data-u="Mrd. € pro Jahr"></span>, <span data-v="wd_kosten_gesamt"></span>.
-        Im Titel steht „Investitionskosten“, im Text „Kosten“. Das Wort bei R21 stammt also aus dem Titel der Kurzinformation.</p>
-    </div></div>
-    <div class="step" data-idx="1"><div class="step-card">
-      <span class="n">Akt 2 / Schritt 2</span>
-      <h3>Die Zahl aus dem Papier steht dort nicht</h3>
-      <p>Wir haben alle sechs Seiten durchsucht. Die <span data-v="r21_kosten_zitat" data-k="max" data-u=""></span>
-        kommt in der Kurzinformation nicht vor. Auch keine Spanne von zehn bis
-        <span data-v="r21_kosten_zitat" data-k="max" data-u="" data-c="0"></span>. Dort stehen zwei Einzelwerte aus zwei
-        Quellen: einer pro Jahr, einer insgesamt.</p>
-      <p>In der Quelle steht <span data-v="wd_kosten_gesamt" data-u=""></span>. Woher die Abweichung kommt, wissen wir nicht.
-        Und die <span data-v="r21_untergrenze_herleitung" data-u=""></span> als Untergrenze? Unsere Vermutung:
-        <span data-v="wd_kosten_pro_jahr" data-u="Milliarden"></span> pro Jahr mal zwanzig Jahre. Im Papier steht keine Herleitung.</p>
-    </div></div>
-    <div class="step" data-idx="2"><div class="step-card">
-      <span class="n">Akt 2 / Schritt 3</span>
-      <h3>Wer rechnet hier?</h3>
-      <p>Die Kurzinformation rechnet nicht selbst. Sie referiert fremde Studien. Sie schreibt sogar, diese seien
-        „hinsichtlich der Kostenbestandteile nicht immer transparent“ (S. 4).</p>
-      <p>Und sie hält fest, dass die Bundesregierung „keine (eigene) Gesamtkostenrechnung“ erstellt (S. 1).
-        Wenn R21 schreibt, der Dienst „kommt auf“ diese Kosten, ist das eine verkürzte Formulierung: Der Dienst referiert,
-        er rechnet nicht.</p>
-    </div></div>
-    <div class="step" data-idx="3"><div class="step-card">
-      <span class="n">Akt 2 / Schritt 4</span>
-      <h3>Ein Hinweis, der im Papier fehlt</h3>
-      <p>Auf Seite 5 gibt die Kurzinformation den achten Monitoring-Bericht wieder: Eine vollständige Kostenbetrachtung sei nur
-        im Vergleich mit einem Energiesystem ohne Energiewende möglich,</p>
-      <blockquote>„da auch bei Fortführung einer Energieversorgung ohne Energiewende Investitionen erforderlich wären.“</blockquote>
-      <p>Erst die Differenz zweier Pfade ergibt <a class="gl" id="ref-mk1" href="#gl-mehrkosten">Mehrkosten</a>.
-        Die Waage bleibt bis Akt 5 leer.</p>
-    </div></div>
-  </div>
-</section>
-<p class="fig-src" data-akt="2"></p>
+  </section>
+</main>
 
-<!-- ================= AKT 3 ================= -->
-<section class="scrolly" data-act="3">
-  <div class="graphic">
-    <div class="fig" id="act3" data-step="-1">
-      <div class="fig-title">
-        <div class="t">Akt 3 · Die Quelle der Quelle</div>
-        <div class="s">Zwei Originale konnten wir nicht lesen · grau = nicht gelesen</div>
-      </div>
-      <svg id="svg3" role="img" aria-labelledby="svg3-title"><title id="svg3-title">Akt 3: Die Kette der Quellen von der Schlagzeile bis zur Ursprungsstudie, was die Summe enthält, was das DIW darüber schreibt und die ungelesene zweite Quelle</title></svg>
-    </div>
-  </div>
-  <div class="steps">
-    <div class="step" data-idx="0"><div class="step-card">
-      <span class="n">Akt 3 / Schritt 1</span>
-      <h3>Woher die Kurzinformation ihre Zahl hat</h3>
-      <p>Die <span data-v="wd_kosten_gesamt"></span> führt die Kurzinformation auf die Beratungsfirma PwC zurück, Studie von 2024,
-        mit dem Vermerk „S. 4 (abrufbar nach Registrierung)“. Der Titel der Studie:
-        „Beschleunigte Investitionen in den Klimaschutz lohnen sich – jetzt auch ökonomisch!“</p>
-      <p>Die Kette hat damit vier Glieder. Zwei davon konnten wir lesen, zwei nicht.</p>
-    </div></div>
-    <div class="step" data-idx="1"><div class="step-card">
-      <span class="n">Akt 3 / Schritt 2</span>
-      <h3>Investitionen plus Energiekosten</h3>
-      <p>Eine zweite Kurzinformation des Bundestags (WD 5 – 3000 – 151/24) erklärt den Begriff: „Aggregierte
-        Gesamtkosten“ heißt, dass nicht nur die Investitionskosten betrachtet werden, sondern auch aufsummierte jährliche
-        Energiekosten. Die <span data-v="wd_kosten_gesamt" data-u="Billionen"></span> sind also keine reinen Investitionskosten.</p>
-      <p>Diesen Satz haben wir am Original gelesen. Er trägt den Befund, auch ohne die PwC-Studie.</p>
-    </div></div>
-    <div class="step" data-idx="2"><div class="step-card">
-      <span class="n">Akt 3 / Schritt 3</span>
-      <h3>Was das DIW über die Studie schreibt</h3>
-      <p>Nach der Darstellung des DIW Berlin (Wochenbericht 38+39/2025) sind die
-        <span data-v="pwc_wwb_gesamt" data-u="Billionen"></span> bei PwC die Gesamtkosten eines Szenarios „Weiter wie bisher“ —
-        <span data-v="pwc_wwb_investitionen" data-u="Billionen"></span> Investitionen und
-        <span data-v="pwc_wwb_energiekosten" data-u="Billionen"></span> Energiekosten. Die PwC-Studie selbst ist nur nach
-        Registrierung abrufbar; wir haben sie nicht gelesen.</p>
-      <p>Laut DIW kommt in derselben Studie der beschleunigte Klimaschutzpfad auf
-        <span data-v="pwc_beschleunigt_gesamt" data-u="Billionen"></span>, also fast dieselbe Summe. Auch das haben wir nicht am
-        PwC-Original geprüft.</p>
-      <p>Das DIW schreibt, PwC rechne bis 2050 und zähle zu den Energiekosten auch Netzentgelte, Umlagen und den CO₂-Preis.
-        Die Kurzinformation des Bundestags schreibt „bis zum Jahr 2045“. Welche Angabe stimmt, können wir ohne das Original nicht sagen.</p>
-    </div></div>
-    <div class="step" data-idx="3"><div class="step-card">
-      <span class="n">Akt 3 / Schritt 4</span>
-      <h3>Und die Milliarden pro Jahr?</h3>
-      <p>Die <span data-v="wd_kosten_pro_jahr" data-u="Milliarden"></span> pro Jahr stammen laut Kurzinformation aus einem
-        FAZ-Gastbeitrag von 2019. Den Beitrag konnten wir nicht lesen: Die Seite des ifo-Instituts verlangt eine
-        Browser-Prüfung, die wir nicht umgehen. Ob dort <span data-v="wd_kosten_pro_jahr" data-u="Milliarden" data-c="0"></span>
-        pro Jahr stehen, wissen wir deshalb nicht.<a class="qc" href="#anm-ifo" aria-label="Anmerkung zum ifo-Auszug" style="margin-left:4px">Anm.</a></p>
-      <p><span data-v="wd_kosten_pro_jahr" data-u="Milliarden Euro" data-c="0"></span> pro Jahr wären 2018 rund
-        <span data-v="pittel_plausibilitaet_bip2018" data-k="pro_jahr_pct" data-u="Prozent"></span> der Wirtschaftsleistung gewesen.
-        Das ist unsere Rechnung, kein Beleg dafür, was im Gastbeitrag steht.</p>
-    </div></div>
-  </div>
-</section>
-<p class="fig-src" data-akt="3"></p>
-<section class="prose tight" style="padding-top:8px">
-  <p class="anm" id="anm-ifo"><b>Anmerkung zu Akt 3:</b> Eine Kurzfassung auf der ifo-Seite, die uns nur als
-    Suchmaschinen-Auszug vorlag, spricht von <span data-v="pittel_bis2050_kumuliert" data-k="min" data-u="Milliarden" data-c="0"></span> bis über
-    <span data-v="pittel_bis2050_kumuliert" data-k="max" data-u="Milliarden Euro"></span> insgesamt bis 2050. Das ist ungeprüft (Konfidenz C).</p>
-</section>
-
-<!-- ================= AKT 4 ================= -->
-<section class="scrolly" data-act="4">
-  <div class="graphic">
-    <div class="fig" id="act4" data-step="-1">
-      <div class="fig-title">
-        <div class="t">Akt 4 · Drei Größen</div>
-        <div class="s">Dieselbe Welt, drei Zahlen · Anteile am BIP 2024 sind unsere Rechnung (Setzung M)</div>
-      </div>
-      <svg id="svg4" role="img" aria-labelledby="svg4-title"><title id="svg4-title">Akt 4: Was die drei Kostengrößen enthalten, ein Beispiel aus einer Studie, alle gelesenen Studien als Anteil am BIP und die Netzkosten</title></svg>
-    </div>
-  </div>
-  <div class="steps">
-    <div class="step" data-idx="0"><div class="step-card">
-      <span class="n">Akt 4 / Schritt 1</span>
-      <h3>Drei Dinge, ein Wort</h3>
-      <p>Kostenstudien messen drei verschiedene Größen. <b>G1</b>, die <a class="gl" id="ref-brutto1" href="#gl-brutto">Brutto</a>-Gesamtkosten:
-        was die Energieversorgung insgesamt kostet, mit Investitionen, Betrieb und Brennstoffen. <b>G2</b>, die Brutto-Investitionen:
-        alles, was investiert wird, auch das, was ohnehin anfiele. <b>G3</b>, die Mehrkosten: was zusätzlich anfällt gegenüber
-        einem <a class="gl" id="ref-ref1" href="#gl-referenz">Vergleichspfad</a>.</p>
-      <p>Die Bundesregierung schreibt dazu, die großen Investitionsstudien „stellen keine energiewendebedingten Zusatzkosten dar“.</p>
-    </div></div>
-    <div class="step" data-idx="1"><div class="step-card">
-      <span class="n">Akt 4 / Schritt 2</span>
-      <h3>Eine Studie, zwei Zahlen</h3>
-      <p>Das Fraunhofer-Institut ISE nennt in einer Studie von 2024 beide Größen. Die gesamte Energieversorgung 2025 bis 2045
-        kostet dort rund <span data-v="ise2024_gesamtaufwand"></span>. Die Differenzkosten gegenüber einem fortgeschriebenen
-        heutigen System liegen bei rund <span data-v="ise2024_differenzkosten" data-k="mid" data-u="Mrd. € pro Jahr"></span>
-        im Mittel, je nach Szenario <span data-v="ise2024_differenzkosten" data-u="Mrd. €" data-c="0"></span>.</p>
-      <p>Über die Jahre summiert sind das rund <span data-v="st:ise2024_differenzkosten" data-k="summe_bio_eur" data-u="Bio. €"></span>.
-        Dieselbe Welt, zwei Zahlen, sehr verschieden groß.</p>
-    </div></div>
-    <div class="step" data-idx="2"><div class="step-card">
-      <span class="n">Akt 4 / Schritt 3</span>
-      <h3>Auf gemeinsamer Basis</h3>
-      <p>Wir rechnen alle gelesenen Studien in <a class="gl" id="ref-bip2" href="#gl-bip">Anteile am BIP</a> pro Jahr um,
-        mit dem BIP 2024 von <span data-v="@bip"></span>. Brutto-Größen liegen bei
-        <span data-v="brutto_anteil_bip_pa" data-u="%"></span>, Mehrinvestitionen bei
-        <span data-v="mehrinvestitionen_anteil_bip_pa" data-u="%"></span>, Mehrkosten nach Abzug eingesparter Energie bei
-        <span data-v="mehrkosten_anteil_bip_pa" data-u="%"></span>.</p>
-      <p>R21s Spanne entspricht <span data-v="r21_anteil_bip_pa" data-u="%"></span> pro Jahr. Als Brutto-Gesamtkosten liegt sie in
-        der Größenordnung der Brutto-Studien. Als Mehrkosten liegt sie über allem, was die gelesenen Studien ausweisen.</p>
-    </div></div>
-    <div class="step" data-idx="3"><div class="step-card">
-      <span class="n">Akt 4 / Schritt 4</span>
-      <h3>Dasselbe Muster beim Netz</h3>
-      <p>R21 schreibt, der Aus- und Umbau der Netze werde „nach einer Studie der DIHK“
-        <span data-v="r21_netz_dihk_zitat" data-u="Milliarden"></span> kosten. Eine Fundstelle fehlt. In der DIHK-Studie, die wir
-        gefunden haben („Plan B“), kosten die Netze <span data-v="dihk_netzkosten_2025_2049"></span> von 2025 bis 2049.
-        <span data-v="dihk_systemkosten_2025_2034"></span> sind dort die Kosten des ganzen Energiesystems der nächsten zehn Jahre,
-        einschließlich Energieimporten. Ob R21 eine andere Veröffentlichung meint, sagt das Papier nicht.</p>
-      <p>Andere Studien kommen für Übertragungs- und Verteilnetz bis 2045 auf <span data-v="netze_spanne_studien" data-k="min" data-u="" data-c="0"></span>,
-        <span data-v="netze_spanne_studien" data-k="mid" data-u="" data-c="0"></span> oder <span data-v="netze_spanne_studien" data-k="max" data-u="Mrd. €"></span>.
-        Die <span data-v="r21_netz_ewi_zitat" data-u=""></span>, die R21 an anderer Stelle nennt, passen in diese Größenordnung.</p>
-    </div></div>
-  </div>
-</section>
-<p class="fig-src" data-akt="4"></p>
-
-<details class="tbl" id="studientabelle">
-  <summary>▸ Tabelle: alle Kostenstudien auf gemeinsamer Basis (BIP 2024)</summary>
-  <div class="scroll"><table id="tbl-am"></table></div>
-  <div class="scroll"><table id="tbl-nicht" class="grau"></table></div>
-</details>
-
-<section class="prose tight">
-  <aside class="kasten gp" id="gp10">
-    <div class="kasten-kicker">Gegenposition GP10 · Warum niedrige Mehrkosten zu optimistisch sein können</div>
-    <h3>Der Bundesrechnungshof widerspricht dem Bild billiger Erneuerbarer</h3>
-    <p>Der Bundesrechnungshof nennt für den Netzausbau bis 2045 mehr als <span data-v="brh_netzausbau" data-u="Mrd. €"></span>.
-      Mit Stromgestehungskosten ohne Netzkosten entstehe „ein falsches Bild der tatsächlichen Kosten der Transformation“.</p>
-    <p>Kosten wandern außerdem vom Strompreis in den Bundeshaushalt: Der Bund zahlte 2024
-      <span data-v="eeg_bundeszuschuss_2024"></span> auf das EEG-Konto. Diese Summe sieht man auf keiner Stromrechnung.</p>
-    <p class="limit"><b>Einschränkung:</b> Der Bericht nennt keine Gesamtkostenzahl der Energiewende.</p>
-    <p class="kasten-quelle">Beleg: BT-Drs. 20/10585, S. 9 · BT-Drs. 20/14522, S. 1 (N08, O06)</p>
-  </aside>
-
-  <aside class="kasten gp" id="gp11">
-    <div class="kasten-kicker">Gegenposition GP11 · Warum niedrige Mehrkosten zu optimistisch sein können</div>
-    <h3>Netz- und Windkosten steigen</h3>
-    <p>Für das Übertragungsnetz stieg der Kostenansatz im bestätigten Netzentwicklungsplan 2023 von rund
-      <span data-v="nep_uen_kosten" data-k="nep2023_alt" data-u="" data-c="0"></span> auf etwa
-      <span data-v="nep_uen_kosten" data-k="nep2023_neu" data-u="Mrd. €"></span>. Die realen Investitionskosten je Kilowatt
-      Windkraft sind laut DIHK-Studie „seit 2020 wieder gestiegen, statt weiter zu sinken“.</p>
-    <p class="limit"><b>Einschränkung:</b> Der Entwurf des Netzentwicklungsplans 2025 senkt die Übertragungsnetzkosten wieder auf
-      <span data-v="nep_uen_kosten" data-k="nep2025_min" data-u="" data-c="0"></span> bis
-      <span data-v="nep_uen_kosten" data-k="nep2025_max" data-u="Mrd. €"></span>.</p>
-    <p class="kasten-quelle">Beleg: NEP 2037/2045 (2025), kompakt, S. 11–12 · DIHK „Plan B“, S. 27–28 (N09, O04)</p>
-  </aside>
-</section>
-
-<!-- ================= AKT 5 ================= -->
-<section class="scrolly" data-act="5">
-  <div class="graphic">
-    <div class="fig" id="act5" data-step="-1">
-      <div class="fig-title">
-        <div class="t">Akt 5 · Der Vergleichspfad und was R21 richtig sieht</div>
-        <div class="s">Mehrkosten als Anteil am BIP 2024 pro Jahr · Referenz je Studie angegeben</div>
-      </div>
-      <svg id="svg5" role="img" aria-labelledby="svg5-title"><title id="svg5-title">Akt 5: Der unbezifferte R21-Pfad, die Mehrkosten der Studien mit ihrer Referenz, Gründe für zu niedrige Werte und sechs Punkte, in denen R21 recht hat</title></svg>
-    </div>
-  </div>
-  <div class="steps">
-    <div class="step" data-idx="0"><div class="step-card">
-      <span class="n">Akt 5 / Schritt 1</span>
-      <h3>Der eigene Kurs bleibt ohne Summe</h3>
-      <p>R21 schreibt: „Auch eine Kehrtwende in der Energiepolitik erfordert erhebliche Investitionen … Der Mittelbedarf liegt aber
-        weit unter den Kosten“. Eine Summe nennt das Papier nicht. Seine eigenen Kostenzahlen decken nur Kraftwerke ab, nicht Netze,
-        Energieimporte, Gebäude, Verkehr und Industrie.</p>
-      <p>Ein kurzer Hinweis zur Kernkraft: Das Papier rechnet den Neubau mit <span data-v="r21_kkw_neubau"></span>, das eigene
-        Referenzpapier mit <span data-v="wendland_kkw_neubau"></span>. Zu den Kosten gebauter westlicher Projekte wären es
-        <span data-v="kkw_neubau_spanne_gebaut" data-k="min" data-u="" data-c="0"></span>, <span data-v="kkw_neubau_spanne_gebaut" data-k="mid" data-u="" data-c="0"></span>
-        oder <span data-v="kkw_neubau_spanne_gebaut" data-k="max" data-u="Mrd. €"></span>. Ein erster neuer Block ginge bei einer Entscheidung 2027 zwischen
-        <span data-v="kkw_erster_block_jahr" data-k="min" data-u="" data-c="0"></span> und
-        <span data-v="kkw_erster_block_jahr" data-k="mid" data-u="" data-c="0"></span> ans Netz, im ungünstigen Fall
-        <span data-v="kkw_erster_block_jahr" data-k="max" data-u=""></span>. Die volle Rechnung folgt in Teil 6.</p>
-    </div></div>
-    <div class="step" data-idx="1"><div class="step-card">
-      <span class="n">Akt 5 / Schritt 2</span>
-      <h3>Was zusätzlich anfällt</h3>
-      <p>Wo Studien gegen ein System ohne weiteren Klimaschutz rechnen, liegen die Mehrkosten bis 2045 bei
-        <span data-v="ise2021_mehraufwand" data-u="Billionen Euro"></span> (Fraunhofer ISE 2021), nicht bei zehn und mehr.
-        Ariadne kommt gegen „existierende Politiken“ auf <span data-v="ariadne_mehrkosten_pa" data-u="Mrd. € pro Jahr"></span>.
-        KfW und Prognos rechnen netto <span data-v="kfw2026_ksi_netto_pa"></span> gegen fossile Referenztechnik.</p>
-      <p>Als Anteil am BIP sind das <span data-v="mehrkosten_anteil_bip_pa" data-u="%"></span> pro Jahr. Am oberen Rand steht die
-        Studie mit der fossilsten Referenz. Selbst die DIHK-Studie „Plan B“ ist ein Klimaneutralitätspfad: Ein anders gesteuerter
-        Klimapfad spart dort bei gleichem Energieverbrauch mindestens <span data-v="dihk_planb_einsparung" data-u="Mrd. €"></span> bis 2050.
-        Ausgestiegen wird auch dort nicht.</p>
-    </div></div>
-    <div class="step" data-idx="2"><div class="step-card">
-      <span class="n">Akt 5 / Schritt 3</span>
-      <h3>Diese Zahlen können zu niedrig sein</h3>
-      <p>Die Referenz enthält oft schon Klimaschutz. Wenn Menschen und Betriebe langsamer umstellen, kosten die Szenarien
-        <span data-v="beharrung_aufschlag_pct" data-u="%" data-f="sign"></span> mehr. Zinsen fehlen in den Summen. Netz- und
-        Windkosten steigen.</p>
-      <p>Darum zeigen die Pfeile nach rechts: Die gelesenen Mehrkosten sind eher eine untere Linie als ein fester Wert.
-        Die Gegenpositionen GP7 bis GP11 unten führen jeden dieser Punkte einzeln aus.</p>
-    </div></div>
-    <div class="step" data-idx="3"><div class="step-card">
-      <span class="n">Akt 5 / Schritt 4</span>
-      <h3>Wo R21 recht hat</h3>
-      <p>Das Papier sieht Wichtiges richtig: die gewachsene Abhängigkeit von China, den Rückgang der Industrieproduktion, die
-        hohen Strompreise, die Energiemenge einer Dunkelflaute, die Wirkung des Emissionshandels und das fehlende Kosten-Monitoring.</p>
-      <p>Jeder dieser Punkte steht unten in einem eigenen Kasten, mit Zahl und mit der Einschränkung, die dazugehört.</p>
-    </div></div>
-  </div>
-</section>
-<p class="fig-src" data-akt="5"></p>
-
-<!-- ================= GEGENPOSITIONEN ================= -->
-<section class="prose tight">
-  <div class="kicker">Gegenpositionen</div>
-  <h2>Warum niedrige Mehrkosten zu optimistisch sein können</h2>
-  <p>Die Studien in Akt 5 sind keine Untergrenze im strengen Sinn. Drei Gründe sprechen dafür, dass die wahren Mehrkosten
-    höher liegen könnten.</p>
-
-  <aside class="kasten gp" id="gp7">
-    <div class="kasten-kicker">Gegenposition GP7 · Warum niedrige Mehrkosten zu optimistisch sein können</div>
-    <h3>Die Referenz enthält schon Klimaschutz</h3>
-    <p>Mehrkosten sind immer eine Differenz zu einem Vergleichspfad. Die KfW-Studie von 2021 rechnet gegen eine Referenz mit
-      bereits beschlossener Politik, etwa dem festgelegten Ausbau der Erneuerbaren; dort ergeben sich
-      <span data-v="kfw2021_mehrinvestitionen"></span> Mehrinvestitionen. Ariadne rechnet gegen „existierende Politiken“.
-      KfW und Prognos verzichten 2026 deshalb ganz auf eine Referenz.</p>
-    <p class="limit"><b>Einschränkung:</b> Niedrige Mehrkosten messen oft nur den letzten Schritt zum Ziel. Die Studie mit der
-      fossilsten Referenz (Fraunhofer ISE 2021) liefert die höchsten Werte:
-      <span data-v="st:ise2021_mehraufwand" data-k="bip_pct.mid" data-u="" data-c="0"></span> bis
-      <span data-v="st:ise2021_mehraufwand" data-k="bip_pct.max" data-u="% des BIP"></span> pro Jahr.</p>
-    <p class="kasten-quelle">Beleg: KfW-Fokus 350, S. 1 · Ariadne, S. 8 · Prognos 2026, S. 14 (O01, V07)</p>
-  </aside>
-
-  <aside class="kasten gp" id="gp8">
-    <div class="kasten-kicker">Gegenposition GP8 · Warum niedrige Mehrkosten zu optimistisch sein können</div>
-    <h3>Beharrung kann ein Mehrfaches kosten</h3>
-    <p>Wenn Haushalte und Betriebe langsamer umstellen als geplant, steigen die Kosten in den Szenarien um
-      <span data-v="beharrung_aufschlag_pct" data-u="%" data-f="sign"></span>. Bei Ariadne werden aus
-      <span data-v="ariadne_mehrkosten_pa" data-k="min" data-u="" data-c="0"></span> dann
-      <span data-v="ariadne_mehrkosten_pa" data-k="beharrung" data-u="Mrd. € pro Jahr"></span>.</p>
-    <p class="limit"><b>Einschränkung:</b> Der bisherige Hochlauf von Wärmepumpen und E-Autos gleicht eher dem Beharrungs-Szenario
-      als dem Plan.</p>
-    <p class="kasten-quelle">Beleg: Ariadne, S. 8 · ISE 2021, S. 41 · ISE 2024, S. 81 (O02, V08)</p>
-  </aside>
-
-  <aside class="kasten gp" id="gp9">
-    <div class="kasten-kicker">Gegenposition GP9 · Warum niedrige Mehrkosten zu optimistisch sein können</div>
-    <h3>Finanzierungskosten fehlen in den Summen</h3>
-    <p>Die Studien zählen Investitionen im Jahr, in dem gebaut wird. Zinsen stehen nicht darin. Über die Netzentgelte zahlen
-      Kundinnen und Kunden aber Abschreibung und Verzinsung mit; eine Netzstudie von ef.Ruhr und EWI rechnet diese Vollkosten
-      deshalb gesondert aus.</p>
-    <p class="limit"><b>Einschränkung:</b> Wir haben keine Studie gefunden, die eine Gesamtzahl für die Kapitalkosten nennt.
-      Das ist eine Lücke, kein Befund.</p>
-    <p class="kasten-quelle">Beleg: DIHK „Plan B“, Fn. 27 · ef.Ruhr/EWI 2024, S. 4 (O03, N10)</p>
-  </aside>
-
-  <aside class="kasten" id="klimafolgen">
-    <div class="kasten-kicker">Kosten des Nicht-Handelns · Untergrenze, nicht addierbar</div>
-    <h3>Auch Nichtstun kostet</h3>
-    <p>Allein Extremwetter in Deutschland verursacht von 2022 bis 2050 Schäden von
-      <span data-v="klimafolgen_de_2022_2050"></span>. Die Studie nennt das ausdrücklich eine Untergrenze. Wir kennen die Zahl aus
-      einer Meldung des Bundestags und aus dem DIW; die Studie selbst haben wir nicht gelesen.</p>
-    <p>Das Umweltbundesamt beziffert die weltweiten Schäden je Tonne CO₂ auf
-      <span data-v="uba_klimakosten_2025" data-k="zeitpraeferenz_1pct" data-u="" data-c="0"></span> oder
-      <span data-v="uba_klimakosten_2025" data-k="zeitpraeferenz_0pct" data-u="€ je Tonne"></span>, je nachdem, wie stark künftige
-      Schäden gewichtet werden.</p>
-    <p class="limit"><b>Vorbehalt:</b> Beide Zahlen messen Verschiedenes, Schäden in Deutschland und Schäden weltweit je deutscher
-      Tonne. Sie dürfen nicht addiert werden, und keine lässt sich gegen die Kosten der Energiewende aufrechnen. Eine
-      Kosten-Nutzen-Rechnung macht Teil 1 nicht.</p>
-    <p class="kasten-quelle">Beleg: hib 411/2024 · DIW 38+39/2025 · UBA-Klimakosten 2026, S. 1 (V11, V12, V13)</p>
-  </aside>
-</section>
-
-<section class="prose tight">
-  <div class="kicker">Gegenpositionen</div>
-  <h2>Wo R21 recht hat</h2>
-  <p>Fünf weitere Punkte, in denen das Papier richtig liegt. Den sechsten, das fehlende Kosten-Monitoring, haben wir schon nach
-    Akt 1 gezeigt.</p>
-
-  <aside class="kasten gp" id="gp1">
-    <div class="kasten-kicker">Gegenposition GP1 · Hier hat R21 recht</div>
-    <h3>Die Abhängigkeit von China ist real und gewachsen</h3>
-    <p>Von allen Einfuhren aus Ländern außerhalb der EU kamen bei Solarmodulen und -zellen 2015 noch
-      <span data-v="china_anteil_pv_extra_eu" data-k="2015" data-u="%" data-c="0"></span> aus China, 2025 schon
-      <span data-v="china_anteil_pv_extra_eu" data-k="2025" data-u="%"></span>. Bei Lithium-Ionen-Akkus stieg der Anteil von
-      <span data-v="china_anteil_liion_extra_eu" data-k="2015" data-u="%" data-c="0"></span> auf
-      <span data-v="china_anteil_liion_extra_eu" data-k="2025" data-u="%"></span>.</p>
-    <p class="limit"><b>Einschränkung:</b> Ein Teil des Anstiegs folgt daraus, dass 2018 die EU-Mindestimportpreise für chinesische
-      Module endeten. Und bei einem Lieferstopp laufen gebaute Anlagen weiter; Brennstoffe dagegen fehlen sofort. Das vertieft Teil 4.</p>
-    <p class="kasten-quelle">Beleg: Eurostat Comext DS-045409 (R01, R02)</p>
-  </aside>
-
-  <aside class="kasten gp" id="gp2">
-    <div class="kasten-kicker">Gegenposition GP2 · Hier hat R21 recht</div>
-    <h3>Die Industrie produziert deutlich weniger</h3>
-    <p>Die Industrieproduktion lag 2025 <span data-v="industrieproduktion_de_2025" data-k="ggue_2018_pct" data-d="1" data-u="%"></span>
-      unter 2018 und <span data-v="industrieproduktion_de_2025" data-k="ggue_2019_pct" data-u="%"></span> unter 2019. In den
-      energieintensiven Zweigen gegenüber 2019: Chemie <span data-v="energieintensiv_de_2025_ggue_2019" data-k="chemie" data-u="%" data-c="0"></span>,
-      Glas und Keramik <span data-v="energieintensiv_de_2025_ggue_2019" data-k="glas_keramik" data-d="1" data-u="%" data-c="0"></span>,
-      Metall <span data-v="energieintensiv_de_2025_ggue_2019" data-k="metall" data-u="%" data-c="0"></span>,
-      Papier <span data-v="energieintensiv_de_2025_ggue_2019" data-k="papier" data-u="%"></span>. Mit Basisjahr 2018 trifft
-      R21s Größenordnung zu.</p>
-    <p class="limit"><b>Einschränkung:</b> Auch andere EU-Länder produzieren weniger, Deutschland aber bei Papier und Glas deutlich
-      stärker. Die Ursachen sind nicht zerlegt. Die Bundesbank hat ausgerechnet, dass dauerhaft mehr als verdoppelte Energiepreise
-      die Wertschöpfung der Industrie um rund <span data-v="bundesbank_energiepreis_wertschoepfung" data-k="industrie_pct" data-u="%"></span>
-      dämpfen. Das ist eine Modellrechnung zum Gaspreisschock, keine Zuschreibung an die Energiewende.</p>
-    <p class="kasten-quelle">Beleg: Eurostat sts_inpr_a · Bundesbank, Monatsbericht Dezember 2022, S. 29–30 (R03, R04, R05, R07)</p>
-  </aside>
-
-  <aside class="kasten gp" id="gp3">
-    <div class="kasten-kicker">Gegenposition GP3 · Hier hat R21 recht</div>
-    <h3>Strom ist in Deutschland teurer als im EU-Mittel</h3>
-    <p>Industriestrom (ohne Mehrwertsteuer) kostete im ersten Halbjahr 2019 in Deutschland
-      <span data-v="industriestrom_de_eu" data-k="2019s1_de" data-u="" data-c="0"></span>, im EU-Mittel
-      <span data-v="industriestrom_de_eu" data-k="2019s1_eu" data-u="ct/kWh" data-c="0"></span>. Im ersten Halbjahr 2026 sind es
-      <span data-v="industriestrom_de_eu" data-k="2026s1_de" data-u="" data-c="0"></span> gegen
-      <span data-v="industriestrom_de_eu" data-k="2026s1_eu" data-u="ct/kWh"></span>. Haushalte zahlen in Deutschland
-      <span data-v="haushaltsstrom_de_eu_2026s1" data-k="de" data-u="" data-c="0"></span>, im EU-Mittel
-      <span data-v="haushaltsstrom_de_eu_2026s1" data-k="eu" data-u="ct/kWh"></span>.</p>
-    <p class="limit"><b>Einschränkung:</b> Der Abstand ist älter als die Energiekrise und zuletzt kleiner geworden. Seit 2021 trieb
-      vor allem die Beschaffung den Preis, also der Gaspreis; die Netzentgelte stiegen. Die Zahlen sind gut belegt, die Zuordnung
-      der Ursachen nur schwach (Konfidenz C).</p>
-    <p class="kasten-quelle">Beleg: Eurostat nrg_pc_204, nrg_pc_205 (R06)</p>
-  </aside>
-
-  <aside class="kasten gp" id="gp4">
-    <div class="kasten-kicker">Gegenposition GP4 · Hier hat R21 recht</div>
-    <h3>Die Energiemenge einer Dunkelflaute hat R21 ungefähr richtig</h3>
-    <p>Wir haben die Messdaten der Wetterjahre 2015 bis 2025 durchgerechnet. Im schwächsten Fünf-Tage-Fenster hätten die
-      Ausbauziele für 2030 eine Lücke von <span data-v="dunkelflaute_luecke_5tage" data-k="ziele2030" data-u="TWh" data-d="1" data-c="0"></span>
-      gelassen, der Anlagenbestand vom November 2026 eine von
-      <span data-v="dunkelflaute_luecke_5tage" data-k="bestand_2026_11" data-u="TWh" data-c="0"></span>.
-      R21 rechnet mit <span data-v="dunkelflaute_luecke_5tage" data-k="r21" data-u="TWh"></span>.</p>
-    <p class="limit"><b>Einschränkung:</b> Der Fehler liegt in der Technik. Die Netzplanung sieht für 2045 Batterien mit zusammen
-      <span data-v="nep_batterien_2045" data-u="GWh"></span> vor, für Stunden, nicht für Tage; daneben Wasserstoffkraftwerke. R21 nennt
-      Batterien trotzdem die „vorgesehene Technik“. Und fünf Tage sind nicht der schwerste Fall: Für Deutschland allein gab es im
-      Winter 1995/96 ein Ereignis von <span data-v="dunkelflaute_insel_de_tage" data-u="Tagen"></span>. Das vertieft Teil 2.</p>
-    <p class="kasten-quelle">Beleg: eigene Rechnung auf Messdaten, nachgerechnet vom Prüfer · NEP 2037/2045, Tab. 1 und 8 (R08, R09, E02)</p>
-  </aside>
-
-  <aside class="kasten gp" id="gp5">
-    <div class="kasten-kicker">Gegenposition GP5 · Hier hat R21 recht</div>
-    <h3>Beim Emissionshandel stimmt R21s Zahl</h3>
-    <p>R21 schreibt, der europäische Emissionshandel habe den Ausstoß seit 2005 etwa halbiert. Die EU-Kommission nennt
-      <span data-v="ets_minderung_seit_2005" data-u="%"></span> bis 2024. Das ist gedeckt. Die ZEW-Studie, auf die sich R21 stützt,
-      beziffert den Effekt, wenn nationale Zusatzmaßnahmen entfallen, auf
-      <span data-v="zew_effekt_ohne_nationale_massnahmen" data-u="Mrd. €"></span> als Barwert. Der Gesamteffekt liegt eher am oberen
-      Ende, also höher als bei R21.</p>
-    <p class="limit"><b>Einschränkung:</b> Die ZEW-Werte gelten für die ganze EU und sind ein <a class="gl" id="ref-bw1" href="#gl-barwert">Barwert</a>
-      über 2028 bis 2048. Wie stark nationale Maßnahmen im Emissionshandel wirken, ist „teilweise, zeitabhängig und politisch“.</p>
-    <p class="kasten-quelle">Beleg: EU-Kommission, 04.04.2025 · ZEW Rausch 2026, S. 3, 15, 16 (R10, R11, R12)</p>
-  </aside>
-</section>
-
-<!-- ================= KORREKTUREN ================= -->
-<section class="prose tight">
-  <div class="kicker">In eigener Sache</div>
-  <h2>Wo wir uns korrigieren mussten</h2>
-  <aside class="kasten gp" id="gp12">
-    <div class="kasten-kicker">Gegenposition GP12 · In beide Richtungen</div>
-    <h3>Unsere eigenen Dossiers lagen an mehreren Stellen falsch</h3>
-    <p>Zehn Prüf-Agenten haben unsere Recherche-Dossiers Zahl für Zahl am Original nachgeschlagen. Sie fanden Fehler in beide
-      Richtungen.</p>
-    <p><b>Zu freundlich zur Energiewende:</b> Die Mehrkosten bei Beharrung hatten wir zu niedrig angesetzt; richtig sind
-      <span data-v="beharrung_aufschlag_pct" data-u="%" data-f="sign"></span>. Die Studie mit der fossilsten Referenz hatten wir als
-      Sonderfall an den Rand geschoben. Der Wasserstoffspeicher unserer Vergleichsrechnung war nur für ein einziges Ereignis ausgelegt;
-      die Absicherung kostet eher <span data-v="h2_absicherung_dunkelflaute_inv"></span> Investition. Das Ereignis von
-      <span data-v="dunkelflaute_insel_de_tage" data-u="Tagen"></span> fehlte ganz.</p>
-    <p><b>Zu streng mit der Energiewende:</b> Den Preisaufschlag im Stresstest „China liefert nicht“ hatten wir zu hoch angesetzt;
-      richtig sind <span data-v="stresstest_china_aufschlag_pct" data-k="min" data-u="" data-f="sign" data-c="0"></span>,
-      <span data-v="stresstest_china_aufschlag_pct" data-k="mid" data-u="" data-f="sign" data-c="0"></span> oder
-      <span data-v="stresstest_china_aufschlag_pct" data-k="max" data-u="%" data-f="sign"></span>.</p>
-    <p><b>Zu hart zu R21:</b> Drei Werte zum Emissionshandel hatten wir einen Widerspruch genannt; sie sind nur uneinheitlich.
-      Beim Monitoring-Bericht hatten wir R21 einen Fehler vorgeworfen, aber die zitierte Stelle betraf einen anderen Bericht.
-      Den höheren Gesamteffekt in der ZEW-Studie hatten wir übersehen.</p>
-    <p><b>Zu freundlich zum R21-Pfad:</b> Die Reaktivierung stillgelegter Kernkraftwerke hatten wir im Mittel zu günstig angesetzt; jetzt
-      <span data-v="kkw_reaktivierung_gw" data-k="mid" data-u="GW"></span>.</p>
-    <p><b>Im allerersten Befund:</b> Wir hatten geschrieben, die Kurzinformation „verlange“ den Vergleich mit einem System ohne
-      Energiewende. Sie referiert ihn nur. Dazu kamen falsche Seitenangaben.</p>
-    <p class="limit"><b>Einschränkung:</b> Falsch abgeschriebene Zahlen fanden die Prüfer fast keine. Die Fehler lagen in Ableitungen
-      und Zusammenfassungen.</p>
-    <p class="kasten-quelle">Beleg: Prüfberichte 01, 02, 05, 07, 09 · Erstbefund, Tabelle „Korrekturen“ (E01–E04, O02, G03, R11, F10, R12, F06)</p>
-  </aside>
-</section>
-
-<!-- ================= NICHT ZEIGT ================= -->
-<section class="prose tight">
-  <div class="kicker">Grenzen</div>
-  <h2>Was Teil 1 nicht zeigt</h2>
-  <p>Diese Seite endet nicht mit einem Urteil, sondern mit ihren Grenzen.</p>
-</section>
-<div class="limits">
-  <div class="limit-card"><h4>Kein eigenes Kostenmodell</h4><p>Teil 1 vergleicht fremde Studien. Was die vier Pfade auf derselben
-    Grundlage kosten, rechnet erst Teil 6. Teil 1 kann nicht sagen, ob der R21-Pfad billiger oder teurer ist. Nur, dass R21 es nicht beziffert.</p></div>
-  <div class="limit-card"><h4>Die Studien sind nicht nachgerechnet</h4><p>Wir haben ihre Zahlen am Original gelesen und auf eine gemeinsame
-    Basis umgerechnet. Ihre Annahmen zu Brennstoffpreisen, Lernkurven, Zinsen und Nachfrage haben wir nicht geprüft.</p></div>
-  <div class="limit-card"><h4>Zwei Originale fehlen</h4><p>Die PwC-Studie (Quelle der <span data-v="wd_kosten_gesamt" data-u="Billionen"></span>) und
-    der FAZ-Gastbeitrag (Quelle der <span data-v="wd_kosten_pro_jahr" data-u="Milliarden"></span>). Ebenfalls nicht gelesen: die Langfassungen von
-    Agora, Ariadne und KfW 2021, Gutachten von dena/EWI, Aurora, BDI/BCG, McKinsey, BDEW/EY und die Klimafolgen-Studie von IÖW, Prognos und GWS.</p></div>
-  <div class="limit-card"><h4>Der BIP-Bezug ist eine Setzung</h4><p>Alle Anteile beziehen sich auf das BIP 2024, obwohl die Studien mit
-    verschiedenen Preisbasen und Zeiträumen rechnen. Die Anteile sind Näherungen, je nach Studie um einige Zehntel Prozentpunkte.</p></div>
-  <div class="limit-card"><h4>Mehrkosten sind nicht gleich Belastung</h4><p>Keine Zahl sagt, wer zahlt: Haushalte, Unternehmen oder Staat.
-    Ob eine Volkswirtschaft eine Summe trägt, hängt auch an Finanzierung, Gegenwert und Wachstum. Das beziffert keine der Studien.</p></div>
-  <div class="limit-card"><h4>Klimaschäden sind nur angerissen</h4><p>Die <span data-v="klimafolgen_de_2022_2050"></span> betreffen nur
-    Extremwetter in Deutschland, als Untergrenze. Sie hängen kaum an deutschen Emissionen allein. Eine Kosten-Nutzen-Rechnung macht Teil 1 nicht.</p></div>
-  <div class="limit-card"><h4>Die Ursache des Industrierückgangs ist offen</h4><p>Die Produktion ist gefallen, Strom ist teurer. Welchen Anteil
-    die Energiepolitik daran hat, kann keine gelesene Quelle im Rückblick beziffern.</p></div>
-  <div class="limit-card"><h4>Die Gründe für die Abweichungen kennen wir nicht</h4><p>Warum im Papier
-    <span data-v="r21_kosten_zitat" data-k="max" data-u=""></span> statt <span data-v="wd_kosten_gesamt" data-u=""></span> steht und welche
-    DIHK-Veröffentlichung mit <span data-v="r21_netz_dihk_zitat" data-u="Milliarden"></span> gemeint ist, wissen wir nicht. Wir fragen R21 vor der
-    Veröffentlichung; Antwort oder Nicht-Antwort steht dann hier.</p></div>
-</div>
-
-<!-- ================= GLOSSAR ================= -->
-<section class="prose tight">
-  <div class="kicker">Glossar</div>
-  <h2>Fünf Begriffe, die alles tragen</h2>
-  <details class="gloss" id="gl-brutto"><summary>Brutto</summary><div class="gloss-body">
-    <p>Brutto heißt: alles zusammen, ohne etwas abzuziehen. Brutto-Investitionen enthalten auch Ersatz für Anlagen, die ohnehin
-      erneuert werden müssten, etwa eine alte Heizung. Brutto-Gesamtkosten enthalten zusätzlich Betrieb, Brennstoffe und Importe.</p>
-    <a class="gl-back" href="#">↩ zurück zur Textstelle</a></div></details>
-  <details class="gloss" id="gl-mehrkosten"><summary>Mehrkosten</summary><div class="gloss-body">
-    <p>Mehrkosten sind die Differenz zwischen zwei Pfaden: was der eine mehr kostet als der andere. Mehrinvestitionen vergleichen nur
-      Investitionen. Mehrkosten im engeren Sinn ziehen auch ab, was an Energie eingespart wird.</p>
-    <a class="gl-back" href="#">↩ zurück zur Textstelle</a></div></details>
-  <details class="gloss" id="gl-barwert"><summary>Barwert</summary><div class="gloss-body">
-    <p>Ein Barwert rechnet künftige Beträge auf heute zurück. Ein Euro in zwanzig Jahren zählt dabei weniger als ein Euro heute.
-      Ein Barwert ist deshalb kleiner als die einfache Summe derselben Zahlungen.</p>
-    <a class="gl-back" href="#">↩ zurück zur Textstelle</a></div></details>
-  <details class="gloss" id="gl-bip"><summary>Anteil am BIP</summary><div class="gloss-body">
-    <p>Das Bruttoinlandsprodukt (BIP) ist der Wert aller Waren und Dienstleistungen, die ein Land in einem Jahr herstellt. Eine Summe
-      als Anteil am BIP pro Jahr zu zeigen, macht Studien mit verschiedenen Zeiträumen vergleichbar. Wir teilen dafür den Jahreswert
-      einer Studie durch das BIP 2024. Das ist unsere Setzung (M).</p>
-    <a class="gl-back" href="#">↩ zurück zur Textstelle</a></div></details>
-  <details class="gloss" id="gl-referenz"><summary>Referenzszenario</summary><div class="gloss-body">
-    <p>Das Referenzszenario ist der Vergleichspfad, gegen den Mehrkosten gerechnet werden. Es kann ein System ganz ohne weiteren
-      Klimaschutz sein, oder eines, in dem beschlossene Politik schon umgesetzt ist. Je mehr Klimaschutz die Referenz enthält,
-      desto kleiner fallen die Mehrkosten aus.</p>
-    <a class="gl-back" href="#">↩ zurück zur Textstelle</a></div></details>
-  <details class="gloss" id="gl-wd"><summary>Kurzinformation des Wissenschaftlichen Dienstes</summary><div class="gloss-body">
-    <p>Die Wissenschaftlichen Dienste des Bundestags beantworten Fragen von Abgeordneten. Eine Kurzinformation fasst den Stand
-      zusammen und referiert dafür meist fremde Studien. Sie ist keine eigene Berechnung und keine Position des Bundestags.</p>
-    <a class="gl-back" href="#">↩ zurück zur Textstelle</a></div></details>
-</section>
-
-<!-- ================= ENTSTANDEN ================= -->
-<section class="prose tight">
-  <div class="kicker">Offenlegung</div>
-  <h2>So ist diese Seite entstanden</h2>
-  <aside class="kasten entstanden" id="entstanden">
-    <div class="kasten-kicker">KI-Agenten (Claude) · Mensch entscheidet</div>
-    <p>Diese Seite ist mit KI-Agenten (Claude) entstanden. Kein Agent prüft sein eigenes Ergebnis. Der Ablauf:</p>
-    <ol>
-      <li><b>Recherche.</b> Zehn Agenten schrieben parallel je ein Dossier zu einem Thema und lasen dafür die Originaldokumente.</li>
-      <li><b>Gegenprüfung.</b> Zehn weitere Agenten schlugen jede Zahl eines Dossiers, das sie nicht selbst geschrieben hatten, am Original nach.</li>
-      <li><b>Zusammenführung.</b> Ein Agent führte die geprüften Werte zu einem Parametersatz zusammen.</li>
-      <li><b>Freigabe.</b> Ein Agent, der an Dossiers und Prüfberichten nicht beteiligt war, stufte jede Aussage für Teil 1 einzeln ein.
-        Nur was dort freigegeben ist, steht auf dieser Seite.</li>
-      <li><b>Bau.</b> Je ein Agent baute diese Seite und die Belegseite.</li>
-      <li><b>Reviews.</b> Prüfungen durch weitere Agenten in festen Rollen stehen noch aus. Darum ist diese Seite ein Entwurf.</li>
-    </ol>
-    <p><b>Aufwand laut Protokoll</b> (Stand 22.11.2026): Recherche 3.247.322 Token, Gegenprüfung 2.542.472 Token, Freigabeliste
-      376.633 Token. Für die Zusammenführung ist kein Verbrauch gemeldet; die Abschlussmeldung ging bei einem Neustart verloren.
-      Der Bau dieser Seite ist im Protokoll noch nicht eingetragen. Die Aufstellung je Agent und Rolle steht im Protokoll.</p>
-    <p><b>Was der Mensch entschieden hat:</b> die Voraussetzungen der Reihe, die Vergleichspfade, dass die PwC-Studie und der
-      FAZ-Gastbeitrag erst später gelesen werden, dass R21 vor der Veröffentlichung gefragt wird, dass der Kernkraft-Neubau hier
-      nur kurz vorkommt, dass die Klimafolgekosten in einem einzigen Kasten mit Vorbehalt stehen, dass der Name des
-      Zeitungsautors nicht genannt wird, und dass der Förderhinweis des Papiers nur im Steckbrief steht.</p>
-    <p><b>Was nicht gelesen werden konnte:</b> der Zeitungsartikel (Bezahlschranke), die PwC-Studie (nur nach Registrierung), der
-      FAZ-Gastbeitrag (Browser-Prüfung beim ifo-Institut, die wir nicht umgehen) und die unter „Was Teil 1 nicht zeigt“ genannten
-      Langfassungen.</p>
-    <p><b>Interessen:</b> Es gibt keinen Auftraggeber und keine Finanzierung durch Dritte.</p>
-    <p>Alle Regeln, Aufträge im Wortlaut, Dossiers, Prüfberichte, die Freigabeliste und das Protokoll liegen offen im Repository:
-      <a href="https://github.com/Losveratos/PowerBI-Kitchen-/tree/main/energiewende" rel="noopener">github.com/Losveratos/PowerBI-Kitchen-/tree/main/energiewende</a>.</p>
-  </aside>
-</section>
-
-<!-- ================= QUELLEN ================= -->
-<section class="prose tight" id="quellen">
-  <div class="kicker">Anhang</div>
-  <h2>Quellen</h2>
-  <p>Jede Quelle mit Herausgeber, Datum und, wo vorhanden, Adresse und Abrufdatum. Fremde Dokumente spiegeln wir nicht;
-    die Prüfsummen stehen in den Manifesten im Repository.</p>
-</section>
-<div class="srclist" id="srclist"></div>
-
-<!-- ================= WEITER ================= -->
-<section class="prose tight">
-  <div class="kicker">Weiter</div>
-  <h2>Nachprüfen und weiterlesen</h2>
-  <p>Alle Aussagen dieses Teils mit Status, Fundstelle und Quelle, die vollständige Studientabelle und alle Gegenpositionen in voller Länge
-    stehen auf der Belegseite.</p>
-  <p><a class="cta" href="energiewende-1-belege.html">Zur Belegseite von Teil 1 →</a></p>
-  <div class="series">
-    <div class="now"><b>Teil 1 · Die Billionen-Zahl</b>diese Seite</div>
-    <div><b>Teil 2 · Strom und Speicher</b>in Arbeit</div>
-    <div><b>Teil 3 · Europa</b>in Arbeit</div>
-    <div><b>Teil 4 · Lieferketten</b>in Arbeit</div>
-    <div><b>Teil 5 · Wasserstoff und E-Fuels</b>in Arbeit</div>
-    <div><b>Teil 6 · Gesamtrechnung</b>in Arbeit</div>
-  </div>
-</section>
+<div id="pop" role="dialog" aria-modal="false" aria-label="Angaben zur Zahl"></div>
 
 <footer>
-  Analyse und Visualisierung: Daten-WG · erstellt mit KI-Agenten (Claude)<br>
-  Alle Zahlen dieser Seite stammen aus <code>energiewende/data/teil1_data.json</code>, erzeugt aus der Freigabeliste
+  Daten-WG Knowledge Kitchen · erstellt mit KI-Agenten (Claude)<br>
+  Texte und Zahlen: <code>energiewende/data/teil1_data.json</code> aus der Freigabeliste
   <code>energiewende/docs/03_teil1_freigabe.md</code><br>
-  <a href="energiewende-1-belege.html">Belegseite Teil 1</a> · <a href="index.html">Daten-WG Knowledge Kitchen</a> ·
-  <a href="impressum.html">Impressum</a> · <a href="datenschutz.html">Datenschutz</a><br>
-  Private, nicht-kommerzielle Analyse; keine Gewähr.
+  <a href="energiewende-1-belege.html">Belegseite Teil 1</a> · <a href="index.html">Startseite</a> ·
+  <a href="impressum.html">Impressum</a> · <a href="datenschutz.html">Datenschutz</a>
 </footer>
 
 <script>
-"use strict";
-/* ================================================================
-   Datenquelle: energiewende/data/teil1_data.json (relativer Pfad).
-   Im HTML stehen keine Zahlen; alle Werte kommen zur Laufzeit von dort.
-================================================================ */
-const DATA_URL = "energiewende/data/teil1_data.json";
-const NS = "http://www.w3.org/2000/svg";
-const $ = s => document.querySelector(s);
-const $$ = s => Array.from(document.querySelectorAll(s));
-let D = null, Z = {}, SRC_NR = {}, STEPS = {};
-
-/* ---------- Farbschema ---------- */
-(function(){
-  const b = $("#theme-btn");
-  b.addEventListener("click", () => {
-    const cur = document.documentElement.dataset.theme ||
-      (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
-    document.documentElement.dataset.theme = cur === "dark" ? "light" : "dark";
-  });
-})();
-
-/* ---------- Zahlenformat (deutsch) ---------- */
-function decOf(v){ const s = String(Math.abs(v)); return s.includes(".") ? s.split(".")[1].length : 0; }
-function nf(v, d, plain){
-  if (typeof v !== "number" || !isFinite(v)) return null;
-  const dec = (d === undefined || d === null) ? decOf(v) : d;
-  const s = Math.abs(v).toLocaleString("de-DE", {minimumFractionDigits:dec, maximumFractionDigits:dec, useGrouping:!plain});
-  return (v < 0 ? "−" : "") + s;
-}
-/* Nachkommastellen einer Spanne: natürlich je Ende; ein ganzzahliges Ende unter 10
-   bekommt die Stellen des anderen Endes („3,0 bis 3,5“, aber „10 bis 13,8“). */
-function rangeDec(a, b, d){
-  if (d !== undefined) return [d, d];
-  let da = decOf(a), db = decOf(b);
-  if (!da && db && Math.abs(a) < 10) da = db;
-  if (!db && da && Math.abs(b) < 10) db = da;
-  return [da, db];
-}
-function sign(s, v){ return (v > 0 ? "+" : "") + s; }
-function unitShort(u){
-  if (!u) return "";
-  if (u.startsWith("%")) return "%";
-  if (u.startsWith("ct/kWh")) return "ct/kWh";
-  if (u === "Jahr" || u === "Zahlen" || u === "Jahres-BIP") return "";
-  if (u.startsWith("EUR") && u.includes("pro t")) return "€ je Tonne CO₂";
-  return u.replace(/\s*\(.*\)$/, "").replace(/ (bis|Barwert) .*$/, "").replace(/EUR/g, "€").trim();
-}
-function joinUnit(s, u){ if (!u) return s; return s + (u.startsWith("-") ? "" : " ") + u; }
-
-/* Wert und Metadaten zu einer Referenz holen.
-   Formen: <zahl-id> · st:<zahl-id> (Zeile der Studientabelle) · @bip · @counts */
-function lookup(ref){
-  if (ref === "@bip"){
-    const b = D.meta.bip_bezug;
-    return {val:b.value, unit:b.unit, meta:{id:"@bip", source:b.source, confidence:"M", primaer_gelesen:true, status:"Setzung (M)", fundstelle:"B1GQ, CP_MEUR, 2024"}};
-  }
-  if (ref === "@counts") return {val:D.meta.counts, unit:"", meta:{id:"@counts", source:"@freigabe", confidence:null, status:null, fundstelle:"Abschnitt 1"}};
-  if (ref.startsWith("st:")){
-    const id = ref.slice(3);
-    const row = stRow(id);
-    if (!row) return null;
-    const z = Z[id] || {};
-    return {val:row, unit:"", meta:Object.assign({}, z, {id:id})};
-  }
-  const z = Z[ref];
-  if (!z) return null;
-  return {val:z.value, unit:z.unit, meta:z};
-}
-function stRow(id){
-  const all = D.studien_tabelle.am_original_gelesen.concat(D.studien_tabelle.nicht_am_original_gelesen);
-  return all.find(r => (r.zahl_ids || []).includes(id)) || null;
-}
-function dig(v, path){
-  if (!path) return v;
-  return path.split(".").reduce((o, k) => (o === null || o === undefined) ? undefined : o[k], v);
-}
-/* Formatiert einen Wert: Zahl, {value}, {min,max} → "min bis max" */
-function fmtV(v, d, plain, sgn){
-  const one = x => { const s = nf(x, d, plain); return s === null ? null : (sgn ? sign(s, x) : s); };
-  if (typeof v === "number") return one(v);
-  if (v && typeof v === "object"){
-    if (typeof v.value === "number") return one(v.value);
-    if (typeof v.min === "number" && typeof v.max === "number"){
-      const [da, db] = rangeDec(v.min, v.max, d);
-      const a = nf(v.min, da, plain), b = nf(v.max, db, plain);
-      return (sgn ? sign(a, v.min) : a) + " bis " + (sgn ? sign(b, v.max) : b);
-    }
-  }
-  return null;
-}
-function isSetzung(meta, sub){
-  return (meta && (meta.status === "Setzung (M)" || meta.confidence === "M")) || (sub && typeof sub === "object" && sub.setzung === true);
-}
-function badgeFor(meta, sub){
-  if (!meta || meta.id === "@counts") return {cls:"bd-X", txt:"eigene Zählung", title:"Zählung in der Freigabeliste"};
-  if (isSetzung(meta, sub)) return {cls:"bd-M", txt:"Setzung (M)", title:"Setzung (M): unsere Annahme oder Rechnung" + (meta.fundstelle ? " · " + meta.fundstelle : "")};
-  const c = meta.confidence || "?";
-  let t = c + " · " + (meta.primaer_gelesen ? "gelesen" : "nicht gelesen");
-  if (meta.status === "korrigiert") t += " · korrigiert";
-  if (meta.status === "nicht prüfbar") t += " · nicht prüfbar";
-  const title = "Konfidenz " + c + " · " + (meta.primaer_gelesen ? "am Original gelesen" : "nicht am Original gelesen") +
-    " · Status: " + (meta.status || "–") + (meta.fundstelle ? " · Fundstelle: " + meta.fundstelle : "");
-  return {cls:"bd-" + c, txt:t, title:title};
-}
-function chipEl(meta, sub){
-  const span = document.createElement("span");
-  span.className = "cm";
-  const src = meta.source;
-  const nr = SRC_NR[src];
-  if (nr){
-    const a = document.createElement("a");
-    a.className = "qc"; a.href = "#q-" + src; a.textContent = "Q" + nr;
-    a.title = "Quelle: " + srcTitle(src);
-    span.appendChild(a);
-  }
-  const b = badgeFor(meta, sub);
-  const bd = document.createElement("span");
-  bd.className = "bd " + b.cls; bd.textContent = b.txt; bd.title = b.title;
-  bd.setAttribute("aria-label", b.title);
-  span.appendChild(bd);
-  return span;
-}
-function srcTitle(key){
-  if (key === "@freigabe") return "Freigabeliste Teil 1";
-  const s = D.sources[key]; if (!s) return key;
-  return (s.herausgeber ? s.herausgeber + ": " : "") + (s.titel || s.datei || key);
-}
-
-/* ---------- Platzhalter füllen ---------- */
-function hydrate(){
-  const problems = [];
-  $$("[data-v]").forEach(node => {
-    const ref = node.dataset.v, key = node.dataset.k;
-    const L = lookup(ref);
-    if (!L){ problems.push(ref); node.textContent = "⚠"; return; }
-    const raw = dig(L.val, key);
-    const plain = L.meta.unit === "Jahr";
-    const d = node.dataset.d !== undefined ? +node.dataset.d : undefined;
-    let s = fmtV(raw, d, plain, node.dataset.f === "sign");
-    if (s === null){ problems.push(ref + (key ? "." + key : "")); node.textContent = "⚠"; return; }
-    const u = node.hasAttribute("data-u") ? node.dataset.u : unitShort(L.unit);
-    node.textContent = joinUnit(s, u);
-    node.dataset.filled = "1";
-    if (node.dataset.c === "0" || node.closest("svg")) return;
-    // ein Quellen-Chip je Zahl und Absatz
-    const block = node.closest("p, li, blockquote, dd, td, .limit-card, .hero-meta, h1") || node.parentElement;
-    const sub = key ? dig(L.val, key.split(".")[0]) : L.val;
-    // gleiche Quelle mit gleichem Abzeichen im selben Absatz nur einmal zeigen
-    const mark = (L.meta.source || ref) + "|" + badgeFor(L.meta, sub).txt;
-    const seen = (block.dataset.chips || "").split(",");
-    if (seen.includes(mark)) return;
-    block.dataset.chips = seen.concat(mark).filter(Boolean).join(",");
-    node.insertAdjacentElement("afterend", chipEl(L.meta, sub));
-  });
-  return problems;
-}
-
-/* ================================================================
-   SVG-Helfer
-================================================================ */
-const FS = 13, LH = 18, CW = 7.85;   // Mono: 0,6 em Zeichenbreite
-function el(tag, attrs, parent){
-  const e = document.createElementNS(NS, tag);
-  for (const k in (attrs || {})) if (attrs[k] !== undefined && attrs[k] !== null) e.setAttribute(k, attrs[k]);
-  if (parent) parent.appendChild(e);
-  return e;
-}
-function T(p, x, y, s, cls, anchor){
-  const t = el("text", {x:x, y:y, class:cls || null, "text-anchor":anchor || null}, p);
-  t.textContent = s; return t;
-}
-function cwOf(cls){ return cls && cls.includes("hl") ? 10.6 : CW; }
-function lhOf(cls){ return cls && cls.includes("hl") ? 25 : LH; }
-/* Zeilenumbruch nach geschätzter Zeichenbreite. parts: [{t, c}] */
-function wrapParts(parts, maxW, cls){
-  const maxC = Math.max(8, Math.floor(maxW / cwOf(cls)));
-  const words = [];
-  parts.forEach(pt => String(pt.t).split(/ +/).forEach(w => { if (w !== "") words.push({w:w, c:pt.c}); }));
-  const lines = []; let cur = [], len = 0;
-  words.forEach(w => {
-    const add = (cur.length ? 1 : 0) + w.w.length;
-    if (len + add > maxC && cur.length){ lines.push(cur); cur = []; len = 0; }
-    cur.push(w); len += (cur.length > 1 ? 1 : 0) + w.w.length;
-  });
-  if (cur.length) lines.push(cur);
-  return lines;
-}
-function para(p, x, y, parts, maxW, cls, anchor){
-  if (typeof parts === "string") parts = [{t:parts}];
-  const lines = wrapParts(parts, maxW, cls);
-  const lh = lhOf(cls);
-  lines.forEach((ln, i) => {
-    const t = el("text", {x:x, y:y + i*lh, class:cls || null, "text-anchor":anchor || null}, p);
-    ln.forEach((w, j) => {
-      if (j) t.appendChild(document.createTextNode(" "));
-      const ts = el("tspan", {class:w.c || null}, t);
-      ts.textContent = w.w;
-    });
-  });
-  return lines.length * lh;
-}
-function paraH(parts, maxW, cls){ if (typeof parts === "string") parts = [{t:parts}]; return wrapParts(parts, maxW, cls).length * lhOf(cls); }
-/* Karte mit Inhaltsliste; gibt Höhe zurück */
-function card(p, x, y, w, items, cls){
-  const g = el("g", {}, p);
-  const r = el("rect", {x:x, y:y, width:w, height:10, class:"card " + (cls || "")}, g);
-  const pad = 14; let cy = y + pad + 12;
-  items.forEach(it => {
-    if (it.badge){ const bw = badge(g, x + pad, cy - 12, it.badge, it.bcls); cy += 26; return; }
-    const h = para(g, x + pad, cy, it.parts || it.t, w - 2*pad, it.cls);
-    cy += h + (it.gap === undefined ? 4 : it.gap);
-  });
-  const h = cy - y - 2;
-  r.setAttribute("height", h);
-  return h;
-}
-function cardH(w, items){
-  const pad = 14; let cy = pad + 12;
-  items.forEach(it => { if (it.badge){ cy += 26; return; } cy += paraH(it.parts || it.t, w - 2*pad, it.cls) + (it.gap === undefined ? 4 : it.gap); });
-  return cy - 2;
-}
-/* kleines Etikett mit Rahmen; gibt Breite zurück */
-function badge(p, x, y, label, cls){
-  const w = label.length * 7.2 + 14;
-  el("rect", {x:x, y:y, width:w, height:20, rx:2, class:"bdg " + (cls || "")}, p);
-  const t = T(p, x + 7, y + 14, label, "sm");
-  t.setAttribute("class", "sm bdg-t " + (cls || ""));
-  return w;
-}
-function arrowDefs(svg, id){
-  const defs = el("defs", {}, svg);
-  [["n", "var(--ink-2)"], ["a", "var(--accent)"], ["s", "var(--said)"]].forEach(([k, col]) => {
-    const m = el("marker", {id:id + k, viewBox:"0 0 10 10", refX:9, refY:5, markerWidth:7, markerHeight:7, orient:"auto-start-reverse"}, defs);
-    el("path", {d:"M0,0 L10,5 L0,10 z", fill:col}, m);
-  });
-  return defs;
-}
-function arrow(p, x1, y1, x2, y2, mid, kind, dash){
-  el("line", {x1:x1, y1:y1, x2:x2, y2:y2, stroke:kind === "a" ? "var(--accent)" : kind === "s" ? "var(--said)" : "var(--ink-2)",
-    "stroke-width":1.6, "marker-end":"url(#" + mid + (kind || "n") + ")", "stroke-dasharray":dash ? "5 4" : null}, p);
-}
-function niceStep(max, n){
-  const raw = max / (n || 4), mag = Math.pow(10, Math.floor(Math.log10(raw)));
-  const f = raw / mag; const s = f <= 1 ? 1 : f <= 2 ? 2 : f <= 2.5 ? 2.5 : f <= 5 ? 5 : 10;
-  return s * mag;
-}
-function ticks(max, n){ const st = niceStep(max, n); const out = []; for (let v = 0; v <= max + st*0.001; v += st) out.push(+v.toFixed(6)); return out; }
-const V = (id, k) => dig(Z[id].value, k);
-const F = (id, k, u, d) => { const s = fmtV(dig(Z[id].value, k), d, Z[id].unit === "Jahr"); return u === undefined ? joinUnit(s, unitShort(Z[id].unit)) : joinUnit(s, u); };
-
-/* Ein waagerechter Balken-/Spannen-Plot (Forest-Plot), schmal und breit */
-function forest(g, x0, y0, W, rows, opt){
-  // rows: {label, min, max, mid, cls, txt, head, open}
-  const narrow = W < 640;
-  const inline = narrow && opt.inline;
-  if (inline) rows = rows.map(r => r.head ? r : Object.assign({}, r, {txt:(r.txt ? r.txt + " · " : "") + r.label}));
-  const labW = narrow ? W : Math.min(330, W * 0.36);
-  const maxTxt = Math.max(0, ...rows.filter(r => r.txt).map(r => r.txt.length));
-  const reserve = inline ? W * 0.08 : Math.min(W * 0.34, maxTxt * 7.3 + 14) + (rows.some(r => r.open) ? 40 : 0);
-  const px0 = narrow ? x0 : x0 + labW + 10, px1 = x0 + W - reserve;
-  const xmax = opt.xmax;
-  const x = v => px0 + (v / xmax) * (px1 - px0);
-  let y = y0;
-  const yTop = y;
-  const items = [];
-  const bh = narrow ? 10 : 12;
-  rows.forEach(r => {
-    if (r.head){ y += para(g, x0, y + 14, r.head, W, "sm b") + 6; return; }
-    if (inline){
-      // Text rechts oder links vom Balken; passt beides nicht, steht er in einer Zeile darüber
-      const lo = r.min !== undefined ? r.min : r.mid, hi = r.max !== undefined ? r.max : r.mid;
-      const len = (r.txt || "").length * 7.3;
-      const fits = x(hi) + 7 + len <= x0 + W || x(lo) - 6 - len >= x0;
-      if (fits){ items.push({r:r, by:y + 5}); y += 22; }
-      else { const h = para(g, x0, y + 12, r.txt, W, "sm b"); items.push({r:Object.assign({}, r, {txt:""}), by:y + h}); y += h + 16; }
-    } else if (narrow){
-      const h = para(g, x0, y + 12, r.label, W, "sm");
-      items.push({r:r, by:y + h});
-      y += h + bh + 10;
-    } else {
-      const h = para(g, x0, y + 14, r.label, labW, "sm");
-      items.push({r:r, by:y + 4});
-      y += Math.max(24, h + 6);
-    }
-  });
-  const yBot = y;
-  ticks(xmax, narrow ? 3 : 5).forEach(v => {
-    el("line", {x1:x(v), x2:x(v), y1:yTop, y2:yBot, class:"s-grid"}, g);
-    T(g, x(v), yBot + 15, nf(v, decOf(v)), "sm", "middle");
-  });
-  T(g, px1, yBot + 32, opt.unit, "sm", "end");
-  items.forEach(({r, by}) => {
-    const lo = r.min !== undefined ? r.min : r.mid, hi = r.max !== undefined ? r.max : r.mid;
-    const cls = r.cls || "f-neutral";
-    if (hi - lo > 0) el("rect", {x:x(lo), y:by, width:Math.max(3, x(hi) - x(lo)), height:bh, class:cls + " grow"}, g);
-    else el("rect", {x:x(lo) - 3, y:by, width:6, height:bh, class:cls}, g);
-    if (r.mid !== undefined && r.min !== undefined) el("line", {x1:x(r.mid), x2:x(r.mid), y1:by - 3, y2:by + bh + 3, class:"s-ink", "stroke-width":2}, g);
-    let tx = x(hi) + 7;
-    if (r.open){ arrow(g, x(hi) + 4, by + bh/2, x(hi) + 34, by + bh/2, opt.mid, "a", true); tx = x(hi) + 40; }
-    if (r.txt){
-      const len = r.txt.length * 7.3;
-      if (tx + len <= x0 + W) T(g, tx, by + bh - 1, r.txt, "sm b");
-      else if (x(lo) - 6 - len >= x0) T(g, x(lo) - 6, by + bh - 1, r.txt, "sm b", "end");
-      else T(g, x(hi) - 5, by + bh - 2, r.txt, "sm b inbar", "end");
-    }
-  });
-  return {x:x, yTop:yTop, yBot:yBot + 36, px0:px0, px1:px1, items:items};
-}
-
-/* ================================================================
-   Akt-Grafiken. Jede baut auf (svg, W, H) und gibt die benötigte Höhe zurück.
-================================================================ */
-function sc(svg, i){ return el("g", {class:"sc " + [].concat(i).map(k => "sc-" + k).join(" ")}, svg); }
-const P = 18;
-
-function buildAct1(svg, W, H){
-  arrowDefs(svg, "m1");
-  const narrow = W < 640;
-  const r21 = Z.r21_kosten_zitat;
-  let need = 0;
-  /* Szene 0: Schlagzeile und Papier */
-  {
-    const g = sc(svg, 0);
-    const itemsA = [
-      {t:"Schlagzeile", cls:"sm"},
-      {t:"„Deutschland wird Energiewende ‚nicht überleben‘“", cls:"hl"},
-      {t:"BILD · 20.11.2026", cls:"sm"},
-      {badge:"nicht gelesen · Bezahlschranke", bcls:"unr"}];
-    const itemsB = [
-      {t:"Das Papier", cls:"sm"},
-      {t:"Erklärung des Expertenrates Klima- und Energiepolitik", cls:"hl"},
-      {t:"REPUBLIK21 e. V. · November 2026", cls:"sm"},
-      {t:"Erklärung mit Faktenblättern · kein Rechenmodell"},
-      {badge:"am Original gelesen", bcls:"acc"}];
-    if (narrow){
-      const w = W - 2*P;
-      const hA = card(g, P, P, w, itemsA, "unr");
-      arrow(g, W/2, P + hA + 4, W/2, P + hA + 34, "m1");
-      T(g, W/2 + 10, P + hA + 24, "stützt sich auf", "sm");
-      const hB = card(g, P, P + hA + 40, w, itemsB, "said");
-      need = Math.max(need, P + hA + 40 + hB + P);
-    } else {
-      const w = (W - 3*P - 40) / 2;
-      const hA = card(g, P, P + 30, w, itemsA, "unr");
-      const hB = card(g, P + w + 40 + P, P + 30, w, itemsB, "said");
-      arrow(g, P + w + 4, P + 30 + hA/2, P + w + 40 + P - 4, P + 30 + hA/2, "m1");
-      T(g, P + w + 20 + P/2, P + 22 + hA/2, "stützt", "sm", "middle");
-      T(g, P + w + 20 + P/2, P + 52 + hA/2, "sich auf", "sm", "middle");
-      need = Math.max(need, P + 30 + Math.max(hA, hB) + P);
-    }
-  }
-  /* Szene 1: zwei Fassungen des Satzes */
-  {
-    const g = sc(svg, 1);
-    const val = F("r21_kosten_zitat", null, "");
-    const w = W - 2*P;
-    const h1 = card(g, P, P, w, [
-      {t:"R21 · Zusammenfassung, Druckseite 3", cls:"sm"},
-      {parts:[{t:"Der WD „beziffert die"}, {t:"Kosten", c:"mark"}, {t:"der Energiewende bis 2045 auf"}, {t:val, c:"markb"}, {t:"Billionen Euro“."}]}], "said");
-    const h2 = card(g, P, P + h1 + 16, w, [
-      {t:"R21 · Kapitel 3, Druckseite 12", cls:"sm"},
-      {parts:[{t:"Der WD „kommt auf"}, {t:"Investitionskosten", c:"mark"}, {t:"von"}, {t:val, c:"markb"}, {t:"Billionen Euro“."}]},
-      {t:"Fundstelle: Fußnote 5 → WD 5 – 3000 – 135/24", cls:"sm"}], "said");
-    const y3 = P + h1 + h2 + 40;
-    para(g, P, y3, [{t:"Unterstrichen:", c:"mark"}, {t:"zwei verschiedene Wörter für dieselbe Summe."}], w, "sm");
-    need = Math.max(need, y3 + 30);
-  }
-  /* Szene 2: Vielfaches des Jahres-BIP */
-  {
-    const g = sc(svg, 2);
-    const v = Z.r21_bip_vielfaches.value;
-    const rows = [
-      {lab:"ein Jahres-BIP 2025", u:1, txt:"Maßstab"},
-      {lab:F("r21_kosten_zitat", "min", "Bio. €"), u:v.min, txt:F("r21_bip_vielfaches", "min", "-fach", 1)},
-      {lab:F("r21_kosten_zitat", "max", "Bio. €"), u:v.max, txt:F("r21_bip_vielfaches", "max", "-fach", 1)}];
-    const labW = narrow ? 0 : 190;
-    const x0 = P + labW, x1 = W - P - (narrow ? 64 : 90);
-    const sx = u => (u / (v.max * 1.02)) * (x1 - x0);
-    let y = P + 26;
-    y += para(g, P, y - 4, "R21: „das Zwei- bis Dreifache der jährlichen Wirtschaftsleistung“", W - 2*P, "sm") + 4;
-    rows.forEach((r, i) => {
-      const by = narrow ? y + 20 : y;
-      if (narrow) T(g, P, y + 12, r.lab, "sm b"); else T(g, P, y + 21, r.lab, "b");
-      el("rect", {x:x0, y:by, width:sx(r.u), height:30, class:(i ? "f-said" : "f-grid") + " grow"}, g);
-      for (let k = 1; k < r.u; k++) el("line", {x1:x0 + sx(k), x2:x0 + sx(k), y1:by, y2:by + 30, stroke:"var(--surface)", "stroke-width":2, "stroke-dasharray":"4 3"}, g);
-      T(g, x0 + sx(r.u) + 8, by + 20, r.txt, i ? "b" : "sm");
-      y += narrow ? 66 : 52;
-    });
-    y += 10;
-    const hh = para(g, P, y, [{t:"Nachgerechnet mit dem BIP 2025:", c:"mark"}, {t:"Die Umrechnung stimmt. Gestrichelt: je ein Jahres-BIP."}], W - 2*P, "sm");
-    need = Math.max(need, y + hh + P);
-  }
-  /* Szene 3: Zählstreifen */
-  {
-    const g = sc(svg, 3);
-    const c = Z.r21_haupttext_zahlen.value;
-    const rest = c.gesamt - c.mit_fundstelle - c.nur_urheber - c.ohne_quelle;
-    const cats = [["mit Fundstelle", c.mit_fundstelle, "f-acc"], ["nur Urheber genannt", c.nur_urheber, "f-said"],
-                  ["ohne Quelle", c.ohne_quelle, "f-grid"]];
-    if (rest > 0) cats.push(["im Datensatz nicht zugeordnet", rest, "f-unr"]);
-    const cols = narrow ? 8 : 13;
-    const gap = 6, s = Math.min(narrow ? 36 : 44, (W - 2*P - (cols - 1)*gap) / cols);
-    let k = 0;
-    const y0 = P + 30;
-    para(g, P, P + 14, "Alle Zahlen im Haupttext der R21-Erklärung, je ein Kästchen", W - 2*P, "sm");
-    cats.forEach(([lab, n, cls]) => {
-      for (let i = 0; i < n; i++, k++){
-        const cx = P + (k % cols) * (s + gap), cy = y0 + Math.floor(k / cols) * (s + gap);
-        el("rect", {x:cx, y:cy, width:s, height:s, class:cls}, g);
-        if (k === 0){
-          el("rect", {x:cx - 3, y:cy - 3, width:s + 6, height:s + 6, fill:"none", stroke:"var(--ink)", "stroke-width":2}, g);
-          T(g, cx + s/2, cy + s/2 + 5, "Fn.5", "sm b", "middle");
-        }
-      }
-    });
-    let y = y0 + Math.ceil(c.gesamt / cols) * (s + gap) + 18;
-    cats.forEach(([lab, n, cls]) => {
-      el("rect", {x:P, y:y - 11, width:14, height:14, class:cls}, g);
-      T(g, P + 22, y, nf(n) + " · " + lab, "sm");
-      y += 21;
-    });
-    const hh = para(g, P, y + 6, [{t:"Fußnote 5", c:"mark"}, {t:"ist die einzige externe Fundstelle des Haupttexts. Sie trägt die Billionen-Zahl."}], W - 2*P, "sm");
-    need = Math.max(need, y + 6 + hh + P);
-  }
-  return need;
-}
-
-function buildAct2(svg, W, H){
-  arrowDefs(svg, "m2");
-  const narrow = W < 640;
-  let need = 0;
-  const w = W - 2*P;
-  /* Szene 0: Zitat gegen Zitat */
-  {
-    const g = sc(svg, 0);
-    const h1 = card(g, P, P, w, [
-      {t:"R21 · Druckseite 12", cls:"sm"},
-      {parts:[{t:"„Investitionskosten von"}, {t:F("r21_kosten_zitat", null, ""), c:"markb"}, {t:"Billionen Euro“"}]}], "said");
-    const h2 = card(g, P, P + h1 + 16, w, [
-      {t:"Kurzinformation WD 5 – 3000 – 135/24 · S. 2", cls:"sm"},
-      {parts:[{t:"„Je nach Betrachtungszeitraum werden die Kosten auf Beträge zwischen"},
-              {t:F("wd_kosten_pro_jahr", null, ""), c:"mark"}, {t:"Milliarden Euro"}, {t:"pro Jahr", c:"mark"}, {t:"oder"},
-              {t:F("wd_kosten_gesamt", null, ""), c:"mark"}, {t:"Billionen Euro"}, {t:"insgesamt", c:"mark"},
-              {t:"bis zum Jahr 2045 beziffert.“"}]},
-      {t:"Titel: „Zur Berechnung der Investitionskosten für die Energiewende“", cls:"sm"}], "acc");
-    need = Math.max(need, P + h1 + 16 + h2 + P);
-  }
-  /* Szene 1: Suche */
-  {
-    const g = sc(svg, 1);
-    const n = 6, gap = narrow ? 8 : 16;
-    const pw = Math.min(90, (w - (n - 1)*gap) / n), ph = pw * 1.35;
-    const y0 = P + 56;
-    el("rect", {x:P, y:P, width:Math.min(w, 330), height:32, class:"card acc"}, g);
-    T(g, P + 12, P + 21, "Suche: „" + F("r21_kosten_zitat", "max", "") + "“", "b");
-    for (let i = 0; i < n; i++){
-      const x = P + i*(pw + gap);
-      el("rect", {x:x, y:y0, width:pw, height:ph, class:"card"}, g);
-      for (let l = 0; l < 6; l++) el("rect", {x:x + 8, y:y0 + 12 + l*(ph - 30)/6, width:(pw - 16)*(l % 3 === 2 ? .6 : 1), height:3, class:"f-grid"}, g);
-      T(g, x + pw/2, y0 + ph + 16, "S. " + (i + 1), "sm", "middle");
-    }
-    let y = y0 + ph + 44;
-    T(g, P, y, "Ergebnis: kein Treffer auf sechs Seiten", "b acc");
-    y += 26;
-    const h = card(g, P, y, w, [
-      {t:"Und die Untergrenze?", cls:"sm"},
-      {parts:[{t:F("wd_kosten_pro_jahr", null, "Mrd. €")}, {t:"pro Jahr × zwanzig Jahre ="}, {t:F("r21_untergrenze_herleitung"), c:"mark"}, {t:"?"}]},
-      {badge:"Setzung (M) · unsere Vermutung", bcls:"m"},
-      {t:"Im Papier steht keine Herleitung.", cls:"sm"}], "");
-    need = Math.max(need, y + h + P);
-  }
-  /* Szene 2: Wer rechnet hier? */
-  {
-    const g = sc(svg, 2);
-    if (narrow){
-      const hW = card(g, P, P, w, [{t:"Kurzinformation des WD", cls:"b"}, {t:"referiert Studien · rechnet nicht selbst", cls:"sm"}], "acc");
-      const y1 = P + hW + 46, bw = (w - 12) / 2;
-      const hA = card(g, P, y1, bw, [{t:"PwC (2024)", cls:"b"}, {t:F("wd_kosten_gesamt") + " insgesamt", cls:"sm"}], "");
-      const hB = card(g, P + bw + 12, y1, bw, [{t:"FAZ-Gastbeitrag (2019)", cls:"b"}, {t:F("wd_kosten_pro_jahr", null, "Mrd. €") + " pro Jahr", cls:"sm"}], "");
-      arrow(g, P + bw*0.5, P + hW + 4, P + bw*0.5, y1 - 4, "m2");
-      arrow(g, P + bw*1.5 + 12, P + hW + 4, P + bw*1.5 + 12, y1 - 4, "m2");
-      T(g, P + bw + 6, P + hW + 28, "zitiert", "sm", "middle");
-      const y2 = y1 + Math.max(hA, hB) + 20;
-      const hR = card(g, P, y2, w, [{t:"Bundesregierung", cls:"b"}, {t:"„keine (eigene) Gesamtkostenrechnung“", cls:"sm"}], "unr");
-      need = Math.max(need, y2 + hR + P);
-    } else {
-      const bw = (w - 80) / 2;
-      const hW = card(g, P, P + 50, bw, [{t:"Kurzinformation des Wissenschaftlichen Dienstes", cls:"b"}, {t:"referiert fremde Studien", cls:"sm"}, {t:"rechnet nicht selbst", cls:"sm"}], "acc");
-      const xR = P + bw + 80;
-      const hA = card(g, xR, P, bw, [{t:"PwC (2024)", cls:"b"}, {t:F("wd_kosten_gesamt") + " insgesamt", cls:"sm"}], "");
-      const hB = card(g, xR, P + hA + 30, bw, [{t:"FAZ-Gastbeitrag (2019)", cls:"b"}, {t:F("wd_kosten_pro_jahr", null, "Mrd. €") + " pro Jahr", cls:"sm"}], "");
-      arrow(g, P + bw + 4, P + 50 + hW/2, xR - 4, P + hA/2, "m2");
-      arrow(g, P + bw + 4, P + 50 + hW/2, xR - 4, P + hA + 30 + hB/2, "m2");
-      T(g, P + bw + 40, P + 40 + hW/2, "zitiert", "sm", "middle");
-      const y2 = P + Math.max(50 + hW, hA + 30 + hB) + 30;
-      const hR = card(g, P, y2, w, [{t:"Bundesregierung", cls:"b"}, {t:"„keine (eigene) Gesamtkostenrechnung“ (WD S. 1)", cls:"sm"}], "unr");
-      need = Math.max(need, y2 + hR + P);
-    }
-  }
-  /* Szene 3: Zitat S. 5 und leere Waage */
-  {
-    const g = sc(svg, 3);
-    const h1 = card(g, P, P, w, [
-      {t:"Kurzinformation, S. 5 (gibt den Monitoring-Bericht wieder)", cls:"sm"},
-      {parts:[{t:"„… da auch bei Fortführung einer Energieversorgung"}, {t:"ohne Energiewende", c:"mark"}, {t:"Investitionen erforderlich wären.“"}]}], "acc");
-    const cx = W/2, by = P + h1 + 70;
-    const span = Math.min(w * 0.42, 260);
-    el("path", {d:`M${cx - 26},${by + 90} L${cx},${by} L${cx + 26},${by + 90} Z`, class:"f-grid"}, g);
-    el("line", {x1:cx - span, x2:cx + span, y1:by, y2:by, class:"s-ink", "stroke-width":3}, g);
-    [[-1, "mit Energiewende"], [1, "ohne Energiewende"]].forEach(([sd, lab]) => {
-      const px = cx + sd*span;
-      el("line", {x1:px, x2:px, y1:by, y2:by + 36, class:"s-ink"}, g);
-      el("path", {d:`M${px - 52},${by + 36} Q${px},${by + 66} ${px + 52},${by + 36} Z`, class:"f-acc-soft", stroke:"var(--accent)"}, g);
-      T(g, px, by + 54, "?", "b", "middle");
-      T(g, px, by + 90, lab, "sm", "middle");
-    });
-    const hh = para(g, P, by + 124, "Mehrkosten = Differenz der beiden Schalen. Im Papier ist nur eine Seite beziffert. Die Waage bleibt bis Akt 5 leer.", w, "sm");
-    need = Math.max(need, by + 124 + hh + P);
-  }
-  return need;
-}
-
-function buildAct3(svg, W, H){
-  arrowDefs(svg, "m3");
-  const narrow = W < 640;
-  const w = W - 2*P;
-  let need = 0;
-  /* Szene 0: Kette */
-  {
-    const g = sc(svg, 0);
-    const nodes = [
-      {t:"BILD, 20.11.2026", s:"Schlagzeile", st:"nicht gelesen · Bezahlschranke", cls:"unr"},
-      {t:"R21-Erklärung", s:F("r21_kosten_zitat", null, "Bio. €"), st:"gelesen", cls:"said"},
-      {t:"WD 5 – 3000 – 135/24", s:F("wd_kosten_gesamt"), st:"gelesen", cls:"acc"},
-      {t:"PwC-Studie 2024", s:"Ursprung der Summe", st:"nicht gelesen · Registrierung", cls:"unr"}];
-    const faz = {t:"FAZ-Gastbeitrag 2019", s:F("wd_kosten_pro_jahr", null, "Mrd. €") + " pro Jahr", st:"nicht gelesen · Browser-Prüfung", cls:"unr"};
-    const items = n => [{t:n.t, cls:"b"}, {t:n.s, cls:"sm"}, {t:n.st, cls:"sm " + (n.cls === "unr" ? "unr" : "acc")}];
-    if (narrow){
-      let y = P;
-      const bw = w;
-      nodes.forEach((n, i) => {
-        const h = card(g, P, y, i === 3 ? (bw - 10)/2 : bw, items(n), n.cls);
-        if (i === 3){
-          const h2 = card(g, P + (bw + 10)/2, y, (bw - 10)/2, items(faz), faz.cls);
-          y += Math.max(h, h2);
-        } else {
-          y += h;
-          arrow(g, P + 30, y + 3, P + 30, y + 23, "m3");
-          if (i === 2) arrow(g, P + bw - 60, y + 3, P + bw - 60, y + 23, "m3");
-          y += 26;
-        }
-      });
-      need = Math.max(need, y + P);
-    } else {
-      const gap = 34, bw = (w - 3*gap) / 4;
-      let maxH = 0;
-      nodes.forEach((n, i) => {
-        const x = P + i*(bw + gap);
-        const h = card(g, x, P + 30, bw, items(n), n.cls);
-        maxH = Math.max(maxH, h);
-        if (i < 3) arrow(g, x + bw + 3, P + 30 + 34, x + bw + gap - 3, P + 30 + 34, "m3");
-      });
-      const xw = P + 2*(bw + gap), xf = P + 3*(bw + gap);
-      const yf = P + 30 + maxH + 50;
-      const hf = card(g, xf, yf, bw, items(faz), faz.cls);
-      arrow(g, xw + bw/2, P + 30 + maxH + 3, xf + 20, yf - 3, "m3");
-      T(g, P, P + 16, "zitiert →", "sm");
-      need = Math.max(need, yf + hf + P);
-    }
-  }
-  /* Szene 1: was in der Summe steckt (schematisch) */
-  {
-    const g = sc(svg, 1);
-    const bw = narrow ? 120 : 170, bh = narrow ? 200 : 260;
-    const x = P, y = P + 30;
-    T(g, P, P + 14, "Aggregierte Gesamtkosten: " + F("wd_kosten_gesamt"), "b");
-    el("rect", {x:x, y:y, width:bw, height:bh, class:"f-acc-soft", stroke:"var(--accent)"}, g);
-    el("line", {x1:x, x2:x + bw, y1:y + bh*0.5, y2:y + bh*0.5, stroke:"var(--accent)", "stroke-dasharray":"6 4", "stroke-width":2}, g);
-    T(g, x + bw/2, y + bh*0.25 + 5, "Energiekosten", "b", "middle");
-    T(g, x + bw/2, y + bh*0.75 + 5, "Investitionen", "b", "middle");
-    const tx = x + bw + 20, tw = W - tx - P;
-    const h = para(g, tx, y + 10, [{t:"WD 5 – 3000 – 151/24:", c:"mark"}, {t:"„nicht nur die Investitionskosten …, sondern auch aufsummierte jährliche Energiekosten“."}], tw, "");
-    para(g, tx, y + h + 34, "Aufteilung hier schematisch, ohne Teilzahlen. Die Summe ist also keine reine Investitionssumme.", tw, "sm");
-    need = Math.max(need, y + bh + P);
-  }
-  /* Szene 2: zwei Pfade laut DIW */
-  {
-    const g = sc(svg, 2);
-    const inv = V("pwc_wwb_investitionen"), en = V("pwc_wwb_energiekosten"), tot = V("pwc_wwb_gesamt"), acc = V("pwc_beschleunigt_gesamt");
-    const top = P + 34, bh = narrow ? 210 : 270;
-    const s = v => v / (Math.max(tot, acc) * 1.05) * bh;
-    const bw = narrow ? 80 : 120, x1 = P + (narrow ? 10 : 60), x2 = x1 + bw + (narrow ? 110 : 190);
-    const base = top + bh;
-    badge(g, P, P, "C · laut DIW · PwC-Original nicht gelesen", "c");
-    el("rect", {x:x1, y:base - s(inv), width:bw, height:s(inv), class:"f-unr"}, g);
-    el("rect", {x:x1, y:base - s(inv) - s(en), width:bw, height:s(en), class:"f-unr", opacity:.7}, g);
-    T(g, x1 + bw + 6, base - s(inv)/2 + 4, F("pwc_wwb_investitionen", null, "") + " Invest.", "sm");
-    T(g, x1 + bw + 6, base - s(inv) - s(en)/2 + 4, F("pwc_wwb_energiekosten", null, "") + " Energie", "sm");
-    T(g, x1 + bw/2, base - s(tot) - 8, F("pwc_wwb_gesamt"), "b", "middle");
-    el("rect", {x:x2, y:base - s(acc), width:bw, height:s(acc), class:"f-unr"}, g);
-    T(g, x2 + bw/2, base - s(acc) - 8, F("pwc_beschleunigt_gesamt"), "b", "middle");
-    el("line", {x1:P, x2:W - P, y1:base, y2:base, class:"s-axis"}, g);
-    para(g, x1, base + 18, "„Weiter wie bisher“", bw + 100, "sm");
-    para(g, x2, base + 18, "beschleunigter Klimaschutzpfad", narrow ? W - x2 - P : bw + 120, "sm");
-    need = Math.max(need, base + 60 + P);
-  }
-  /* Szene 3: der ungelesene Gastbeitrag */
-  {
-    const g = sc(svg, 3);
-    const h = card(g, P, P, w, [
-      {t:"FAZ-Gastbeitrag 2019", cls:"b"},
-      {t:"Quelle der " + F("wd_kosten_pro_jahr", null, "Mrd. €") + " pro Jahr laut Kurzinformation", cls:"sm"},
-      {badge:"nicht gelesen", bcls:"unr"},
-      {t:"Grund: Die Seite des ifo-Instituts verlangt eine Browser-Prüfung. Wir umgehen sie nicht.", cls:"sm"}], "unr");
-    const y = P + h + 40;
-    T(g, P, y, "Plausibilität, unsere Rechnung:", "sm b");
-    const pct = V("pittel_plausibilitaet_bip2018", "pro_jahr_pct");
-    el("rect", {x:P, y:y + 14, width:w, height:34, class:"f-grid"}, g);
-    el("rect", {x:P, y:y + 14, width:w * pct / 100, height:34, class:"f-acc grow"}, g);
-    T(g, P + w - 6, y + 36, "BIP 2018", "sm", "end");
-    const hh = para(g, P, y + 72, F("wd_kosten_pro_jahr", null, "Mrd. €") + " pro Jahr wären " + F("pittel_plausibilitaet_bip2018", "pro_jahr_pct", "%") + " des BIP 2018 gewesen.", w, "");
-    badge(g, P, y + 72 + hh + 4, "Setzung (M) · kein Beleg für den Inhalt", "m");
-    need = Math.max(need, y + 72 + hh + 34 + P);
-  }
-  return need;
-}
-
-/* Kurzname einer Studienzeile */
-function shortName(row){
-  const s = row.studie;
-  if (s.startsWith("Frontier")) return "DIHK Plan B";
-  if (s.startsWith("Fraunhofer ISE, Bundesl") || s === "Fraunhofer ISE (2024)") return "ISE 2024";
-  if (s.startsWith("Fraunhofer ISE, Update")) return "ISE 2021";
-  if (s.startsWith("Agora")) return "Agora";
-  if (s.startsWith("Prognos")) return row.groesse.startsWith("Zuwachs") ? "KfW/Prognos 2026, Zuwachs" : row.groesse.startsWith("G3a") ? "KfW/Prognos 2026, netto" : "KfW/Prognos 2026";
-  if (s.startsWith("KfW-Fokus")) return "KfW 2021";
-  if (s.startsWith("Ariadne")) return "Ariadne";
-  if (s.startsWith("Zum Vergleich")) return "R21-Erklärung";
-  return s;
-}
-function grpOf(row){
-  const g = row.groesse;
-  if (g.startsWith("G1")) return "G1"; if (g.startsWith("G2")) return "G2";
-  if (g.startsWith("G3a") || g.startsWith("Zuwachs")) return "G3a"; if (g.startsWith("G3b")) return "G3b";
-  return "R21";
-}
-function rng(v){
-  if (typeof v === "number") return {mid:v};
-  if (v && typeof v.value === "number") return {mid:v.value};
-  if (v && typeof v.min === "number") return {min:v.min, max:v.max, mid:v.mid};
-  return null;
-}
-function fmtR(v, u){ const s = fmtV(v); return s === null ? "" : joinUnit(s, u); }
-
-function buildAct4(svg, W, H){
-  arrowDefs(svg, "m4");
-  const narrow = W < 640;
-  const w = W - 2*P;
-  let need = 0;
-  /* Szene 0: Matrix der drei Größen */
-  {
-    const g = sc(svg, 0);
-    const rows = [
-      ["Investitionen", "ja", "ja", "nur zusätzliche"],
-      ["Betrieb", "ja", "nein", "Differenz"],
-      ["Brennstoffe, Importe", "ja", "nein", "Differenz"],
-      ["Ersatz, der ohnehin anfiele", "ja", "ja", "nein"],
-      ["eingesparte Energie abgezogen", "nein", "nein", "G3b ja, G3a nein"]];
-    const labW = narrow ? 120 : 260;
-    const cw = (w - labW) / 3;
-    const heads = narrow ? [["G1", "Brutto-", "Gesamtkosten"], ["G2", "Brutto-", "Investitionen"], ["G3", "Mehr-", "kosten"]]
-                         : [["G1", "Brutto-Gesamtkosten", ""], ["G2", "Brutto-Investitionen", ""], ["G3", "Mehrkosten", "gegen Referenz"]];
-    const clsH = ["f-said-soft", "f-said-soft", "f-acc-soft"];
-    heads.forEach((h, i) => {
-      const x = P + labW + i*cw;
-      el("rect", {x:x + 2, y:P, width:cw - 4, height:60, class:clsH[i]}, g);
-      T(g, x + cw/2, P + 18, h[0], "b", "middle");
-      T(g, x + cw/2, P + 35, h[1], "sm", "middle");
-      if (h[2]) T(g, x + cw/2, P + 51, h[2], "sm", "middle");
-    });
-    let y = P + 64;
-    const rh = narrow ? 50 : 40;
-    rows.forEach(r => {
-      el("line", {x1:P, x2:W - P, y1:y, y2:y, class:"s-grid"}, g);
-      para(g, P, y + 18, r[0], labW - 8, "sm");
-      for (let i = 0; i < 3; i++){
-        const x = P + labW + i*cw;
-        para(g, x + cw/2, y + 18, r[i + 1], cw - 8, r[i + 1] === "ja" ? "b" : "sm", "middle");
-      }
-      y += rh;
-    });
-    el("line", {x1:P, x2:W - P, y1:y, y2:y, class:"s-grid"}, g);
-    const hh = para(g, P, y + 24, [{t:"R21:", c:"markb"}, {t:"eine Summe ohne Angabe, welche der drei Größen gemeint ist."}], w, "sm");
-    need = Math.max(need, y + 24 + hh + P);
-  }
-  /* Szene 1: ISE 2024, zwei Zahlen */
-  {
-    const g = sc(svg, 1);
-    const big = V("ise2024_gesamtaufwand");
-    const row = stRow("ise2024_differenzkosten");
-    const smallMin = row.summe_bio_eur.min, smallMax = row.summe_bio_eur.max;
-    const side = Math.min(narrow ? w * 0.62 : H - 2*P - 40, narrow ? 240 : 360);
-    const k = side / Math.sqrt(big);
-    const x = P, y = P + 26;
-    para(g, P, P + 12, "Fraunhofer ISE 2024 · Flächen maßstabsgerecht", w, "sm");
-    el("rect", {x:x, y:y, width:side, height:side, class:"f-said-soft", stroke:"var(--said)"}, g);
-    const sM = Math.sqrt(smallMax) * k, sm = Math.sqrt(smallMin) * k;
-    el("rect", {x:x + side - sM, y:y + side - sM, width:sM, height:sM, class:"f-acc-soft", stroke:"var(--accent)", "stroke-dasharray":"4 3"}, g);
-    el("rect", {x:x + side - sm, y:y + side - sm, width:sm, height:sm, class:"f-acc"}, g);
-    const tx = narrow ? P : x + side + 24, tw = narrow ? w : W - tx - P;
-    let ty = narrow ? y + side + 26 : y + 16;
-    ty += para(g, tx, ty, [{t:F("ise2024_gesamtaufwand"), c:"markb"}, {t:"G1 · gesamte Energieversorgung 2025 bis 2045"}], tw, "") + 10;
-    ty += para(g, tx, ty, [{t:"rund " + F("ise2024_differenzkosten", "mid", "Mrd. € pro Jahr"), c:"mark"},
-      {t:"G3b · Differenzkosten gegen ein fortgeschriebenes System, Szenarien " + F("ise2024_differenzkosten", null, "Mrd. €")}], tw, "") + 10;
-    ty += para(g, tx, ty, "Über die Jahre summiert rund " + fmtR(row.summe_bio_eur, "Bio. €") + " (unsere Rechnung, Setzung M): das kleine Quadrat.", tw, "sm");
-    need = Math.max(need, Math.max(y + side, ty) + P);
-  }
-  /* Szene 2: alle Studien als Anteil am BIP */
-  {
-    const g = sc(svg, 2);
-    const order = ["R21", "G1", "G2", "G3a", "G3b"];
-    const heads = {R21:"Zum Vergleich: R21", G1:"G1 · Brutto-Gesamtkosten", G2:"G2 · Brutto-Investitionen", G3a:"G3a · Mehrinvestitionen", G3b:"G3b · Mehrkosten nach Abzug eingesparter Energie"};
-    const rowsAll = D.studien_tabelle.am_original_gelesen;
-    const rows = [];
-    order.forEach(gr => {
-      rows.push({head:heads[gr], grp:gr});
-      rowsAll.filter(r => grpOf(r) === gr).forEach(r => {
-        const b = rng(r.bip_pct); if (!b) return;
-        rows.push(Object.assign({label:shortName(r), cls:gr === "R21" ? "f-said" : gr.startsWith("G3") ? "f-acc" : "f-neutral",
-          txt:fmtR(r.bip_pct, "%")}, b, {grp:gr}));
-      });
-    });
-    const xmax = Math.ceil(V("r21_anteil_bip_pa", "max") * 1.08);
-    const hc = para(g, P, P + 12, "Anteil am BIP 2024 pro Jahr · Balken = Spanne einer Studie · Strich = Mittelwert", w, "sm");
-    const fr = forest(g, P, P + 12 + hc, w, rows, {xmax:xmax, unit:"% des BIP pro Jahr", mid:"m4", inline:true});
-    // Bänder je Gruppe
-    const bandOf = {R21:Z.r21_anteil_bip_pa.value, G1:Z.brutto_anteil_bip_pa.value, G2:Z.brutto_anteil_bip_pa.value,
-                    G3a:Z.mehrinvestitionen_anteil_bip_pa.value, G3b:Z.mehrkosten_anteil_bip_pa.value};
-    const bandCls = {R21:"f-said-soft", G1:"f-said-soft", G2:"f-said-soft", G3a:"f-acc-soft", G3b:"f-acc-soft"};
-    const ys = {};
-    fr.items.forEach(it => { const gr = it.r.grp; ys[gr] = ys[gr] || [Infinity, -Infinity]; ys[gr][0] = Math.min(ys[gr][0], it.by - 4); ys[gr][1] = Math.max(ys[gr][1], it.by + 16); });
-    const bg = el("g", {}, g); g.insertBefore(bg, g.firstChild);
-    Object.keys(ys).forEach(gr => {
-      const b = bandOf[gr];
-      el("rect", {x:fr.x(b.min), y:ys[gr][0], width:fr.x(b.max) - fr.x(b.min), height:ys[gr][1] - ys[gr][0], class:bandCls[gr], opacity:.8}, bg);
-    });
-    need = Math.max(need, fr.yBot + P);
-  }
-  /* Szene 3: Netzkosten */
-  {
-    const g = sc(svg, 3);
-    const toM = v => v * 1000;
-    const dS = Z.dihk_systemkosten_2025_2034.value, ns = Z.netze_spanne_studien.value, nep = Z.nep_uen_kosten.value;
-    const rows = [
-      {head:"Netze laut R21 und in der DIHK-Studie"},
-      {label:"R21: Netze „nach einer Studie der DIHK“", mid:V("r21_netz_dihk_zitat"), cls:"f-said", txt:F("r21_netz_dihk_zitat")},
-      {label:"DIHK: ganzes System, nächste zehn Jahre", min:toM(dS.min), max:toM(dS.max), cls:"f-neutral", txt:F("dihk_systemkosten_2025_2034")},
-      {label:"DIHK: nur Netze, 2025 bis 2049", mid:toM(V("dihk_netzkosten_2025_2049")), cls:"f-acc", txt:F("dihk_netzkosten_2025_2049")},
-      {head:"Netze bis 2045 in anderen Quellen"},
-      {label:"BET/EWI 2025", mid:ns.min, cls:"f-acc", txt:nf(ns.min) + " Mrd. €"},
-      {label:"ef.Ruhr/EWI 2024", mid:ns.mid, cls:"f-acc", txt:nf(ns.mid) + " Mrd. €"},
-      {label:"R21 (EWI)", mid:V("r21_netz_ewi_zitat"), cls:"f-said", txt:F("r21_netz_ewi_zitat")},
-      {label:"Variante Langfristszenarien", mid:ns.max, cls:"f-acc", txt:nf(ns.max) + " Mrd. €"},
-      {label:"Bundesrechnungshof 2024: mehr als", mid:V("brh_netzausbau"), cls:"f-acc", open:true, txt:"> " + F("brh_netzausbau", null, "Mrd. €")},
-      {label:"NEP 2025: nur Übertragungsnetz", min:nep.nep2025_min, max:nep.nep2025_max, cls:"f-neutral", txt:nf(nep.nep2025_min) + " bis " + nf(nep.nep2025_max) + " Mrd. €"}];
-    const xmax = toM(dS.max) * 1.06;
-    const fr = forest(g, P, P + 8, w, rows, {xmax:xmax, unit:"Mrd. €", mid:"m4", inline:true});
-    need = Math.max(need, fr.yBot + P);
-  }
-  return need;
-}
-
-function buildAct5(svg, W, H){
-  arrowDefs(svg, "m5");
-  const narrow = W < 640;
-  const w = W - 2*P;
-  let need = 0;
-  /* Szene 0: leere Schale und Kernkraft-Hinweis */
-  {
-    const g = sc(svg, 0);
-    const h0 = card(g, P, P, w, [{t:"R21-Pfad", cls:"b"}, {t:"Summe: nicht beziffert. Die eigenen Zahlen decken nur Kraftwerke ab.", cls:"sm"}], "unr");
-    const kk = Z.kkw_neubau_spanne_gebaut.value;
-    const rows = [
-      {head:"Kernkraft-Neubau · kurzer Hinweis, volle Rechnung in Teil 6"},
-      {label:"R21, Faktenblatt B", mid:V("r21_kkw_neubau"), cls:"f-said", txt:F("r21_kkw_neubau")},
-      {label:"R21-Referenzpapier", mid:V("wendland_kkw_neubau"), cls:"f-said", txt:F("wendland_kkw_neubau")},
-      {label:"gebaute Projekte (Setzung M)", min:kk.min, max:kk.max, mid:kk.mid, cls:"f-acc", txt:fmtR(kk, "Mrd. €")}];
-    const fr = forest(g, P, P + h0 + 18, w, rows, {xmax:kk.max * 1.12, unit:"Mrd. €", mid:"m5", inline:true});
-    // Zeitachse erster Block
-    const yb = fr.yBot + 18;
-    const yr = Z.kkw_erster_block_jahr.value;
-    const y0 = 2027, y1 = yr.max + 2;
-    const tx = v => P + (v - y0) / (y1 - y0) * (w - 10);
-para(g, P, yb, "Erster neuer Block am Netz (bei Entscheidung 2027)", w, "sm b");
-    el("line", {x1:tx(y0), x2:tx(y1), y1:yb + 26, y2:yb + 26, class:"s-axis", "stroke-width":2}, g);
-    el("rect", {x:tx(yr.min), y:yb + 16, width:tx(yr.mid) - tx(yr.min), height:20, class:"f-acc grow"}, g);
-    el("rect", {x:tx(yr.mid), y:yb + 16, width:tx(yr.max) - tx(yr.mid), height:20, class:"f-acc-soft", stroke:"var(--accent)", "stroke-dasharray":"4 3"}, g);
-    T(g, tx(y0), yb + 52, nf(y0, 0, true), "sm", "start");
-    T(g, tx(yr.min), yb + 52, nf(yr.min, 0, true), "sm", "middle");
-    T(g, tx(yr.mid), yb + 52, nf(yr.mid, 0, true), "sm", "middle");
-    T(g, tx(yr.max), yb + 52, nf(yr.max, 0, true) + " ungünstig", "sm", "end");
-    need = Math.max(need, yb + 66 + P);
-  }
-  /* Szene 1 und 2: Mehrkosten mit Referenz */
-  const g3rows = () => {
-    const want = [["ise2021_mehraufwand", "„keine weitere CO₂-Minderung“"], ["agora_mehrinvestitionen_pa", "fossile Referenztechnik"],
-      ["kfw2026_ksi_netto_pa", "fossile Referenztechnik"], ["kfw2021_mehrinvestitionen", "beschlossene Politik"],
-      ["kfw2026_zuwachs_pa", "heutiges Niveau"], ["ise2024_differenzkosten", "fortgeschriebenes System"],
-      ["ariadne_mehrkosten_pa", "„existierende Politiken“"]];
-    const out = [{head:"Studie · gerechnet gegen …"}];
-    want.forEach(([id, ref]) => {
-      const r = stRow(id); const b = rng(r.bip_pct);
-      out.push(Object.assign({label:shortName(r) + " · " + ref, cls:"f-acc", txt:fmtR(r.bip_pct, "%"), id:id}, b));
-    });
-    const rr = stRow("r21_anteil_bip_pa");
-    out.push({head:"zum Vergleich"});
-    out.push(Object.assign({label:"R21-Erklärung, ohne Abgrenzung", cls:"f-said", txt:fmtR(rr.bip_pct, "%")}, rng(rr.bip_pct)));
-    return out;
-  };
-  [1, 2].forEach(stepNr => {
-    const g = sc(svg, stepNr);
-    const rows = g3rows();
-    if (stepNr === 2) rows.forEach(r => { if (r.cls === "f-acc") r.open = true; });
-    const xmax = Math.ceil(V("r21_anteil_bip_pa", "max") * 1.08);
-    const hc = para(g, P, P + 12, stepNr === 1 ? "Mehrkosten als Anteil am BIP 2024 pro Jahr" : "Pfeile: Werte können höher liegen (gestrichelt, offen)", w, "sm");
-    const fr = forest(g, P, P + 12 + hc, w, rows, {xmax:xmax, unit:"% des BIP pro Jahr", mid:"m5", inline:true});
-    let y = fr.yBot + 6;
-    if (stepNr === 2){
-      const ar = stRow("ariadne_mehrkosten_pa");
-      const it = fr.items.find(i => i.r.id === "ariadne_mehrkosten_pa");
-      if (it){
-        const bx = fr.x(ar.bip_pct.beharrung);
-        el("circle", {cx:bx, cy:it.by + 6, r:6, fill:"none", stroke:"var(--accent)", "stroke-width":2}, g);
-      }
-      const hh = para(g, P, y + 6, [{t:"Was fehlt oder zu niedrig sein kann:", c:"mark"},
-        {t:"Beharrung " + joinUnit(fmtV(V("beharrung_aufschlag_pct"), undefined, false, true), "%") + " (Kreis: Ariadne bei Beharrung " + fmtR(ar.bip_pct.beharrung, "%") + ") · Zinsen nicht enthalten · Referenz enthält schon Klimaschutz · Netz- und Windkosten steigen"}], w, "sm");
-      y += hh + 10;
-    }
-    need = Math.max(need, y + P);
-  });
-  /* Szene 3: sechs Kacheln */
-  {
-    const g = sc(svg, 3);
-    const ind = Z.industriestrom_de_eu.value, df = Z.dunkelflaute_luecke_5tage.value;
-    const tiles = [
-      ["Abhängigkeit von China", "PV-Module " + F("china_anteil_pv_extra_eu", "2015", "") + " → " + F("china_anteil_pv_extra_eu", "2025", "%") + " der Einfuhren von außerhalb der EU"],
-      ["Industrieproduktion", F("industrieproduktion_de_2025", "ggue_2018_pct", "%", 1) + " gegenüber 2018"],
-      ["Strompreis Industrie", "Deutschland " + nf(ind["2026s1_de"]) + " · EU " + nf(ind["2026s1_eu"]) + " ct/kWh (erstes Halbjahr 2026)"],
-      ["Dunkelflaute, Energiemenge", "Lücke " + joinUnit(fmtV(df.ziele2030, 1), "TWh") + " · R21 " + nf(df.r21) + " TWh"],
-      ["Emissionshandel", F("ets_minderung_seit_2005", null, "%") + " seit 2005 laut Kommission"],
-      ["Kosten-Monitoring", "Regierung: „keine eigenen Abschätzungen“"]];
-    const cols = narrow ? 2 : 3, gap = 12;
-    const tw = (w - (cols - 1)*gap) / cols;
-    const th = Math.max(...tiles.map(t => cardH(tw, [{t:"Hier hat R21 recht", cls:"sm acc"}, {t:t[0], cls:"b"}, {t:t[1], cls:"sm"}])));
-    tiles.forEach((t, i) => {
-      const x = P + (i % cols) * (tw + gap), y = P + 24 + Math.floor(i / cols) * (th + gap);
-      const gg = el("g", {}, g);
-      el("rect", {x:x, y:y, width:tw, height:th, class:"card acc"}, gg);
-      card(gg, x, y, tw, [{t:"Hier hat R21 recht", cls:"sm acc"}, {t:t[0], cls:"b"}, {t:t[1], cls:"sm"}], "bare");
-    });
-para(g, P, P + 12, "Einschränkungen je Punkt in den Kästen unter der Grafik", w, "sm");
-    need = Math.max(need, P + 24 + Math.ceil(tiles.length / cols) * (th + gap) + P);
-  }
-  return need;
-}
-
-/* ---------- Grafiken bauen und bei Größenänderung neu bauen ---------- */
-const BUILDERS = {1:buildAct1, 2:buildAct2, 3:buildAct3, 4:buildAct4, 5:buildAct5};
-let lastW = 0;
-function buildCharts(){
-  Object.keys(BUILDERS).forEach(k => {
-    const svg = document.getElementById("svg" + k);
-    const keep = svg.querySelector("title");
-    while (svg.lastChild && svg.lastChild !== keep) svg.removeChild(svg.lastChild);
-    while (svg.firstChild && svg.firstChild !== keep) svg.removeChild(svg.firstChild);
-    const fig = svg.closest(".fig");
-    const W = Math.max(300, Math.round(fig.getBoundingClientRect().width || 600));
-    const wide = innerWidth >= 1020;
-    const H = Math.round(wide ? Math.min(innerHeight * 0.78, W * 0.7) : Math.min(innerHeight * 0.5, W * 1.15));
-    BUILDERS[k](svg, W, H);
-    // Höhe je Szene messen; die viewBox folgt der gerade sichtbaren Szene
-    const needs = [0, 0, 0, 0];
-    svg.querySelectorAll("g.sc").forEach(g => {
-      let bb = null; try { bb = g.getBBox(); } catch (e) {}
-      const h = bb ? bb.y + bb.height + P : H;
-      [0, 1, 2, 3].forEach(i => { if (g.classList.contains("sc-" + i)) needs[i] = Math.max(needs[i], h); });
-    });
-    svg._dims = {W:W, H:H, needs:needs};
-    setViewBox(svg, +fig.dataset.step);
-    svg.setAttribute("preserveAspectRatio", "xMidYMin meet");
-    svg.style.maxHeight = wide ? "calc(100vh - 120px)" : "calc(64svh - 70px)";
-  });
-  lastW = innerWidth;
-}
-
-function setViewBox(svg, step){
-  const d = svg._dims; if (!d) return;
-  const i = Math.max(0, Math.min(3, isNaN(step) ? 0 : step));
-  svg.setAttribute("viewBox", "0 0 " + d.W + " " + Math.max(d.H, Math.ceil(d.needs[i] || d.H)));
-}
-function setStep(fig, i){
-  fig.dataset.step = i;
-  setViewBox(fig.querySelector("svg"), +i);
-}
-
-/* ---------- Quellen je Akt, Studientabelle, Quellenliste ---------- */
-function renderFigSources(){
-  $$(".fig-src").forEach(p => {
-    const akt = +p.dataset.akt;
-    const ids = [];
-    D.schritte.filter(s => s.akt === akt && /^\d/.test(s.id)).forEach(s => s.zahlen.forEach(z => { if (!ids.includes(z) && Z[z]) ids.push(z); }));
-    const bySrc = {};
-    ids.forEach(id => { const z = Z[id]; (bySrc[z.source] = bySrc[z.source] || []).push(z); });
-    p.textContent = "Zahlen in dieser Grafik aus: ";
-    Object.keys(bySrc).forEach(src => {
-      const zs = bySrc[src];
-      // schwächstes Abzeichen der Quelle zeigen
-      const order = {A:0, B:1, C:3, M:2};
-      const worst = zs.slice().sort((a, b) => (order[b.confidence] || 0) - (order[a.confidence] || 0) || (a.primaer_gelesen - b.primaer_gelesen))[0];
-      p.appendChild(chipEl(worst));
-    });
-    if (!Object.keys(bySrc).length) p.textContent = "";
-  });
-}
-function cellVal(v, u){
-  if (v === undefined || v === null) return "–";
-  if (typeof v === "string") return v;
-  if (typeof v === "number") return joinUnit(nf(v), u);
-  const parts = [];
-  if (typeof v.value === "number") parts.push(nf(v.value));
-  else if (typeof v.min === "number") parts.push(fmtV({min:v.min, max:v.max}) + (typeof v.mid === "number" ? " (Mitte " + nf(v.mid) + ")" : ""));
-  Object.keys(v).forEach(k => {
-    if (["value", "min", "max", "mid", "setzung"].includes(k)) return;
-    const lab = k === "beharrung" ? "Beharrung" : k.replace(/_/g, " ").replace("jahre", "Jahre");
-    parts.push(lab + ": " + nf(v[k]));
-  });
-  return joinUnit(parts.join(" · "), u) + (v.setzung ? " (M)" : "");
-}
-function renderTables(){
-  const head = "<tr><th>Studie</th><th>Auftraggeber / Geldgeber</th><th>Größe</th><th>Zeitraum</th><th>Summe</th><th>pro Jahr</th><th>Anteil am BIP 2024</th><th>Beleg</th></tr>";
-  const am = D.studien_tabelle.am_original_gelesen.map(r => {
-    const z = Z[(r.zahl_ids || [])[0]];
-    const chip = z ? chipEl(z).outerHTML : "";
-    return `<tr class="${grpOf(r) === "R21" ? "r21" : ""}"><td>${esc(r.studie)}</td><td>${esc(r.auftraggeber)}</td><td>${esc(r.groesse)}</td><td>${esc(r.zeitraum)}</td>` +
-      `<td class="num">${cellVal(r.summe_bio_eur, "Bio. €")}</td><td class="num">${cellVal(r.pro_jahr_mrd_eur, "Mrd. €")}</td><td class="num">${cellVal(r.bip_pct, "%")}</td><td>${chip}</td></tr>`;
-  }).join("");
-  $("#tbl-am").innerHTML = "<caption>Kernzahl am Original gelesen</caption><thead>" + head + "</thead><tbody>" + am + "</tbody>";
-  const head2 = "<tr><th>Studie</th><th>Auftraggeber</th><th>Größe</th><th>Zeitraum</th><th>Summe</th><th>pro Jahr</th><th>Anteil am BIP 2024</th><th>gelesen über</th></tr>";
-  const ni = D.studien_tabelle.nicht_am_original_gelesen.map(r => {
-    const summe = r.summe !== undefined ? '<a href="#anm-ifo">offen, siehe Anmerkung zu Akt 3</a>' : cellVal(r.summe_bio_eur, "Bio. €");
-    return `<tr><td>${esc(r.studie)} <span class="bd bd-${esc(r.confidence)}">${esc(r.confidence)} · nicht gelesen</span></td><td>${esc(r.auftraggeber)}</td><td>${esc(r.groesse)}</td><td>${esc(r.zeitraum)}</td>` +
-      `<td class="num">${summe}</td><td class="num">${cellVal(r.pro_jahr_mrd_eur, "Mrd. €")}</td><td class="num">${cellVal(r.bip_pct, "%")}</td><td>${esc(r.gelesen_ueber)}</td></tr>`;
-  }).join("");
-  $("#tbl-nicht").innerHTML = "<caption>Kernzahl nicht am Original gelesen</caption><thead>" + head2 + "</thead><tbody>" + ni + "</tbody>";
-}
-function esc(s){ return String(s === undefined ? "" : s).replace(/[&<>"]/g, c => ({"&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;"}[c])); }
-function renderSources(){
-  const list = $("#srclist");
-  const rows = [];
-  rows.push(`<div class="srcrow" id="q-@freigabe"><div class="nr">Q${SRC_NR["@freigabe"]}</div><div><div class="ti">Freigabeliste Teil 1 („Die Billionen-Zahl“)</div>` +
-    `<div class="me">Daten-WG, Stand ${esc(D.meta.stand)} · Datei ${esc(D.meta.document)} · eigene Zählungen und Einstufungen</div></div></div>`);
-  Object.keys(D.sources).forEach(k => {
-    const s = D.sources[k];
-    const meta = [];
-    if (s.herausgeber) meta.push(esc(s.herausgeber));
-    if (s.datum) meta.push("Datum " + esc(s.datum));
-    if (s.abruf) meta.push("abgerufen " + esc(s.abruf));
-    if (s.datei) meta.push("Datei " + esc(s.datei));
-    if (s.lizenz) meta.push("Lizenz " + esc(s.lizenz));
-    if (s.manifest) meta.push("Prüfsumme in " + esc(s.manifest));
-    if (s.hinweis) meta.push("Hinweis: " + esc(s.hinweis));
-    const url = s.url ? `<div class="me"><a href="${esc(s.url)}" rel="noopener nofollow">${esc(s.url)}</a></div>` : "";
-    const unread = s.gelesen === false ? `<div class="me unread">nicht am Original gelesen · Grund: ${esc(s.grund || "–")}</div>` : "";
-    rows.push(`<div class="srcrow" id="q-${esc(k)}"><div class="nr">Q${SRC_NR[k]}</div><div><div class="ti">${esc(s.titel || s.datei || k)}</div>` +
-      `<div class="me">${meta.join(" · ")}</div>${url}${unread}</div></div>`);
-  });
-  list.innerHTML = rows.join("");
-}
-
-/* ---------- Scroll-Steuerung ---------- */
-function wireScroll(){
-  const narrow = matchMedia("(max-width:1019px)").matches;
-  const io = new IntersectionObserver(entries => {
-    entries.forEach(e => {
-      if (!e.isIntersecting) return;
-      const step = e.target, sec = step.closest(".scrolly");
-      const fig = sec.querySelector(".fig");
-      step.parentElement.querySelectorAll(".step").forEach(s => s.classList.toggle("is-active", s === step));
-      setStep(fig, step.dataset.idx);
-    });
-  }, {rootMargin: narrow ? "-62% 0px -22% 0px" : "-42% 0px -42% 0px"});
-  $$(".step").forEach(s => io.observe(s));
-  $$(".scrolly").forEach(sec => {
-    new IntersectionObserver((es, obs) => {
-      es.forEach(e => {
-        if (!e.isIntersecting) return;
-        const fig = sec.querySelector(".fig");
-        if (fig.dataset.step === "-1"){ setStep(fig, "0"); sec.querySelector('.step[data-idx="0"]').classList.add("is-active"); }
-        obs.disconnect();
-      });
-    }, {threshold:.15}).observe(sec);
-  });
-}
-
-/* ---------- Glossar: Hin- und Rücksprung ---------- */
-(function glossary(){
-  let lastRef = null;
-  const goTo = (elm, block) => {
-    const dist = Math.abs(elm.getBoundingClientRect().top);
-    elm.scrollIntoView({block:block, behavior:dist > innerHeight*3 ? "instant" : "smooth"});
-  };
-  $$("a.gl").forEach(a => a.addEventListener("click", ev => {
-    const id = (a.getAttribute("href") || "").slice(1);
-    const target = document.getElementById(id);
-    if (!target) return;
-    ev.preventDefault();
-    lastRef = a.id || null;
-    target.open = true;
-    goTo(target, "start");
-    $$("a.gl-back").forEach(b => b.classList.remove("is-idle"));
-  }));
-  $$("a.gl-back").forEach(b => {
-    b.classList.add("is-idle");
-    b.addEventListener("click", ev => {
-      ev.preventDefault();
-      const src = lastRef ? document.getElementById(lastRef) : null;
-      goTo(src || $(".hero"), src ? "center" : "start");
-    });
-  });
-})();
-
-/* ---------- Start ---------- */
-async function boot(){
-  const note = $("#loadnote");
-  try {
-    const r = await fetch(DATA_URL, {cache:"no-cache"});
-    if (!r.ok) throw new Error(DATA_URL + " → HTTP " + r.status);
-    D = await r.json();
-  } catch (err){
-    note.classList.add("on");
-    note.innerHTML = "<b>Die Zahlen konnten nicht geladen werden.</b><br>" + (location.protocol === "file:"
-      ? "Die Seite wurde direkt aus dem Dateisystem geöffnet (<code>file://</code>). Browser blockieren dann das Nachladen " +
-        "des Datensatzes. Bitte im Repository-Ordner einen lokalen Webserver starten:<br><code>python3 -m http.server</code><br>" +
-        "und die Seite über <code>http://localhost:8000/energiewende-1-story.html</code> öffnen."
-      : "Fehlermeldung: <code>" + esc(err.message || err) + "</code>");
-    console.error("[teil1] Laden fehlgeschlagen:", err);
-    return;
-  }
-  D.zahlen.forEach(z => { Z[z.id] = z; });
-  SRC_NR["@freigabe"] = 1;
-  Object.keys(D.sources).forEach((k, i) => { SRC_NR[k] = i + 2; });
-  const problems = hydrate();
-  renderFigSources();
-  renderTables();
-  renderSources();
-  buildCharts();
-  wireScroll();
-  // Kontrolle: alle Platzhalter gefüllt?
-  const empty = $$("[data-v]").filter(n => !n.dataset.filled || /undefined|NaN|⚠/.test(n.textContent) || !n.textContent.trim());
-  if (problems.length || empty.length){
-    note.classList.add("on");
-    note.innerHTML = "<b>Datenfehler:</b> " + empty.length + " Platzhalter ohne Wert (" + esc(problems.join(", ")) + ").";
-    console.error("[teil1] Platzhalter ohne Wert:", problems, empty);
-  }
-  let rt = null;
-  addEventListener("resize", () => {
-    clearTimeout(rt);
-    rt = setTimeout(() => { if (Math.abs(innerWidth - lastW) > 40) buildCharts(); }, 200);
-  });
-  window.__storyReady = true;
-}
-boot();
+/*__SCRIPT__*/
 </script>
 </body>
 </html>
