@@ -74,16 +74,34 @@ Für Admins: Welche Anwendungen fragen die Modelle außerhalb von Power-BI-Beric
   - Ohne `-w` prüft es alle aktiven Workspaces.
   - Anmeldung: `az login` vorher, oder ein Service Principal über `AZURE_TENANT_ID`, `AZURE_CLIENT_ID` und
     `AZURE_CLIENT_SECRET`.
-  - Nur Lesezugriffe. Braucht Fabric-Admin-Rechte bzw. einen Service Principal, der für Admin-APIs freigegeben ist.
-  - Bei Abbruch die Meldung in Klartext erklären, zum Beispiel fehlende Admin-Rechte, Tenant-Einstellungen,
-    Monitoring aus oder keine Verbindung.
+  - Nur Lesezugriffe. Für den ganzen Tenant braucht es Fabric-Admin-Rechte bzw. einen Service Principal, der für
+    Admin-APIs freigegeben ist.
+  - **Ohne Admin-Rechte** wechselt `fetch` bei 401/403 von selbst in den Workspace-Modus (oder gleich mit
+    `--ohne-admin`): nur Workspaces, in denen das Konto Mitglied ist, Modelle per getDefinition (mindestens Rolle
+    Mitwirkender; mit nur Leserecht Namen über INFO.VIEW, ohne Ausdrücke und Rollen). Dem Nutzer dann sagen, dass es
+    ein Teilscan ist und welche Modelle ohne Zugriff oder nur mit Leserecht gelesen wurden.
+  - Workspace Monitoring sucht `fetch` selbst (Monitoring-Item, auch mit zentralem Eventhouse). Meldet es
+    ausgeschaltete Datensammlung oder keine Datenbank, das dem Nutzer so weitergeben.
+  - Für den ganzen Tenant: Fabric-Admin (oder freigegebener Service Principal), Monitoring in allen Workspaces mit
+    Weiterleitung an ein zentrales Eventhouse, und das Konto mindestens Mitwirkender im zentralen
+    Monitoring-Workspace. Fabric-Admin allein gibt keinen Zugriff auf die Log-Datenbanken.
+  - Bei Abbruch die Meldung in Klartext erklären, zum Beispiel Tenant-Einstellungen, Monitoring aus, kein Zugriff
+    auf den Workspace oder keine Verbindung.
 
 - **Notebook erzeugen:** `python3 <SKILL_DIR>/run.py notebook -o fabscan_tenant.ipynb`.
   Dem Nutzer erklären: In einen Fabric-Workspace importieren, ein Lakehouse anhängen, in der Parameter-Zelle die
-  Monitoring-Eventhouses eintragen, alle ausführen. Voraussetzungen stehen in der ersten Zelle (Fabric-Admin,
+  Workspaces eintragen (Monitoring sucht das Notebook ohne Admin-Rechte selbst), alle ausführen. Voraussetzungen stehen in der ersten Zelle (Fabric-Admin,
   zwei Tenant-Einstellungen für detaillierte Metadaten, Workspace Monitoring).
 - **Exportierte Dateien auswerten:** Hat der Nutzer eine Scanner-API-Antwort und einen Log-Export:
   `python3 <SKILL_DIR>/run.py --scan-result scan.json --query-log logs.csv -o tenant-bericht`.
+
+## Ausnahmen
+
+Ist ein Befund geprüft und gewollt, nicht den Code ändern, sondern mit dem Nutzer eine Ausnahme anlegen:
+`fabscan-ausnahmen.json` im Repo (bzw. `--ausnahmen DATEI`) mit `id` (aus dem Bericht oder `befunde.csv`) oder
+`regel` plus `client`/`modell`, immer mit `begruendung`, möglichst mit `verantwortlich` und `bis`. Die Begründung
+kommt vom Nutzer, nie selbst ausdenken. Akzeptierte Befunde stehen im Bericht unter „Bewusst akzeptiert“ und zählen
+nicht für `--fail-on`.
 
 ## 4 · Ausgaben für später
 

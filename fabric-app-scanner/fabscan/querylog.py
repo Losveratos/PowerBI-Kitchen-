@@ -47,6 +47,7 @@ class Client:
     last: str = ""
     duration_ms: float = 0.0
     skipped_mdx: int = 0
+    dropped: int = 0              # Ausführungen jenseits von max_texts verschiedenen Abfragen
 
     @property
     def runs(self) -> int:
@@ -107,19 +108,41 @@ def is_mdx(text: str) -> bool:
 
 
 def is_service_principal(user: str) -> bool:
+    """App-ID (GUID, auch mit @Tenant), „app@…“ oder ausdrücklich „serviceprincipal“. Andere Kennungen ohne „@“
+    (Systemkonten des Dienstes, leere Platzhalter) zählen nicht als Service Principal."""
     u = user.strip().lower()
-    return bool(u) and ("@" not in u or u.startswith("app@") or re.fullmatch(r"[0-9a-f-]{36}(@.*)?", u) is not None)
+    return bool(u) and (u.startswith("app@") or "serviceprincipal" in u.replace(" ", "").replace("_", "")
+                        or re.fullmatch(r"[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}(@.*)?", u) is not None)
+
+
+REQUIRED_COLUMNS = ("Timestamp", "OperationName", "EventText", "ItemId")
 
 
 def kql(days: int = 14, include_reports: bool = False, table: str = "SemanticModelLogs") -> str:
-    """KQL für das Monitoring-Eventhouse: QueryEnd der letzten Tage, gleiche Abfragen zusammengefasst."""
+    """KQL für das Monitoring-Eventhouse: QueryEnd der letzten Tage, gleiche Abfragen zusammengefasst.
+
+    Pflicht sind nur REQUIRED_COLUMNS. Die übrigen Spalten holt column_ifexists, damit eine abweichende
+    Tabelle (altes Workspace Monitoring, neues Monitoring-Item) nicht an einer fehlenden Spalte scheitert."""
     return (f"{table}\n"
             f"| where Timestamp > ago({int(days)}d) and OperationName == \"QueryEnd\"\n"
-            "| extend IsReport = tostring(ApplicationContext) has \"ReportId\"\n"
+            "| extend WorkspaceId = tostring(column_ifexists(\"WorkspaceId\", \"\")),"
+            " WorkspaceName = tostring(column_ifexists(\"WorkspaceName\", \"\")),"
+            " ItemName = tostring(column_ifexists(\"ItemName\", \"\")),"
+            " ApplicationName = tostring(column_ifexists(\"ApplicationName\", \"\")),"
+            " ExecutingUser = tostring(column_ifexists(\"ExecutingUser\", \"\")),"
+            " DurationMs = tolong(column_ifexists(\"DurationMs\", long(0)))\n"
+            "| extend IsReport = tostring(column_ifexists(\"ApplicationContext\", dynamic(null))) has \"ReportId\"\n"
             f"| where {'true' if include_reports else 'false'} or not(IsReport)\n"
             "| summarize Count = count(), FirstSeen = min(Timestamp), LastSeen = max(Timestamp), DurationMs = sum(DurationMs)\n"
             "    by WorkspaceId, WorkspaceName, ItemId, ItemName, ApplicationName, ExecutingUser, EventText, IsReport\n"
             "| extend OperationName = \"QueryEnd\"")
+
+
+def union_source(databases: list[str], table: str = "SemanticModelLogs") -> str:
+    """Quelle für kql() über mehrere Datenbanken desselben Eventhouse. isfuzzy überspringt fehlende Tabellen und
+    Datenbanken und scheitert nur, wenn keine einzige da ist (gegen echtes Kusto geprüft)."""
+    esc = lambda s: s.replace("\\", "\\\\").replace('"', '\\"')
+    return "union isfuzzy=true " + ", ".join(f'database("{esc(d)}").{table}' for d in databases)
 
 
 def normalize(text: str) -> str:
@@ -143,6 +166,8 @@ def clients(entries: list[LogQuery], include_reports: bool = False, max_texts: i
         norm = normalize(q.text)
         if norm in c.texts or len(c.texts) < max_texts:
             c.texts[norm] += q.count
+        else:
+            c.dropped += q.count
         if q.user:
             c.users.add(q.user)
         c.first = min(c.first, q.ts) if c.first else q.ts
