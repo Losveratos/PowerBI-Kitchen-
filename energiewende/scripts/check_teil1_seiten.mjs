@@ -66,7 +66,7 @@ const AUSNAHMEN = [
 ];
 // Satzanfänge, die nur Feldbezeichnungen der Seite sind (kein Tatsachengehalt);
 // sie werden vor dem Abgleich abgeschnitten, der Rest wird geprüft.
-const FELD_LABELS = /^(Quelle|Quellen|Fundstelle|Abgrenzung|Rechenweg|Vorbehalt|Auftraggeber oder Geldgeber|Auftraggeber|Preisbasis|abgezinst|Art|Abgerufen am|abgerufen|Stattdessen|Beleg|Belege|Aussagen|Lizenz|Summe|pro Jahr|fest \(BIP 2024\)|wachsend|Angabe der Studie|Grund|Wo|Vorher|Jetzt|Richtung|Nr\.|Abzeichen|Status|Wert|Beschriftung|Studie|Größe|Zeitraum)\s*:?\s*/;
+const FELD_LABELS = /^(Auftraggeber oder Geldgeber|fest \(BIP 2024\)|Angabe der Studie|Auftraggeber|Abgerufen am|Beschriftung|Stattdessen|Fundstelle|Abgrenzung|Preisbasis|Rechenweg|Vorbehalt|abgezinst|abgerufen|Abzeichen|Aussagen|pro Jahr|wachsend|Richtung|Zeitraum|Quellen|Quelle|Belege|Lizenz|Vorher|Status|Studie|Beleg|Summe|Grund|Jetzt|Größe|Nr\.|Wert|Art|Wo)\s*:?\s*/;
 
 /* ------------------------------------------------------------------ Datensatz */
 const DEC = new WeakMap();
@@ -119,7 +119,9 @@ const norm = s => String(s == null ? "" : s)
   .replace(/\s+/g, " ").trim();
 const NUM_RX = /\d+(?:[.,]\d+)*/g;
 const NUM_RX_SKEL = /-?\d+(?:[.,]\d+)*/g;
-const skel = s => norm(String(s).replace(PH_RX, "#")).replace(NUM_RX_SKEL, "#");
+// Spannen („# bis #“, „#–#“, „# (Mitte #)“) zählen wie eine Zahl, damit Text- und Grafikform gleich sind
+const skel = s => norm(String(s).replace(PH_RX, "#")).replace(NUM_RX_SKEL, "#")
+  .replace(/#(?:\s*(?:–|-|bis)\s*#)+/g, "#").replace(/# \(Mitte #\)/g, "#");
 
 /* Korpus: alle Texte der genannten Blöcke, Platzhalter aufgelöst (als #) */
 const KORPUS_BLOECKE = ["claims", "gegenpositionen", "schritte", "glossar", "quellen", "studien",
@@ -136,6 +138,7 @@ function strings(o, out) {
 const unitShort = u => String(u || "").replace(/\s*\((real 2023|EUR2024|verkettet[^)]*)\)/g, "").replace(/EUR/g, "€").trim();
 const korpusTexte = [];
 for (const b of KORPUS_BLOECKE.concat(KORPUS_ZUSATZ)) strings(D[b], korpusTexte);
+for (const q of Object.values(D.quellen)) korpusTexte.push(`${q.titel} (${q.herausgeber})`, `${q.herausgeber} – ${q.titel}`);
 for (const z of D.zahlen) {
   korpusTexte.push("# " + z.unit, "# " + unitShort(z.unit), unitShort(z.unit));
   // Objektwerte zeigt die Belegseite als „schlüssel wert; …“
@@ -207,6 +210,8 @@ function startServer() {
 function imBrowser(seite) {
   document.querySelectorAll("details").forEach(d => { d.open = true; });
   document.querySelectorAll("br").forEach(br => br.after(document.createTextNode(" ")));
+  // Feldbezeichnungen („Quelle:“, „pro Jahr“ …) als Trenner markieren, damit jedes Feld einzeln geprüft wird
+  document.querySelectorAll("b, .lab, strong").forEach(b => { if (/:\s*$/.test(b.textContent) || b.classList.contains("lab")) b.before(document.createTextNode(" · ")); });
   const BADGE = ".bp,.bx,.wk,.zg,.st,.cid,.qc,.sn,.rejtag,.fchip";
   const ZONE = el => {
     const z = el.closest("#verw,#verbot,#quellen,#q-body,#srcs,#entstanden,#entstehung,#korrekturen,#ungelesen,.twin,#legend,#lesehilfe,.ktab,.ptab,#tab-ph,#tab-st,#chart,#twin,figure,.panel,.mslot");
@@ -245,7 +250,6 @@ function imBrowser(seite) {
     let u = units.get(b);
     if (!u) { u = { t: "", el: b }; units.set(b, u); }
     const prev = n.previousSibling;
-    if (prev && prev.nodeType === 1 && (prev.tagName === "BR" || prev.matches(BADGE))) u.t += " ";
     u.t += n.nodeValue;
   }
   const out = [];
@@ -361,7 +365,7 @@ async function lade(browser, base, seite, breite, protokoll) {
 /* ------------------------------------------------------------------ Prüfungen */
 function satzstuecke(t) {
   // Sätze, dann Felder (" · ", "; ", Tabulator) – jedes Stück wird einzeln abgeglichen
-  return norm(t).split(/(?<=[.!?“"])\s+(?=[A-ZÄÖÜ„"(])|\s+·\s+|\s+–\s+|;\s+|\t/).map(s => s.trim()).filter(Boolean);
+  return norm(t).split(/(?<=[.!?“"])\s+(?=[A-ZÄÖÜ„"(])|\s*·\s+|\s+–\s+|;\s+|\t|\s+(?=https?:\/\/)/).map(s => s.trim()).filter(Boolean);
 }
 function ausnahme(seite, s) {
   for (const a of AUSNAHMEN) {
@@ -382,6 +386,7 @@ function imKorpus(s) {
 
 function pruefeA(seite, breite, r) {
   for (const u of r.units) {
+    if (RELEVANT_RX.test(u.t) && ausnahme(seite, norm(u.t))) { count("a"); continue; }
     const stuecke = satzstuecke(u.t);
     for (let s of stuecke) {
       const sOhneId = s.replace(ID_RX, " ").replace(/\s+/g, " ").trim();
