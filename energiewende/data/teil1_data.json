@@ -314,10 +314,10 @@
   },
   "7": {
    "name": "Abschlussrunde Teil 1",
-   "laeufe": 0,
-   "laeufe_mit_token": 0,
-   "token": 0,
-   "aufrufe": 0,
+   "laeufe": 3,
+   "laeufe_mit_token": 3,
+   "token": 1237467,
+   "aufrufe": 226,
    "summe_protokoll_token": null
   }
  },

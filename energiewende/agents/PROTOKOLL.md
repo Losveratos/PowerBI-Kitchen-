@@ -142,3 +142,13 @@ P7-C>. Führe deinen Teil aus.“
 
 | Auftrag | Modell | Start | Laufzeit | Token | Aufrufe | Ergebnis |
 |---|---|---|---|---|---|---|
+| P7-A Freigabeliste und Datensatz v3 | Opus | 2026-11-23 | 28,4 min | 509.358 | 80 | `docs/03_teil1_freigabe.md` v3: 166 Aussagen, 187 Zahlen, 65 Quellen; alle Befunde der fünf Berichte der Nachprüfung in Abschnitt 14 nachgewiesen; Build-Skript um zwei Prüfungen erweitert (Freitexte, neue Pflichtfelder), Gegenprobe mit sieben eingebauten Fehlern bestanden. Prämissen, Verantwortung, Finanzierung und Fehlermeldeweg als Aussagen im Datensatz |
+| P7-C Belegseite nachgezogen | Sonnet | 2026-11-23 | 16,4 min | 337.943 | 45 | `energiewende-1-belege.html`: Zahlenformat wie die Story, beide Abzeichen im Fließtext, Angabe der Studie aus dem strukturierten Feld, ungelesene Studien eigens gekennzeichnet, Messlatte je Dokumenttyp getrennt und nach v1.0 und v1.1, Spalte „Wem der alte Fehler geschadet hätte“. Prüfskript ohne Befund für die Belegseite |
+| P7-B Story nachgezogen | Opus | 2026-11-23 | 33,3 min | 390.166 | 101 | `energiewende-1-story.html`: stehende Grafik nie höher als der Bildschirm (sieben Bildschirmgrößen getestet), Grafiken im Druck (18 von 18), Akt 5 mit eigener Achse für Mehrinvestitionen und Mehrkosten, einheitliche Formen für „nicht gelesen“ und „Zuwachs“, null Konsolenfehler, Prämissen und Verantwortung aus dem Datensatz. Abnahme: Prüfskript „alle Prüfungen bestanden“, Layout-Skripte ohne Treffer |
+
+**Abnahme durch die Orchestrierung (23.11.2026):** `build_teil1_data.py`
+alle Prüfungen bestanden · `check_teil1_seiten.mjs` alle acht Prüfungen
+bestanden, Exit-Code 0 · `p6e_22_layout_lowvh.js` ohne Treffer bei
+1280×720, 1366×768 und 1024×700 · `p6e_22_layout_print.js` 18 sichtbare
+Grafiken im Druck. Selbst im Bild angesehen: Akt 4 Schritt 3 am Bildschirm,
+Akt 5 Schritt 2 und die Prämissen am Handy.

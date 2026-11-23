@@ -40,7 +40,7 @@
   --link:#2B4FA3;
   --c-r21:#2B4FA3; --c-g1:#4A4F55; --c-g2:#8C7B66; --c-g3a:#B5532A; --c-g3b:#5A2A0E; --c-eigen:#9A3F86;
   --c-zu:#5B6676; --c-neutral:#7A8190;
-  --c-r21-soft:#E3E9F6; --band-soft:#E6E3DA; --band-edge:#B9B4A6;
+  --c-r21-soft:#E3E9F6; --band-soft:#E6E3DA; --band-edge:#8F8A7C;
   /* Abzeichen, gemeinsam mit der Belegseite: --b-X = Fläche, --b-X-ink = Schrift */
   --b-zitat:#8A8F98; --b-zitat-ink:#334155; --b-zitat-no-ink:#5B6676;
   --b-wert-b:#F1E7D2; --b-wert-b-ink:#5E420A;
@@ -63,7 +63,7 @@
     --link:#9CC0F5;
     --c-r21:#8DB1F2; --c-g1:#AEB6C0; --c-g2:#9C8B72; --c-g3a:#E8794A; --c-g3b:#F6CFAE; --c-eigen:#E09BD0;
     --c-zu:#9AA7B8; --c-neutral:#8C96A3;
-    --c-r21-soft:#1E2B45; --band-soft:#2A3542; --band-edge:#56616E;
+    --c-r21-soft:#1E2B45; --band-soft:#2A3542; --band-edge:#6E7A88;
     --b-zitat:#7C8794; --b-zitat-ink:#C9CED6; --b-zitat-no-ink:#9AA4B1;
     --b-wert-b:#3A2D15; --b-wert-b-ink:#E7C281;
     --b-wert-c:#40251A; --b-wert-c-ink:#F2A688;
@@ -82,7 +82,7 @@
   --link:#9CC0F5;
   --c-r21:#8DB1F2; --c-g1:#AEB6C0; --c-g2:#9C8B72; --c-g3a:#E8794A; --c-g3b:#F6CFAE; --c-eigen:#E09BD0;
   --c-zu:#9AA7B8; --c-neutral:#8C96A3;
-  --c-r21-soft:#1E2B45; --band-soft:#2A3542; --band-edge:#56616E;
+  --c-r21-soft:#1E2B45; --band-soft:#2A3542; --band-edge:#6E7A88;
   --b-zitat:#7C8794; --b-zitat-ink:#C9CED6; --b-zitat-no-ink:#9AA4B1;
   --b-wert-b:#3A2D15; --b-wert-b-ink:#E7C281;
   --b-wert-c:#40251A; --b-wert-c-ink:#F2A688;
@@ -190,7 +190,8 @@ figure.sf .ft{font-family:var(--serif);font-weight:700;font-size:17px;line-heigh
 figure.sf .fs{font-family:var(--mono);font-size:12px;color:var(--muted);margin-top:2px}
 figure.sf svg{display:block;max-width:none}
 figure.sf .figbody{padding:4px 0 8px}
-.tog{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.tog{display:flex;flex-wrap:wrap;gap:6px}
+.fsrow{display:flex;flex-wrap:wrap;align-items:center;gap:4px 12px}
 .tog button{font-family:var(--mono);font-size:12.5px;padding:5px 10px;border:1px solid var(--axis);background:var(--surface);color:var(--ink-2);cursor:pointer;border-radius:999px}
 .tog button[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
 details.twin{margin-top:10px;border-top:1px dashed var(--axis);padding-top:8px}
@@ -229,6 +230,8 @@ details.twin td.v{font-family:var(--mono);white-space:nowrap}
   .panel figure.sf figcaption{flex:0 0 auto}
   .panel figure.sf .figbody{flex:1 1 auto;min-height:0;overflow-y:auto;overscroll-behavior:contain}
   .panel figure.sf .scrollhint{display:none}
+  .panel .dslot.tall{padding-top:12px}
+  .panel .dslot.tall figure.sf{max-height:calc(100vh - 24px)}
   .panel figure.sf.ovf .scrollhint{display:block}
   .step{min-height:92vh;display:flex;align-items:center;padding:24px 0}
   .step .card{width:100%}
@@ -274,7 +277,7 @@ svg text.c-unr{fill:var(--unread)} svg text.c-eigen{fill:var(--c-eigen)} svg tex
 .k-mid-o{stroke:var(--surface);stroke-width:6} .k-mid{stroke:var(--ink);stroke-width:2.5}
 .k-rng{stroke-width:3;fill:none} .k-rng.g3b{stroke:var(--c-g3b)} .k-rng.eigen{stroke:var(--c-eigen)} .k-rng.g1{stroke:var(--c-g1)}
 .k-band{fill:var(--band-soft);stroke:var(--band-edge);stroke-width:1}
-figure.sf .scrollhint{font-family:var(--mono);font-size:12px;color:var(--muted);padding:2px 12px 0}
+figure.sf .scrollhint{display:none;font-family:var(--mono);font-size:12px;color:var(--muted);padding:2px 12px 0}
 
 /* ---------- Kacheln und Kästen ---------- */
 .kacheln{max-width:1100px;margin:0 auto;padding:0 16px 20px;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:14px}
@@ -908,14 +911,17 @@ function hbars(g, x0, y0, w, list, opt, pd, rows){
   const items = [];
   list.forEach(r => {
     if (r.gap){ y += 10; E("line", {x1:x0, x2:x0 + w, y1:r1(y - 5), y2:r1(y - 5), class:"k-axis", "stroke-dasharray":"3 3"}, g); }
-    const lh = TBH(r.label, w, lab);
+    const lh = TBH(r.label, w, lab) + (r.sub ? TBH(r.sub, w, "t-sm") : 0);
     items.push({r, yl:y, y:y + lh + 2});
     y += lh + 2 + bh + 10;
   });
   const yBot = y - 4;
   drawAxis(g, x0, x0 + plotW, y0, yBot, ax, opt.unit);
   /* Beschriftungen nach dem Gitter, mit Halo (Bericht 22 k1) */
-  items.forEach(({r, yl}) => TB(g, x0, yl, r.label, w, lab));
+  items.forEach(({r, yl}) => {
+    const h1 = TB(g, x0, yl, r.label, w, lab);
+    if (r.sub) TB(g, x0, yl + h1, r.sub, w, "t-sm halo");
+  });
   items.forEach(({r, y}) => {
     if (r.lo !== undefined){
       const yc = y + bh / 2, a = sx(r.lo), b = sx(r.hi), c = "k-rng " + (r.rng || "g1");
@@ -1005,7 +1011,7 @@ BUILD["balken"] = function(svg, st, W, rows, pf){
       const isR21 = r.zahl.startsWith("r21");
       const gap = !!(r.absetzen && first); if (r.absetzen) first = false;
       /* abgesetzt: schraffiert, der Grund steht an der Zeile (Bericht 22 k4) */
-      return {label:r.label + (r.absetzen && r.absetzen_grund ? " · abgesetzt: " + r.absetzen_grund : ""), v:m.v, txt, gap,
+      return {label:r.label, sub:r.absetzen && r.absetzen_grund ? "abgesetzt: " + r.absetzen_grund : "", v:m.v, txt, gap,
         fill:r.absetzen && !isR21 ? pf.hatch : (isR21 ? pf.r21 : undefined),
         cls:isR21 ? "s-r21" : (r.absetzen ? "k-axis" : "f-neutral")};
     });
@@ -1172,7 +1178,7 @@ BUILD["quellenkette"] = function(svg, st, W, rows, pf){
 BUILD["gestapelte_balken"] = function(svg, st, W, rows, pf){
   const g = st.grafik;
   let y = 8;
-  y += 4 + 18 + 8; pill(svg, P, 8, "Wert: C · nicht am Original gelesen", "f-unr");
+  y += 4 + 18 + 8; pill(svg, P, 8, "Wert: C · nicht am Original gelesen", "k-card unr");
   const tot = g.reihen.map(r => rawVal(r.zahl, "gesamt"));
   const reserve = Math.max(...g.reihen.map(r => tw(fmtRef(r.zahl, "gesamt") + " " + unitShort(Z[r.zahl].unit), "t-num"))) + 10;
   const ax = axisSteps(Math.max(...tot), W - 2 * P), plotW = W - 2 * P - reserve;
@@ -1249,7 +1255,7 @@ function forest(svg, x0, y0, W, groups, opt, pf){
   const lw = wide ? Math.min(340, Math.round(W * 0.42)) : 0;
   const all = [];
   groups.forEach(gr => gr.items.forEach(it => all.push(it)));
-  const reserve = Math.max(...all.map(it => Math.max(tw(it.txt, "t-num"), it.own ? tw(it.own.txt, "t-sm") : 0))) + 14;
+  const reserve = Math.max(...all.map(it => tw(it.txt, "t-num"))) + 14;
   const px0 = x0 + lw, px1 = x0 + W - reserve;
   const max = Math.max(opt.max || 0, ...all.map(it => it.hi), ...all.map(it => it.own ? it.own.v[1] : 0));
   const ax = axisSteps(max, px1 - px0);
@@ -1259,17 +1265,17 @@ function forest(svg, x0, y0, W, groups, opt, pf){
   const marks = [], labels = [];
   groups.forEach(gr => {
     const gy0 = y;
-    labels.push([x0, y + 4, gr.label, W, "t-labb halo"]);
-    y += TBH(gr.label, W, "t-labb") + 8;
+    labels.push([x0, y + 2, gr.label, W, "t-labb halo"]);
+    y += TBH(gr.label, W, "t-labb") + 4;
     gr.items.forEach(it => {
       const name = it.name + (it.note ? " · " + it.note : "");
-      const extra = it.own ? 14 : 0;
+      const extra = it.own ? 6 : 0;
       if (wide){
         const nameH = TBH(name, lw - 10, "t-lab");
         const rh = Math.max(nameH, 18);
         labels.push([x0, y, name, lw - 10, "t-lab halo"]);
         marks.push({it, y:y + Math.min(rh, 20) / 2 + 1});
-        y += Math.max(rh, 18 + extra) + 6 + (nameH > 18 ? extra : 0);
+        y += Math.max(rh, 18 + extra) + 6;
       } else {
         labels.push([x0, y, name, W, "t-lab halo"]);
         y += TBH(name, W, "t-lab") + 2;
@@ -1294,10 +1300,20 @@ function forest(svg, x0, y0, W, groups, opt, pf){
     else E("rect", {x:r1(sx(it.lo)), y:r1(y - 5), width:r1(Math.max(3, sx(it.hi) - sx(it.lo))), height:10, class:it.sty.cls, fill:it.sty.fill}, svg);
     T(svg, sx(it.hi) + 9, y + 5, it.txt, "t-num halo");
     if (it.own){
-      const [a, b] = it.own.v, yo = y + 15;
+      /* Angabe der Studie: Kreis unter der Marke, Zahl links davon (rechts nur, wenn links kein Platz ist) */
+      const [a, b] = it.own.v, yo = y + 12, wt = tw(it.own.txt, "t-sm");
       if (a !== b) E("line", {x1:r1(sx(a)), x2:r1(sx(b)), y1:r1(yo), y2:r1(yo), class:"k-ink", "stroke-width":1}, svg);
       [...new Set(it.own.v)].forEach(v => E("circle", {cx:r1(sx(v)), cy:r1(yo), r:4, class:"k-ink f-surf"}, svg));
-      T(svg, sx(b) + 9, yo + 4, it.own.txt, "t-sm halo");
+      /* Platz für die Zahl: links vom Kreis, sonst rechts hinter dem Wert der Marke, sonst eine Zeile tiefer */
+      const m0 = sx(it.hi) + 9, m1 = m0 + tw(it.txt, "t-num");
+      const free = (x1, x2) => x2 <= m0 - 4 || x1 >= m1 + 4;
+      const lx = sx(a) - 8 - wt;
+      if (lx >= px0 + 2 && free(lx, lx + wt)) T(svg, sx(a) - 8, yo + 4, it.own.txt, "t-sm halo", "end");
+      else {
+        const rx = Math.max(sx(b) + 8, m1 + 10);
+        if (rx + wt <= x0 + W) T(svg, rx, yo + 4, it.own.txt, "t-sm halo");
+        else T(svg, sx(b) + 8, yo + 14, it.own.txt, "t-sm halo");
+      }
     }
   });
   return {h:yBot + 38 - y0, sx, yStart, yBot};
@@ -1406,7 +1422,7 @@ BUILD["waage_und_balken"] = function(svg, st, W, rows, pf){
   /* Systempreis: eine Einheit (€/MWh); R21s Angabe in ct/kWh mal zehn (Bericht 22 k5) */
   const xB = two ? P + colW + 24 : P;
   let yb = two ? yA : ya + 14;
-  T(svg, xB, yb + ASC("t-hd"), "Systempreis Strom, €/MWh", "t-hd"); yb += LH("t-hd") + 4;
+  T(svg, xB, yb + ASC("t-hd"), "Systempreis Strom", "t-hd"); yb += LH("t-hd") + 4;
   pill(svg, xB, yb, "Wert: C · Studie nicht gelesen", "k-card"); yb += 24;
   const [sp, ws] = g.systempreis.zahlen;
   const sys = [["R21", sp, null], ["R21-Referenzpapier, Mischsystem", ws, "mix"], ["R21-Referenzpapier, nur Erneuerbare", ws, "nur_ee"]];
@@ -1414,6 +1430,7 @@ BUILD["waage_und_balken"] = function(svg, st, W, rows, pf){
     const z = Z[id];
     let v = fmtRef(id, k);
     if (/ct\/kWh/.test(z.unit)) v = nf(rawVal(id, k) * 10, Math.max(0, decFor(z, k) - 1), true);
+    v += " €/MWh";
     const lw = colW - tw(v, "t-mono") - 10;
     const h = TB(svg, xB, yb, l, lw, "t-lab" + (l === "R21" ? " c-r21" : ""));
     T(svg, xB + colW, yb + ASC("t-mono"), v, "t-mono", "end");
@@ -1484,7 +1501,7 @@ function renderFig(f, slot, W, keepRows){
   fig.dataset.claim = st.claims.join(" ");
   const cap = document.createElement("figcaption");
   const sub = subOf(st);
-  cap.innerHTML = '<div class="ft">' + esc(g.titel) + '</div><div class="fs">' + esc(sub) + '</div>';
+  cap.innerHTML = '<div class="ft">' + esc(g.titel) + '</div><div class="fsrow"><div class="fs">' + esc(sub) + '</div></div>';
   if (g.typ === "punktdiagramm"){
     const tg = document.createElement("div");
     tg.className = "tog";
@@ -1495,7 +1512,7 @@ function renderFig(f, slot, W, keepRows){
       b.setAttribute("aria-pressed", String(b.dataset.m === BIPMODE));
       b.addEventListener("click", () => { BIPMODE = b.dataset.m; buildAll(); });
     });
-    cap.appendChild(tg);
+    cap.querySelector(".fsrow").appendChild(tg);
   }
   fig.appendChild(cap);
   slot.appendChild(fig);
@@ -1532,10 +1549,102 @@ function markOverflow(){
   FIGS.forEach(f => {
     const fig = f.dslot.querySelector("figure"); if (!fig) return;
     const b = fig.querySelector(".figbody");
-    fig.classList.toggle("ovf", !!b && b.scrollHeight > b.clientHeight + 2);
+    const over = () => !!b && b.scrollHeight > b.clientHeight + 2;
+    f.dslot.classList.remove("tall"); fig.classList.remove("ovf");
+    if (over()) f.dslot.classList.add("tall");     /* weniger Abstand oben, bevor innen gescrollt wird */
+    fig.classList.toggle("ovf", over());
   });
 }
 
+function twinHTML(f){
+  const st = f.st;
+  if (st.grafik.typ === "punktdiagramm" || st.grafik.typ === "zwei_gruppen") return twinStudien(st);
+  if (!f.rows || !f.rows.length) return "";
+  const body = f.rows.map(r => {
+    const z = Z[r.id];
+    return '<tr><td data-h="Beschriftung">' + esc(r.label) + '</td><td class="v" data-h="Wert">' + esc(r.text) + '</td><td data-h="Abzeichen">' +
+      badgeHTML(z) + '</td><td data-h="Quelle">' + srcLine(z.quelle, z.fundstelle, z.rechenweg).replace(/^<span class="srcline">Quelle: /, "<span>") + '</td></tr>';
+  }).join("");
+  return '<details class="twin"><summary>Werte der Grafik als Tabelle</summary><div class="tw"><table><caption class="vh">' + esc(st.grafik.titel) + '</caption><thead><tr><th scope="col">Beschriftung</th><th scope="col">Wert</th><th scope="col">Abzeichen</th><th scope="col">Quelle, Fundstelle</th></tr></thead><tbody>' + body + '</tbody></table></div></details>';
+}
+/* Studientabelle: je Wert das eigene Abzeichen (Bericht 21, Hinweis 4.3); Angabe der Studie aus angabe_studie */
+function twinStudien(st){
+  const g = st.grafik, ids = [];
+  g.gruppen.forEach(gr => gr.studien.forEach(id => ids.push([gr.label, id])));
+  const cell = (id) => (typeof Z[id].value === "number" ? zSpan(id, "", fmtOne(id)) : zSpan(id, "min", fmtOne(id, "min")) + "–" + zSpan(id, "max", fmtOne(id, "max"))) +
+    badgeHTML(Z[id], true) + " %" + badgeVis(Z[id]);
+  const body = ids.map(([gl_, id]) => {
+    const s = studie(id); if (!s) return "";
+    const a = s.angabe_studie;
+    let ang = "–";
+    if (a && a.text) ang = rich(a.text) + (a.zeichnen === false && a.grund_nicht_gezeichnet ? '<div class="vb">nicht gezeichnet: ' + esc(a.grund_nicht_gezeichnet) + '</div>' : "");
+    const umfang = s.gelesen_umfang ? '<div class="vb">' + esc(s.gelesen_umfang) + '</div>' : "";
+    return '<tr><td data-h="Studie">' + esc(s.studie) + umfang + '</td><td data-h="Größe">' + esc(gl_) + '</td><td class="v" data-h="festes BIP 2024">' + cell(s.zahlen_erzeugt.bip_fest) +
+      '</td>' + (st.grafik.typ === "punktdiagramm" ? '<td class="v" data-h="wachsendes BIP">' + cell(s.zahlen_erzeugt.bip_wachsend) + '</td>' : "") +
+      '<td data-h="Angabe der Studie">' + ang + '</td><td data-h="Quelle">' +
+      srcLine(s.quelle, s.fundstelle).replace(/^<span class="srcline">Quelle: /, "<span>") + '</td></tr>';
+  }).join("");
+  let extra = "";
+  if (st.grafik.typ === "zwei_gruppen"){
+    /* Hinweiszeile unter dem Bild: Brutto-Band und R21, andere Größe */
+    const r21 = studie(g.r21.studie), rid = bipRef(r21, "fest"), hid = g.hintergrund.zahl;
+    const z1 = Z[hid], z2 = Z[rid];
+    extra = '<tr><td data-h="Studie">' + esc(g.hintergrund.label) + '</td><td data-h="Größe">G1 und G2 brutto</td><td class="v" data-h="festes BIP 2024">' + cell(hid) +
+      '</td><td data-h="Angabe der Studie">–</td><td data-h="Quelle">' + srcLine(z1.quelle, z1.fundstelle, z1.rechenweg).replace(/^<span class="srcline">Quelle: /, "<span>") + '</td></tr>' +
+      '<tr><td data-h="Studie">' + esc(g.r21.beschriftung) + '</td><td data-h="Größe">R21, ohne Abgrenzung</td><td class="v" data-h="festes BIP 2024">' + cell(rid) +
+      '</td><td data-h="Angabe der Studie">' + (r21.angabe_studie && r21.angabe_studie.text ? rich(r21.angabe_studie.text) : "–") + '</td><td data-h="Quelle">' + srcLine(z2.quelle, z2.fundstelle, z2.rechenweg).replace(/^<span class="srcline">Quelle: /, "<span>") + '</td></tr>';
+  }
+  const two = st.grafik.typ === "punktdiagramm";
+  return '<details class="twin"><summary>Werte der Grafik als Tabelle' + (two ? " (beide Rechnungen)" : "") + '</summary><div class="tw"><table><caption class="vh">' + esc(g.titel) + '</caption><thead><tr><th scope="col">Studie</th><th scope="col">Größe</th><th scope="col">festes BIP 2024</th>' +
+    (two ? '<th scope="col">wachsendes BIP</th>' : "") + '<th scope="col">Angabe der Studie</th><th scope="col">Quelle</th></tr></thead><tbody>' + body + extra + '</tbody></table></div></details>';
+}
+
+/* ================================================================
+   Seite zusammensetzen
+================================================================ */
+const AKT_TITEL = {1:"Der Satz", 2:"Die Fußnote", 3:"Die Quelle der Quelle", 4:"Drei Größen", 5:"Der Vergleichspfad"};
+function renderActs(){
+  const host = $("#akte");
+  for (let a = 1; a <= 5; a++){
+    const steps = D.schritte.filter(s => s.akt === a && s.grafik.typ !== "kacheln");
+    const sec = document.createElement("section");
+    sec.className = "akt"; sec.id = "akt-" + a;
+    sec.setAttribute("aria-labelledby", "h-akt-" + a);
+    sec.innerHTML = '<div class="akt-head"><div class="kicker">Akt ' + a + '</div><h2 id="h-akt-' + a + '">' + AKT_TITEL[a] + '</h2></div>' +
+      '<div class="scrolly"><div class="steps"></div><div class="panel"></div></div>';
+    host.appendChild(sec);
+    const stepsEl = $(".steps", sec), panel = $(".panel", sec);
+    steps.forEach((st, i) => {
+      const el = document.createElement("div");
+      el.className = "step"; el.dataset.sid = st.id; el.id = "s-" + st.id.replace(".", "-");
+      el.innerHTML = '<div class="mslot"></div><article class="card"><span class="n">Akt ' + a + ' · Schritt ' + (i + 1) + '</span><h3>' + esc(st.grafik.titel) + '</h3>' +
+        st.claims.map(id => claimHTML(id)).join("") + '<div class="twslot"></div></article>';
+      stepsEl.appendChild(el);
+      const ds = document.createElement("div");
+      ds.className = "dslot" + (i === 0 ? " on" : ""); ds.dataset.sid = st.id;
+      panel.appendChild(ds);
+      FIGS.push({st, stepEl:el, mslot:$(".mslot", el), dslot:ds, panel, rows:null});
+    });
+  }
+}
+function buildAll(){
+  const desk = DESK.matches;
+  FIGS.forEach(f => {
+    if (desk){
+      renderFig(f, f.dslot, f.panel.clientWidth);
+      /* zweite Fassung im Fluss für Druck und PDF (Bericht 22 K2) */
+      renderFig(f, f.mslot, f.stepEl.clientWidth, true);
+    } else {
+      f.dslot.innerHTML = "";
+      renderFig(f, f.mslot, f.stepEl.clientWidth);
+    }
+  });
+  FIGS.forEach(f => {
+    const ts = $(".twslot", f.stepEl);
+    if (!ts.dataset.done){ ts.innerHTML = twinHTML(f); ts.dataset.done = "1"; }
+  });
+  markOverflow();
+}
 function wireScroll(){
   const live = $("#live");
   const io = new IntersectionObserver(es => {
@@ -1748,7 +1857,7 @@ async function boot(){
   let lastW = innerWidth, rt = null;
   addEventListener("resize", () => {
     clearTimeout(rt);
-    rt = setTimeout(() => { if (Math.abs(innerWidth - lastW) > 30){ lastW = innerWidth; buildAll(); } }, 180);
+    rt = setTimeout(() => { if (Math.abs(innerWidth - lastW) > 30){ lastW = innerWidth; buildAll(); } else markOverflow(); }, 180);
   });
   DESK.addEventListener("change", () => buildAll());
   window.__storyReady = true;

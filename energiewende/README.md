@@ -131,10 +131,26 @@ Das Lauf-Protokoll mit Laufzeit und Token je Agent steht in `agents/PROTOKOLL.md
 | 2026-11-22 | 5 · Reviews | 13 Berichte in `research/reviews_teil1/`: elf Rollen, ein Freigabe-Prüfer, ein Messlatten-Prüfer. 183 Befunde, gebündelt zu 123 Punkten (20 kritisch, 52 mittel, 51 klein); alle 20 kritischen in der Synthese bestätigt. Richtung der 72 kritischen und mittleren Punkte: 22 hätten zulasten von R21 gewirkt, 13 zulasten der Energiewende, 7 zu ihren Gunsten, 30 ohne Richtung. Messlatte (ohne K3, höchstens 18): Teil 1 dieser Reihe 15, KfW/Prognos 13, DIHK/Frontier 11, R21 6. |
 | 2026-11-23 | 5 · Lehren | Neun Verfahrensfehler benannt (Synthese, Abschnitt 3): Die Freigabeliste war an tragenden Stellen selbst fehlerhaft und hat vorhandenes Material weggelassen; die Bau-Agenten schrieben nicht freigegebene Sätze; der Datensatz war unvollständig; Konfidenz A wurde falsch verwendet; die Prüfung am Handy war zu dünn; eine Entscheidung trug einen falschen Begriff weiter. Die Regeln für Teil 2 bis 6 werden angepasst. |
 | 2026-11-23 | 6 · Überarbeitung | Sieben weitere Entscheidungen von Michael (Tabelle oben). `TRANSPARENZ.md` v0.2 (zwei Abzeichen), Messlatte v1.1 (fünf Präzisierungen mit Datum). Freigabeliste v2 beauftragt. |
+| 2026-11-23 | 6 · Neubau | Freigabeliste v2 (150 Aussagen mit Wortlaut, 180 Zahlen mit zwei getrennten Angaben; keine Zahl mehr auf Stufe A). Beide Seiten neu, allein aus dem Datensatz. |
+| 2026-11-23 | 6 · Nachprüfung | Fünf unbeteiligte Prüfer (`research/reviews_teil1/runde2/`). Von den 20 kritischen Punkten der ersten Runde 17 behoben, 2 teilweise, 1 zurückgestellt. Quellentreue 12 von 12. Messlatte unabhängig neu: 15 von 18 nach v1.0, 14 von 16 nach v1.1. Die Überarbeitung hatte neue Fehler eingeführt — 9 kritisch, 26 mittel, 41 klein, wieder in beide Richtungen (u. a. ein unbelegter Satz gegen R21; die Prämissen fehlten; R21s Klimaposition nur halb zitiert). Neu: Prüfskript `scripts/check_teil1_seiten.mjs`. |
+| 2026-11-23 | 7 · Abschlussrunde | Freigabeliste und Datensatz v3 (166 Aussagen, 187 Zahlen, 65 Quellen), beide Seiten nachgezogen. Abnahme: Build-Skript, Prüfskript (acht Prüfungen, Exit-Code 0) und Layout-Skripte ohne Befund. **Teil 1 ist damit als Entwurf fertig** — nicht veröffentlicht, nicht verlinkt, `noindex`. |
 
 ## Offene Punkte
 
-- [x] Interessen-Erklärung bestätigt (22.11.2026); `TRANSPARENZ.md` als Ganzes noch freigeben.
+Vor einer Veröffentlichung von Teil 1:
+
+- [ ] **PwC-Studie lesen** (Registrierung durch Michael). An ihr hängt die Aussage, die 13,3 Billionen seien dort das Szenario „Weiter wie bisher“; bisher nur über DIW belegt (Konfidenz C).
+- [ ] **FAZ-Gastbeitrag** hinter den „500 Milliarden pro Jahr“ lesen (ifo.de verlangt eine Browser-Prüfung).
+- [ ] **Anfrage an R21** (`docs/04_anfrage_r21_entwurf.md`, nicht versendet) — zurückgestellt, bis die Reihe steht.
+- [ ] **Ungelesene Originale**, deren Aussagen einen Vorbehalt tragen: Quantified Carbon (Factsheet B), Kittel/Schill (109 Tage; bisher nur ein Podcast-Transkript), Klimafolgen-Studie IÖW/Prognos/GWS, Radiant-Gutachten, Bischof/RBID, der Text des Klimaschutzgesetzes.
+- [ ] **Dritte Host-Freigabe** für diese Originale und für Teil 2 bis 5 (IEA, Fraunhofer ISI, KBA, ENTSO-E-Dateiserver, gesetze-im-internet.de und andere).
+- [ ] Zwei Fragen zur Messlatte: Dokumenttyp unseres eigenen Stücks; ob „Meldung im Repository“ als offener Korrekturweg reicht.
+- [ ] `TRANSPARENZ.md` v0.2 als Ganzes freigeben.
+- [ ] Teil 1 erneut von einem unbeteiligten Prüfer lesen lassen, wenn PwC und die Antwort von R21 eingearbeitet sind.
+
+Für Teil 2 bis 6:
+
+- [ ] Regeln und Aufträge nach den neun Verfahrensfehlern anpassen (`research/reviews_teil1/00_synthese.md`, Abschnitt 3): Freigabeliste vor dem Bau gegenlesen lassen, Datensatz mit allen Texten von Anfang an, Prüf- und Layout-Skripte als Abnahme, Konfidenz-Regeln im Build.
 - [ ] Schwellenwerte für „nicht tragfähig“ festlegen, bevor Teil 6 gerechnet wird.
-- [ ] Zweite Host-Freigabe: Liste der in Phase 1 nicht erreichbaren Quellen (steht nach dem Lauf in `agents/PROTOKOLL.md`).
-- [ ] PwC-Studie 2024 (Quelle der 13,3 Billionen) ist nur nach Registrierung abrufbar.
+- [ ] Modell bauen: `strommix/` erweitern, Stundenprofile 2015–2025 einbinden (Abregelung korrigieren, Modulleistung einheitlich), Energiebilanz nach AG Energiebilanzen.
+- [ ] Offene Widersprüche aus der Zusammenführung klären (`research/konsolidierung.md`), u. a. Strombedarf 2030 der Langfristszenarien.
