@@ -94,3 +94,6 @@ energiewende/quellen/raw/
 # aufbereiteten Dateien unter energiewende/data/ und die Skripte.
 energiewende/data/raw/
 energiewende/scripts/__pycache__/
+
+# Bildschirmfotos der Layout-Pruefskripte (energiewende/scripts/pruefung/), bei jedem Lauf neu erzeugt
+/shots/
