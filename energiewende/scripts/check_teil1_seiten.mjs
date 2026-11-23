@@ -36,12 +36,14 @@ import { fileURLToPath } from "url";
 const require = createRequire(import.meta.url);
 const { chromium } = require("playwright");
 
-const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
+const ARGS = process.argv.slice(2);
+// --root=<ordner>: anderes Wurzelverzeichnis ausliefern (für Gegenproben mit veränderten Seiten)
+const ROOT = path.resolve((ARGS.find(a => a.startsWith("--root=")) || "").slice(7) || path.join(path.dirname(fileURLToPath(import.meta.url)), "..", ".."));
 const DATA_FILE = path.join(ROOT, "energiewende", "data", "teil1_data.json");
 const PAGES = { story: "energiewende-1-story.html", belege: "energiewende-1-belege.html" };
 const WIDTHS = [1280, 390];
-const ARGS = process.argv.slice(2);
 const VERBOSE = ARGS.includes("--verbose");
+const PROSA = ARGS.includes("--prosa"); // listet Sätze ohne Ziffer, die nicht im Datensatz stehen (nur zur Information)
 const JSON_OUT = (ARGS.find(a => a.startsWith("--json=")) || "").slice(7);
 
 /* ------------------------------------------------------------------ Ausnahmen
@@ -62,11 +64,20 @@ const AUSNAHMEN = [
   { id: "A9", seite: "beide", rx: /^(Akt \d( · Schritt \d+)?|Teil \d|Akt \d · Schluss)$/i, grund: "Gliederung (Akt, Schritt, Teil der Reihe)" },
   { id: "A10", seite: "belege", rx: /^\d+ ?%$/, grund: "Achsenbeschriftung der Studiengrafik (0, 5, 10, 15 %)" },
   { id: "A11", seite: "story", rx: /^-?\d+(,\d+)?( ?(%|Mrd\. €|Bio\. €|Prozent))?$/, grund: "Achsenstriche der Story-Grafiken (axisSteps), keine Datenwerte", achse: true },
+  { id: "A13", seite: "story", rx: /^[A-ZÄÖÜa-zäöü\- ]+, (Mrd\.|Bio\.) €$/, grund: "Achsentitel einer Grafik: Größe und Einheit", achse: true },
+  { id: "A14", seite: "beide", rx: /^(\d+) (zugunsten|zulasten|ohne)\b.*$/, grund: "Bilanz der Korrekturen je Richtung, zur Laufzeit gezählt; Wert wird in (a) gegen korrekturen_eigene geprüft", richtung: true },
+  { id: "A15", seite: "story", rx: /^% des BIP 2024 pro Jahr$/, grund: "Achsentitel der Prozent-Grafiken (Einheit wie im Datensatz: % BIP 2024 pro Jahr)", achse: true },
+  { id: "A16", seite: "story", rx: /^(Senkrechte Striche auf den R21-Balken: )?je ein( BIP 2025)?$/, grund: "Legende der Grafik 1.3 (Strich = ein Jahres-BIP), kein Tatsachensatz", achse: true },
+  { id: "A17", seite: "belege", rx: /^(fest, % BIP 2024|wachsend, % des mittleren BIP|Anteil am (festen|wachsenden) BIP 2024\.?)$/, grund: "Spaltenkopf und Legende der Studiengrafik: nennt nur die Bezugsgröße" },
+  { id: "A18", seite: "story", rx: /^[\d.,]+(?:–[\d.,]+)? (Mrd\.|Bio\.) €( pro Jahr)? \?$/, grund: "Fragezeichen markiert in Grafik 2.2 und 3.3 die offene Herleitung; Wert und Einheit kommen aus dem Datensatz (fmtRef, unit)", achse: true },
   { id: "A12", seite: "beide", rx: /^(Energiewende-Reihe der Daten-WG Knowledge Kitchen · Entwurf · Datensatz energiewende\/docs\/03_teil1_freigabe\.md, Stand \d{4}-\d{2}-\d{2}\.)$/, grund: "Fußzeile aus meta" },
 ];
+// Zone Z1 (für b und c): Die Spalte „Vorher (falsch)“ der Korrekturen-Tabelle (#kor .rejtxt) zeigt
+// alte, als falsch markierte Wortlaute aus korrekturen_eigene.alt. Sie zählt wie „Verworfen“ und
+// „verwenden wir nicht“ als erlaubter Ort; jeder Treffer dort wird als Hinweis ausgegeben.
 // Satzanfänge, die nur Feldbezeichnungen der Seite sind (kein Tatsachengehalt);
 // sie werden vor dem Abgleich abgeschnitten, der Rest wird geprüft.
-const FELD_LABELS = /^(Auftraggeber oder Geldgeber|fest \(BIP 2024\)|Angabe der Studie|Auftraggeber|Abgerufen am|Beschriftung|Stattdessen|Fundstelle|Abgrenzung|Preisbasis|Rechenweg|Vorbehalt|abgezinst|abgerufen|Abzeichen|Aussagen|pro Jahr|wachsend|Richtung|Zeitraum|Quellen|Quelle|Belege|Lizenz|Vorher|Status|Studie|Beleg|Summe|Grund|Jetzt|Größe|Nr\.|Wert|Art|Wo)\s*:?\s*/;
+const FELD_LABELS = /^(Lokale Kopie|Auftraggeber oder Geldgeber|fest \(BIP 2024\)|Angabe der Studie|Auftraggeber|Abgerufen am|Beschriftung|Stattdessen|Fundstelle|Abgrenzung|Preisbasis|Rechenweg|Vorbehalt|abgezinst|abgerufen|Abzeichen|Aussagen|pro Jahr|wachsend|Richtung|Zeitraum|Quellen|Quelle|Belege|Lizenz|Vorher|Status|Studie|Beleg|Summe|Grund|Jetzt|Größe|Nr\.|Wert|Art|Wo)\s*:?\s*/;
 
 /* ------------------------------------------------------------------ Datensatz */
 const DEC = new WeakMap();
@@ -121,7 +132,7 @@ const NUM_RX = /\d+(?:[.,]\d+)*/g;
 const NUM_RX_SKEL = /-?\d+(?:[.,]\d+)*/g;
 // Spannen („# bis #“, „#–#“, „# (Mitte #)“) zählen wie eine Zahl, damit Text- und Grafikform gleich sind
 const skel = s => norm(String(s).replace(PH_RX, "#")).replace(NUM_RX_SKEL, "#")
-  .replace(/#(?:\s*(?:–|-|bis)\s*#)+/g, "#").replace(/# \(Mitte #\)/g, "#");
+  .replace(/#(?:\s*(?:–|-|bis|,)\s*#)+/g, "#").replace(/# \(Mitte #\)/g, "#");
 
 /* Korpus: alle Texte der genannten Blöcke, Platzhalter aufgelöst (als #) */
 const KORPUS_BLOECKE = ["claims", "gegenpositionen", "schritte", "glossar", "quellen", "studien",
@@ -138,11 +149,14 @@ function strings(o, out) {
 const unitShort = u => String(u || "").replace(/\s*\((real 2023|EUR2024|verkettet[^)]*)\)/g, "").replace(/EUR/g, "€").trim();
 const korpusTexte = [];
 for (const b of KORPUS_BLOECKE.concat(KORPUS_ZUSATZ)) strings(D[b], korpusTexte);
-for (const q of Object.values(D.quellen)) korpusTexte.push(`${q.titel} (${q.herausgeber})`, `${q.herausgeber} – ${q.titel}`);
+// Verbindungen, die der Seitencode aus zwei Datensatz-Feldern bildet (Feld + Feld in Klammern)
+for (const q of Object.values(D.quellen)) korpusTexte.push(`${q.titel} (${q.herausgeber})`, `${q.herausgeber} – ${q.titel}`, `${q.herausgeber} (${q.datum})`);
+for (const st of D.studien) if (st.bip_studie_text) korpusTexte.push(`# (${st.bip_studie_text})`, `${st.bip_studie_text} (kein BIP-Anteil, nicht gezeichnet)`);
+const cap = k => k.charAt(0).toUpperCase() + k.slice(1);
 for (const z of D.zahlen) {
   korpusTexte.push("# " + z.unit, "# " + unitShort(z.unit), unitShort(z.unit));
   // Objektwerte zeigt die Belegseite als „schlüssel wert; …“
-  if (z.value && typeof z.value === "object") for (const k of Object.keys(z.value)) korpusTexte.push(k + " #");
+  if (z.value && typeof z.value === "object") for (const k of Object.keys(z.value)) korpusTexte.push(k + " #", cap(k) + " # " + unitShort(z.unit));
 }
 const KORPUS_SKEL = "\u0001" + korpusTexte.map(skel).join("\u0001") + "\u0001";
 const KORPUS_SKEL_LC = KORPUS_SKEL.toLowerCase();
@@ -166,16 +180,28 @@ for (const t of korpusTexte) for (const m of norm(t).matchAll(NUM_RX)) NUMSET.ad
 for (const s of D.studien) { for (const m of String(s.bip_studie_text || "").matchAll(NUM_RX)) NUMSET.add(m[0]); }
 for (const p of Object.values(D.prozess_protokoll)) for (const v of Object.values(p)) if (typeof v === "number") addNum(v, 0);
 
+/* Zählungen, die die Seiten zur Laufzeit aus dem Datensatz bilden (Ausnahme A6) */
+const ZAEHLUNGEN = new Set();
+{
+  const add = n => ZAEHLUNGEN.add(String(n));
+  for (let i = 1; i <= Object.keys(D.quellen).length; i++) add(i);          // Quellennummern Q1 … Qn
+  add(D.claims.length); add(D.zahlen.length); add(D.korrekturen_eigene.length); add(D.gegenpositionen.length);
+  const rich = {}; D.korrekturen_eigene.forEach(k => { rich[k.richtung] = (rich[k.richtung] || 0) + 1; }); Object.values(rich).forEach(add);
+  Object.keys(D.prozess_protokoll).forEach(add);                                // Phasennummern
+  for (const c of Object.values(D.meta.counts)) if (typeof c === "number") add(c); else Object.values(c).forEach(add);
+}
 /* Studiennamen: Satzstücke mit diesen Namen gelten als prüfpflichtig */
 const STUDIEN_RX = /\b(PwC|Prognos|Agora|Ariadne|Fraunhofer|ISE|DIHK|Frontier|ZEW|KfW|DIW|Aurora|dena|EWI|ef\.Ruhr|Quantified Carbon|Kittel|Schill|Wendland|IÖW|GWS|BDI|BDEW|EnBW|Umweltbundesamt|UBA|Bundesrechnungshof|NEP|Bundesbank|Eurostat|SMARD|Ember|McKinsey|BCG)\b/;
 const RELEVANT_RX = /\d|%|€|\bEuro\b|\bProzent\b|Milliard|Billion/;
+// Gliederung und Namen mit Ziffer, ohne Tatsachengehalt: vor der Relevanzprüfung entfernt
+const GLIEDERUNG_RX = /\b(?:Teil|Teile|Akt|Schritt|Phase|Kapitel|Abschnitt)\s+\d+(?:\s*(?:und|bis|–)\s*\d+)?\b|\bFreigabe(?:liste)?\s+v\d\b|\bv\d(?:\.\d)?\b|\bREPUBLIK21\b|\bR21s?\b|\bK\d\b|^\d{1,2}(?=[A-ZÄÖÜ])|\bCO₂\b|\S*\/\S*\.(?:md|json|pdf|html|py|mjs|csv)\b/g;
 // IDs des Datensatzes und Quellennummern der Seite tragen keinen Tatsachengehalt
 const IDS = new Set([...D.claims.map(c => c.id), ...D.gegenpositionen.map(g => g.id), ...D.korrekturen_eigene.map(k => k.id),
   ...D.verbotene_formulierungen.map(x => x.id), ...(D.arbeitsliste_nachweis || []).map(a => a.punkt), ...(D.offene_entscheidungen || []).map(o => o.id)]);
 const ID_RX = new RegExp("\\b(?:" + [...IDS].filter(Boolean).sort((a, b) => b.length - a.length).map(i => i.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")).join("|") + "|Q\\d+)\\b", "g");
 
 /* ------------------------------------------------------------------ Ergebnis */
-const ERG = { pruefungen: {}, hinweise: [], ausnahmen_genutzt: {} };
+const ERG = { pruefungen: {}, hinweise: [], ausnahmen_genutzt: {}, prosa: {} };
 const P_NAMES = {
   a: "(a) Sätze mit Zahl, Prozent, Euro oder Studienname stammen aus dem Datensatz",
   a2: "(a2) Zahlen auf der Seite stehen im Datensatz",
@@ -198,7 +224,7 @@ function startServer() {
   const srv = http.createServer((req, res) => {
     const u = decodeURIComponent(new URL(req.url, "http://x").pathname);
     const f = path.normalize(path.join(ROOT, u));
-    if (!f.startsWith(ROOT) || !fs.existsSync(f) || fs.statSync(f).isDirectory()) { res.writeHead(404); res.end(); return; }
+    if (!f.startsWith(ROOT + path.sep) || !fs.existsSync(f) || fs.statSync(f).isDirectory()) { res.writeHead(404); res.end(); return; }
     res.writeHead(200, { "Content-Type": MIME[path.extname(f)] || "application/octet-stream", "Cache-Control": "no-store" });
     fs.createReadStream(f).pipe(res);
   });
@@ -262,7 +288,8 @@ function imBrowser(seite) {
   }
   // Zahlen und Abzeichen
   const zahlen = [];
-  const container = el => el.closest("[data-claim],article.gp,.quote,tr,li,figure,p") || el.parentElement;
+  const container = el => (seite === "story" ? el.closest("[data-claim]") : (el.closest("[data-claim]") || el.closest("article.gp")))
+    || el.closest(".quote,tr,li,figure,p") || el.parentElement;
   const cIdx = new Map();
   const cid = el => { if (!cIdx.has(el)) cIdx.set(el, cIdx.size); return cIdx.get(el); };
   if (seite === "story") {
@@ -307,7 +334,7 @@ function imBrowser(seite) {
   });
   const roh = document.body.innerText;
   const muell = [];
-  for (const [rx, was] of [[/\[\[/, "[["], [/\[\?/, "[?"], [/⚠/, "⚠"], [/\bundefined\b/, "undefined"], [/\bNaN\b/, "NaN"], [/\bnull\b/, "null"], [/\[object Object\]/, "[object Object]"]]) {
+  for (const [rx, was] of [[/\[\[/, "[["], [/\[\?/, "[?"], [/⚠/, "⚠"], [/\bundefined\b/, "undefined"], [/\bNaN\b/, "NaN"], [/\[object Object\]/, "[object Object]"]]) {
     const m = rx.exec(roh); if (m) muell.push(was + " in »…" + roh.slice(Math.max(0, m.index - 40), m.index + 30).replace(/\s+/g, " ") + "…«");
   }
   // Gegenpositionen
@@ -329,8 +356,13 @@ function imBrowser(seite) {
       rows: [...t.querySelectorAll("tbody tr")].map(tr => ({ cells: [...tr.children].map(td => td.cloneNode(true)).map(td => { td.querySelectorAll(".bp").forEach(x => x.remove()); return td.textContent.trim(); }),
         zit: [...tr.querySelectorAll(".bx.zit")].map(x => x.textContent), wert: [...tr.querySelectorAll(".bx:not(.zit)")].map(x => x.textContent) })) }));
   }
-  return { units: out, zahlen, claimEls, leer, muell, gps,
-    textAll: ohne(""), textOhneVerbot: ohne("#verbot"), textOhneVerw: ohne("#verw"),
+  // Zahlen in Freitext-Feldern ohne Zahl-ID (Korrekturen „jetzt“, Angabe der Studie): tragen sie Abzeichen?
+  const freitext = [...document.querySelectorAll('.ktab td[data-h="Was jetzt gilt"], #kor td[data-l="Jetzt"], td[data-h="Angabe der Studie"], #twin td[data-l="Angabe der Studie"]')]
+    .map(td => ({ t: td.textContent.trim(), badge: !!td.querySelector(".bp,.bx,.wk"), pfad: pfad(td) }));
+  return { units: out, zahlen, claimEls, leer, muell, gps, freitext,
+    // „Vorher (falsch)“-Spalte der Korrekturen (#kor .rejtxt) zeigt alte Wortlaute; sie wird getrennt ausgewiesen
+    textAll: ohne(""), textOhneVerbot: ohne("#verbot, #kor .rejtxt"), textOhneVerw: ohne("#verw, #verbot, #kor .rejtxt"),
+    korAlt: [...document.querySelectorAll("#kor .rejtxt")].map(x => x.textContent).join(" \u0001 "),
     verwText: zoneText("#verw"), extra, titel: document.title, marker: document.documentElement.outerHTML.length };
 }
 
@@ -365,7 +397,7 @@ async function lade(browser, base, seite, breite, protokoll) {
 /* ------------------------------------------------------------------ Prüfungen */
 function satzstuecke(t) {
   // Sätze, dann Felder (" · ", "; ", Tabulator) – jedes Stück wird einzeln abgeglichen
-  return norm(t).split(/(?<=[.!?“"])\s+(?=[A-ZÄÖÜ„"(])|\s*·\s+|\s+–\s+|;\s+|\t|\s+(?=https?:\/\/)/).map(s => s.trim()).filter(Boolean);
+  return norm(t).split(/(?<=[.!?“"])\s+(?=[A-ZÄÖÜ„"(])|\s*·\s+|\s+–\s+|;\s+|:\s+|\t|\s+(?=https?:\/\/)|(?<=https?:\/\/\S+)\s+|\s+(?=(?:Lizenz|Quelle|Fundstelle|Abgrenzung|Rechenweg|Vorbehalt):)/).map(s => s.trim()).filter(Boolean);
 }
 function ausnahme(seite, s) {
   for (const a of AUSNAHMEN) {
@@ -390,12 +422,22 @@ function pruefeA(seite, breite, r) {
     const stuecke = satzstuecke(u.t);
     for (let s of stuecke) {
       const sOhneId = s.replace(ID_RX, " ").replace(/\s+/g, " ").trim();
-      const relevant = RELEVANT_RX.test(sOhneId) || STUDIEN_RX.test(sOhneId);
-      if (!relevant) continue;
+      const kern = sOhneId.replace(GLIEDERUNG_RX, " ");
+      const relevant = RELEVANT_RX.test(kern) || STUDIEN_RX.test(kern);
+      if (!relevant) {
+        if (PROSA && kern.length >= 25 && /[a-zäöü] [a-zäöü]/.test(kern) && !imKorpus(sOhneId.replace(FELD_LABELS, ""))) (ERG.prosa[seite] = ERG.prosa[seite] || new Set()).add(s);
+        continue;
+      }
       count("a");
       const a = ausnahme(seite, sOhneId) || ausnahme(seite, s);
       if (a) {
+        if (a.richtung) {
+          const m = /^(\d+) (.+)$/.exec(sOhneId);
+          const n = D.korrekturen_eigene.filter(k => norm(k.richtung) === norm(m[2]).replace(/^Richtung: /, "")).length;
+          if (n !== Number(m[1])) fail("a", `${seite} ${breite}px: Bilanz »${s}«, im Datensatz ${n} Einträge mit dieser Richtung`);
+        }
         if (a.achse && !u.svg) fail("a", `${seite} ${breite}px: Achsen-Ausnahme außerhalb einer Grafik genutzt: »${s}« (${u.pfad})`);
+        if (a.zaehlung && !NUMSET.has(s) && !ZAEHLUNGEN.has(s)) { count("a2"); fail("a2", `${seite} ${breite}px: nackte Zahl ${s} ist weder Wert noch Zählung des Datensatzes · ${u.pfad}`); }
         continue;
       }
       let rest = sOhneId.replace(FELD_LABELS, "");
@@ -425,6 +467,28 @@ function folge(text) {
   return out;
 }
 
+const DIR_RX = /(unter|darunter|niedriger|weniger|sank|sanken|gesunken|Rückgang|zurückgegangen|Minderung|gemindert|verloren|verlor|fiel|gefallen|abgenommen|Abstand|eingebrochen)/i;
+function satzUm(text, id, k) {
+  const t = String(text || ""), needle = "[[" + id + (k ? "|" + k : "") + "]]", i = t.indexOf(needle);
+  if (i < 0) return "";
+  const a = t.lastIndexOf(". ", i) + 1; let b = t.indexOf(". ", i); if (b < 0) b = t.length;
+  return t.slice(a, b).trim();
+}
+function kontextText(claimAttr) {
+  return (claimAttr || "").split(/\s+/).map(id => C[id] ? C[id].text + " " + (C[id].vorbehalt || "") : GP[id] ? GP[id].kurz + " " + GP[id].lang : "").join(" ");
+}
+/** Formatregel 7: Betrag ohne Vorzeichen nur, wenn ein Wort im Satz die Richtung trägt */
+function vorzeichen(tag, quelle, id, k, shown, text) {
+  const v = k === "spanne" ? val(id, "min") : val(id, k);
+  if (typeof v !== "number" || v >= 0) return;
+  const satz = satzUm(text, id, k);
+  const dir = DIR_RX.test(satz.replace(PH_RX, " "));
+  const signed = /^[-−]/.test(norm(shown));
+  if (!signed && !dir) fail("d", `${tag}: ${quelle}: ${id}${k ? "|" + k : ""} ist negativ (${v}); die Seite zeigt »${shown}« ohne Vorzeichen, und kein Wort im Satz trägt die Richtung: »${satz.replace(PH_RX, "#").slice(0, 140)}«`);
+  if (signed && dir) fail("d", `${tag}: ${quelle}: ${id}${k ? "|" + k : ""} steht als »${shown}« mit Minus, obwohl der Satz die Richtung schon trägt (Formatregel 7): »${satz.replace(PH_RX, "#").slice(0, 140)}«`);
+}
+const ohneVz = t => norm(t).replace(/^[-−]/, "");
+
 function pruefeD(seite, breite, r) {
   const tag = `${seite} ${breite}px`;
   if (seite === "story") {
@@ -435,10 +499,8 @@ function pruefeD(seite, breite, r) {
       if (!zz) { fail("d", `${tag}: Zahl-ID ${z.id} nicht im Datensatz (${z.pfad})`); continue; }
       const soll = fmt(z.id, z.k);
       if (soll === null) fail("d", `${tag}: ${z.id}|${z.k}: kein Zahlenwert im Datensatz (${z.pfad})`);
-      else if (norm(z.txt) !== soll) fail("d", `${tag}: ${z.id}${z.k ? "|" + z.k : ""} zeigt »${z.txt}«, Datensatz nach Formatregel »${soll}« (${z.pfad})`);
-      const v = z.k === "spanne" ? val(z.id, "min") : val(z.id, z.k);
-      if (typeof v === "number" && v < 0 && !/(unter|darunter|niedriger|weniger|sank|gesunken|Rückgang|zurück|minus|fiel|gefallen|weniger als|abgenommen)/i.test(z.folgetext))
-        fail("d", `${tag}: ${z.id}${z.k ? "|" + z.k : ""} ist negativ (${v}), die Seite zeigt den Betrag ohne Vorzeichen, und kein Verb trägt die Richtung: »${z.txt}${z.folgetext}…« (${z.pfad})`);
+      else if (ohneVz(z.txt) !== soll) fail("d", `${tag}: ${z.id}${z.k ? "|" + z.k : ""} zeigt »${z.txt}«, Datensatz nach Formatregel »${soll}« (${z.pfad})`);
+      vorzeichen(tag, z.claim || z.pfad, z.id, z.k, z.txt, kontextText(z.claim));
       const key = z.c + "|" + z.id;
       if (!byC.has(key)) byC.set(key, { z, badges: [] });
       if (z.zit || z.wert) byC.get(key).badges.push(z);
@@ -491,7 +553,7 @@ function pruefeD(seite, breite, r) {
       list.forEach(z => { count("d"); if (z.wk === null) { /* Abzeichen nur am letzten Glied einer Spanne */ } });
       if (!soll) {
         // ohne zuordenbare Aussage: nur prüfen, dass jedes Glied ein Wert-Abzeichen hat oder Teil einer Spanne ist
-        list.forEach((z, i) => { if (z.wk === null && !(list[i + 1] && /^\s*(bis|und|oder|,|–|-)?\s*$/.test(z.folgetext.slice(0, 6)))) fail("d", `belege ${breite}px: Zahl »${z.txt}« ohne Wert-Abzeichen (${z.pfad})`); });
+        list.forEach((z, i) => { if (z.wk === null && !(list[i + 1] && /^[\s\-–]*(bis|und|oder|,|–|-)\s/.test(z.folgetext))) fail("d", `belege ${breite}px: Zahl »${z.txt}« ohne Wert-Abzeichen (${z.pfad})`); });
         continue;
       }
       if (soll.length !== list.length) { fail("d", `belege ${breite}px: ${quelle}: ${list.length} Zahlen gerendert, ${soll.length} im Datensatz-Text (${first.pfad})`); continue; }
@@ -501,9 +563,8 @@ function pruefeD(seite, breite, r) {
         if (!zz) { fail("d", `belege ${breite}px: ${quelle}: Zahl-ID ${s.id} fehlt im Datensatz`); return; }
         if (!distinct.includes(s.id)) distinct.push(s.id);
         const sollTxt = fmt(s.id, s.k);
-        if (sollTxt !== null && norm(z.txt) !== sollTxt) fail("d", `belege ${breite}px: ${quelle}: ${s.id}${s.k ? "|" + s.k : ""} zeigt »${z.txt}«, Datensatz nach Formatregel »${sollTxt}«`);
-        const v = s.k === "spanne" ? val(s.id, "min") : val(s.id, s.k);
-        if (typeof v === "number" && v < 0 && !/^-/.test(z.txt) && !/(unter|darunter|niedriger|weniger|sank|gesunken)/.test(z.folgetext)) fail("d", `belege ${breite}px: ${quelle}: ${s.id} negativ ohne Vorzeichen und ohne Richtungsverb`);
+        if (sollTxt !== null && ohneVz(z.txt) !== sollTxt) fail("d", `belege ${breite}px: ${quelle}: ${s.id}${s.k ? "|" + s.k : ""} zeigt »${z.txt}«, Datensatz nach Formatregel »${sollTxt}«`);
+        vorzeichen(`belege ${breite}px`, quelle, s.id, s.k, z.txt, kontextText(quelle.replace(/^gp-/, "")));
         if (s.join) { if (z.wk !== null) fail("d", `belege ${breite}px: ${quelle}: ${s.id}: Abzeichen mitten in der Spanne`); }
         else if (z.wk !== wertSoll(zz)) fail("d", `belege ${breite}px: ${quelle}: ${s.id}: Wert-Abzeichen »${z.wk}«, Datensatz »${wertSoll(zz)}«`);
         if (zitatSoll(zz) !== null) ohneZitatImText++;
@@ -525,6 +586,16 @@ function pruefeD(seite, breite, r) {
   }
 }
 
+/** Zahlen in Freitext-Feldern (korrekturen_eigene.neu, studien.bip_studie_text) haben keine Zahl-ID und damit kein Abzeichen */
+function pruefeFreitext(seite, r) {
+  for (const f of r.freitext || []) {
+    const rest = f.t.replace(/\((?:[A-Z]\d+[a-z]?|Schritt [\d.]+)(?:,\s*(?:[A-Z]\d+[a-z]?|Schritt [\d.]+))*\)/g, " ").replace(ID_RX, " ").replace(GLIEDERUNG_RX, " ").replace(/\bG[123][ab]?\b/g, " ").replace(/\b(19|20)\d{2}\b/g, " ");
+    const m = rest.match(/\d+(?:[.,]\d+)*/g);
+    if (!m) continue;
+    count("d");
+    if (!f.badge) fail("d", `${seite}: Zahl ohne Zahl-ID und ohne Abzeichen in Freitext-Feld: »${f.t}« (${f.pfad.replace(/\[data-claim=[^\]]*\]/g, "")})`);
+  }
+}
 function signatur(text) {
   // längster Satz des Datensatz-Texts als Skelett (mind. 45 Zeichen), sonst null
   const s = String(text || "").split(/(?<=[.!?])\s+/).map(skel).sort((a, b) => b.length - a.length)[0] || "";
@@ -567,6 +638,11 @@ function pruefeB(seite, breite, r) {
     if (hit) fail("b", `${tag}: verworfenes Muster ${v.id} (${m}) außerhalb „Verworfen“: »…${norm(r.textOhneVerw).slice(Math.max(0, hit.index - 50), hit.index + 40)}…«`);
   }
   if (seite === "belege" && !r.verwText) fail("b", `${tag}: Tabelle „Verworfen“ (#verw) fehlt`);
+  if (r.korAlt) {
+    const treffer = [];
+    for (const x of D.verworfen.concat(D.verbotene_formulierungen)) for (const m of x.muster || []) if (new RegExp(m, "i").test(norm(r.korAlt))) treffer.push(x.id);
+    if (treffer.length) hinweis(`${seite}: ${[...new Set(treffer)].length} verworfene oder verbotene Wortlaute stehen als alter Wortlaut in der Spalte „Vorher (falsch)“ der Korrekturen-Tabelle (${[...new Set(treffer)].join(", ")}); vom Skript als dritte erlaubte Zone behandelt (Ausnahme Z1), der Auftrag nennt nur „Verworfen“ und „verwenden wir nicht“`);
+  }
   // Vollständigkeit (nur Hinweis: Freigabe Regel 4 erlaubt das Weglassen ganzer Sätze)
   if (breite === WIDTHS[0]) {
     const da = new Set(r.claimEls.flatMap(e => e.ids.split(/\s+/)));
@@ -588,6 +664,7 @@ function pruefeC(seite, breite, r) {
 function pruefeE(seite, breite, r) {
   for (const e of r.claimEls) {
     const ids = e.ids.split(/\s+/).filter(Boolean);
+    if (e.tag === "figure") continue; // Grafik nennt nur die Aussagen ihres Schritts; der Vorbehalt steht im Absatz daneben
     for (const id of ids) {
       const c = C[id];
       if (!c || !c.vorbehalt || c.status === "verworfen") continue;
@@ -650,7 +727,14 @@ async function pruefeF(browser, base, R) {
       await Promise.all([p.waitForURL(u => String(u).includes("#gp-" + g.id), { timeout: 10000 }).catch(() => {}), link.click()]);
       try {
         await p.waitForFunction(() => document.querySelector("#srcs") && document.querySelector("#srcs").children.length > 0, null, { timeout: 15000 });
-        await p.waitForTimeout(400);
+        // Belegseite scrollt weich (scroll-behavior: smooth): warten, bis die Lage stillsteht
+        let last = null;
+        for (let i = 0; i < 40; i++) {
+          await p.waitForTimeout(250);
+          const top = await p.evaluate(id => { const e = document.getElementById(id); return e ? Math.round(e.getBoundingClientRect().top) : null; }, "gp-" + g.id);
+          if (top !== null && top === last) break;
+          last = top;
+        }
         const st = await p.evaluate(id => {
           const e = document.getElementById(id); if (!e) return { da: false };
           const r = e.getBoundingClientRect();
@@ -676,12 +760,15 @@ async function main() {
   const hash = f => crypto.createHash("sha256").update(fs.readFileSync(path.join(ROOT, f))).digest("hex").slice(0, 12);
   console.log(`Prüfskript Teil 1 · Datensatz v${D.meta.version} Stand ${D.meta.stand} · sha256 ${hash("energiewende/data/teil1_data.json")}`);
   console.log(`Seiten: ${PAGES.story} (${hash(PAGES.story)}), ${PAGES.belege} (${hash(PAGES.belege)}) · Breiten ${WIDTHS.join(", ")} px`);
+  console.log(`Korpus: ${KORPUS_BLOECKE.join(", ")}; zusätzlich ${KORPUS_ZUSATZ.join(", ")} · ${korpusTexte.length} Texte · ${NUMSET.size} Zahlformen`);
   try {
     for (const seite of Object.keys(PAGES)) for (const breite of WIDTHS) {
       const r = await lade(browser, base, seite, breite, protokoll);
       R[seite][breite] = r;
+      console.log(`  ${seite} ${breite} px: ${r.units.length} Texteinheiten, ${r.zahlen.length} Zahlen im Text, ${r.claimEls.length} Elemente mit data-claim` +
+        (seite === "story" && r.extra.figRows ? `, ${r.extra.figRows.reduce((n, f) => n + f.rows.length, 0)} Tabellenzeilen zu Grafiken` : ""));
       pruefeA(seite, breite, r); pruefeB(seite, breite, r); pruefeC(seite, breite, r);
-      pruefeD(seite, breite, r); pruefeE(seite, breite, r); pruefeG(seite, breite, r);
+      pruefeD(seite, breite, r); pruefeE(seite, breite, r); pruefeG(seite, breite, r); pruefeFreitext(seite, r);
     }
     await pruefeF(browser, base, R);
   } finally { await browser.close(); srv.close(); }
@@ -695,10 +782,14 @@ async function main() {
     for (const f of zeig) console.log("         - " + f);
     if (zeig.length < p.fehler.length) console.log(`         … und ${p.fehler.length - zeig.length} weitere (--verbose)`);
   }
+  if (PROSA) for (const [seite, set] of Object.entries(ERG.prosa)) {
+    console.log(`\nSätze ohne Ziffer, die nicht wörtlich im Datensatz stehen (${seite}, ${set.size}; Information, kein Abbruchgrund):`);
+    [...set].forEach(x => console.log("  · " + x));
+  }
   if (ERG.hinweise.length) { console.log("\nHinweise (kein Abbruchgrund):"); ERG.hinweise.forEach(h => console.log("  - " + h)); }
   console.log("\nGenutzte Ausnahmen: " + (Object.entries(ERG.ausnahmen_genutzt).map(([k, n]) => `${k}×${n}`).join(", ") || "keine"));
   if (VERBOSE && protokoll.length) { console.log("\nKonsolen-Warnungen:"); protokoll.forEach(p => console.log("  - " + p)); }
-  if (JSON_OUT) fs.writeFileSync(JSON_OUT, JSON.stringify(ERG, null, 1));
+  if (JSON_OUT) fs.writeFileSync(JSON_OUT, JSON.stringify({ ...ERG, prosa: Object.fromEntries(Object.entries(ERG.prosa).map(([k, v]) => [k, [...v]])) }, null, 1));
   console.log(`\nErgebnis: ${gescheitert ? gescheitert + " von " + Object.keys(ERG.pruefungen).length + " Prüfungen gescheitert" : "alle Prüfungen bestanden"}`);
   process.exit(gescheitert ? 1 : 0);
 }
