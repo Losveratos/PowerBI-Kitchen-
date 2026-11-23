@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Baut data/teil1_data.json aus der Freigabeliste docs/03_teil1_freigabe.md (v2).
+"""Baut data/teil1_data.json aus der Freigabeliste docs/03_teil1_freigabe.md (v3).
 
 Nur was im json-Block `teil1_data` der Freigabeliste steht, darf auf den Seiten
 von Teil 1 als Tatsache erscheinen. Das Skript
@@ -47,12 +47,15 @@ ERLAUBT = [
     r"\b(?:Drucksache|Drs\.|BT-Drs\.)\s*\d+/\d+",          # Drucksachen
     r"\bhib \d+/\d{4}",
     r"\b\d+\+\d+/\d{4}",                                   # Wochenbericht 38+39/2025
-    r"\b(?:Druckseiten?|PDF-S\.|S\.|Seiten?|Fn\.|Fußnoten?|Z\.|Tab\.|Tabelle|Abb\.|Abbildung|Nr\.|Kapitel|Abschnitt|Abschn\.|Folge|Teil|Teile|Akt|Schritt)\s*\d+(?:[.,–-]\d+)*",
+    r"\b(?:Druckseiten?|PDF-S\.|S\.|Seiten?|Fn\.|Fußnoten?|Z\.|Tab\.|Tabelle|Abb\.|Abbildung|Nr\.|Kapitel|Abschnitt|Abschn\.|Folge|Teil|Teile|Akt|Schritt|Berichte?)\s*\d+(?:[.,–-]\d+)*",
     r"\bTeil \d(?: und \d)?",
     r"\b(?:CO₂|CO2|H₂|ETS\s?[12]|ETS2|ETS1|G[123][ab]?|GP\d+|P\d{3}|V\d|Q\d+|K\d+|D\d|X\d{2}|E\d{2}|nama_10_gdp|sts_inpr_a|nrg_pc_\d+)\b",
     r"\b[A-Z]-\d\b",                                       # Factsheet-Seiten B-2
     r"\bNEP \d{4}/\d{4}",
-    r"\b(?:REPUBLIK21|R21s?|Olkiluoto-3|EU-?27|[Ff]reigabe v[12]|v[12])\b",  # Namen
+    r"\b(?:REPUBLIK21|R21s?|Olkiluoto-3|EU-?27)\b",              # Namen
+    r"\bv\d+(?:\.\d+)?\b",                                      # Fassungen: Freigabe v2, Messlatte v1.1
+    r"\b(?:Flamanville|Vogtle) \d(?: und \d)?\b",                 # Kraftwerksblöcke
+    r"§\s*\d+",                                                  # Paragraf
     r"\b(?:19|20)\d{2}er\b",                                     # 2030er
 ]
 ERLAUBT_RX = re.compile("|".join(ERLAUBT))
@@ -97,10 +100,10 @@ def lies_protokoll():
     phasen = OrderedDict()
     aktuell = None
     for zeile in t.splitlines():
-        m = re.match(r"## Phase (\d+)", zeile)
+        m = re.match(r"## Phase (\d+)(?: · (.+))?", zeile)
         if m:
             aktuell = int(m.group(1))
-            phasen[aktuell] = {"laeufe": 0, "laeufe_mit_token": 0, "token": 0, "aufrufe": 0,
+            phasen[aktuell] = {"name": (m.group(2) or "").strip(), "laeufe": 0, "laeufe_mit_token": 0, "token": 0, "aufrufe": 0,
                                "summe_protokoll_token": None, "auftraege": []}
             continue
         if aktuell is None or not zeile.startswith("| P"):
@@ -486,6 +489,148 @@ def pruefe(daten, zahlen, arbeitsliste, protokoll):
             f.append(f"Zahl {z['id']}: Datensatz {soll_w}, Protokoll {ist_w}")
     bricht(f, "Prozesszahlen")
 
+    pruefe_v3(daten, zahlen)
+
+
+# Felder, die seit v3 (Auftrag P7-A) Pflicht sind, und Texte außerhalb von claims/schritte,
+# die die Seiten ebenfalls zeigen. Für sie gelten dieselben Regeln: Platzhalter verweisen auf
+# vorhandene Zahlen, Ziffern nur nach ERLAUBT.
+GESCHADET = {"zulasten R21": "R21", "zugunsten der Energiewende": "R21", "zulasten der Energiewende": "der Energiewende",
+             "zugunsten R21": "der Energiewende", "ohne Richtung": "keiner Seite"}
+STUDIE_TEXTFELDER = ("studie", "herausgeber", "auftraggeber", "groesse", "systemgrenze", "preisbasis", "abgezinst",
+                     "gelesen_umfang")  # fundstelle: Seitenangaben, wie bei Zahlen nicht geprüft
+
+
+def freitexte(daten):
+    """Texte außerhalb der Aussagen, die auf den Seiten erscheinen: (Pfad, Text)."""
+    for i, k in enumerate(daten["korrekturen_eigene"]):
+        yield f".korrekturen_eigene[{i}].neu", k["neu"]
+    for i, s in enumerate(daten["studien"]):
+        for feld in STUDIE_TEXTFELDER:
+            if isinstance(s.get(feld), str):
+                yield f".studien[{i}].{feld}", s[feld]
+        a = s.get("angabe_studie")
+        if a:
+            for feld in ("text", "bezug", "grund_nicht_gezeichnet"):
+                if a.get(feld):
+                    yield f".studien[{i}].angabe_studie.{feld}", a[feld]
+    meta = daten["meta"]
+    for i, t in enumerate(meta.get("teile", [])):
+        yield f".meta.teile[{i}].titel", t["titel"]
+        yield f".meta.teile[{i}].frage", t["frage"]
+    for i, a in enumerate(meta.get("abzeichen", [])):
+        yield f".meta.abzeichen[{i}]", a["angabe"] + " " + a["bedeutung"]
+    for k, v in meta.get("formen", {}).items():
+        yield f".meta.formen.{k}", v
+    ml = meta.get("messlatte", {})
+    for k in ("regel", "hinweis"):
+        if ml.get(k):
+            yield f".meta.messlatte.{k}", ml[k]
+    for i, dok in enumerate(ml.get("dokumente", [])):
+        yield f".meta.messlatte.dokumente[{i}]", dok["name"] + " " + dok["typ"]
+    if meta.get("prozess_hinweis"):
+        yield ".meta.prozess_hinweis", meta["prozess_hinweis"]
+
+
+def pruefe_v3(daten, zahlen):
+    claims = {c["id"]: c for c in daten["claims"]}
+    ids = (set(claims) | {g["id"] for g in daten["gegenpositionen"]} | {k["id"] for k in daten["korrekturen_eigene"]})
+    id_rx = re.compile(r"\b(?:" + "|".join(sorted(map(re.escape, ids), key=len, reverse=True)) + r")\b")
+
+    # 12. Platzhalter und Ziffern in Korrekturen, Studientexten und den Texten in meta
+    f = []
+    for pfad, t in freitexte(daten):
+        for m in PLATZHALTER.finditer(t):
+            zid, fmt = m.group(1), m.group(2)
+            v = zahlen.get(zid, {}).get("value") if zid in zahlen else None
+            if zid not in zahlen:
+                f.append(f"{pfad}: Platzhalter [[{zid}]] verweist auf keine Zahl")
+            elif fmt == "spanne":
+                if not (isinstance(v, dict) and "min" in v and "max" in v):
+                    f.append(f"{pfad}: [[{zid}|spanne]] braucht min und max")
+            elif fmt and not (isinstance(v, dict) and fmt in v):
+                f.append(f"{pfad}: [[{zid}|{fmt}]] Schlüssel fehlt")
+            elif not fmt and isinstance(v, dict):
+                f.append(f"{pfad}: [[{zid}]] ohne Schlüssel, Wert ist ein Objekt")
+        rest = ERLAUBT_RX.sub(" ", id_rx.sub(" ", PLATZHALTER.sub(" ", t)))
+        for m in re.finditer(r"\d[\d.,]*", rest):
+            f.append(f"{pfad}: Ziffer '{m.group(0)}' ohne Platzhalter in »…{rest[max(0, m.start()-40):m.end()+20]}…«")
+    bricht(f, "Freitexte (Korrekturen, Studien, meta): Platzhalter und keine Zahl von Hand")
+
+    # 13. Neue Pflichtfelder
+    f = []
+    for k in daten["korrekturen_eigene"]:
+        for feld in ("id", "wo", "alt", "neu", "richtung", "geschadet_haette", "beleg"):
+            if not k.get(feld):
+                f.append(f"Korrektur {k.get('id')}: Feld {feld} fehlt oder leer")
+        if k.get("richtung") not in GESCHADET:
+            f.append(f"Korrektur {k['id']}: Richtung '{k.get('richtung')}' unbekannt")
+        elif k.get("geschadet_haette") != GESCHADET[k["richtung"]]:
+            f.append(f"Korrektur {k['id']}: geschadet_haette '{k.get('geschadet_haette')}' passt nicht zur Richtung '{k['richtung']}'")
+    if "E07" not in claims or "E07" not in next(g for g in daten["gegenpositionen"] if g["id"] == "GP12")["claims"]:
+        f.append("Erklärsatz zur Spalte „Wem der alte Fehler geschadet hätte“ (E07) fehlt in GP12")
+    for s in daten["studien"]:
+        if not isinstance(s.get("original_gelesen"), bool):
+            f.append(f"Studie {s['id']}: original_gelesen muss true/false sein")
+        if "bip_studie_text" in s:
+            f.append(f"Studie {s['id']}: bip_studie_text ist ersetzt durch angabe_studie")
+        if "angabe_studie" not in s:
+            f.append(f"Studie {s['id']}: Feld angabe_studie fehlt (null, wenn die Studie keine Angabe macht)")
+            continue
+        a = s["angabe_studie"]
+        if a is None:
+            continue
+        if not a.get("text") or not isinstance(a.get("zeichnen"), bool):
+            f.append(f"Studie {s['id']}: angabe_studie braucht text und zeichnen")
+        if a.get("zahl"):
+            z = zahlen.get(a["zahl"])
+            if not z:
+                f.append(f"Studie {s['id']}: angabe_studie.zahl {a['zahl']} fehlt")
+                continue
+            for key in (a.get("min"), a.get("max")):
+                v = z["value"][key] if key and isinstance(z["value"], dict) and key in z["value"] else (z["value"] if not key else None)
+                if not isinstance(v, (int, float)):
+                    f.append(f"Studie {s['id']}: angabe_studie {a['zahl']}|{key} ist keine Zahl")
+            if a["zahl"] not in {m.group(1) for m in PLATZHALTER.finditer(a["text"])}:
+                f.append(f"Studie {s['id']}: angabe_studie.text nennt die Zahl {a['zahl']} nicht als Platzhalter")
+        elif a.get("zeichnen"):
+            f.append(f"Studie {s['id']}: angabe_studie ohne Zahl kann nicht gezeichnet werden")
+        if a.get("zeichnen") is False and not a.get("grund_nicht_gezeichnet"):
+            f.append(f"Studie {s['id']}: angabe_studie ohne Grund, warum nicht gezeichnet")
+    for s in daten["schritte"]:
+        if not (s.get("grafik") or {}).get("untertitel"):
+            f.append(f"Schritt {s['id']}: grafik.untertitel fehlt")
+    meta = daten["meta"]
+    if sorted(t.get("nr") for t in meta.get("teile", [])) != [2, 3, 4, 5, 6] or not all(t.get("titel") for t in meta.get("teile", [])):
+        f.append("meta.teile: Titel der Teile 2 bis 6 fehlen")
+    lg = zahlen.get(meta.get("lesegeschwindigkeit") or "")
+    if not lg or lg["art"] != "Setzung":
+        f.append("meta.lesegeschwindigkeit muss auf eine Setzung in zahlen verweisen")
+    for k in ("impressum", "fehler_melden"):
+        if not (meta.get("links") or {}).get(k):
+            f.append(f"meta.links.{k} fehlt")
+    ml = meta.get("messlatte") or {}
+    gruppe = {}
+    if not ml.get("regel"):
+        f.append("meta.messlatte.regel fehlt")
+    for dok in ml.get("dokumente", []):
+        if not dok.get("typ") or not dok.get("gruppe"):
+            f.append(f"meta.messlatte: Dokument {dok.get('id')} ohne typ oder gruppe")
+        gruppe[dok.get("id")] = dok.get("gruppe")
+        for w in dok.get("wertungen", []) + ([dok["k3"]] if dok.get("k3") else []):
+            z = zahlen.get(w["zahl"])
+            if not z or w["schluessel"] not in z["value"] or w["hoechstens"] not in z["value"]:
+                f.append(f"meta.messlatte: Dokument {dok['id']} verweist auf fehlende Zahl {w['zahl']}|{w['schluessel']}")
+    for paar in ml.get("nebeneinander_erlaubt", []):
+        if len({gruppe.get(x) for x in paar}) != 1 or None in {gruppe.get(x) for x in paar}:
+            f.append(f"meta.messlatte: {paar} dürfen nicht nebeneinander stehen (verschiedene Dokumenttypen)")
+    schritte = {s["id"]: s for s in daten["schritte"]}
+    for sid, mindest in (("P", 4), ("T", 3)):
+        cs = schritte.get(sid, {}).get("claims", [])
+        if len(cs) < mindest or any(claims.get(c, {}).get("ort") != "beide" for c in cs):
+            f.append(f"Schritt {sid} (Prämissen bzw. Verantwortung) braucht mindestens {mindest} Aussagen mit Ort beide")
+    bricht(f, "Pflichtfelder v3 (Korrekturen, Studien, Schritte, meta)")
+
 
 # ---------------------------------------------------------------- Ausgabe
 
@@ -504,6 +649,17 @@ def fmt_wert(v):
             return f"{one(v['min'])}–{one(v['max'])}{mid}"
         return "; ".join(f"{k} {one(x)}" for k, x in v.items())
     return one(v)
+
+
+def md_platzhalter(t, zahlen):
+    """Platzhalter für die Tabellen der Freigabeliste als Wert ausschreiben (nur Lesehilfe, die Seiten formatieren selbst)."""
+    def ers(m):
+        v = zahlen[m.group(1)]["value"]
+        k = m.group(2)
+        if k == "spanne":
+            return fmt_wert({"min": v["min"], "max": v["max"]})
+        return fmt_wert(v[k] if k else v)
+    return PLATZHALTER.sub(ers, t)
 
 
 def zelle(s):
@@ -560,7 +716,7 @@ def md_tabellen(daten, zahlen, counts):
 
     # Studien
     z = ["| Studie | Herausgeber · Auftraggeber | Größe · Systemgrenze | Zeitraum | Preisbasis | abgezinst | "
-         "pro Jahr (Mrd. €) | % BIP 2024 fest | % mittleres BIP wachsend | laut Studie | gelesen |",
+         "pro Jahr (Mrd. €) | % BIP 2024 fest | % mittleres BIP wachsend | laut Studie | Original gelesen |",
          "|---|---|---|---|---|---|---|---|---|---|---|"]
     for s in daten["studien"]:
         e = s["_erzeugt"]
@@ -568,7 +724,8 @@ def md_tabellen(daten, zahlen, counts):
                  f"{zelle(s['groesse'] + ' · ' + s['systemgrenze'])} | {s['zeitraum']['von']}–{s['zeitraum']['bis']} | "
                  f"{zelle(s['preisbasis'])} | {zelle(s['abgezinst'])} | {fmt_wert(e['pa_wert'])} | "
                  f"{fmt_wert(zahlen[e['bip_fest']]['value'])} | {fmt_wert(zahlen[e['bip_wachsend']]['value'])} | "
-                 f"{zelle(s.get('bip_studie_text', '–'))} | {'ja' if s['gelesen'] else 'nein'} |")
+                 f"{zelle(md_platzhalter((s.get('angabe_studie') or {}).get('text', '–'), zahlen))} | "
+                 f"{'ja' if s['original_gelesen'] else 'nein'} |")
     out["studien"] = "\n".join(z)
 
     # Arbeitsliste
@@ -579,9 +736,11 @@ def md_tabellen(daten, zahlen, counts):
     out["arbeitsliste"] = "\n".join(z)
 
     # Korrekturen
-    z = ["| ID | wo | alt | neu | Richtung des alten Fehlers | Beleg |", "|---|---|---|---|---|---|"]
+    z = ["| ID | wo | alt | neu | Richtung des alten Fehlers | wem der alte Fehler geschadet hätte | Beleg |",
+         "|---|---|---|---|---|---|---|"]
     for k in daten["korrekturen_eigene"]:
-        z.append(f"| {k['id']} | {zelle(k['wo'])} | {zelle(k['alt'])} | {zelle(k['neu'])} | {k['richtung']} | {zelle(k['beleg'])} |")
+        z.append(f"| {k['id']} | {zelle(k['wo'])} | {zelle(k['alt'])} | {zelle(md_platzhalter(k['neu'], zahlen))} | {k['richtung']} | "
+                 f"{k['geschadet_haette']} | {zelle(k['beleg'])} |")
     out["korrekturen"] = "\n".join(z)
     return out
 
@@ -654,7 +813,8 @@ def main():
     print("Wert-Konfidenz: " + ", ".join(f"{k} {v}" for k, v in counts["wert_konfidenz"].items())
           + f"; Zitat geprüft {counts['zitat_geprueft']}")
     print("Alle Prüfungen bestanden: IDs, Pflichtfelder, Konfidenz-Regeln, Aussagen, Platzhalter, "
-          "keine Zahl von Hand, Verworfenes, Schritte/Kästen, Quellen, Arbeitsliste, Prozesszahlen, Nachrechnung.")
+          "keine Zahl von Hand, Verworfenes, Schritte/Kästen, Quellen, Arbeitsliste, Prozesszahlen, Nachrechnung, "
+          "Freitexte (Korrekturen, Studien, meta), Pflichtfelder v3.")
 
 
 if __name__ == "__main__":

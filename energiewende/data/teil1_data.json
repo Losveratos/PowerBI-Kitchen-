@@ -1,13 +1,13 @@
 {
  "meta": {
   "block": "teil1_data",
-  "version": 2,
+  "version": 3,
   "document": "energiewende/docs/03_teil1_freigabe.md",
   "stand": "2026-11-23",
-  "auftrag": "P6-B",
+  "auftrag": "P7-A",
   "titel": "Die 13,8 Billionen",
   "untertitel": "Woher die Zahl kommt und was sie misst",
-  "vorgaenger": "v1 vom 22.11.2026 (Auftrag P3-B), in der Git-Historie",
+  "vorgaenger": "v2 vom 23.11.2026 (Auftrag P6-B) und v1 vom 22.11.2026 (Auftrag P3-B), in der Git-Historie",
   "bip_bezug": {
    "fest": "bip_de_2024",
    "r21_eigen": "bip_de_2025",
@@ -61,38 +61,203 @@
    {
     "quelle": "ioew_prognos_gws",
     "grund": "nur über hib 411/2024 und DIW bekannt"
+   },
+   {
+    "quelle": "bischof_rbid_2026",
+    "grund": "Studie nicht abgerufen; R21s Kostensatz und Bischofs Werte nur aus R21 Factsheet A-1"
+   },
+   {
+    "quelle": "ksg_gesetzestext",
+    "grund": "gesetze-im-internet.de nicht freigegeben; die Klimaziele geben wir nach dem Umweltbundesamt wieder"
    }
+  ],
+  "lesegeschwindigkeit": "lesegeschwindigkeit_wpm",
+  "teile": [
+   {
+    "nr": 2,
+    "titel": "Strom und Speicher",
+    "frage": "Geht ein EE-Mix über mehrere Wetterjahre auf, und zu welchen Systemkosten?"
+   },
+   {
+    "nr": 3,
+    "titel": "Europa",
+    "frage": "Was bringt der Verbund — und was, wenn die Nachbarn gleichzeitig Flaute haben?"
+   },
+   {
+    "nr": 4,
+    "titel": "Lieferketten",
+    "frage": "Tauschen wir eine Abhängigkeit gegen eine andere?"
+   },
+   {
+    "nr": 5,
+    "titel": "Wasserstoff und E-Fuels",
+    "frage": "Wie viel braucht es für Flug, Schiff, Lkw und Industrie, und woher?"
+   },
+   {
+    "nr": 6,
+    "titel": "Gesamtrechnung",
+    "frage": "Die vier Pfade nebeneinander, mit Bandbreiten und Kipp-Punkten"
+   }
+  ],
+  "links": {
+   "impressum": "impressum.html",
+   "fehler_melden": "https://github.com/Losveratos/PowerBI-Kitchen-/issues",
+   "versionen_datensatz": "https://github.com/Losveratos/PowerBI-Kitchen-/commits/main/energiewende/data/teil1_data.json",
+   "versionen_freigabe": "https://github.com/Losveratos/PowerBI-Kitchen-/commits/main/energiewende/docs/03_teil1_freigabe.md"
+  },
+  "abzeichen": [
+   {
+    "angabe": "Zitat geprüft",
+    "bedeutung": "Die Zahl steht so im genannten Dokument, an der genannten Stelle; wir haben sie dort selbst gelesen. Sagt nichts darüber, ob sie zutrifft."
+   },
+   {
+    "angabe": "Wert: A",
+    "bedeutung": "Aus mehreren unabhängigen Quellen übereinstimmend belegt."
+   },
+   {
+    "angabe": "Wert: B",
+    "bedeutung": "Aus einer Quelle belegt, plausibel, nicht gegengeprüft."
+   },
+   {
+    "angabe": "Wert: C",
+    "bedeutung": "Kursiert, Primärquelle nicht auffindbar oder nicht prüfbar. Zweitquellen, die über eine ungelesene Quelle berichten, sind höchstens C."
+   },
+   {
+    "angabe": "Wert: Behauptung",
+    "bedeutung": "Das Dokument nennt die Zahl ohne nachprüfbaren Beleg, oder der genannte Beleg trägt sie nicht."
+   },
+   {
+    "angabe": "Wert: eigene Rechnung",
+    "bedeutung": "Wir haben die Zahl aus belegten Eingangswerten errechnet; der Rechenweg ist offen."
+   },
+   {
+    "angabe": "Wert: Setzung (M)",
+    "bedeutung": "Eigene Annahme."
+   }
+  ],
+  "formen": {
+   "nicht_gelesen": "grau mit gestricheltem Rand: nicht am Original gelesen; diese Form trägt keine gelesene Zahl",
+   "zuwachs": "hohl mit durchgezogenem Rand: Zuwachs gegenüber heute, kein Vergleichspfad"
+  },
+  "messlatte": {
+   "regel": "Die Messlatte misst Nachprüfbarkeit, nicht Richtigkeit. Verglichen wird nur innerhalb eines Dokumenttyps: Dokumente verschiedener Typen stehen nie in einem gemeinsamen Bild oder einer gemeinsamen Rangfolge.",
+   "dokumente": [
+    {
+     "id": "teil1",
+     "name": "Teil 1 dieser Reihe",
+     "typ": "Gutachten (Quellenprüfung ohne eigenes Kostenmodell)",
+     "gruppe": "quellenpruefung",
+     "wertungen": [
+      {
+       "fassung": "v1.0",
+       "zahl": "messlatte_teil1_r2",
+       "schluessel": "v10_ohne_k3",
+       "hoechstens": "v10_ohne_k3_max"
+      },
+      {
+       "fassung": "v1.1",
+       "zahl": "messlatte_teil1_r2",
+       "schluessel": "v11_ohne_k3_k4",
+       "hoechstens": "v11_max"
+      }
+     ],
+     "k3": {
+      "zahl": "messlatte_teil1_r2",
+      "schluessel": "k3",
+      "hoechstens": "k3_max"
+     }
+    },
+    {
+     "id": "r21",
+     "name": "R21-Erklärung",
+     "typ": "Erklärung oder Positionspapier",
+     "gruppe": "erklaerung",
+     "wertungen": [
+      {
+       "fassung": "v1.0",
+       "zahl": "proz_messlatte_v10",
+       "schluessel": "r21",
+       "hoechstens": "hoechstens"
+      }
+     ]
+    },
+    {
+     "id": "dihk_frontier",
+     "name": "DIHK/Frontier „Plan B“",
+     "typ": "Studie mit Modell",
+     "gruppe": "studie",
+     "wertungen": [
+      {
+       "fassung": "v1.0",
+       "zahl": "proz_messlatte_v10",
+       "schluessel": "dihk_frontier",
+       "hoechstens": "hoechstens"
+      }
+     ]
+    },
+    {
+     "id": "kfw_prognos",
+     "name": "KfW/Prognos",
+     "typ": "Studie (Auswertung fremder Szenarien mit eigener Rechnung)",
+     "gruppe": "studie",
+     "wertungen": [
+      {
+       "fassung": "v1.0",
+       "zahl": "proz_messlatte_v10",
+       "schluessel": "kfw_prognos",
+       "hoechstens": "hoechstens"
+      }
+     ]
+    }
+   ],
+   "nebeneinander_erlaubt": [
+    [
+     "dihk_frontier",
+     "kfw_prognos"
+    ]
+   ],
+   "hinweis": "DIHK/Frontier und KfW/Prognos haben ähnlichen Typ, mit Einschränkung: Frontier rechnet mit einem eigenen Modell, Prognos wertet fremde Szenarien aus. Teil 1 und die R21-Erklärung stehen je für sich."
+  },
+  "prozess_hinweis": "Die Zahlen aus dem Lauf-Protokoll sind der Stand beim Bau dieses Datensatzes (Datenstand); spätere Läufe zählt erst der nächste Bau.",
+  "entscheidungen_runde2": [
+   "Die Spalte „Vorher (falsch)“ der Korrekturen-Tabelle auf der Belegseite darf verworfene Wortlaute zeigen, durchgestrichen; die Story zeigt den alten Wortlaut nicht.",
+   "Die Prämissen stehen auf beiden Seiten als Aussagen, dazu ein belegter Satz zu den gesetzlichen Klimazielen.",
+   "Beide Seiten nennen sichtbar: kein Auftraggeber, keine Finanzierung durch Dritte, wer verantwortlich ist und wie man einen Fehler meldet.",
+   "Die Nutzenseite bekommt in der Story einen Satz mit Zahl im Klimakasten; die volle Darstellung bleibt auf der Belegseite.",
+   "Kein dreizehnter Kasten; der Hinweis, dass Mehrkosten auch zu hoch geschätzt sein können, steht als Satz in der Szene zur Unsicherheit.",
+   "Die Anfrage an R21 und die PwC-Studie bleiben zurückgestellt."
   ],
   "counts": {
    "status": {
-    "bestätigt": 101,
-    "korrigiert": 22,
+    "bestätigt": 104,
+    "korrigiert": 31,
     "verworfen": 7,
-    "Setzung (M)": 9,
-    "nicht prüfbar": 11
+    "Setzung (M)": 12,
+    "nicht prüfbar": 12
    },
    "ort": {
     "story": 5,
-    "belege": 30,
-    "beide": 108,
+    "belege": 32,
+    "beide": 122,
     "keiner": 7
    },
    "wert_konfidenz": {
     "A": 0,
-    "B": 85,
-    "C": 17,
-    "Behauptung": 8,
+    "B": 89,
+    "C": 20,
+    "Behauptung": 7,
     "eigene Rechnung": 63,
-    "Setzung": 7
+    "Setzung": 8
    },
-   "zitat_geprueft": 109,
-   "zahlen": 180,
-   "claims": 150,
+   "zitat_geprueft": 115,
+   "zahlen": 187,
+   "claims": 166,
    "erzeugte_zahlen": 44
   }
  },
  "prozess_protokoll": {
   "0": {
+   "name": "Orchestrierung (Fable)",
    "laeufe": 0,
    "laeufe_mit_token": 0,
    "token": 0,
@@ -100,6 +265,7 @@
    "summe_protokoll_token": null
   },
   "1": {
+   "name": "Recherche",
    "laeufe": 10,
    "laeufe_mit_token": 10,
    "token": 3247322,
@@ -107,6 +273,7 @@
    "summe_protokoll_token": 3247322
   },
   "2": {
+   "name": "Gegenprüfung",
    "laeufe": 10,
    "laeufe_mit_token": 10,
    "token": 2542472,
@@ -114,6 +281,7 @@
    "summe_protokoll_token": 2542472
   },
   "3": {
+   "name": "Zusammenführung und Freigabe Teil 1",
    "laeufe": 2,
    "laeufe_mit_token": 1,
    "token": 376633,
@@ -121,6 +289,7 @@
    "summe_protokoll_token": null
   },
   "4": {
+   "name": "Seitenbau Teil 1",
    "laeufe": 2,
    "laeufe_mit_token": 2,
    "token": 841230,
@@ -128,6 +297,7 @@
    "summe_protokoll_token": null
   },
   "5": {
+   "name": "Reviews Teil 1",
    "laeufe": 13,
    "laeufe_mit_token": 13,
    "token": 3243174,
@@ -135,6 +305,7 @@
    "summe_protokoll_token": 3243174
   },
   "6": {
+   "name": "Überarbeitung Teil 1",
    "laeufe": 9,
    "laeufe_mit_token": 9,
    "token": 3123331,
@@ -142,6 +313,7 @@
    "summe_protokoll_token": null
   },
   "7": {
+   "name": "Abschlussrunde Teil 1",
    "laeufe": 0,
    "laeufe_mit_token": 0,
    "token": 0,
@@ -312,6 +484,23 @@
    "eingaben": [
     "bip_wachstum_hist"
    ]
+  },
+  {
+   "id": "lesegeschwindigkeit_wpm",
+   "value": 200,
+   "unit": "Wörter je Minute",
+   "art": "Setzung",
+   "zitat_geprueft": false,
+   "wert_konfidenz": "Setzung",
+   "primaer_gelesen": false,
+   "quelle": [
+    "eigene_rechnung"
+   ],
+   "fundstelle": "-",
+   "abgrenzung": "nur für die Leseangabe der Story (Wortzahl der gebauten Seite geteilt durch diesen Wert); keine Messung",
+   "status": "Setzung (M)",
+   "rechenweg": "übliche Lesegeschwindigkeit für Sachtexte am Bildschirm; Setzung für die Leseangabe, keine Prognose",
+   "geprueft": "v3 (P7-A), neu"
   },
   {
    "id": "bai_de_2024",
@@ -681,7 +870,7 @@
     "r21_erklaerung_2026"
    ],
    "fundstelle": "-",
-   "abgrenzung": "R21s „Planungs- und Bauzeit ca. 15 Jahre“ ab einer Entscheidung 2027",
+   "abgrenzung": "R21s „Planungs- und Bauzeit ca. 15 Jahre“ (in derselben Aufzählung wie 50 GW, 31 Blöcke, 310 Mrd. €, naheliegend für das ganze Programm) ab einer Entscheidung 2027; kein Jahr für den ersten Block",
    "status": "Setzung (M)",
    "rechenweg": "2027 + 15 Jahre; das Startjahr 2027 ist unsere Setzung wie in kkw_erster_block_jahr",
    "eingaben": [
@@ -713,10 +902,10 @@
     "r21_erklaerung_2026",
     "wendland_2026"
    ],
-   "fundstelle": "Factsheet B-3 (PDF-S. 15, Z. 493–495); Wendland PDF-S. 4 und 10 (Quelle dort: Radiant Energy Group 2026a)",
+   "fundstelle": "Factsheet B-3 (PDF-S. 15, Z. 493–495); Wendland PDF-S. 4 und 11 (Quelle dort: Radiant Energy Group 2026a)",
    "abgrenzung": "Reaktivierung „noch vorhandener Druckwasserreaktoren“: „ca. 8,5 Mrd € für 7 GW“, „2032 am Netz“; Radiant-Gutachten nicht gelesen",
    "status": "bestätigt",
-   "geprueft": "v2 (P6-B), am Original nachgeschlagen"
+   "geprueft": "v3 (P7-A), am Original nachgeschlagen"
   },
   {
    "id": "r21_kernenergie_bedarf",
@@ -837,10 +1026,10 @@
    "quelle": [
     "wendland_2026"
    ],
-   "fundstelle": "Wendland PDF-S. 10 (Z. 396–398)",
+   "fundstelle": "Wendland PDF-S. 11 (Textfassung Z. 396–398)",
    "abgrenzung": "Olkiluoto-3 „kostete rund 10 Milliarden Euro“ für 1,6 GW, laut Wendland nach Radiant Energy Group 2026a (nicht gelesen)",
    "status": "bestätigt",
-   "geprueft": "v2 (P6-B), am Original nachgeschlagen"
+   "geprueft": "v3 (P7-A), am Original nachgeschlagen"
   },
   {
    "id": "r21_kkw_herleitung",
@@ -882,14 +1071,10 @@
   {
    "id": "r21_fa_annahmen",
    "value": {
-    "tage": 5,
     "teiler": 73,
     "verbrauch_twh": 520,
     "kapazitaet_twh": 7,
-    "eur_je_mwh": 200000,
-    "faktor": 12.5,
-    "bischof_gwh": 560,
-    "bischof_mrd": 112
+    "faktor": 12.5
    },
    "unit": "–",
    "art": "Zitat",
@@ -900,9 +1085,32 @@
     "r21_erklaerung_2026"
    ],
    "fundstelle": "Factsheet A-1 (PDF-S. 10, Z. 283–302)",
-   "abgrenzung": "Annahmen und Anmerkung des Factsheets: 520 TWh ÷ 73 ≈ 7 TWh; „In meiner Rechnung ist die 12,5-fache Kapazität unterstellt“ (gegen 560 GWh und 112 Mrd. EUR bei Bischof); Wert B für die Energiemenge, gestützt durch unsere Rechnung (dunkelflaute_luecke_5tage)",
+   "abgrenzung": "Annahme und Rechnung des Factsheets: 520 TWh ÷ 73 ≈ 7 TWh; „In meiner Rechnung ist die 12,5-fache Kapazität unterstellt“; Wert B für die Energiemenge, gestützt durch unsere Rechnung (dunkelflaute_luecke_5tage). Werte aus ungelesenen Studien stehen getrennt in r21_fa_fremdwerte (C)",
    "status": "bestätigt",
-   "geprueft": "v2 (P6-B), am Original nachgeschlagen"
+   "geprueft": "v3 (P7-A), am Original nachgeschlagen"
+  },
+  {
+   "id": "r21_fa_fremdwerte",
+   "value": {
+    "tage": 5,
+    "eur_je_mwh": 200000,
+    "bischof_gwh": 560,
+    "bischof_mrd": 112
+   },
+   "unit": "–",
+   "art": "Zitat",
+   "zitat_geprueft": true,
+   "wert_konfidenz": "C",
+   "primaer_gelesen": true,
+   "quelle": [
+    "r21_erklaerung_2026",
+    "bischof_rbid_2026",
+    "diw_mcc_2020"
+   ],
+   "fundstelle": "Factsheet A-1 (PDF-S. 10, Z. 284–297)",
+   "abgrenzung": "Werte, die R21 aus Studien übernimmt, die wir nicht gelesen haben: fünf Tage Dunkelflaute „(DIW-MCC-Studie, 2020)“, Kostensatz 200.000 € je MWh „(RBID-Studie, Bischof 2026)“, Bischofs 560 GWh und 112 Mrd. €; Zweitquellenregel, daher höchstens C",
+   "status": "bestätigt",
+   "geprueft": "v3 (P7-A), am Original nachgeschlagen"
   },
   {
    "id": "r21_ets_minderung",
@@ -1010,12 +1218,21 @@
     "eigene_rechnung"
    ],
    "fundstelle": "-",
-   "abgrenzung": "Vermutung: 500 Mrd. EUR × 20 Jahre; im Papier keine Herleitung",
+   "abgrenzung": "unsere vermutete Herleitung von R21s Untergrenze (500 Mrd. EUR × 20 Jahre), nicht R21s Zahl; R21s Zahl ist r21_kosten_zitat|min",
    "status": "Setzung (M)",
    "rechenweg": "500 Mrd. EUR pro Jahr (Kurzinformation) × 20 Jahre (R21: „zwanzig Jahren“) = 10.000 Mrd. EUR; unsere Vermutung",
    "eingaben": [
     "wd_kosten_pro_jahr"
-   ]
+   ],
+   "rechnung": {
+    "werte": {
+     "a": "wd_kosten_pro_jahr"
+    },
+    "formeln": {
+     "value": "a*20/1000"
+    },
+    "toleranz": 0
+   }
   },
   {
    "id": "pwc_wwb",
@@ -1342,6 +1559,22 @@
    "geprueft": "v2 (P6-B), am Original nachgeschlagen"
   },
   {
+   "id": "ise2024_differenz_bip_studie",
+   "value": 1.2,
+   "unit": "% des heutigen BIP",
+   "art": "Zitat",
+   "zitat_geprueft": true,
+   "wert_konfidenz": "B",
+   "primaer_gelesen": true,
+   "quelle": [
+    "ise_2024"
+   ],
+   "fundstelle": "PDF-S. 6 (Z. 212–214); PDF-S. 81 (Z. 4580)",
+   "abgrenzung": "Angabe der Studie für die mittleren Differenzkosten (54 Mrd. € pro Jahr, Szenario „Technologieoffen“): „rund 1,2% des heutigen Bruttoinlandprodukts“",
+   "status": "bestätigt",
+   "geprueft": "v3 (P7-A), am Original nachgeschlagen"
+  },
+  {
    "id": "ise2024_zeitraum",
    "value": {
     "jahre": 25
@@ -1524,6 +1757,22 @@
    "geprueft": "v2 (P6-B), am Original nachgeschlagen"
   },
   {
+   "id": "kfw2026_zuwachs_bip_studie",
+   "value": 1.5,
+   "unit": "% BIP 2024",
+   "art": "Zitat",
+   "zitat_geprueft": true,
+   "wert_konfidenz": "B",
+   "primaer_gelesen": true,
+   "quelle": [
+    "kfw_prognos_2026"
+   ],
+   "fundstelle": "Focus 561 PDF-S. 3 (Z. 180–183)",
+   "abgrenzung": "Angabe des Focus: „additional EUR 65 billion per year or 1.5% of the gross domestic product of the reference year 2024“",
+   "status": "bestätigt",
+   "geprueft": "v3 (P7-A), am Original nachgeschlagen"
+  },
+  {
    "id": "kfw2026_netto_anteil_bai",
    "value": {
     "min": 14,
@@ -1559,7 +1808,7 @@
     "eurostat_nama_10_gdp"
    ],
    "fundstelle": "-",
-   "abgrenzung": "Mehrinvestitionen laut Prognos-Studie gegen die Bruttoanlageinvestitionen 2024",
+   "abgrenzung": "erscheint auf keiner Seite. Weicht von der Studienangabe 14 bzw. 16 % ab, weil Prognos den Anteil an den Bruttoanlageinvestitionen der Szenarien 2025–2045 bildet (PDF-S. 64, Z. 2536–2539), wir an den Bruttoanlageinvestitionen 2024",
    "status": "bestätigt",
    "rechenweg": "135 bzw. 153 Mrd. EUR ÷ 898,3 Mrd. EUR",
    "eingaben": [
@@ -2126,6 +2375,22 @@
    "geprueft": "v2 (P6-B), am Original nachgeschlagen"
   },
   {
+   "id": "kkw_flamanville",
+   "value": 14364,
+   "unit": "EUR/kW (Euro 2023, mit Finanzierung)",
+   "art": "Zitat",
+   "zitat_geprueft": true,
+   "wert_konfidenz": "B",
+   "primaer_gelesen": false,
+   "quelle": [
+    "strommix_kosten_kernkraft"
+   ],
+   "fundstelle": "strommix/research/kosten_kernkraft.md Tab. 1.1 (Quelle dort: Cour des Comptes, 14.01.2025)",
+   "abgrenzung": "Flamanville 3, ein EPR mit 1.650 MW brutto, Gesamtkosten 23,7 Mrd. € (€2023) inklusive Finanzierung; Bau 2007–2024/25",
+   "status": "bestätigt",
+   "geprueft": "v3 (P7-A), am Original nachgeschlagen"
+  },
+  {
    "id": "kkw_erster_block_jahr",
    "value": {
     "min": 2040,
@@ -2314,6 +2579,26 @@
    "abgrenzung": "globale Schäden je Tonne, Methodenkonvention 4.0",
    "status": "bestätigt",
    "geprueft": "v1 (P3-B), am Original gelesen; in v2 unverändert übernommen"
+  },
+  {
+   "id": "ksg_ziele",
+   "value": {
+    "bis_2030": 65,
+    "bis_2040": 88
+   },
+   "unit": "% Minderung gegenüber 1990",
+   "art": "Zitat",
+   "zitat_geprueft": true,
+   "wert_konfidenz": "C",
+   "primaer_gelesen": false,
+   "quelle": [
+    "uba_thg_seite",
+    "ksg_gesetzestext"
+   ],
+   "fundstelle": "UBA-Seite „Treibhausgas-Emissionen“, Abschn. 5 (Textfassung Z. 351–357), Stand 31.08.2026",
+   "abgrenzung": "Ziele nach § 3 Bundes-Klimaschutzgesetz, wiedergegeben vom Umweltbundesamt: mindestens 65 % bis 2030, mindestens 88 % bis 2040, Netto-Treibhausgasneutralität bis 2045. Die Seite schreibt in den Zeilen „CO₂-Emissionen“, im Satz davor „Ausstoß an Treibhausgasen“. Gesetzestext nicht gelesen, daher C",
+   "status": "bestätigt",
+   "geprueft": "v3 (P7-A), am Original nachgeschlagen"
   },
   {
    "id": "china_anteil_pv_extra_eu",
@@ -2616,16 +2901,16 @@
    "unit": "% bzw. TWh",
    "art": "Zitat",
    "zitat_geprueft": true,
-   "wert_konfidenz": "Behauptung",
+   "wert_konfidenz": "C",
    "primaer_gelesen": true,
    "quelle": [
     "r21_erklaerung_2026",
     "quantified_carbon"
    ],
    "fundstelle": "Factsheet B-2 (PDF-S. 14, Z. 449–455)",
-   "abgrenzung": "„Ein mögliches Reform-Stromsystem“ bezogen auf 1.000 TWh Jahresproduktion, nach Quantified Carbon",
+   "abgrenzung": "„Ein mögliches Reform-Stromsystem“ bezogen auf 1.000 TWh Jahresproduktion, nach Quantified Carbon; wie der Systempreis aus derselben, nicht gelesenen Simulation, daher C (vorher „Behauptung“)",
    "status": "bestätigt",
-   "geprueft": "v2 (P6-B), am Original nachgeschlagen"
+   "geprueft": "v3 (P7-A), am Original nachgeschlagen"
   },
   {
    "id": "energiepreis_faktor_2019_2026",
@@ -2721,8 +3006,8 @@
   },
   {
    "id": "ets_minderung_seit_2005",
-   "value": -50,
-   "unit": "%",
+   "value": 50,
+   "unit": "% Minderung seit 2005",
    "art": "Zitat",
    "zitat_geprueft": true,
    "wert_konfidenz": "B",
@@ -2731,9 +3016,9 @@
     "ec_ets_2025"
    ],
    "fundstelle": "Kommission 04.04.2025",
-   "abgrenzung": "EU-ETS-Sektoren 2005–2024",
+   "abgrenzung": "EU-ETS-Sektoren 2005–2024; „around 50% below 2005 levels“; als Minderung gespeichert (Betrag), damit sie neben R21s Angabe gleich gelesen wird",
    "status": "bestätigt",
-   "geprueft": "v1 (P3-B), am Original gelesen; in v2 unverändert übernommen"
+   "geprueft": "v3 (P7-A), am Original nachgeschlagen"
   },
   {
    "id": "zew",
@@ -3131,8 +3416,36 @@
     "synthese_reviews"
    ],
    "fundstelle": "Synthese Abschn. 4 (aus Bericht 13)",
-   "abgrenzung": "Messlatte v1.0; nach der präzisierten Fassung v1.1 noch nicht neu bewertet",
+   "abgrenzung": "Messlatte v1.0, erste Fassung von Teil 1 und drei fremde Dokumente (Bericht 13); die fremden Dokumente sind nach v1.1 noch nicht neu bewertet",
    "status": "bestätigt"
+  },
+  {
+   "id": "messlatte_teil1_r2",
+   "value": {
+    "v10": 17,
+    "v10_max": 20,
+    "v10_ohne_k3": 15,
+    "v10_ohne_k3_max": 18,
+    "v11_ohne_k3_k4": 14,
+    "v11_max": 16,
+    "k3": 2,
+    "k3_max": 2,
+    "stichprobe": 12,
+    "stichprobe_ok": 12
+   },
+   "unit": "Punkte bzw. Zahlen der Stichprobe",
+   "art": "Zitat",
+   "zitat_geprueft": true,
+   "wert_konfidenz": "B",
+   "primaer_gelesen": true,
+   "quelle": [
+    "reviews_runde2",
+    "messlatte_doc"
+   ],
+   "fundstelle": "Bericht 25, Urteil und Punktetabellen nach v1.0 und v1.1; Stichprobe K3",
+   "abgrenzung": "Wertung der überarbeiteten Fassung von Teil 1 durch einen unabhängigen Prüfer am 23.11.2026; Dokumenttyp dabei Gutachten (Quellenprüfung). Bei Einordnung als Erklärung nach v1.0 K6 0 statt 2 Punkte (offene Entscheidung O-7)",
+   "status": "bestätigt",
+   "geprueft": "v3 (P7-A), am Original nachgeschlagen"
   },
   {
    "id": "pa_dihk_g1",
@@ -4289,17 +4602,21 @@
   {
    "id": "B02",
    "abschnitt": "2.0 Vorspann · der Befund in drei Sätzen",
-   "text": "Was die Studien als zusätzliche Kosten gegenüber einem Vergleichspfad ausweisen, liegt bei [[spanne_g3b_fest|min]] bis [[spanne_g3b_fest|max]] Prozent der Wirtschaftsleistung im Jahr; was sie als zusätzliche Investitionen ausweisen, bei [[spanne_g3a_fest|min]] bis [[spanne_g3a_fest|max]] Prozent. R21s Spanne entspräche [[bipfest_r21|min]] bis [[bipfest_r21|max]] Prozent.",
-   "status": "bestätigt",
+   "text": "Brutto, also als Gesamtkosten oder Gesamtinvestitionen wie R21s Quelle, liegen die gelesenen Studien bei [[spanne_brutto_fest|min]] bis [[spanne_brutto_fest|max]] Prozent der Wirtschaftsleistung im Jahr; R21s Spanne entspräche [[bipfest_r21|min]] bis [[bipfest_r21|max]] Prozent, am oberen Rand oder darüber. Was die Studien als zusätzliche Kosten gegenüber einem Vergleichspfad ausweisen, liegt bei [[spanne_g3b_fest|min]] bis [[spanne_g3b_fest|max]] Prozent, als zusätzliche Investitionen bei [[spanne_g3a_fest|min]] bis [[spanne_g3a_fest|max]] Prozent.",
+   "status": "korrigiert",
    "ort": "story",
    "quelle": [
-    "eigene_rechnung"
+    "eigene_rechnung",
+    "wd5_151_24"
    ],
-   "fundstelle": "Abschnitt 8 (Studientabelle), BIP 2024",
-   "vorbehalt": "Die Anteile sind unsere Rechnung mit festem BIP 2024; mit wachsendem BIP fallen alle Anteile kleiner aus (Abschnitt 8).",
+   "fundstelle": "Studientabelle (Abschnitt 8), BIP 2024; WD 151/24 PDF-S. 14 (Gesamtkosten)",
+   "vorbehalt": "Alle Anteile, auch R21s, sind unsere Rechnung mit demselben festen BIP 2024; mit wachsendem BIP fallen sie kleiner aus (Akt 4). Studien, die nur einen Teil zählen, liegen unter der Brutto-Spanne.",
    "v1": "neu",
+   "alt": "v2: R21s Spanne nur neben Mehrkosten und Mehrinvestitionen, ohne die Brutto-Spanne derselben Größe",
+   "v3": "geändert (P7-A, Runde 2)",
    "zahlen": [
     "bipfest_r21",
+    "spanne_brutto_fest",
     "spanne_g3a_fest",
     "spanne_g3b_fest"
    ]
@@ -4307,16 +4624,82 @@
   {
    "id": "B03",
    "abschnitt": "2.0 Vorspann · der Befund in drei Sätzen",
-   "text": "Teurer als nötig kann der eingeschlagene Weg trotzdem sein: Zwei der gelesenen Studien sehen Einsparungen von mehreren hundert Milliarden Euro, wenn anders gesteuert wird, und R21s Systemkosten-Argument verdient eine eigene Rechnung, die Teil 6 liefert.",
-   "status": "bestätigt",
+   "text": "Teurer als nötig kann der eingeschlagene Weg trotzdem sein: Zwei der gelesenen Studien sehen bei gleichem Klimaziel Einsparungen von mehreren hundert Milliarden Euro, wenn anders gesteuert wird, DIHK für Deutschland, das ZEW für die ganze EU. R21s Systemkosten-Argument verdient eine eigene Rechnung, die Teil 6 liefert. Keine der Mehrkosten-Zahlen enthält vermiedene Klimaschäden; die zwei Studien, die sie selbst gegenrechnen, Fraunhofer ISE 2021 und Ariadne, kommen netto niedriger heraus oder finden, dass der Nutzen überwiegt (Klimakasten).",
+   "status": "korrigiert",
    "ort": "story",
    "quelle": [
     "dihk_planb_2025",
-    "zew_rausch_2026"
+    "zew_rausch_2026",
+    "ise_2021",
+    "ariadne_2025"
    ],
-   "fundstelle": "DIHK S. 12; ZEW Tab. 1",
+   "fundstelle": "DIHK PDF-S. 12 (Z. 461–466); ZEW PDF-S. 3 und Abschn. 4.2 („identical target achievement“); ISE 2021 PDF-S. 42; Ariadne PDF-S. 9",
    "v1": "neu",
+   "alt": "v2: endete mit R21s Punkt, ohne Geltungsbereich des ZEW und ohne Nutzenseite",
+   "v3": "geändert (P7-A, Runde 2)",
    "zahlen": []
+  },
+  {
+   "id": "PR1",
+   "abschnitt": "2.0a Prämissen der Reihe",
+   "text": "Wir setzen voraus: Der Klimawandel ist real und menschengemacht, und der Ausstoß von CO₂ soll sinken.",
+   "status": "Setzung (M)",
+   "ort": "beide",
+   "quelle": [
+    "energiewende_readme",
+    "transparenz_richtlinien"
+   ],
+   "fundstelle": "README, Prämisse 1; TRANSPARENZ Abschn. 1",
+   "v1": "neu",
+   "v3": "neu (P7-A)",
+   "zahlen": []
+  },
+  {
+   "id": "PR2",
+   "abschnitt": "2.0a Prämissen der Reihe",
+   "text": "Energie ist eine Hauptressource der Volkswirtschaft. Bezahlbarkeit und Versorgungssicherheit sind gleichrangige Ziele, keine Nebenbedingungen.",
+   "status": "Setzung (M)",
+   "ort": "beide",
+   "quelle": [
+    "energiewende_readme"
+   ],
+   "fundstelle": "README, Prämisse 2",
+   "v1": "neu",
+   "v3": "neu (P7-A)",
+   "zahlen": []
+  },
+  {
+   "id": "PR3",
+   "abschnitt": "2.0a Prämissen der Reihe",
+   "text": "Hauptpfad der Reihe sind Erneuerbare und Speicher, mit Gegenrechnung: Er wird mit denselben Kostenquellen gegen die Alternativen gerechnet, und das Ergebnis darf gegen ihn ausfallen.",
+   "status": "Setzung (M)",
+   "ort": "beide",
+   "quelle": [
+    "energiewende_readme"
+   ],
+   "fundstelle": "README, Prämisse 3",
+   "vorbehalt": "Diese drei Sätze sind gesetzt und werden in der Reihe nicht neu verhandelt; sie sind kein Ergebnis dieser Prüfung.",
+   "v1": "neu",
+   "v3": "neu (P7-A)",
+   "zahlen": []
+  },
+  {
+   "id": "PR4",
+   "abschnitt": "2.0a Prämissen der Reihe",
+   "text": "Gesetzlich gilt nach dem Bundes-Klimaschutzgesetz: Der Ausstoß von Treibhausgasen soll bis 2030 um mindestens [[ksg_ziele|bis_2030]] Prozent und bis 2040 um mindestens [[ksg_ziele|bis_2040]] Prozent unter dem Stand von 1990 liegen, und bis 2045 soll Deutschland netto treibhausgasneutral sein.",
+   "status": "bestätigt",
+   "ort": "beide",
+   "quelle": [
+    "uba_thg_seite",
+    "ksg_gesetzestext"
+   ],
+   "fundstelle": "UBA-Seite „Treibhausgas-Emissionen“, Abschn. 5 (Textfassung Z. 351–357), Stand 31.08.2026",
+   "vorbehalt": "Den Gesetzestext selbst haben wir nicht gelesen; wir geben die Ziele nach dem Umweltbundesamt wieder.",
+   "v1": "neu",
+   "v3": "neu (P7-A)",
+   "zahlen": [
+    "ksg_ziele"
+   ]
   },
   {
    "id": "S01",
@@ -4397,7 +4780,7 @@
   {
    "id": "S06",
    "abschnitt": "2.1 Der Satz in der Schlagzeile und im Papier",
-   "text": "R21 rechnet die Summe um: Das entspreche „dem Zwei- bis Dreifachen der jährlichen Wirtschaftsleistung für einen Zeitraum von zwanzig Jahren“. Die Division stimmt: [[r21_bip_vielfaches|min]]- bis [[r21_bip_vielfaches|max]]-mal das BIP 2025. Pro Jahr wären das [[bipfest_r21|min]] bis [[bipfest_r21|max]] Prozent der Wirtschaftsleistung; mehr dazu in Akt 4.",
+   "text": "R21 rechnet die Summe um: Das entspreche „dem Zwei- bis Dreifachen der jährlichen Wirtschaftsleistung für einen Zeitraum von zwanzig Jahren“. Die Division stimmt: Das sind [[r21_bip_vielfaches|spanne]] Jahres-BIP 2025. Pro Jahr wären das [[bipfest_r21|min]] bis [[bipfest_r21|max]] Prozent der Wirtschaftsleistung; mehr dazu in Akt 4.",
    "status": "bestätigt",
    "ort": "beide",
    "quelle": [
@@ -4405,11 +4788,12 @@
     "eurostat_nama_10_gdp"
    ],
    "fundstelle": "Druckseite 12 (Z. 597–598)",
-   "vorbehalt": "Die Prozentangabe ist unsere Rechnung mit festem BIP 2024 und gleichmäßiger Verteilung über zwanzig Jahre.",
+   "vorbehalt": "Die Prozentangabe ist unsere Rechnung mit festem BIP 2024, wie bei den Studien, und gleichmäßiger Verteilung über zwanzig Jahre.",
    "v1": "geändert",
    "punkte": [
     "P079"
    ],
+   "v3": "geändert (P7-A, Runde 2)",
    "zahlen": [
     "bipfest_r21",
     "r21_bip_vielfaches"
@@ -4457,18 +4841,21 @@
   {
    "id": "S09",
    "abschnitt": "2.1 Der Satz in der Schlagzeile und im Papier",
-   "text": "Dagegen spricht zweierlei: Ein Teil der Anlagen müsste auch ohne Energiewende ersetzt werden, und die neuen Anlagen ersetzen Brennstoffe, die sonst jedes Jahr gekauft würden. Beides steckt in den Mehrkosten-Studien, nicht in R21s Summe. Für die Mehrkosten trifft R21s Argument dagegen zu.",
-   "status": "bestätigt",
+   "text": "Dagegen spricht zweierlei: Ein Teil der Anlagen müsste auch ohne Energiewende ersetzt werden, und die neuen Anlagen ersetzen Brennstoffe, die sonst jedes Jahr gekauft würden. Beides steckt in den Mehrkosten-Studien, nicht in R21s Summe. Für die Mehrkosten trifft R21s Argument im engen Sinn zu: Sie bringen nicht mehr Strom und nicht mehr Stahl. Ihr Gegenwert sind geringere Emissionen und eine geringere Abhängigkeit von Energieimporten; vermiedene Klima- und Umweltschäden und die geringere Abhängigkeit nennt die Bundesregierung ausdrücklich als nicht gegengerechnet (Akt 4).",
+   "status": "korrigiert",
    "ort": "beide",
    "quelle": [
     "wd5_135_24",
-    "btd_21_903"
+    "btd_21_903",
+    "r21_erklaerung_2026"
    ],
-   "fundstelle": "WD 135/24 S. 5 (Monitoring-Bericht); Drucksache 21/903 S. 2",
+   "fundstelle": "WD 135/24 S. 5 (Monitoring-Bericht); Drucksache 21/903 S. 2 (Z. 85–91); R21 Druckseite 9 (Z. 262–268)",
    "v1": "neu",
    "punkte": [
     "P003"
    ],
+   "alt": "v2: „Für die Mehrkosten trifft R21s Argument dagegen zu.“ (unbedingt, ohne den Gegenwert)",
+   "v3": "geändert (P7-A, Runde 2)",
    "zahlen": []
   },
   {
@@ -4535,14 +4922,16 @@
   {
    "id": "F03",
    "abschnitt": "2.2 Die Fußnote: was in der Kurzinformation steht",
-   "text": "Eine Spanne steht dort auch nicht: Genannt sind zwei Einzelwerte aus zwei Quellen mit verschiedenem Zeitbezug, pro Jahr und insgesamt.",
-   "status": "bestätigt",
+   "text": "Die Kurzinformation schreibt „zwischen … oder“, nennt aber zwei Einzelwerte aus zwei Quellen mit verschiedenem Zeitbezug, pro Jahr und insgesamt. Eine Spanne daraus zu lesen, liegt nahe; rechnerisch passen die zwei Werte nicht zusammen.",
+   "status": "korrigiert",
    "ort": "beide",
    "quelle": [
     "wd5_135_24"
    ],
    "fundstelle": "S. 2, Fn. 5 und 6",
    "v1": "unverändert",
+   "alt": "v1/v2: „Eine Spanne steht dort auch nicht: …“ (widerspricht dem eigenen Zitat „zwischen … oder“)",
+   "v3": "geändert (P7-A, Runde 2)",
    "zahlen": []
   },
   {
@@ -4588,17 +4977,20 @@
   {
    "id": "F07",
    "abschnitt": "2.2 Die Fußnote: was in der Kurzinformation steht",
-   "text": "Woher die Untergrenze von [[r21_untergrenze_herleitung]] Billionen kommt, sagt das Papier nicht. Rechnerisch ergäbe sie sich aus [[wd_kosten_pro_jahr]] Milliarden Euro pro Jahr mal zwanzig Jahre.",
+   "text": "Woher die Untergrenze von [[r21_kosten_zitat|min]] Billionen kommt, sagt das Papier nicht. Rechnerisch ergäbe sie sich aus [[wd_kosten_pro_jahr]] Milliarden Euro pro Jahr mal zwanzig Jahre, also [[r21_untergrenze_herleitung]] Billionen.",
    "status": "Setzung (M)",
    "ort": "beide",
    "quelle": [
-    "eigene_rechnung",
-    "r21_erklaerung_2026"
+    "r21_erklaerung_2026",
+    "eigene_rechnung"
    ],
    "fundstelle": "R21 Druckseite 12 ohne Rechenweg",
-   "vorbehalt": "Das ist unsere Vermutung, kein Beleg.",
+   "vorbehalt": "Die Zahl ist R21s Angabe; die Herleitung ist unsere Vermutung, kein Beleg.",
    "v1": "unverändert",
+   "alt": "v2: R21s Untergrenze trug als einzige Zahl das Abzeichen „Setzung (M)“, obwohl sie R21s Angabe ist",
+   "v3": "geändert (P7-A, Runde 2)",
    "zahlen": [
+    "r21_kosten_zitat",
     "r21_untergrenze_herleitung",
     "wd_kosten_pro_jahr"
    ]
@@ -4650,8 +5042,8 @@
   {
    "id": "F11",
    "abschnitt": "2.2 Die Fußnote: was in der Kurzinformation steht",
-   "text": "Die unscharfe Bezeichnung beginnt schon in der Kurzinformation: Sie schreibt, Studien „versuchen …, die Kosten der Energiewende zu berechnen“, und nennt dann Beträge, ohne zu sagen, was darin steckt. R21 übernimmt das ungeprüft und deutet die Summe als „Entzug von Wertschöpfung“.",
-   "status": "bestätigt",
+   "text": "Die unscharfe Bezeichnung beginnt schon in der Kurzinformation: Sie schreibt, Studien „versuchen …, die Kosten der Energiewende zu berechnen“, und nennt dann Beträge, ohne zu sagen, was darin steckt. R21 übernimmt die Bezeichnung, ohne die Abgrenzung zu nennen, und deutet die Summe als „Entzug von Wertschöpfung“.",
+   "status": "korrigiert",
    "ort": "beide",
    "quelle": [
     "wd5_135_24",
@@ -4662,6 +5054,8 @@
    "punkte": [
     "P020"
    ],
+   "alt": "v2: „R21 übernimmt das ungeprüft“ (ob R21 geprüft hat, wissen wir nicht)",
+   "v3": "geändert (P7-A, Runde 2)",
    "zahlen": []
   },
   {
@@ -4696,8 +5090,9 @@
     "wd5_135_24"
    ],
    "fundstelle": "Fn. 6",
-   "vorbehalt": "Die [[wd_kosten_gesamt]] Billionen übernimmt die Kurzinformation aus einer PwC-Studie, die wir nicht gelesen haben (Akt 3).",
+   "vorbehalt": "Die PwC-Studie selbst haben wir nicht gelesen.",
    "v1": "unverändert",
+   "v3": "geändert (P7-A, Runde 2)",
    "zahlen": [
     "wd_kosten_gesamt"
    ]
@@ -4725,8 +5120,9 @@
     "wd5_151_24"
    ],
    "fundstelle": "PDF-S. 14, Fn. 48",
-   "vorbehalt": "Die [[wd_kosten_gesamt]] Billionen übernimmt die Kurzinformation aus einer PwC-Studie, die wir nicht gelesen haben (Akt 3).",
+   "vorbehalt": "Die PwC-Studie selbst haben wir nicht gelesen.",
    "v1": "unverändert",
+   "v3": "geändert (P7-A, Runde 2)",
    "zahlen": [
     "wd_kosten_gesamt"
    ]
@@ -4885,6 +5281,25 @@
     "P101"
    ],
    "zahlen": []
+  },
+  {
+   "id": "Q12",
+   "abschnitt": "2.3 Die Quelle der Quelle: PwC und der FAZ-Gastbeitrag",
+   "text": "R21 vergleicht den eigenen Kurs mit den Kosten einer „Fortsetzung der bisherigen Energiewende“. Liest man die [[pwc_wwb|gesamt]] Billionen wie das DIW als Gesamtkosten von „Weiter wie bisher“, trifft R21s Wort an dieser Stelle zu: Es wären die Brutto-Kosten genau dieses Pfads. Eine Brutto-Summe für den eigenen Kurs stellt R21 nicht dagegen.",
+   "status": "nicht prüfbar",
+   "ort": "beide",
+   "quelle": [
+    "r21_erklaerung_2026",
+    "diw_wb_2025_38",
+    "pwc_2024"
+   ],
+   "fundstelle": "R21 Druckseite 5 (Z. 163–166); DIW 38+39/2025 S. 618",
+   "vorbehalt": "Die PwC-Studie selbst haben wir nicht gelesen; die Lesart stammt vom DIW.",
+   "v1": "neu",
+   "v3": "neu (P7-A)",
+   "zahlen": [
+    "pwc_wwb"
+   ]
   },
   {
    "id": "G01",
@@ -5247,7 +5662,7 @@
    "abschnitt": "2.5 Dasselbe Muster beim Netz",
    "text": "Factsheet B nennt „Netzausbau [[r21_netz_factsheet_b]] Mrd. € bis 2034 (Bothe et al. 2025)“. In der Studie gilt die Zahl für 2025 bis 2049; rund die Hälfte fällt in den ersten zehn Jahren an.",
    "status": "korrigiert",
-   "ort": "belege",
+   "ort": "beide",
    "quelle": [
     "r21_erklaerung_2026",
     "dihk_planb_2025"
@@ -5255,6 +5670,7 @@
    "fundstelle": "R21 Factsheet B-1; DIHK S. 27; Begleitpapier S. 2",
    "alt": "„bis 2034“",
    "v1": "unverändert",
+   "v3": "geändert (P7-A, Runde 2)",
    "zahlen": [
     "r21_netz_factsheet_b"
    ]
@@ -5484,6 +5900,26 @@
    ]
   },
   {
+   "id": "V02a",
+   "abschnitt": "2.6 Der Vergleichspfad",
+   "text": "Die [[wendland_kkw_neubau]] Milliarden rechnet das Referenzpapier mit [[wendland_capex_spanne|max]] Euro je Kilowatt, den Baukosten, die beim finnischen Olkiluoto-3 „auftraten“. Flamanville 3, ebenfalls ein EPR, kostete laut unserem Kernkraft-Dossier mit Finanzierungskosten [[kkw_flamanville]] Euro je Kilowatt, rund das Doppelte.",
+   "status": "bestätigt",
+   "ort": "beide",
+   "quelle": [
+    "wendland_2026",
+    "strommix_kosten_kernkraft"
+   ],
+   "fundstelle": "Wendland PDF-S. 3 und 16; strommix/research/kosten_kernkraft.md Tab. 1.1",
+   "vorbehalt": "Die Olkiluoto-Zahl übernimmt das Referenzpapier von Quantified Carbon, die wir nicht gelesen haben; ob sie Finanzierungskosten enthält, sagt es nicht.",
+   "v1": "neu",
+   "v3": "neu (P7-A)",
+   "zahlen": [
+    "kkw_flamanville",
+    "wendland_capex_spanne",
+    "wendland_kkw_neubau"
+   ]
+  },
+  {
    "id": "V03",
    "abschnitt": "2.6 Der Vergleichspfad",
    "text": "Zu den Kostenansätzen westlicher Neubauprojekte, die geplant oder im Bau sind, kosteten dieselben [[kkw_leistung_gw]] Gigawatt [[kkw_neubau_spanne|min]], [[kkw_neubau_spanne|mid]] oder [[kkw_neubau_spanne|max]] Milliarden Euro. Der untere Ansatz ist ohne Finanzierung gerechnet, der obere in laufenden Preisen mit Bauzinsen; R21 sagt nicht, welche Preisbasis und ob Finanzierung enthalten ist.",
@@ -5545,7 +5981,7 @@
   {
    "id": "V04",
    "abschnitt": "2.6 Der Vergleichspfad",
-   "text": "Ein erster deutscher Neubau ginge bei einer Entscheidung 2027 frühestens [[kkw_erster_block_jahr|min]] ans Netz, im mittleren Fall [[kkw_erster_block_jahr|mid]], im ungünstigen Fall [[kkw_erster_block_jahr|max]]. R21 nennt rund [[r21_kkw_bloecke|bauzeit_jahre]] Jahre Planungs- und Bauzeit, also etwa [[r21_kkw_bauende]]. Das Ziel von [[r21_kkw_bloecke|gw_ziel]] Gigawatt bis 2045 ist auch nach R21s eigener Bauzeit nicht erreichbar.",
+   "text": "R21 nennt für den Neubau rund [[r21_kkw_bloecke|bauzeit_jahre]] Jahre Planungs- und Bauzeit, in derselben Aufzählung wie die [[r21_kkw_bloecke|bloecke]] Blöcke; naheliegend ist, dass das ganze Programm gemeint ist. Bei einer Entscheidung 2027 wäre es danach etwa [[r21_kkw_bauende]] fertig; das Reform-Stromsystem bezieht R21 über eine Simulation auf das Jahr 2045. Nach Vorlauf und Bauzeit vergleichbarer Projekte ginge aber schon ein erster deutscher Neubau frühestens [[kkw_erster_block_jahr|min]] ans Netz, im mittleren Fall [[kkw_erster_block_jahr|mid]], im ungünstigen Fall [[kkw_erster_block_jahr|max]]. Dass [[r21_kkw_bloecke|gw_ziel]] Gigawatt bis 2045 stehen, halten wir deshalb für nicht erreichbar. Bis dahin muss der Strom aus anderen Quellen kommen; was das für den Ausstoß heißt, rechnet Teil 6.",
    "status": "Setzung (M)",
    "ort": "beide",
    "quelle": [
@@ -5553,13 +5989,14 @@
     "pruefbericht_09",
     "r21_erklaerung_2026"
    ],
-   "fundstelle": "Dossier 09 Tab. „Erster Block am Netz“; R21 Factsheet B-3",
-   "vorbehalt": "Die Jahre sind unsere Setzung aus Vorlauf und Bauzeit vergleichbarer Projekte.",
-   "alt": "v1 als „B · gelesen“ geführt; Dossier: 2038–2047",
+   "fundstelle": "Dossier 09 Tab. „Erster Block am Netz“; R21 Factsheet B-3 (Z. 505–509), Factsheet B-2 Fn. 3 (Z. 483)",
+   "vorbehalt": "Die Jahre für den ersten Block und der Schluss daraus sind unsere Setzung aus Erfahrungswerten vergleichbarer Projekte; nach R21s eigener Angabe wäre das Programm vor 2045 fertig.",
+   "alt": "v2: „Das Ziel von 50 Gigawatt bis 2045 ist auch nach R21s eigener Bauzeit nicht erreichbar.“ (R21 nennt die 15 Jahre für das ganze Programm); Grafik: R21s Jahr als „Erster Neubau am Netz“",
    "v1": "geändert",
    "punkte": [
     "P046"
    ],
+   "v3": "geändert (P7-A, Runde 2)",
    "zahlen": [
     "kkw_erster_block_jahr",
     "r21_kkw_bauende",
@@ -5586,6 +6023,20 @@
     "kkw_reaktivierung_gw",
     "r21_kkw_reaktivierung"
    ]
+  },
+  {
+   "id": "V04c",
+   "abschnitt": "2.6 Der Vergleichspfad",
+   "text": "Für die Reaktivierung schreibt R21, es lägen Angebote aus der internationalen Energiewirtschaft vor, die noch vorhandenen Kraftwerke „auf eigene Kosten“ zu ertüchtigen; wer anbietet und zu welchen Bedingungen, nennt das Papier nicht.",
+   "status": "bestätigt",
+   "ort": "belege",
+   "quelle": [
+    "r21_erklaerung_2026"
+   ],
+   "fundstelle": "Druckseite 24 (Z. 1940–1945)",
+   "v1": "neu",
+   "v3": "neu (P7-A)",
+   "zahlen": []
   },
   {
    "id": "V04b",
@@ -5752,18 +6203,21 @@
   {
    "id": "V14",
    "abschnitt": "2.6 Der Vergleichspfad",
-   "text": "Hier hat R21 einen Punkt: Zwei Studien sehen ein Einsparpotenzial von mehreren hundert Milliarden Euro, wenn anders gesteuert wird (DIHK und Frontier, ZEW). Das Geld liegt im Wie der Energiewende, nicht in ihrem Abbruch.",
-   "status": "bestätigt",
+   "text": "Hier hat R21 einen Punkt: Zwei Studien sehen ein Einsparpotenzial von mehreren hundert Milliarden Euro, wenn anders gesteuert wird (DIHK/Frontier „Plan B“; ZEW). DIHK und Frontier vergleichen dafür zwei Pfade zur Klimaneutralität bei identischen Treibhausgasemissionen in Deutschland. Das ZEW rechnet für die ganze EU und bei gleicher Zielerreichung den Vorschlag durch, auf den sich R21 selbst stützt: Emissionshandel ohne nationale Zusatzmaßnahmen. Einen Pfad ohne weiteren Klimaschutz rechnet keine der beiden; ob R21s Kurs insgesamt billiger ist, prüft Teil 6.",
+   "status": "korrigiert",
    "ort": "beide",
    "quelle": [
     "dihk_planb_2025",
-    "zew_rausch_2026"
+    "zew_rausch_2026",
+    "r21_erklaerung_2026"
    ],
-   "fundstelle": "DIHK S. 12; ZEW Tab. 1",
+   "fundstelle": "DIHK PDF-S. 12 (Z. 461–466); ZEW PDF-S. 3 und Abschn. 4.2 (Textfassung Z. 530); R21 Druckseite 20 (Z. 1385–1393)",
    "v1": "neu",
    "punkte": [
     "P026"
    ],
+   "alt": "v2: „… (DIHK und Frontier, ZEW). Das Geld liegt im Wie der Energiewende, nicht in ihrem Abbruch.“ (Wertung ohne Beleg)",
+   "v3": "geändert (P7-A, Runde 2)",
    "zahlen": []
   },
   {
@@ -5942,6 +6396,23 @@
    "zahlen": []
   },
   {
+   "id": "O13",
+   "abschnitt": "2.7 Unsicherheit in beide Richtungen",
+   "text": "Die Mehrkosten können also auch zu hoch geschätzt sein, nicht nur zu niedrig.",
+   "status": "bestätigt",
+   "ort": "beide",
+   "quelle": [
+    "kfw_fokus_555",
+    "ise_pv_report",
+    "ise_2024",
+    "ise_2021"
+   ],
+   "fundstelle": "Aussagen O08 und K04",
+   "v1": "neu",
+   "v3": "neu (P7-A)",
+   "zahlen": []
+  },
+  {
    "id": "O11",
    "abschnitt": "2.7 Unsicherheit in beide Richtungen",
    "text": "Die Studie mit der fossilsten Referenz, Fraunhofer ISE 2021, liefert die höchsten Mehrkosten: [[bipfest_ise2021_g3b|min]] bis [[bipfest_ise2021_g3b|max]] Prozent des BIP pro Jahr.",
@@ -5959,6 +6430,23 @@
    ],
    "zahlen": [
     "bipfest_ise2021_g3b"
+   ]
+  },
+  {
+   "id": "O11a",
+   "abschnitt": "2.7 Unsicherheit in beide Richtungen",
+   "text": "Mit vermiedenen Umweltkosten nach den Kostensätzen des Umweltbundesamts nennt dieselbe Studie für den Zeitraum bis 2045 statt [[ise2021_mehraufwand|min]] bis [[ise2021_mehraufwand|max]] Billionen [[ise2021_mit_umweltkosten|min]] bis [[ise2021_mit_umweltkosten|max]] Milliarden Euro Mehraufwand (Klimakasten).",
+   "status": "bestätigt",
+   "ort": "beide",
+   "quelle": [
+    "ise_2021"
+   ],
+   "fundstelle": "ISE 2021 PDF-S. 42 (Z. 1722–1731)",
+   "v1": "neu",
+   "v3": "neu (P7-A)",
+   "zahlen": [
+    "ise2021_mehraufwand",
+    "ise2021_mit_umweltkosten"
    ]
   },
   {
@@ -6237,13 +6725,15 @@
     "r21_erklaerung_2026"
    ],
    "fundstelle": "Factsheet A-1 (Z. 283–302)",
-   "vorbehalt": "Den Kostensatz von [[r21_fa_annahmen|eur_je_mwh]] Euro je Megawattstunde übernimmt R21 aus einer Studie, die wir nicht gelesen haben.",
+   "vorbehalt": "Den Kostensatz von [[r21_fa_fremdwerte|eur_je_mwh]] Euro je Megawattstunde übernimmt R21 aus einer Studie, die wir nicht gelesen haben.",
    "v1": "neu",
    "punkte": [
     "P005"
    ],
+   "v3": "geändert (P7-A, Runde 2)",
    "zahlen": [
     "r21_fa_annahmen",
+    "r21_fa_fremdwerte",
     "r21_fa_kosten"
    ]
   },
@@ -6290,7 +6780,7 @@
   {
    "id": "R10",
    "abschnitt": "2.8 Wo R21 recht hat",
-   "text": "Beim Emissionshandel stimmt R21s Zahl: R21 nennt eine Minderung um rund [[r21_ets_minderung|factsheet_d]] Prozent seit 2005, die Kommission [[ets_minderung_seit_2005]] Prozent bis 2024.",
+   "text": "Beim Emissionshandel stimmt R21s Zahl: R21 nennt eine Minderung um rund [[r21_ets_minderung|factsheet_d]] Prozent seit 2005, die Kommission rund [[ets_minderung_seit_2005]] Prozent bis 2024.",
    "status": "bestätigt",
    "ort": "beide",
    "quelle": [
@@ -6299,6 +6789,7 @@
    ],
    "fundstelle": "Kommission 04.04.2025; R21 Factsheet D-4",
    "v1": "unverändert",
+   "v3": "geändert (P7-A, Runde 2)",
    "zahlen": [
     "ets_minderung_seit_2005",
     "r21_ets_minderung"
@@ -6466,8 +6957,8 @@
   {
    "id": "R17",
    "abschnitt": "2.8 Wo R21 recht hat",
-   "text": "R21s Hauptargumente prüft Teil 1 nicht: dass nationale Minderung im Emissionshandel nur verlagert wird, dass Erneuerbare einen Kapitalstock ersetzen statt erweitern, und die Abhängigkeit von China. Sie tragen das Papier auch ohne die Billionen-Zahl. Teil 4 und Teil 6 nehmen sie auf.",
-   "status": "bestätigt",
+   "text": "R21s Hauptargumente prüft Teil 1 nicht: dass nationale Minderung im Emissionshandel nur verlagert wird, dass Erneuerbare einen Kapitalstock ersetzen statt erweitern, und die Abhängigkeit von China. Das Papier stützt sich auch auf sie, nicht nur auf die Billionen-Zahl. Teil 4 und Teil 6 nehmen sie auf.",
+   "status": "korrigiert",
    "ort": "beide",
    "quelle": [
     "r21_erklaerung_2026"
@@ -6477,6 +6968,8 @@
    "punkte": [
     "P047"
    ],
+   "alt": "v2: „Sie tragen das Papier auch ohne die Billionen-Zahl.“ (Wertung ohne Beleg)",
+   "v3": "geändert (P7-A, Runde 2)",
    "zahlen": []
   },
   {
@@ -6561,23 +7054,25 @@
   {
    "id": "K05",
    "abschnitt": "2.9 Klima und Nutzenseite",
-   "text": "Das ist keine Aussage über den R21-Pfad. R21 will Klimaschutz über einen EU-weiten Emissionshandel erreichen („Ziel ist nicht weniger Klimaschutz“); wie viel Minderung dieser Pfad bringt, prüft Teil 6.",
-   "status": "bestätigt",
+   "text": "Das ist keine Aussage über den R21-Pfad. R21 will Klimaschutz über einen EU-weiten Emissionshandel erreichen („Ziel ist nicht weniger Klimaschutz“). Im Haupttext schlägt R21 zugleich vor, die EU solle glaubwürdig androhen, ihren CO₂-Reduktionspfad nur dann weiterzuverfolgen, wenn andere Länder mitziehen; eine „Pause bei der Klimapolitik“ sei „allemal gerechtfertigt“, wenn andere Länder dadurch ihre Ausrichtung überdenken. R21 versteht das als Druckmittel („Zuckerbrot und Peitsche“). Wie viel Minderung dieser Pfad bringt, prüft Teil 6.",
+   "status": "korrigiert",
    "ort": "beide",
    "quelle": [
     "r21_erklaerung_2026"
    ],
-   "fundstelle": "PDF-S. 39 (Z. 1450); Druckseite 21 (Z. 1425–1433: Erwägung einer „Pause“)",
+   "fundstelle": "Druckseite 21 (Z. 1423–1433); Factsheet „Reziproke Reform des EU-ETS I“, PDF-S. 39 (Z. 1450)",
    "v1": "neu",
    "punkte": [
     "P049"
    ],
+   "alt": "v2: nur „Ziel ist nicht weniger Klimaschutz“; die Bedingung und die erwogene „Pause“ fehlten",
+   "v3": "geändert (P7-A, Runde 2)",
    "zahlen": []
   },
   {
    "id": "L01",
    "abschnitt": "2.10 Lesehilfe: Bezug, Abzinsung, Grenzen",
-   "text": "Alle Anteile am BIP rechnen wir zweimal: mit dem festen BIP 2024 von [[bip_de_2024]] Milliarden Euro und mit einem wachsenden BIP. Für das Wachstum setzen wir real [[bip_wachstum_setzung|real_min]] bis [[bip_wachstum_setzung|real_max]] Prozent im Jahr an, um das Mittel 2000 bis 2024 von [[bip_wachstum_hist|real]] Prozent; Summen ohne Preisangabe rechnen wir bis [[bip_wachstum_setzung|nominal_max]] Prozent nominal. Wo R21 selbst umrechnet, zeigen wir das BIP 2025 ([[bip_de_2025]] Milliarden), damit R21 an der eigenen Bezugsgröße gemessen wird.",
+   "text": "Alle Anteile am BIP rechnen wir zweimal: mit dem festen BIP 2024 von [[bip_de_2024]] Milliarden Euro und mit einem wachsenden BIP. Für das Wachstum setzen wir real [[bip_wachstum_setzung|real_min]] bis [[bip_wachstum_setzung|real_max]] Prozent im Jahr an, um das Mittel 2000 bis 2024 von [[bip_wachstum_hist|real]] Prozent; Summen ohne Preisangabe rechnen wir bis [[bip_wachstum_setzung|nominal_max]] Prozent nominal. Wo R21 selbst umrechnet, zeigen wir das BIP 2025 ([[bip_de_2025]] Milliarden), damit R21 an der eigenen Bezugsgröße gemessen wird. Wo wir R21s Spanne neben die Studien stellen, rechnen wir sie wie die Studien mit dem BIP 2024.",
    "status": "Setzung (M)",
    "ort": "beide",
    "quelle": [
@@ -6591,6 +7086,7 @@
     "P024",
     "P112"
    ],
+   "v3": "geändert (P7-A, Runde 2)",
    "zahlen": [
     "bip_de_2024",
     "bip_de_2025",
@@ -6746,12 +7242,13 @@
     "eigene_rechnung"
    ],
    "fundstelle": "Entscheidung vom 23.11.2026; docs/04_anfrage_r21_entwurf.md",
-   "vorbehalt": "Die [[wd_kosten_gesamt]] Billionen übernimmt die Kurzinformation aus einer PwC-Studie, die wir nicht gelesen haben (Akt 3).",
+   "vorbehalt": "Die PwC-Studie selbst haben wir nicht gelesen.",
    "alt": "„Eine Nachfrage bei R21 steht aus (Entscheidung D1)“",
    "v1": "geändert",
    "punkte": [
     "P013"
    ],
+   "v3": "geändert (P7-A, Runde 2)",
    "zahlen": [
     "r21_kosten_zitat",
     "r21_netz_dihk_zitat",
@@ -6860,6 +7357,34 @@
    "zahlen": []
   },
   {
+   "id": "E07",
+   "abschnitt": "2.11 Was unsere Dossiers und die Freigabe v1 falsch hatten",
+   "text": "Die Tabelle der eigenen Fehler nennt je Zeile, wem der alte Fehler geschadet hätte, wäre er stehen geblieben; die Korrektur wirkt jeweils zugunsten dieser Seite. „Zulasten R21“ heißt also: Der alte Fehler hätte R21 geschadet, die Korrektur nützt R21.",
+   "status": "bestätigt",
+   "ort": "beide",
+   "quelle": [
+    "eigene_rechnung"
+   ],
+   "fundstelle": "Freigabeliste Abschn. 12",
+   "v1": "neu",
+   "v3": "neu (P7-A)",
+   "zahlen": []
+  },
+  {
+   "id": "E08",
+   "abschnitt": "2.11 Was unsere Dossiers und die Freigabe v1 falsch hatten",
+   "text": "Auch die zweite Freigabeliste hatte Fehler, in beide Richtungen; fünf unabhängige Nachprüfungen haben sie gefunden, die Korrekturen stehen in derselben Tabelle.",
+   "status": "bestätigt",
+   "ort": "beide",
+   "quelle": [
+    "reviews_runde2"
+   ],
+   "fundstelle": "Berichte 21 bis 25; Freigabeliste Abschn. 14",
+   "v1": "neu",
+   "v3": "neu (P7-A)",
+   "zahlen": []
+  },
+  {
    "id": "P01",
    "abschnitt": "2.12 Wie Teil 1 entstanden ist",
    "text": "Teil 1 entstand mit KI-Agenten (Claude). Zehn Recherche-Agenten verbrauchten [[proz_phase1|token]] Token, zehn Prüf-Agenten [[proz_phase2|token]] Token, dreizehn Reviewer [[proz_phase5|token]] Token.",
@@ -6921,14 +7446,49 @@
   {
    "id": "P04",
    "abschnitt": "2.12 Wie Teil 1 entstanden ist",
-   "text": "Nach der Messlatte in der ersten Fassung erhielt Teil 1 [[proz_messlatte_v10|teil1]] von [[proz_messlatte_v10|hoechstens]] Punkten, KfW/Prognos [[proz_messlatte_v10|kfw_prognos]], DIHK/Frontier [[proz_messlatte_v10|dihk_frontier]], R21 [[proz_messlatte_v10|r21]]. Nach der präzisierten Fassung ist noch nicht neu bewertet.",
+   "text": "In der ersten Wertung nach der Messlatte v1.0 erhielt die erste Fassung von Teil 1 [[proz_messlatte_v10|teil1]] von [[proz_messlatte_v10|hoechstens]] Punkten ohne Quellentreue (K3). Die überarbeitete Fassung hat ein unabhängiger Prüfer nach beiden Fassungen bewertet: nach v1.0 [[messlatte_teil1_r2|v10]] von [[messlatte_teil1_r2|v10_max]] Punkten, ohne K3 [[messlatte_teil1_r2|v10_ohne_k3]] von [[messlatte_teil1_r2|v10_ohne_k3_max]]; nach v1.1 [[messlatte_teil1_r2|v11_ohne_k3_k4]] von [[messlatte_teil1_r2|v11_max]] ohne K3 und K4, K3 getrennt [[messlatte_teil1_r2|k3]] von [[messlatte_teil1_r2|k3_max]] Punkten: [[messlatte_teil1_r2|stichprobe_ok]] von [[messlatte_teil1_r2|stichprobe]] gezogenen Zahlen stimmen mit dem Original.",
+   "status": "korrigiert",
+   "ort": "belege",
+   "quelle": [
+    "synthese_reviews",
+    "reviews_runde2"
+   ],
+   "fundstelle": "Synthese Abschn. 4 (aus Bericht 13); Bericht 25",
+   "v1": "neu",
+   "alt": "v2: nur v1.0, alle Dokumente in einem Balkenbild; „Nach der präzisierten Fassung ist noch nicht neu bewertet.“",
+   "v3": "geändert (P7-A, Runde 2)",
+   "zahlen": [
+    "messlatte_teil1_r2",
+    "proz_messlatte_v10"
+   ]
+  },
+  {
+   "id": "P04a",
+   "abschnitt": "2.12 Wie Teil 1 entstanden ist",
+   "text": "Die Messlatte misst Nachprüfbarkeit, nicht Richtigkeit. Verglichen wird nur innerhalb eines Dokumenttyps: Teil 1 ist eine Quellenprüfung ohne eigenes Kostenmodell, die R21-Erklärung eine Erklärung mit Factsheets, DIHK/Frontier „Plan B“ eine Studie mit Modell, KfW/Prognos eine Studie, die fremde Szenarien mit eigener Rechnung auswertet.",
+   "status": "bestätigt",
+   "ort": "belege",
+   "quelle": [
+    "messlatte_doc",
+    "synthese_reviews"
+   ],
+   "fundstelle": "Messlatte Abschn. „Verfahren“; Bericht 13 Abschn. 1 (Typen)",
+   "v1": "neu",
+   "v3": "neu (P7-A)",
+   "zahlen": []
+  },
+  {
+   "id": "P04b",
+   "abschnitt": "2.12 Wie Teil 1 entstanden ist",
+   "text": "Nach v1.0 erhielten die zwei Studien, die einander am ähnlichsten sind, KfW/Prognos [[proz_messlatte_v10|kfw_prognos]] und DIHK/Frontier [[proz_messlatte_v10|dihk_frontier]] von [[proz_messlatte_v10|hoechstens]] Punkten ohne K3; die R21-Erklärung, als einziges Dokument ihres Typs, [[proz_messlatte_v10|r21]]. Nach v1.1 sind diese drei Dokumente noch nicht neu bewertet.",
    "status": "bestätigt",
    "ort": "belege",
    "quelle": [
     "synthese_reviews"
    ],
-   "fundstelle": "Synthese Abschn. 4",
+   "fundstelle": "Synthese Abschn. 4 (aus Bericht 13)",
    "v1": "neu",
+   "v3": "neu (P7-A)",
    "zahlen": [
     "proz_messlatte_v10"
    ]
@@ -6950,6 +7510,49 @@
    ],
    "hinweis_seite": "Nur verwenden, wenn das Prüfskript der Seite (Bau) dies bestätigt; sonst weglassen.",
    "zahlen": []
+  },
+  {
+   "id": "T01",
+   "abschnitt": "2.13 Verantwortung und Korrekturweg",
+   "text": "Für diese Reihe gibt es keinen Auftraggeber und keine Finanzierung durch Dritte.",
+   "status": "bestätigt",
+   "ort": "beide",
+   "quelle": [
+    "transparenz_richtlinien"
+   ],
+   "fundstelle": "TRANSPARENZ Abschn. 9",
+   "v1": "neu",
+   "v3": "neu (P7-A)",
+   "zahlen": []
+  },
+  {
+   "id": "T02",
+   "abschnitt": "2.13 Verantwortung und Korrekturweg",
+   "text": "Verantwortlich ist die Daten-WG Knowledge Kitchen; wer dahinter steht, nennt das Impressum. Texte und Rechnungen erstellen KI-Agenten (Claude) nach der Freigabeliste; was auf die Seite darf und was offen bleibt, entscheidet der Mensch hinter der Kitchen.",
+   "status": "bestätigt",
+   "ort": "beide",
+   "quelle": [
+    "transparenz_richtlinien",
+    "energiewende_readme"
+   ],
+   "fundstelle": "TRANSPARENZ Abschn. 8 und 9; README, Entscheidungen",
+   "v1": "neu",
+   "v3": "neu (P7-A)",
+   "zahlen": []
+  },
+  {
+   "id": "T03",
+   "abschnitt": "2.13 Verantwortung und Korrekturweg",
+   "text": "Wer einen Fehler findet, meldet ihn als Issue im öffentlichen Repository des Projekts. Korrekturen stehen mit altem und neuem Wortlaut in der Tabelle der eigenen Fehler; frühere Fassungen von Freigabeliste und Datensatz bleiben in der Git-Historie.",
+   "status": "bestätigt",
+   "ort": "beide",
+   "quelle": [
+    "transparenz_richtlinien"
+   ],
+   "fundstelle": "TRANSPARENZ Abschn. 11; meta.links",
+   "v1": "neu",
+   "v3": "neu (P7-A)",
+   "zahlen": []
   }
  ],
  "schritte": [
@@ -6965,9 +7568,27 @@
    "grafik": {
     "typ": "keine",
     "titel": "Vorspann",
-    "hinweis_bau": "Lesedauer aus der Wortzahl der gebauten Seite berechnen und anzeigen, nicht schätzen (P050)."
+    "hinweis_bau": "Lesedauer aus der Wortzahl der gebauten Seite berechnen und anzeigen, nicht schätzen (P050).",
+    "untertitel": "Der Befund vor der ersten Grafik"
    },
-   "text": "R21 schreibt, der Wissenschaftliche Dienst beziffere die Kosten der Energiewende auf [[r21_kosten_zitat|min]] bis [[r21_kosten_zitat|max]] Billionen Euro. In der genannten Kurzinformation steht [[wd_kosten_gesamt]] Billionen Euro, übernommen aus einer Studie, und das sind Gesamtkosten aus Investitionen und Energiekosten, keine Kosten der Energiewende im Sinn von Mehrkosten. Die [[wd_kosten_gesamt]] Billionen übernimmt die Kurzinformation aus einer PwC-Studie, die wir nicht gelesen haben (Akt 3). Was die Studien als zusätzliche Kosten gegenüber einem Vergleichspfad ausweisen, liegt bei [[spanne_g3b_fest|min]] bis [[spanne_g3b_fest|max]] Prozent der Wirtschaftsleistung im Jahr; was sie als zusätzliche Investitionen ausweisen, bei [[spanne_g3a_fest|min]] bis [[spanne_g3a_fest|max]] Prozent. R21s Spanne entspräche [[bipfest_r21|min]] bis [[bipfest_r21|max]] Prozent. Die Anteile sind unsere Rechnung mit festem BIP 2024; mit wachsendem BIP fallen alle Anteile kleiner aus (Abschnitt 8). Teurer als nötig kann der eingeschlagene Weg trotzdem sein: Zwei der gelesenen Studien sehen Einsparungen von mehreren hundert Milliarden Euro, wenn anders gesteuert wird, und R21s Systemkosten-Argument verdient eine eigene Rechnung, die Teil 6 liefert."
+   "text": "R21 schreibt, der Wissenschaftliche Dienst beziffere die Kosten der Energiewende auf [[r21_kosten_zitat|min]] bis [[r21_kosten_zitat|max]] Billionen Euro. In der genannten Kurzinformation steht [[wd_kosten_gesamt]] Billionen Euro, übernommen aus einer Studie, und das sind Gesamtkosten aus Investitionen und Energiekosten, keine Kosten der Energiewende im Sinn von Mehrkosten. Die [[wd_kosten_gesamt]] Billionen übernimmt die Kurzinformation aus einer PwC-Studie, die wir nicht gelesen haben (Akt 3). Brutto, also als Gesamtkosten oder Gesamtinvestitionen wie R21s Quelle, liegen die gelesenen Studien bei [[spanne_brutto_fest|min]] bis [[spanne_brutto_fest|max]] Prozent der Wirtschaftsleistung im Jahr; R21s Spanne entspräche [[bipfest_r21|min]] bis [[bipfest_r21|max]] Prozent, am oberen Rand oder darüber. Was die Studien als zusätzliche Kosten gegenüber einem Vergleichspfad ausweisen, liegt bei [[spanne_g3b_fest|min]] bis [[spanne_g3b_fest|max]] Prozent, als zusätzliche Investitionen bei [[spanne_g3a_fest|min]] bis [[spanne_g3a_fest|max]] Prozent. Alle Anteile, auch R21s, sind unsere Rechnung mit demselben festen BIP 2024; mit wachsendem BIP fallen sie kleiner aus (Akt 4). Studien, die nur einen Teil zählen, liegen unter der Brutto-Spanne. Teurer als nötig kann der eingeschlagene Weg trotzdem sein: Zwei der gelesenen Studien sehen bei gleichem Klimaziel Einsparungen von mehreren hundert Milliarden Euro, wenn anders gesteuert wird, DIHK für Deutschland, das ZEW für die ganze EU. R21s Systemkosten-Argument verdient eine eigene Rechnung, die Teil 6 liefert. Keine der Mehrkosten-Zahlen enthält vermiedene Klimaschäden; die zwei Studien, die sie selbst gegenrechnen, Fraunhofer ISE 2021 und Ariadne, kommen netto niedriger heraus oder finden, dass der Nutzen überwiegt (Klimakasten)."
+  },
+  {
+   "id": "P",
+   "akt": 0,
+   "rolle": "Was wir voraussetzen",
+   "claims": [
+    "PR1",
+    "PR2",
+    "PR3",
+    "PR4"
+   ],
+   "grafik": {
+    "typ": "keine",
+    "titel": "Was wir voraussetzen",
+    "untertitel": "Prämissen der Reihe, vor der ersten Prüfung"
+   },
+   "text": "Wir setzen voraus: Der Klimawandel ist real und menschengemacht, und der Ausstoß von CO₂ soll sinken. Energie ist eine Hauptressource der Volkswirtschaft. Bezahlbarkeit und Versorgungssicherheit sind gleichrangige Ziele, keine Nebenbedingungen. Hauptpfad der Reihe sind Erneuerbare und Speicher, mit Gegenrechnung: Er wird mit denselben Kostenquellen gegen die Alternativen gerechnet, und das Ergebnis darf gegen ihn ausfallen. Diese drei Sätze sind gesetzt und werden in der Reihe nicht neu verhandelt; sie sind kein Ergebnis dieser Prüfung. Gesetzlich gilt nach dem Bundes-Klimaschutzgesetz: Der Ausstoß von Treibhausgasen soll bis 2030 um mindestens [[ksg_ziele|bis_2030]] Prozent und bis 2040 um mindestens [[ksg_ziele|bis_2040]] Prozent unter dem Stand von 1990 liegen, und bis 2045 soll Deutschland netto treibhausgasneutral sein. Den Gesetzestext selbst haben wir nicht gelesen; wir geben die Ziele nach dem Umweltbundesamt wieder."
   },
   {
    "id": "1.1",
@@ -6992,7 +7613,8 @@
       ],
       "beschriftung": "Erklärung mit Factsheets, kein Rechenmodell"
      }
-    ]
+    ],
+    "untertitel": "Woher die Schlagzeile kommt"
    },
    "text": "Die BILD titelte am 20.11.2026 „Deutschland wird Energiewende ‚nicht überleben‘“. Laut frei lesbarem Vorspann stützt sich der Artikel auf ein Papier der Denkfabrik R21. Den Artikel selbst haben wir nicht gelesen; er liegt hinter einer Bezahlschranke. Das Papier heißt „Erklärung des Expertenrates Klima- und Energiepolitik“, herausgegeben von REPUBLIK21 e. V. im November 2026, [[r21_seiten]] Seiten. Es ist eine Erklärung mit Factsheets, kein Rechenmodell."
   },
@@ -7012,7 +7634,8 @@
     ],
     "zahlen": [
      "r21_kosten_zitat"
-    ]
+    ],
+    "untertitel": "Zwei Stellen, zwei Wörter für dieselbe Summe"
    },
    "text": "In der Zusammenfassung schreibt R21, der Wissenschaftliche Dienst des Bundestages „beziffert die Kosten der Energiewende bis 2045 auf [[r21_kosten_zitat|min]] bis [[r21_kosten_zitat|max]] Billionen Euro“; einen „Wertschöpfungsentzug in dieser Größenordnung“ werde die deutsche Wirtschaft und Gesellschaft „nicht überleben“. In Kapitel 3 heißt es, der Wissenschaftliche Dienst „kommt auf Investitionskosten von [[r21_kosten_zitat|min]] bis [[r21_kosten_zitat|max]] Billionen Euro, wenn bis 2045 in Deutschland Klimaneutralität erreicht werden soll“. Fußnote 5 nennt die Kurzinformation WD 5 – 3000 – 135/24 vom 16.09.2024."
   },
@@ -7048,7 +7671,7 @@
     ],
     "hinweis_bau": "Zweites Bild: Kapitalstock „um, nicht auf“ als Satzkarte mit Zitat; keine Pfeile, die einen Gegenwert behaupten."
    },
-   "text": "R21 rechnet die Summe um: Das entspreche „dem Zwei- bis Dreifachen der jährlichen Wirtschaftsleistung für einen Zeitraum von zwanzig Jahren“. Die Division stimmt: [[r21_bip_vielfaches|min]]- bis [[r21_bip_vielfaches|max]]-mal das BIP 2025. Pro Jahr wären das [[bipfest_r21|min]] bis [[bipfest_r21|max]] Prozent der Wirtschaftsleistung; mehr dazu in Akt 4. Die Prozentangabe ist unsere Rechnung mit festem BIP 2024 und gleichmäßiger Verteilung über zwanzig Jahre. R21 räumt selbst ein: „Man mag einwenden, dass Klimaschutz nun einmal etwas kostet. Das ist korrekt. Die Frage ist aber, wie viel Klimaschutz man bekommt und wie hoch die Kosten dafür sind.“ R21 bestreitet nicht, dass gebaut wird. Das Papier argumentiert, die Investitionen „bauen den Kapitalstock um, nicht auf“: Im besten Fall habe man danach „genau das, was man davor auch hatte“, nur zu höheren Kosten und Preisen, und das Geld fehle für Konsum und andere Investitionen. Dagegen spricht zweierlei: Ein Teil der Anlagen müsste auch ohne Energiewende ersetzt werden, und die neuen Anlagen ersetzen Brennstoffe, die sonst jedes Jahr gekauft würden. Beides steckt in den Mehrkosten-Studien, nicht in R21s Summe. Für die Mehrkosten trifft R21s Argument dagegen zu. Ob eine Wirtschaft eine Summe „überlebt“, ist keine prüfbare Aussage. Prüfbar ist, was die Summe misst und woher sie kommt."
+   "text": "R21 rechnet die Summe um: Das entspreche „dem Zwei- bis Dreifachen der jährlichen Wirtschaftsleistung für einen Zeitraum von zwanzig Jahren“. Die Division stimmt: Das sind [[r21_bip_vielfaches|spanne]] Jahres-BIP 2025. Pro Jahr wären das [[bipfest_r21|min]] bis [[bipfest_r21|max]] Prozent der Wirtschaftsleistung; mehr dazu in Akt 4. Die Prozentangabe ist unsere Rechnung mit festem BIP 2024, wie bei den Studien, und gleichmäßiger Verteilung über zwanzig Jahre. R21 räumt selbst ein: „Man mag einwenden, dass Klimaschutz nun einmal etwas kostet. Das ist korrekt. Die Frage ist aber, wie viel Klimaschutz man bekommt und wie hoch die Kosten dafür sind.“ R21 bestreitet nicht, dass gebaut wird. Das Papier argumentiert, die Investitionen „bauen den Kapitalstock um, nicht auf“: Im besten Fall habe man danach „genau das, was man davor auch hatte“, nur zu höheren Kosten und Preisen, und das Geld fehle für Konsum und andere Investitionen. Dagegen spricht zweierlei: Ein Teil der Anlagen müsste auch ohne Energiewende ersetzt werden, und die neuen Anlagen ersetzen Brennstoffe, die sonst jedes Jahr gekauft würden. Beides steckt in den Mehrkosten-Studien, nicht in R21s Summe. Für die Mehrkosten trifft R21s Argument im engen Sinn zu: Sie bringen nicht mehr Strom und nicht mehr Stahl. Ihr Gegenwert sind geringere Emissionen und eine geringere Abhängigkeit von Energieimporten; vermiedene Klima- und Umweltschäden und die geringere Abhängigkeit nennt die Bundesregierung ausdrücklich als nicht gegengerechnet (Akt 4). Ob eine Wirtschaft eine Summe „überlebt“, ist keine prüfbare Aussage. Prüfbar ist, was die Summe misst und woher sie kommt."
   },
   {
    "id": "1.4",
@@ -7070,7 +7693,8 @@
      "ohne_quelle"
     ],
     "legende": "Gezählt ist nur der Haupttext; die Factsheets haben eigene Literaturlisten.",
-    "hinweis_bau": "Alle fünf Kategorien beschriften; Kontrast der Kästchen mindestens drei zu eins (P068)."
+    "hinweis_bau": "Alle fünf Kategorien beschriften; Kontrast der Kästchen mindestens drei zu eins (P068).",
+    "untertitel": "Zählung der Belege im Haupttext"
    },
    "text": "Fußnote 5 ist die einzige Fußnote des Haupttexts, die auf eine Quelle außerhalb von R21 verweist. Von [[r21_haupttext_zahlen|gesamt]] Zahlen im Haupttext haben [[r21_haupttext_zahlen|mit_literatur]] eine Literaturangabe (die Kurzinformation zweimal, dazu zwei Studien, die nur mit Titel im Text genannt sind), [[r21_haupttext_zahlen|nur_urheber]] nennen nur einen Urheber, [[r21_haupttext_zahlen|verweis_factsheet]] verweist auf ein eigenes Factsheet, [[r21_haupttext_zahlen|rechnung_r21]] ist eine eigene Umrechnung von R21, und [[r21_haupttext_zahlen|ohne_quelle]] stehen ohne Quelle. Gezählt ist nur der Haupttext; die Factsheets haben eigene Literaturlisten. Die Abgrenzung (mehrere Zahlen mit derselben Quelle in einem Satz zählen einmal) ist unsere Setzung."
   },
@@ -7088,9 +7712,10 @@
      "r21_kosten_zitat",
      "wd_kosten_pro_jahr",
      "wd_kosten_gesamt"
-    ]
+    ],
+    "untertitel": "R21s Zitat und der Wortlaut der Quelle"
    },
-   "text": "Die Kurzinformation schreibt: „Je nach Betrachtungszeitraum werden die Kosten auf Beträge zwischen [[wd_kosten_pro_jahr]] Milliarden Euro pro Jahr oder [[wd_kosten_gesamt]] Billionen Euro insgesamt bis zum Jahr 2045 beziffert.“ Die [[wd_kosten_pro_jahr]] Milliarden übernimmt die Kurzinformation aus einem Gastbeitrag, den wir nicht lesen konnten; die [[wd_kosten_gesamt]] Billionen stammen aus einer PwC-Studie, die wir nicht gelesen haben. Die unscharfe Bezeichnung beginnt schon in der Kurzinformation: Sie schreibt, Studien „versuchen …, die Kosten der Energiewende zu berechnen“, und nennt dann Beträge, ohne zu sagen, was darin steckt. R21 übernimmt das ungeprüft und deutet die Summe als „Entzug von Wertschöpfung“."
+   "text": "Die Kurzinformation schreibt: „Je nach Betrachtungszeitraum werden die Kosten auf Beträge zwischen [[wd_kosten_pro_jahr]] Milliarden Euro pro Jahr oder [[wd_kosten_gesamt]] Billionen Euro insgesamt bis zum Jahr 2045 beziffert.“ Die [[wd_kosten_pro_jahr]] Milliarden übernimmt die Kurzinformation aus einem Gastbeitrag, den wir nicht lesen konnten; die [[wd_kosten_gesamt]] Billionen stammen aus einer PwC-Studie, die wir nicht gelesen haben. Die unscharfe Bezeichnung beginnt schon in der Kurzinformation: Sie schreibt, Studien „versuchen …, die Kosten der Energiewende zu berechnen“, und nennt dann Beträge, ohne zu sagen, was darin steckt. R21 übernimmt die Bezeichnung, ohne die Abgrenzung zu nennen, und deutet die Summe als „Entzug von Wertschöpfung“."
   },
   {
    "id": "2.2",
@@ -7109,9 +7734,26 @@
      "r21_kosten_zitat",
      "r21_untergrenze_herleitung"
     ],
-    "beschriftung": "Die Untergrenze als offene Frage, mit unserer Vermutung als Setzung"
+    "beschriftung": "Die Untergrenze ist R21s Angabe ohne Herleitung; unsere Vermutung steht als eigene Zeile mit Setzung",
+    "reihen": [
+     {
+      "label": "R21, untere Angabe",
+      "zahl": "r21_kosten_zitat",
+      "schluessel": "min"
+     },
+     {
+      "label": "R21, obere Angabe",
+      "zahl": "r21_kosten_zitat",
+      "schluessel": "max"
+     },
+     {
+      "label": "unsere Vermutung zur Untergrenze: Jahreswert der Kurzinformation mal zwanzig Jahre",
+      "zahl": "r21_untergrenze_herleitung"
+     }
+    ],
+    "hinweis_bau": "R21s Untergrenze trägt die Abzeichen von r21_kosten_zitat (Behauptung), nur die Zeile der Vermutung die Setzung (Bericht 25 M1)."
    },
-   "text": "Die Zahl, die R21 als Obergrenze nennt ([[r21_kosten_zitat|max]] Billionen), kommt in der Kurzinformation nicht vor. Eine Spanne steht dort auch nicht: Genannt sind zwei Einzelwerte aus zwei Quellen mit verschiedenem Zeitbezug, pro Jahr und insgesamt. Woher die Untergrenze von [[r21_untergrenze_herleitung]] Billionen kommt, sagt das Papier nicht. Rechnerisch ergäbe sie sich aus [[wd_kosten_pro_jahr]] Milliarden Euro pro Jahr mal zwanzig Jahre. Das ist unsere Vermutung, kein Beleg. Mit [[wd_kosten_gesamt]] statt [[r21_kosten_zitat|max]] Billionen ändert sich R21s Größenordnung kaum: Es bleiben rund [[r21_13_3_vielfaches]] Jahres-BIP. Entscheidend ist nicht die Ziffer, sondern was die Summe misst. Die [[wd_kosten_gesamt]] Billionen übernimmt die Kurzinformation aus einer PwC-Studie, die wir nicht gelesen haben (Akt 3)."
+   "text": "Die Zahl, die R21 als Obergrenze nennt ([[r21_kosten_zitat|max]] Billionen), kommt in der Kurzinformation nicht vor. Die Kurzinformation schreibt „zwischen … oder“, nennt aber zwei Einzelwerte aus zwei Quellen mit verschiedenem Zeitbezug, pro Jahr und insgesamt. Eine Spanne daraus zu lesen, liegt nahe; rechnerisch passen die zwei Werte nicht zusammen. Woher die Untergrenze von [[r21_kosten_zitat|min]] Billionen kommt, sagt das Papier nicht. Rechnerisch ergäbe sie sich aus [[wd_kosten_pro_jahr]] Milliarden Euro pro Jahr mal zwanzig Jahre, also [[r21_untergrenze_herleitung]] Billionen. Die Zahl ist R21s Angabe; die Herleitung ist unsere Vermutung, kein Beleg. Mit [[wd_kosten_gesamt]] statt [[r21_kosten_zitat|max]] Billionen ändert sich R21s Größenordnung kaum: Es bleiben rund [[r21_13_3_vielfaches]] Jahres-BIP. Entscheidend ist nicht die Ziffer, sondern was die Summe misst. Die [[wd_kosten_gesamt]] Billionen übernimmt die Kurzinformation aus einer PwC-Studie, die wir nicht gelesen haben (Akt 3)."
   },
   {
    "id": "2.3",
@@ -7124,7 +7766,8 @@
    "grafik": {
     "typ": "schema",
     "titel": "Wer rechnet hier?",
-    "beschriftung": "Die Kurzinformation verweist auf fremde Studien und rechnet nicht selbst"
+    "beschriftung": "Die Kurzinformation verweist auf fremde Studien und rechnet nicht selbst",
+    "untertitel": "Die Kurzinformation referiert, sie rechnet nicht"
    },
    "text": "Die Kurzinformation rechnet nicht selbst, sie referiert fremde Studien. Sie schreibt, die Bundesregierung erstelle „keine (eigene) Gesamtkostenrechnung“, und die Studien seien „hinsichtlich der Kostenbestandteile nicht immer transparent“. Die Kurzinformation trägt im Titel das Wort „Investitionskosten“ und nennt die [[wd_kosten_gesamt]] Billionen im Text „Kosten“. Die Bezeichnung stammt also aus der Kurzinformation. Die [[wd_kosten_gesamt]] Billionen übernimmt die Kurzinformation aus einer PwC-Studie, die wir nicht gelesen haben (Akt 3). R21 schreibt, der Monitoring-Bericht der Bundesregierung enthalte zu Kosten „nichts“. Die Bundesregierung legt tatsächlich keine eigene Kostenzahl vor."
   },
@@ -7137,7 +7780,7 @@
    "grafik": {
     "typ": "waage",
     "titel": "Vergleich zweier Pfade",
-    "untertitel": "noch leer; Akt 5 nimmt die Waage wieder auf (P120)"
+    "untertitel": "noch leer; beide Schalen füllt Teil 6"
    },
    "text": "Sie referiert auch den achten Monitoring-Bericht der Bundesregierung: Eine vollständige Kostenbetrachtung sei nur im Vergleich mit einem Energiesystem ohne Energiewende möglich, „da auch bei Fortführung einer Energieversorgung ohne Energiewende Investitionen erforderlich wären“."
   },
@@ -7169,9 +7812,10 @@
       "gelesen": false
      }
     ],
-    "beschriftung": "Aggregierte Gesamtkosten: Investitionen und Energiekosten"
+    "beschriftung": "Aggregierte Gesamtkosten: Investitionen und Energiekosten",
+    "untertitel": "Von der Schlagzeile bis zur Studie"
    },
-   "text": "Die [[wd_kosten_gesamt]] Billionen führt die Kurzinformation auf PwC (2024) zurück, „S. 4 (abrufbar nach Registrierung)“. Die [[wd_kosten_gesamt]] Billionen übernimmt die Kurzinformation aus einer PwC-Studie, die wir nicht gelesen haben (Akt 3). Eine zweite Kurzinformation des Wissenschaftlichen Dienstes (WD 5 – 3000 – 151/24) erklärt den Begriff der Studie: „Aggregierte Gesamtkosten“ heißt, dass nicht nur die Investitionskosten betrachtet werden, sondern auch aufsummierte jährliche Energiekosten. Die [[wd_kosten_gesamt]] Billionen sind also keine reinen Investitionskosten. Die [[wd_kosten_gesamt]] Billionen übernimmt die Kurzinformation aus einer PwC-Studie, die wir nicht gelesen haben (Akt 3)."
+   "text": "Die [[wd_kosten_gesamt]] Billionen führt die Kurzinformation auf PwC (2024) zurück, „S. 4 (abrufbar nach Registrierung)“. Die PwC-Studie selbst haben wir nicht gelesen. Eine zweite Kurzinformation des Wissenschaftlichen Dienstes (WD 5 – 3000 – 151/24) erklärt den Begriff der Studie: „Aggregierte Gesamtkosten“ heißt, dass nicht nur die Investitionskosten betrachtet werden, sondern auch aufsummierte jährliche Energiekosten. Die [[wd_kosten_gesamt]] Billionen sind also keine reinen Investitionskosten. Die PwC-Studie selbst haben wir nicht gelesen."
   },
   {
    "id": "3.2",
@@ -7179,7 +7823,8 @@
    "claims": [
     "Q05",
     "Q10",
-    "Q11"
+    "Q11",
+    "Q12"
    ],
    "grafik": {
     "typ": "gestapelte_balken",
@@ -7205,7 +7850,7 @@
     ],
     "hinweis_bau": "Teile durch Muster und Beschriftung unterscheiden, nicht nur durch Deckkraft (P115); Abzeichen C sichtbar."
    },
-   "text": "Nach der Darstellung des DIW Berlin sind die [[pwc_wwb|gesamt]] Billionen bei PwC die Gesamtkosten eines Szenarios „Weiter wie bisher“: [[pwc_wwb|investitionen]] Billionen Investitionen und [[pwc_wwb|energiekosten]] Billionen Energiekosten. Die PwC-Studie selbst ist nur nach Registrierung abrufbar; wir haben sie nicht gelesen. Laut DIW kommt in derselben Studie der beschleunigte Klimaschutzpfad auf [[pwc_beschleunigt|gesamt]] Billionen, also fast dieselbe Summe. Auch das haben wir nicht am PwC-Original geprüft. Was „Weiter wie bisher“ bei PwC enthält, wissen wir nicht; es ist nicht gleichbedeutend mit „ohne Energiewende“. Die PwC-Studie selbst ist nur nach Registrierung abrufbar; wir haben sie nicht gelesen."
+   "text": "Nach der Darstellung des DIW Berlin sind die [[pwc_wwb|gesamt]] Billionen bei PwC die Gesamtkosten eines Szenarios „Weiter wie bisher“: [[pwc_wwb|investitionen]] Billionen Investitionen und [[pwc_wwb|energiekosten]] Billionen Energiekosten. Die PwC-Studie selbst ist nur nach Registrierung abrufbar; wir haben sie nicht gelesen. Laut DIW kommt in derselben Studie der beschleunigte Klimaschutzpfad auf [[pwc_beschleunigt|gesamt]] Billionen, also fast dieselbe Summe. Auch das haben wir nicht am PwC-Original geprüft. Was „Weiter wie bisher“ bei PwC enthält, wissen wir nicht; es ist nicht gleichbedeutend mit „ohne Energiewende“. Die PwC-Studie selbst ist nur nach Registrierung abrufbar; wir haben sie nicht gelesen. R21 vergleicht den eigenen Kurs mit den Kosten einer „Fortsetzung der bisherigen Energiewende“. Liest man die [[pwc_wwb|gesamt]] Billionen wie das DIW als Gesamtkosten von „Weiter wie bisher“, trifft R21s Wort an dieser Stelle zu: Es wären die Brutto-Kosten genau dieses Pfads. Eine Brutto-Summe für den eigenen Kurs stellt R21 nicht dagegen. Die PwC-Studie selbst haben wir nicht gelesen; die Lesart stammt vom DIW."
   },
   {
    "id": "3.3",
@@ -7221,7 +7866,8 @@
      "Q08a",
      "Q09"
     ],
-    "hinweis_bau": "Q08a und Q09 nur als echte Fußnote oder auf der Belegseite (P106)."
+    "hinweis_bau": "Q08a und Q09 nur als echte Fußnote oder auf der Belegseite (P106).",
+    "untertitel": "Die zweite Zahl der Kurzinformation"
    },
    "text": "Ob im FAZ-Gastbeitrag [[wd_kosten_pro_jahr]] Milliarden pro Jahr stehen, wissen wir nicht. Den Beitrag konnten wir nicht lesen: Die Seite des ifo-Instituts verlangt eine Browser-Prüfung, die wir nicht umgehen; faz.net ist nicht freigegeben."
   },
@@ -7249,7 +7895,8 @@
       "label": "G3b Mehrkosten"
      }
     ],
-    "hinweis_bau": "Kopfzeilen umbrechen, Zeilenhöhe aus Texthöhe (P063)."
+    "hinweis_bau": "Kopfzeilen umbrechen, Zeilenhöhe aus Texthöhe (P063).",
+    "untertitel": "die dritte Größe in zwei Formen: Mehrinvestitionen (G3a) und Mehrkosten (G3b)"
    },
    "text": "Kostenstudien messen drei verschiedene Größen: G1, was die Energieversorgung insgesamt kostet (Investitionen, Betrieb, Energieträger); G2, was in klimarelevante Anlagen investiert wird, auch was ohnehin anfiele; G3, was gegenüber einem Vergleichspfad zusätzlich anfällt, entweder als Mehrinvestition (G3a) oder als Mehrkosten nach Abzug eingesparter Energie (G3b). Die Bundesregierung schreibt, Investitionsstudien wie die von BDI, BDEW und EnBW „stellen keine energiewendebedingten Zusatzkosten dar“, weil Ersatzinvestitionen enthalten und Einsparungen bei fossilen Energieträgern nicht abgezogen sind. Im selben Absatz nennt sie als nicht gegengerechnet auch vermiedene Klima- und Umweltschäden und die geringere Abhängigkeit von Energieimporten."
   },
@@ -7338,12 +7985,12 @@
       ]
      }
     ],
-    "legende": "Raute = Einzelwert, Balken = Spanne der Studie, Band = Spanne der Gruppe",
+    "legende": "Raute = Einzelwert, Balken = Spanne der Studie, Kreis = Angabe der Studie selbst, Band = Spanne der vollständigen Brutto-Studien (ohne Ariadne, die nur einen Teil zählt)",
     "umschalter": {
      "fest": "bip_fest",
      "wachsend": "bip_wachsend"
     },
-    "hinweis_bau": "Werte aus studien[].zahlen_erzeugt; Tabellen-Zwilling mit allen Werten (P067); Achse mit mindestens drei Ticks (P114)."
+    "hinweis_bau": "Werte aus studien[].zahlen_erzeugt; Tabellen-Zwilling mit allen Werten (P067); Achse mit mindestens drei Ticks (P114). Angabe der Studie aus studien[].angabe_studie (nur wenn zeichnen); dieselbe Achse für festes und wachsendes BIP (Bericht 22 M6)."
    },
    "text": "Brutto, also als G1 oder G2 für das ganze System oder alle Sektoren, liegen die gelesenen Studien bei [[spanne_brutto_fest|min]] bis [[spanne_brutto_fest|max]] Prozent des BIP pro Jahr; Studien, die nur einen Teil zählen, ab [[bipfest_ariadne_g2|min]] Prozent. Unsere Rechnung mit festem BIP 2024. Als Mehrinvestitionen gegen einen Vergleichspfad (G3a) liegen sie bei [[spanne_g3a_fest|min]] bis [[spanne_g3a_fest|max]] Prozent des BIP pro Jahr, als Mehrkosten nach Abzug eingesparter Energie (G3b) bei [[spanne_g3b_fest|min]] bis [[spanne_g3b_fest|max]] Prozent. Unsere Rechnung mit festem BIP 2024. R21s Spanne liegt am oberen Rand der Brutto-Studien oder darüber, nahe bei Agoras Brutto-Investitionen ([[bipfest_agora_g2]] Prozent). Als Mehrkosten gelesen, läge sie weit über allem, was die gelesenen Studien ausweisen. Unsere Rechnung mit festem BIP 2024. Mit wachsender Wirtschaft fallen die Anteile kleiner aus. Rechnet man mit dem mittleren BIP des jeweiligen Zeitraums, liegen die Mehrinvestitionen bei [[spanne_g3a_wachsend|min]] bis [[spanne_g3a_wachsend|max]] Prozent und die Mehrkosten bei [[spanne_g3b_wachsend|min]] bis [[spanne_g3b_wachsend|max]] Prozent, R21s Spanne bei [[bipwachs_r21|min]] bis [[bipwachs_r21|max]] Prozent. Das Wachstum ist unsere Annahme: real [[bip_wachstum_setzung|real_min]] bis [[bip_wachstum_setzung|real_max]] Prozent im Jahr, für Summen ohne Preisangabe bis [[bip_wachstum_setzung|nominal_max]] Prozent nominal. Keine Prognose."
   },
@@ -7354,6 +8001,7 @@
     "N01",
     "N02",
     "N03",
+    "N04",
     "N05",
     "N06",
     "N08",
@@ -7391,17 +8039,19 @@
      {
       "label": "DIHK: Netze, Investition und Betrieb, bis 2049",
       "zahl": "dihk_netzkosten_2025_2049",
-      "absetzen": true
+      "absetzen": true,
+      "absetzen_grund": "anderer Zeitraum (bis 2049) und Investition mit Betrieb"
      },
      {
       "label": "R21 nennt (DIHK)",
       "zahl": "r21_netz_dihk_zitat",
-      "absetzen": true
+      "absetzen": true,
+      "absetzen_grund": "Zuordnung zur DIHK-Studie ist unser Schluss (N03)"
      }
     ],
     "hinweis_bau": "Alles in Milliarden Euro (P074); DIHK-Balken schraffiert und abgesetzt (P041); R21-Werte in der R21-Farbe."
    },
-   "text": "R21 schreibt: „Allein der notwendige Aus- und Umbau der Netze wird nach einer Studie der DIHK [[r21_netz_dihk_zitat]] Milliarden kosten“; an anderer Stelle „Gesamtkosten des Netzausbaus sogar auf [[r21_netz_dihk_zitat]] Milliarden“. Eine Fundstelle nennt das Papier nicht. In der DIHK-Studie „Plan B“ kosten die Netze [[dihk_netzkosten_2025_2049]] Billionen Euro für Investition und Betrieb von 2025 bis 2049. [[dihk_systemkosten_2025_2034|min]] bis [[dihk_systemkosten_2025_2034|max]] Billionen sind dort die Gesamtkosten des Energieangebots der nächsten zehn Jahre einschließlich Energieimporten. Die [[r21_netz_dihk_zitat]] Milliarden, die R21 einer DIHK-Studie zuschreibt, entsprechen in der DIHK-Studie, die wir gefunden haben, den Systemkosten von zehn Jahren. Welche DIHK-Veröffentlichung R21 meint, sagt das Papier nicht; die Zuordnung ist unser Schluss aus der Zahl. R21 nennt für Übertragungs- und Verteilnetz bis 2045 „etwa [[r21_netz_ewi_zitat]] Milliarden Euro“ und das EWI als Urheber. Die nächste Fundstelle, eine Studie von ef.Ruhr mit dem EWI im Unterauftrag für die Netze-Gesellschaft Südwest, nennt [[efruhr_ewi_netze|gesamt]] Milliarden Euro. Neuere Studien kommen für beide Netzebenen bis 2045 auf [[netze_spanne_studien|min]], [[netze_spanne_studien|mid]] oder [[netze_spanne_studien|max]] Milliarden Euro Investitionen, ohne Zinsen und in verschiedenen Preisbasen. Die Spanne kommt fast ganz aus dem Verteilnetz. R21s Größenordnung beim Netz ist damit plausibel. Der Bundesrechnungshof nannte 2024 für den Ausbau der Stromnetze bis 2045 „mehr als [[brh_netzausbau|gesamt]] Mrd. Euro“, zusammengesetzt aus [[brh_netzausbau|uen]] Milliarden für das Übertragungsnetz und gut [[brh_netzausbau|vn]] Milliarden für die Verteilnetze. Er kritisierte, das Ministerium erzeuge mit Stromgestehungskosten ohne Netzkosten „außerhalb der Fachöffentlichkeit ein falsches Bild der tatsächlichen Kosten der Transformation“. Alle Netzzahlen sind Brutto-Investitionen. Wie viel davon ohne Wind und Sonne wegfiele, sagt keine der gelesenen Studien; eindeutig den Erneuerbaren zuzuordnen sind die Anbindungen der Windparks auf See, im Netzentwicklungsplan [[nep_offshore_anbindung|min]] bis [[nep_offshore_anbindung|max]] Milliarden Euro bis 2045. Ob ein Pfad mit Kernkraft weniger Netz braucht, wie R21 schreibt, rechnet Teil 6."
+   "text": "R21 schreibt: „Allein der notwendige Aus- und Umbau der Netze wird nach einer Studie der DIHK [[r21_netz_dihk_zitat]] Milliarden kosten“; an anderer Stelle „Gesamtkosten des Netzausbaus sogar auf [[r21_netz_dihk_zitat]] Milliarden“. Eine Fundstelle nennt das Papier nicht. In der DIHK-Studie „Plan B“ kosten die Netze [[dihk_netzkosten_2025_2049]] Billionen Euro für Investition und Betrieb von 2025 bis 2049. [[dihk_systemkosten_2025_2034|min]] bis [[dihk_systemkosten_2025_2034|max]] Billionen sind dort die Gesamtkosten des Energieangebots der nächsten zehn Jahre einschließlich Energieimporten. Die [[r21_netz_dihk_zitat]] Milliarden, die R21 einer DIHK-Studie zuschreibt, entsprechen in der DIHK-Studie, die wir gefunden haben, den Systemkosten von zehn Jahren. Welche DIHK-Veröffentlichung R21 meint, sagt das Papier nicht; die Zuordnung ist unser Schluss aus der Zahl. Factsheet B nennt „Netzausbau [[r21_netz_factsheet_b]] Mrd. € bis 2034 (Bothe et al. 2025)“. In der Studie gilt die Zahl für 2025 bis 2049; rund die Hälfte fällt in den ersten zehn Jahren an. R21 nennt für Übertragungs- und Verteilnetz bis 2045 „etwa [[r21_netz_ewi_zitat]] Milliarden Euro“ und das EWI als Urheber. Die nächste Fundstelle, eine Studie von ef.Ruhr mit dem EWI im Unterauftrag für die Netze-Gesellschaft Südwest, nennt [[efruhr_ewi_netze|gesamt]] Milliarden Euro. Neuere Studien kommen für beide Netzebenen bis 2045 auf [[netze_spanne_studien|min]], [[netze_spanne_studien|mid]] oder [[netze_spanne_studien|max]] Milliarden Euro Investitionen, ohne Zinsen und in verschiedenen Preisbasen. Die Spanne kommt fast ganz aus dem Verteilnetz. R21s Größenordnung beim Netz ist damit plausibel. Der Bundesrechnungshof nannte 2024 für den Ausbau der Stromnetze bis 2045 „mehr als [[brh_netzausbau|gesamt]] Mrd. Euro“, zusammengesetzt aus [[brh_netzausbau|uen]] Milliarden für das Übertragungsnetz und gut [[brh_netzausbau|vn]] Milliarden für die Verteilnetze. Er kritisierte, das Ministerium erzeuge mit Stromgestehungskosten ohne Netzkosten „außerhalb der Fachöffentlichkeit ein falsches Bild der tatsächlichen Kosten der Transformation“. Alle Netzzahlen sind Brutto-Investitionen. Wie viel davon ohne Wind und Sonne wegfiele, sagt keine der gelesenen Studien; eindeutig den Erneuerbaren zuzuordnen sind die Anbindungen der Windparks auf See, im Netzentwicklungsplan [[nep_offshore_anbindung|min]] bis [[nep_offshore_anbindung|max]] Milliarden Euro bis 2045. Ob ein Pfad mit Kernkraft weniger Netz braucht, wie R21 schreibt, rechnet Teil 6."
   },
   {
    "id": "5.1",
@@ -7411,6 +8061,7 @@
     "V05",
     "V05a",
     "V02",
+    "V02a",
     "V03",
     "V03a",
     "V04"
@@ -7438,7 +8089,9 @@
     "zeitachse": {
      "zahl": "kkw_erster_block_jahr",
      "legende": "frühestens · mittlerer Fall · ungünstig",
-     "r21": "r21_kkw_bauende"
+     "r21": "r21_kkw_bauende",
+     "titel_liste": "Erster deutscher Neubau am Netz, unsere Setzung",
+     "r21_beschriftung": "R21: ganzes Neubauprogramm fertig, nach R21s Bauzeit"
     },
     "systempreis": {
      "zahlen": [
@@ -7446,9 +8099,9 @@
       "wendland_systempreise"
      ]
     },
-    "hinweis_bau": "Jahreszahlen als Legende untereinander, nie nebeneinander auf einer Achse (P016); Untertitel je Szene (P083)."
+    "hinweis_bau": "Jahreszahlen als Legende untereinander, nie nebeneinander auf einer Achse (P016); Untertitel je Szene (P083). R21s Jahr nicht in die Liste „Erster Neubau am Netz“, sondern als eigene Zeile mit zeitachse.r21_beschriftung (Bericht 23 K2). Keine Waage mit den Schalen „mit/ohne Energiewende“ über R21s Kurs; die Waage füllt erst Teil 6 (Bericht 23 M3, Bericht 22 k10)."
    },
-   "text": "R21 schreibt: „Auch eine Kehrtwende in der Energiepolitik erfordert erhebliche Investitionen … Der Mittelbedarf liegt aber weit unter den Kosten“ der Fortsetzung der Energiewende. Eine Summe für den eigenen Kurs nennt das Papier nicht. R21s Summen für den eigenen Pfad decken nur Kraftwerke ab, nicht Netze, Energieimporte, Gebäude, Verkehr und Industrie; mit den Billionen-Summen sind sie nicht vergleichbar. Statt einer Summe nennt R21 einen Systempreis: [[r21_systempreis]] Cent je Kilowattstunde im Durchschnitt für ein Stromsystem mit [[r21_reform_mix|kernkraft]] Prozent Kernkraft, nach einer Studie von Quantified Carbon. Laut R21-Referenzpapier kommt dieselbe Studie für ein reines Erneuerbaren-System auf [[wendland_systempreise|nur_ee]] Euro je Megawattstunde, im Mischsystem auf [[wendland_systempreise|mix]]. Das gilt nur für Strom. Die Studie selbst haben wir nicht gelesen; Teil 6 rechnet nach. Für den Neubau von Kernkraftwerken rechnet Factsheet B mit [[r21_kkw_bloecke|bloecke]] Blöcken zu je [[r21_kkw_bloecke|mw_je_block]] Megawatt und [[r21_kkw_neubau]] Milliarden Euro, das sind [[r21_kkw_eur_kw]] Euro je Kilowatt. Das Referenzpapier von R21 nennt in seiner Tabelle ebenfalls [[r21_kkw_neubau]] Milliarden, im Text „konservativ“ [[wendland_kkw_neubau]] Milliarden, und erwartet bei Serienbau weniger. Die [[wendland_kkw_neubau]] Milliarden stützen sich auf eine Studie von Quantified Carbon, die wir nicht gelesen haben. Zu den Kostenansätzen westlicher Neubauprojekte, die geplant oder im Bau sind, kosteten dieselben [[kkw_leistung_gw]] Gigawatt [[kkw_neubau_spanne|min]], [[kkw_neubau_spanne|mid]] oder [[kkw_neubau_spanne|max]] Milliarden Euro. Der untere Ansatz ist ohne Finanzierung gerechnet, der obere in laufenden Preisen mit Bauzinsen; R21 sagt nicht, welche Preisbasis und ob Finanzierung enthalten ist. Unsere Rechnung mit unserer Spanne; volle Rechnung mit einheitlicher Abgrenzung in Teil 6. Asiatische Serienprojekte kosten deutlich weniger: Barakah in den Emiraten [[kkw_asien|barakah_epc]] Euro je Kilowatt laut EPC-Vertrag und [[kkw_asien|barakah_gesamt]] Euro mit Eigentümerkosten. Ob ihre Voraussetzungen in Deutschland herstellbar sind, prüft Teil 6. Ein erster deutscher Neubau ginge bei einer Entscheidung 2027 frühestens [[kkw_erster_block_jahr|min]] ans Netz, im mittleren Fall [[kkw_erster_block_jahr|mid]], im ungünstigen Fall [[kkw_erster_block_jahr|max]]. R21 nennt rund [[r21_kkw_bloecke|bauzeit_jahre]] Jahre Planungs- und Bauzeit, also etwa [[r21_kkw_bauende]]. Das Ziel von [[r21_kkw_bloecke|gw_ziel]] Gigawatt bis 2045 ist auch nach R21s eigener Bauzeit nicht erreichbar. Die Jahre sind unsere Setzung aus Vorlauf und Bauzeit vergleichbarer Projekte."
+   "text": "R21 schreibt: „Auch eine Kehrtwende in der Energiepolitik erfordert erhebliche Investitionen … Der Mittelbedarf liegt aber weit unter den Kosten“ der Fortsetzung der Energiewende. Eine Summe für den eigenen Kurs nennt das Papier nicht. R21s Summen für den eigenen Pfad decken nur Kraftwerke ab, nicht Netze, Energieimporte, Gebäude, Verkehr und Industrie; mit den Billionen-Summen sind sie nicht vergleichbar. Statt einer Summe nennt R21 einen Systempreis: [[r21_systempreis]] Cent je Kilowattstunde im Durchschnitt für ein Stromsystem mit [[r21_reform_mix|kernkraft]] Prozent Kernkraft, nach einer Studie von Quantified Carbon. Laut R21-Referenzpapier kommt dieselbe Studie für ein reines Erneuerbaren-System auf [[wendland_systempreise|nur_ee]] Euro je Megawattstunde, im Mischsystem auf [[wendland_systempreise|mix]]. Das gilt nur für Strom. Die Studie selbst haben wir nicht gelesen; Teil 6 rechnet nach. Für den Neubau von Kernkraftwerken rechnet Factsheet B mit [[r21_kkw_bloecke|bloecke]] Blöcken zu je [[r21_kkw_bloecke|mw_je_block]] Megawatt und [[r21_kkw_neubau]] Milliarden Euro, das sind [[r21_kkw_eur_kw]] Euro je Kilowatt. Das Referenzpapier von R21 nennt in seiner Tabelle ebenfalls [[r21_kkw_neubau]] Milliarden, im Text „konservativ“ [[wendland_kkw_neubau]] Milliarden, und erwartet bei Serienbau weniger. Die [[wendland_kkw_neubau]] Milliarden stützen sich auf eine Studie von Quantified Carbon, die wir nicht gelesen haben. Die [[wendland_kkw_neubau]] Milliarden rechnet das Referenzpapier mit [[wendland_capex_spanne|max]] Euro je Kilowatt, den Baukosten, die beim finnischen Olkiluoto-3 „auftraten“. Flamanville 3, ebenfalls ein EPR, kostete laut unserem Kernkraft-Dossier mit Finanzierungskosten [[kkw_flamanville]] Euro je Kilowatt, rund das Doppelte. Die Olkiluoto-Zahl übernimmt das Referenzpapier von Quantified Carbon, die wir nicht gelesen haben; ob sie Finanzierungskosten enthält, sagt es nicht. Zu den Kostenansätzen westlicher Neubauprojekte, die geplant oder im Bau sind, kosteten dieselben [[kkw_leistung_gw]] Gigawatt [[kkw_neubau_spanne|min]], [[kkw_neubau_spanne|mid]] oder [[kkw_neubau_spanne|max]] Milliarden Euro. Der untere Ansatz ist ohne Finanzierung gerechnet, der obere in laufenden Preisen mit Bauzinsen; R21 sagt nicht, welche Preisbasis und ob Finanzierung enthalten ist. Unsere Rechnung mit unserer Spanne; volle Rechnung mit einheitlicher Abgrenzung in Teil 6. Asiatische Serienprojekte kosten deutlich weniger: Barakah in den Emiraten [[kkw_asien|barakah_epc]] Euro je Kilowatt laut EPC-Vertrag und [[kkw_asien|barakah_gesamt]] Euro mit Eigentümerkosten. Ob ihre Voraussetzungen in Deutschland herstellbar sind, prüft Teil 6. R21 nennt für den Neubau rund [[r21_kkw_bloecke|bauzeit_jahre]] Jahre Planungs- und Bauzeit, in derselben Aufzählung wie die [[r21_kkw_bloecke|bloecke]] Blöcke; naheliegend ist, dass das ganze Programm gemeint ist. Bei einer Entscheidung 2027 wäre es danach etwa [[r21_kkw_bauende]] fertig; das Reform-Stromsystem bezieht R21 über eine Simulation auf das Jahr 2045. Nach Vorlauf und Bauzeit vergleichbarer Projekte ginge aber schon ein erster deutscher Neubau frühestens [[kkw_erster_block_jahr|min]] ans Netz, im mittleren Fall [[kkw_erster_block_jahr|mid]], im ungünstigen Fall [[kkw_erster_block_jahr|max]]. Dass [[r21_kkw_bloecke|gw_ziel]] Gigawatt bis 2045 stehen, halten wir deshalb für nicht erreichbar. Bis dahin muss der Strom aus anderen Quellen kommen; was das für den Ausstoß heißt, rechnet Teil 6. Die Jahre für den ersten Block und der Schluss daraus sind unsere Setzung aus Erfahrungswerten vergleichbarer Projekte; nach R21s eigener Angabe wäre das Programm vor 2045 fertig."
   },
   {
    "id": "5.2",
@@ -7489,23 +8142,24 @@
      }
     ],
     "hintergrund": {
-     "label": "Brutto-Studien zum Vergleich",
+     "label": "Brutto-Studien zum Vergleich, andere Größe",
      "zahl": "spanne_brutto_fest"
     },
     "r21": {
-     "darstellung": "gestrichelte Linie",
-     "beschriftung": "R21: Brutto-Zahl, keine Mehrkosten",
+     "darstellung": "Hinweiszeile unter dem Bild, außerhalb der Achse",
+     "beschriftung": "Zum Vergleich, andere Größe: R21s Spanne als Brutto-Zahl, keine Mehrkosten",
      "studie": "r21"
     },
-    "hinweis_bau": "R21 nicht als Balken in derselben Reihe (P031); Text der Zeile innerhalb der viewBox (P015)."
+    "hinweis_bau": "Achse nach Mehrinvestitionen und Mehrkosten; Brutto-Band und R21 nicht im selben Bild über den Gruppen, sondern als Hinweiszeile mit Zahl oder eigenes kleines Bild darunter (Bericht 22 M1); Wertetabelle mit allen Zeilen (M2); Text innerhalb der viewBox (P015)."
    },
-   "text": "Die einzige gelesene Studie, die gegen ein System ohne weiteren Klimaschutz rechnet, Fraunhofer ISE 2021, kommt bis 2045 auf [[ise2021_mehraufwand|min]] bis [[ise2021_mehraufwand|max]] Billionen Euro Mehraufwand, ausdrücklich ohne Umweltkosten. Ariadne kommt auf Mehrkosten von [[ariadne_mehrkosten_pa|min]] bis [[ariadne_mehrkosten_pa|max]] Milliarden Euro pro Jahr gegenüber „Existierenden Politiken“, bei Beharren in den Nachfragesektoren auf [[ariadne_mehrkosten_pa|beharrung]] Milliarden. Prognos rechnet für die KfW mit Mehrinvestitionen gegenüber fossiler Referenztechnik von [[kfw2026_netto_studie|min]] bis [[kfw2026_netto_studie|max]] Milliarden Euro pro Jahr; der KfW-Focus nennt [[kfw2026_netto_focus|min]] bis [[kfw2026_netto_focus|max]] Milliarden. Gegenüber dem heutigen Niveau wären es zusätzlich [[kfw2026_zuwachs_pa]] Milliarden; das ist ein Zuwachs, kein Vergleichspfad. DIHK „Plan B“: Ein anders gesteuerter Klimapfad spart „mindestens [[dihk_planb_einsparung|min]] bis [[dihk_planb_einsparung|max]] Mrd. €“ bis 2050, das sind [[dihk_planb_einsparung|pct_min]] bis [[dihk_planb_einsparung|pct_max]] Prozent, bei gleichem Endenergieverbrauch. Plan B ist selbst ein Pfad zur Klimaneutralität. Hier hat R21 einen Punkt: Zwei Studien sehen ein Einsparpotenzial von mehreren hundert Milliarden Euro, wenn anders gesteuert wird (DIHK und Frontier, ZEW). Das Geld liegt im Wie der Energiewende, nicht in ihrem Abbruch."
+   "text": "Die einzige gelesene Studie, die gegen ein System ohne weiteren Klimaschutz rechnet, Fraunhofer ISE 2021, kommt bis 2045 auf [[ise2021_mehraufwand|min]] bis [[ise2021_mehraufwand|max]] Billionen Euro Mehraufwand, ausdrücklich ohne Umweltkosten. Ariadne kommt auf Mehrkosten von [[ariadne_mehrkosten_pa|min]] bis [[ariadne_mehrkosten_pa|max]] Milliarden Euro pro Jahr gegenüber „Existierenden Politiken“, bei Beharren in den Nachfragesektoren auf [[ariadne_mehrkosten_pa|beharrung]] Milliarden. Prognos rechnet für die KfW mit Mehrinvestitionen gegenüber fossiler Referenztechnik von [[kfw2026_netto_studie|min]] bis [[kfw2026_netto_studie|max]] Milliarden Euro pro Jahr; der KfW-Focus nennt [[kfw2026_netto_focus|min]] bis [[kfw2026_netto_focus|max]] Milliarden. Gegenüber dem heutigen Niveau wären es zusätzlich [[kfw2026_zuwachs_pa]] Milliarden; das ist ein Zuwachs, kein Vergleichspfad. DIHK „Plan B“: Ein anders gesteuerter Klimapfad spart „mindestens [[dihk_planb_einsparung|min]] bis [[dihk_planb_einsparung|max]] Mrd. €“ bis 2050, das sind [[dihk_planb_einsparung|pct_min]] bis [[dihk_planb_einsparung|pct_max]] Prozent, bei gleichem Endenergieverbrauch. Plan B ist selbst ein Pfad zur Klimaneutralität. Hier hat R21 einen Punkt: Zwei Studien sehen ein Einsparpotenzial von mehreren hundert Milliarden Euro, wenn anders gesteuert wird (DIHK/Frontier „Plan B“; ZEW). DIHK und Frontier vergleichen dafür zwei Pfade zur Klimaneutralität bei identischen Treibhausgasemissionen in Deutschland. Das ZEW rechnet für die ganze EU und bei gleicher Zielerreichung den Vorschlag durch, auf den sich R21 selbst stützt: Emissionshandel ohne nationale Zusatzmaßnahmen. Einen Pfad ohne weiteren Klimaschutz rechnet keine der beiden; ob R21s Kurs insgesamt billiger ist, prüft Teil 6."
   },
   {
    "id": "5.3",
    "akt": 5,
    "claims": [
     "O09",
+    "O13",
     "O12",
     "O08"
    ],
@@ -7515,17 +8169,20 @@
     "hoeher": [
      "O01",
      "O02",
-     "O03",
      "O04"
     ],
     "niedriger": [
      "O08",
      "K04"
     ],
-    "legende": "Zeichen größer gleich und kleiner gleich ohne Längenbedeutung; keine Pfeillänge als Betrag",
-    "hinweis_bau": "Beide Richtungen gleich gewichtet zeigen (P006)."
+    "legende": "≥ spricht für höhere Werte, ≤ für niedrigere; die Zeichen sagen nichts über den Betrag",
+    "hinweis_bau": "Beide Richtungen gleich gewichtet zeigen (P006); O03 verschiebt in beide Richtungen und steht deshalb in einer eigenen Spalte (Bericht 22 k12).",
+    "untertitel": "Gründe in beide Richtungen, ohne Betrag",
+    "beide": [
+     "O03"
+    ]
    },
-   "text": "Diese Zahlen können zu niedrig oder zu hoch sein. Welche Gründe überwiegen, rechnet Teil 6. Für höhere Kosten spricht: Die Referenz enthält oft schon Klimaschutz, Beharrung kann ein Mehrfaches kosten, Zinsen fehlen in den Investitionssummen, und Wind- und Netzkosten steigen wieder. Für niedrigere Kosten spricht: Die Preise von Lithium-Ionen-Zellen sind seit 1991 um rund [[batterie_preise|rueckgang_pct]] Prozent gefallen, mit jeder Verdopplung der Produktion um etwa [[batterie_preise|lernrate_pct]] Prozent; Solarmodule werden mit jeder Verdopplung um [[pv_kosten_2025|lernrate_modul_pct]] Prozent billiger. Ein sparsamerer Pfad senkt die Gesamtkosten bis 2045 laut ISE 2024 um [[ise2024_effizienz]] Milliarden Euro. Und keine der Mehrkosten-Zahlen enthält vermiedene Klimaschäden."
+   "text": "Diese Zahlen können zu niedrig oder zu hoch sein. Welche Gründe überwiegen, rechnet Teil 6. Die Mehrkosten können also auch zu hoch geschätzt sein, nicht nur zu niedrig. Für höhere Kosten spricht: Die Referenz enthält oft schon Klimaschutz, Beharrung kann ein Mehrfaches kosten, Zinsen fehlen in den Investitionssummen, und Wind- und Netzkosten steigen wieder. Für niedrigere Kosten spricht: Die Preise von Lithium-Ionen-Zellen sind seit 1991 um rund [[batterie_preise|rueckgang_pct]] Prozent gefallen, mit jeder Verdopplung der Produktion um etwa [[batterie_preise|lernrate_pct]] Prozent; Solarmodule werden mit jeder Verdopplung um [[pv_kosten_2025|lernrate_modul_pct]] Prozent billiger. Ein sparsamerer Pfad senkt die Gesamtkosten bis 2045 laut ISE 2024 um [[ise2024_effizienz]] Milliarden Euro. Und keine der Mehrkosten-Zahlen enthält vermiedene Klimaschäden."
   },
   {
    "id": "5.4",
@@ -7542,7 +8199,8 @@
      "GP5",
      "GP6"
     ],
-    "hinweis_bau": "Jede Kachel nennt die Zahl und die Einschränkung aus dem Kasten; Kacheltitel aus gegenpositionen[].ueberschrift; Kachel GP2 titelt „Die Zahl stimmt“ (P098)."
+    "hinweis_bau": "Jede Kachel nennt die Zahl und die Einschränkung aus dem Kasten; Kacheltitel aus gegenpositionen[].ueberschrift; Kachel GP2 titelt „Die Zahl stimmt“ (P098).",
+    "untertitel": "wo R21s Zahl oder Argument stimmt, mit Einschränkung"
    },
    "text": ""
   },
@@ -7561,9 +8219,10 @@
    ],
    "grafik": {
     "typ": "keine",
-    "titel": "Was Teil 1 nicht zeigt"
+    "titel": "Was Teil 1 nicht zeigt",
+    "untertitel": "Grenzen dieser Prüfung"
    },
-   "text": "Teil 1 hat kein eigenes Kostenmodell. Er vergleicht fremde Studien und rechnet sie auf eine gemeinsame Basis um; was die vier Pfade auf derselben Grundlage kosten, rechnet Teil 6. Die Studien sind nicht nachgerechnet: Wir haben ihre Zahlen am Original gelesen, aber keine Studie in ihren Annahmen zu Brennstoffpreisen, Lernkurven, Zinsen und Nachfrage überprüft. Keine der Kostenstudien in der Tabelle sagt, wer zahlt, und keine enthält Verteilungswirkungen oder Wachstumseffekte; Prognos schließt Aussagen zum BIP ausdrücklich aus. Wohlfahrtskosten beziffert nur das ZEW, für die EU. Seit Juli 2022 zahlt der Bund die EEG-Förderung aus dem Klima- und Transformationsfonds, 2024 rund [[eeg_bundeszuschuss_2024|ist]] Milliarden Euro bei einem Haushaltsansatz von [[eeg_bundeszuschuss_2024|ansatz]] Milliarden. Wie hoch die Summe ist, hängt vor allem an den Großhandelspreisen. Das verschiebt, wer zahlt; es kommt nicht zu den Studienwerten hinzu. Die Ursache des Industrierückgangs ist nicht zerlegt. Welchen Anteil die Energiepolitik daran hat, kann keine gelesene Quelle im Nachhinein beziffern. R21s Hauptargumente prüft Teil 1 nicht: dass nationale Minderung im Emissionshandel nur verlagert wird, dass Erneuerbare einen Kapitalstock ersetzen statt erweitern, und die Abhängigkeit von China. Sie tragen das Papier auch ohne die Billionen-Zahl. Teil 4 und Teil 6 nehmen sie auf. Warum im R21-Papier [[r21_kosten_zitat|max]] statt [[wd_kosten_gesamt]] steht und welche DIHK-Veröffentlichung mit [[r21_netz_dihk_zitat]] Milliarden gemeint ist, wissen wir nicht. Eine Anfrage an R21 ist entworfen und bis zum Abschluss der Reihe zurückgestellt. Die [[wd_kosten_gesamt]] Billionen übernimmt die Kurzinformation aus einer PwC-Studie, die wir nicht gelesen haben (Akt 3)."
+   "text": "Teil 1 hat kein eigenes Kostenmodell. Er vergleicht fremde Studien und rechnet sie auf eine gemeinsame Basis um; was die vier Pfade auf derselben Grundlage kosten, rechnet Teil 6. Die Studien sind nicht nachgerechnet: Wir haben ihre Zahlen am Original gelesen, aber keine Studie in ihren Annahmen zu Brennstoffpreisen, Lernkurven, Zinsen und Nachfrage überprüft. Keine der Kostenstudien in der Tabelle sagt, wer zahlt, und keine enthält Verteilungswirkungen oder Wachstumseffekte; Prognos schließt Aussagen zum BIP ausdrücklich aus. Wohlfahrtskosten beziffert nur das ZEW, für die EU. Seit Juli 2022 zahlt der Bund die EEG-Förderung aus dem Klima- und Transformationsfonds, 2024 rund [[eeg_bundeszuschuss_2024|ist]] Milliarden Euro bei einem Haushaltsansatz von [[eeg_bundeszuschuss_2024|ansatz]] Milliarden. Wie hoch die Summe ist, hängt vor allem an den Großhandelspreisen. Das verschiebt, wer zahlt; es kommt nicht zu den Studienwerten hinzu. Die Ursache des Industrierückgangs ist nicht zerlegt. Welchen Anteil die Energiepolitik daran hat, kann keine gelesene Quelle im Nachhinein beziffern. R21s Hauptargumente prüft Teil 1 nicht: dass nationale Minderung im Emissionshandel nur verlagert wird, dass Erneuerbare einen Kapitalstock ersetzen statt erweitern, und die Abhängigkeit von China. Das Papier stützt sich auch auf sie, nicht nur auf die Billionen-Zahl. Teil 4 und Teil 6 nehmen sie auf. Warum im R21-Papier [[r21_kosten_zitat|max]] statt [[wd_kosten_gesamt]] steht und welche DIHK-Veröffentlichung mit [[r21_netz_dihk_zitat]] Milliarden gemeint ist, wissen wir nicht. Eine Anfrage an R21 ist entworfen und bis zum Abschluss der Reihe zurückgestellt. Die PwC-Studie selbst haben wir nicht gelesen."
   },
   {
    "id": "A.2",
@@ -7578,9 +8237,31 @@
    ],
    "grafik": {
     "typ": "keine",
-    "titel": "Wie Teil 1 entstanden ist"
+    "titel": "Wie Teil 1 entstanden ist",
+    "untertitel": "Agenten, Prüfungen, Token"
    },
    "text": "Die Prüfer haben fast keine falsch abgeschriebenen Zahlen gefunden; die Fehler lagen in Ableitungen, Zusammenfassungen und Weglassungen, in alle Richtungen. Teil 1 entstand mit KI-Agenten (Claude). Zehn Recherche-Agenten verbrauchten [[proz_phase1|token]] Token, zehn Prüf-Agenten [[proz_phase2|token]] Token, dreizehn Reviewer [[proz_phase5|token]] Token. Die Prüfer schlugen [[proz_pruefung|geprueft]] Werte am Original nach oder rechneten sie nach: [[proz_pruefung|bestaetigt]] bestätigt, [[proz_pruefung|abweichend]] abweichend, [[proz_pruefung|nicht_pruefbar]] nicht prüfbar; [[proz_pruefung|ohne_zuordnung]] Werte zählt ein Bericht ohne Zuordnung. Die Reviews ergaben [[proz_reviews|befunde]] Befunde, gebündelt zu [[proz_reviews|punkte]] Punkten. Von den kritischen und mittleren Punkten hätten [[proz_richtung|zulasten_r21]] zulasten von R21 gewirkt, [[proz_richtung|zulasten_ew]] zulasten der Energiewende, [[proz_richtung|zugunsten_ew]] zu ihren Gunsten und [[proz_richtung|ohne]] ohne Richtung. Keine Zahl aus Studien oder Dokumenten und keine Prozesszahl auf dieser Seite ist von Hand eingetippt; alle stammen aus dem Datensatz, den ein Prüfskript gegen die Freigabeliste und das Lauf-Protokoll abgleicht."
+  },
+  {
+   "id": "T",
+   "akt": 6,
+   "rolle": "Wer dahinter steht",
+   "claims": [
+    "T01",
+    "T02",
+    "T03"
+   ],
+   "grafik": {
+    "typ": "keine",
+    "titel": "Wer dahinter steht und wie man Fehler meldet",
+    "untertitel": "Auftraggeber, Verantwortung, Fehlermeldung",
+    "links": [
+     "impressum",
+     "fehler_melden",
+     "versionen_datensatz"
+    ]
+   },
+   "text": "Für diese Reihe gibt es keinen Auftraggeber und keine Finanzierung durch Dritte. Verantwortlich ist die Daten-WG Knowledge Kitchen; wer dahinter steht, nennt das Impressum. Texte und Rechnungen erstellen KI-Agenten (Claude) nach der Freigabeliste; was auf die Seite darf und was offen bleibt, entscheidet der Mensch hinter der Kitchen. Wer einen Fehler findet, meldet ihn als Issue im öffentlichen Repository des Projekts. Korrekturen stehen mit altem und neuem Wortlaut in der Tabelle der eigenen Fehler; frühere Fassungen von Freigabeliste und Datensatz bleiben in der Git-Historie."
   },
   {
    "id": "L",
@@ -7594,9 +8275,10 @@
    "grafik": {
     "typ": "legende_abzeichen",
     "titel": "Zwei Abzeichen je Zahl",
-    "beschriftung": "Zitat geprüft · Wert: A, B, C, Behauptung, eigene Rechnung, Setzung"
+    "beschriftung": "Zitat geprüft · Wert: A, B, C, Behauptung, eigene Rechnung, Setzung",
+    "untertitel": "Bezugsgröße, Abzinsung und die zwei Abzeichen"
    },
-   "text": "Alle Anteile am BIP rechnen wir zweimal: mit dem festen BIP 2024 von [[bip_de_2024]] Milliarden Euro und mit einem wachsenden BIP. Für das Wachstum setzen wir real [[bip_wachstum_setzung|real_min]] bis [[bip_wachstum_setzung|real_max]] Prozent im Jahr an, um das Mittel 2000 bis 2024 von [[bip_wachstum_hist|real]] Prozent; Summen ohne Preisangabe rechnen wir bis [[bip_wachstum_setzung|nominal_max]] Prozent nominal. Wo R21 selbst umrechnet, zeigen wir das BIP 2025 ([[bip_de_2025]] Milliarden), damit R21 an der eigenen Bezugsgröße gemessen wird. Beide Nenner sind Setzungen; die Studien rechnen in verschiedenen Preisbasen. Gegenüber den eigenen Angaben der Studien weichen unsere Anteile um bis zu gut einen Prozentpunkt ab; der feste Bezug auf 2024 überzeichnet die Anteile, weil die Wirtschaft bis 2045 wächst. Beide Rechnungen und die Angaben der Studien stehen in der Tabelle nebeneinander. Die Billionen-Summen sind einfache Summen über die Jahre, nicht abgezinst; das sagt DIHK ausdrücklich, die anderen Studien nennen keine Abzinsung. Abgezinst sind nur der ZEW-Wert (Barwert mit [[zew|diskont_pct]] Prozent) und Ariadnes Abwägung von Kosten und Klimaschäden ([[ariadne_nutzen]] Prozent). Die Kostensätze des Umweltbundesamts beruhen auf einer Zeitpräferenz von einem Prozent oder null. Bei ISE 2024 optimiert das Modell diskontierte Systemkosten; ob die genannten Summen abgezinst sind, sagt der Text nicht."
+   "text": "Alle Anteile am BIP rechnen wir zweimal: mit dem festen BIP 2024 von [[bip_de_2024]] Milliarden Euro und mit einem wachsenden BIP. Für das Wachstum setzen wir real [[bip_wachstum_setzung|real_min]] bis [[bip_wachstum_setzung|real_max]] Prozent im Jahr an, um das Mittel 2000 bis 2024 von [[bip_wachstum_hist|real]] Prozent; Summen ohne Preisangabe rechnen wir bis [[bip_wachstum_setzung|nominal_max]] Prozent nominal. Wo R21 selbst umrechnet, zeigen wir das BIP 2025 ([[bip_de_2025]] Milliarden), damit R21 an der eigenen Bezugsgröße gemessen wird. Wo wir R21s Spanne neben die Studien stellen, rechnen wir sie wie die Studien mit dem BIP 2024. Beide Nenner sind Setzungen; die Studien rechnen in verschiedenen Preisbasen. Gegenüber den eigenen Angaben der Studien weichen unsere Anteile um bis zu gut einen Prozentpunkt ab; der feste Bezug auf 2024 überzeichnet die Anteile, weil die Wirtschaft bis 2045 wächst. Beide Rechnungen und die Angaben der Studien stehen in der Tabelle nebeneinander. Die Billionen-Summen sind einfache Summen über die Jahre, nicht abgezinst; das sagt DIHK ausdrücklich, die anderen Studien nennen keine Abzinsung. Abgezinst sind nur der ZEW-Wert (Barwert mit [[zew|diskont_pct]] Prozent) und Ariadnes Abwägung von Kosten und Klimaschäden ([[ariadne_nutzen]] Prozent). Die Kostensätze des Umweltbundesamts beruhen auf einer Zeitpräferenz von einem Prozent oder null. Bei ISE 2024 optimiert das Modell diskontierte Systemkosten; ob die genannten Summen abgezinst sind, sagt der Text nicht."
   }
  ],
  "gegenpositionen": [
@@ -7650,8 +8332,9 @@
     "R09b",
     "R09c"
    ],
-   "kurz": "R21 rechnet mit rund [[r21_fa_annahmen|kapazitaet_twh]] Terawattstunden, unsere Rechnung auf Messdaten mit [[dunkelflaute_luecke_5tage|ziele2030_min]] bis [[dunkelflaute_luecke_5tage|bestand_max]]. R21s Batterierechnung über [[r21_fa_kosten]] Milliarden Euro passt aber nicht zur Technik der Netzplanung, und fünf Tage sind nicht der schwerste Fall; mehr auf der Belegseite.",
-   "lang": "Im schwächsten Fünf-Tage-Fenster der Wetterjahre 2015 bis 2025 hätten die Ausbauziele 2030 eine Lücke von [[dunkelflaute_luecke_5tage|ziele2030_min]] bis [[dunkelflaute_luecke_5tage|ziele2030_max]] Terawattstunden gelassen, der Anlagenbestand vom November 2026 [[dunkelflaute_luecke_5tage|bestand_min]] bis [[dunkelflaute_luecke_5tage|bestand_max]]. R21 rechnet mit rund [[r21_fa_annahmen|kapazitaet_twh]] Terawattstunden ([[r21_fa_annahmen|verbrauch_twh]] Terawattstunden Jahresverbrauch geteilt durch [[r21_fa_annahmen|teiler]]). Unsere Rechnung auf Messdaten: Winterlast, Jahresverbrauch wie bei R21, Lücke vor Abzug steuerbarer Kraftwerke und Importe. Die Energiemenge trifft R21 ungefähr, mit einer zu einfachen Rechnung: R21 setzt fünf Tage ganz ohne Wind- und Solarstrom an, wir rechnen mit der Resterzeugung im Winter. Die Technik in Factsheet A passt nicht zur Planung. R21 nennt Batteriespeicher die „vorgesehene Technik“; der Szenariorahmen, auf dem der Netzentwicklungsplan aufbaut, unterstellt für 2045 Großbatterien mit zusammen [[nep_batterien_2045|min]] bis [[nep_batterien_2045|max]] Gigawattstunden, die zwei bis zweieinhalb Stunden liefern, und daneben [[nep_h2_kraftwerke_2045|min]] bis [[nep_h2_kraftwerke_2045|max]] Gigawatt Wasserstoffkraftwerke. Wie die Wasserstoffkraftwerke finanziert und versorgt werden, ist offen; das vertieft Teil 2. R21 leitet aus der Energiemenge Batteriekosten von [[r21_fa_kosten]] Milliarden Euro ab und legt selbst offen, dass es die [[r21_fa_annahmen|faktor]]-fache Kapazität der zitierten Studie ansetzt. Den Kostensatz von [[r21_fa_annahmen|eur_je_mwh]] Euro je Megawattstunde übernimmt R21 aus einer Studie, die wir nicht gelesen haben. Mit der Technik der Netzplanung, Wasserstoffturbinen und Kavernen, kostet die Absicherung grob [[h2_absicherung_dunkelflaute_inv|min]] bis [[h2_absicherung_dunkelflaute_inv|max]] Milliarden Euro Investition, ohne Elektrolyseure, und liegt damit weit unter R21s Batterierechnung. Teil 2 rechnet das nach. Grober Überschlag des Prüfers, keine eigene Modellrechnung. Fünf Tage sind nicht der schwerste Fall: Für Deutschland allein, ohne Austausch mit den Nachbarn, finden Kittel und Schill für den Winter 1995/96 eine Phase von [[dunkelflaute_insel_de|tage]] Tagen mit nur rund einem Drittel der üblichen Wind- und Solarerzeugung; für Europa als Ganzes [[dunkelflaute_insel_de|europa_tage]] Tage. Quelle ist ein mit KI erstelltes Transkript eines DIW-Podcasts; die Studie selbst haben wir nicht gelesen."
+   "kurz": "R21 rechnet mit rund [[r21_fa_annahmen|kapazitaet_twh]] Terawattstunden, unsere Rechnung auf Messdaten mit [[dunkelflaute_luecke_5tage|ziele2030_min]] bis [[dunkelflaute_luecke_5tage|bestand_max]]. R21s Batterierechnung über [[r21_fa_kosten]] Milliarden Euro passt aber nicht zur Technik der Netzplanung: Mit Wasserstoffturbinen und Kavernen schätzt der Prüfer unseres Dossiers grob [[h2_absicherung_dunkelflaute_inv|min]] bis [[h2_absicherung_dunkelflaute_inv|max]] Milliarden Euro, eine Setzung, die Teil 2 nachrechnet. Fünf Tage sind zudem nicht der schwerste Fall, laut einem DIW-Podcast, dessen Studie wir nicht gelesen haben; mehr auf der Belegseite.",
+   "v3": "geändert (P7-A, Runde 2)",
+   "lang": "Im schwächsten Fünf-Tage-Fenster der Wetterjahre 2015 bis 2025 hätten die Ausbauziele 2030 eine Lücke von [[dunkelflaute_luecke_5tage|ziele2030_min]] bis [[dunkelflaute_luecke_5tage|ziele2030_max]] Terawattstunden gelassen, der Anlagenbestand vom November 2026 [[dunkelflaute_luecke_5tage|bestand_min]] bis [[dunkelflaute_luecke_5tage|bestand_max]]. R21 rechnet mit rund [[r21_fa_annahmen|kapazitaet_twh]] Terawattstunden ([[r21_fa_annahmen|verbrauch_twh]] Terawattstunden Jahresverbrauch geteilt durch [[r21_fa_annahmen|teiler]]). Unsere Rechnung auf Messdaten: Winterlast, Jahresverbrauch wie bei R21, Lücke vor Abzug steuerbarer Kraftwerke und Importe. Die Energiemenge trifft R21 ungefähr, mit einer zu einfachen Rechnung: R21 setzt fünf Tage ganz ohne Wind- und Solarstrom an, wir rechnen mit der Resterzeugung im Winter. Die Technik in Factsheet A passt nicht zur Planung. R21 nennt Batteriespeicher die „vorgesehene Technik“; der Szenariorahmen, auf dem der Netzentwicklungsplan aufbaut, unterstellt für 2045 Großbatterien mit zusammen [[nep_batterien_2045|min]] bis [[nep_batterien_2045|max]] Gigawattstunden, die zwei bis zweieinhalb Stunden liefern, und daneben [[nep_h2_kraftwerke_2045|min]] bis [[nep_h2_kraftwerke_2045|max]] Gigawatt Wasserstoffkraftwerke. Wie die Wasserstoffkraftwerke finanziert und versorgt werden, ist offen; das vertieft Teil 2. R21 leitet aus der Energiemenge Batteriekosten von [[r21_fa_kosten]] Milliarden Euro ab und legt selbst offen, dass es die [[r21_fa_annahmen|faktor]]-fache Kapazität der zitierten Studie ansetzt. Den Kostensatz von [[r21_fa_fremdwerte|eur_je_mwh]] Euro je Megawattstunde übernimmt R21 aus einer Studie, die wir nicht gelesen haben. Mit der Technik der Netzplanung, Wasserstoffturbinen und Kavernen, kostet die Absicherung grob [[h2_absicherung_dunkelflaute_inv|min]] bis [[h2_absicherung_dunkelflaute_inv|max]] Milliarden Euro Investition, ohne Elektrolyseure, und liegt damit weit unter R21s Batterierechnung. Teil 2 rechnet das nach. Grober Überschlag des Prüfers, keine eigene Modellrechnung. Fünf Tage sind nicht der schwerste Fall: Für Deutschland allein, ohne Austausch mit den Nachbarn, finden Kittel und Schill für den Winter 1995/96 eine Phase von [[dunkelflaute_insel_de|tage]] Tagen mit nur rund einem Drittel der üblichen Wind- und Solarerzeugung; für Europa als Ganzes [[dunkelflaute_insel_de|europa_tage]] Tage. Quelle ist ein mit KI erstelltes Transkript eines DIW-Podcasts; die Studie selbst haben wir nicht gelesen."
   },
   {
    "id": "GP5",
@@ -7662,8 +8345,9 @@
     "R12",
     "R12b"
    ],
-   "kurz": "R21 nennt rund [[r21_ets_minderung|factsheet_d]] Prozent Minderung seit 2005, die Kommission [[ets_minderung_seit_2005]] Prozent. Die ZEW-Zahl, auf die sich R21 stützt, gilt für die ganze EU und ohne vermiedene Klimaschäden; mehr auf der Belegseite.",
-   "lang": "Beim Emissionshandel stimmt R21s Zahl: R21 nennt eine Minderung um rund [[r21_ets_minderung|factsheet_d]] Prozent seit 2005, die Kommission [[ets_minderung_seit_2005]] Prozent bis 2024. R21 stützt sich auf ein Gutachten des ZEW: Fielen neben dem Emissionshandel die nationalen Zusatzmaßnahmen weg, sänken die Kosten der EU-Klimapolitik von 2028 bis 2048 um [[zew|hebel_national]] Milliarden Euro. Das ist ein Barwert für die ganze EU, gemessen als Konsumverlust, ohne vermiedene Klimaschäden. R21s zweite Angabe, [[r21_zew_zitat|factsheet_d]] Milliarden, steht so nicht in der Studie. Welchen Anteil der Emissionshandel selbst an der Minderung seit 2005 hat, ist umstritten. Einordnung nach unserer Recherche, keine Wirkungsanalyse."
+   "kurz": "R21 nennt rund [[r21_ets_minderung|factsheet_d]] Prozent Minderung seit 2005, die Kommission rund [[ets_minderung_seit_2005]] Prozent. Die ZEW-Zahl, auf die sich R21 stützt, rechnet R21s eigenen Vorschlag durch, Emissionshandel ohne nationale Zusatzmaßnahmen; sie gilt für die ganze EU und ohne vermiedene Klimaschäden. Mehr auf der Belegseite.",
+   "v3": "geändert (P7-A, Runde 2)",
+   "lang": "Beim Emissionshandel stimmt R21s Zahl: R21 nennt eine Minderung um rund [[r21_ets_minderung|factsheet_d]] Prozent seit 2005, die Kommission rund [[ets_minderung_seit_2005]] Prozent bis 2024. R21 stützt sich auf ein Gutachten des ZEW: Fielen neben dem Emissionshandel die nationalen Zusatzmaßnahmen weg, sänken die Kosten der EU-Klimapolitik von 2028 bis 2048 um [[zew|hebel_national]] Milliarden Euro. Das ist ein Barwert für die ganze EU, gemessen als Konsumverlust, ohne vermiedene Klimaschäden. R21s zweite Angabe, [[r21_zew_zitat|factsheet_d]] Milliarden, steht so nicht in der Studie. Welchen Anteil der Emissionshandel selbst an der Minderung seit 2005 hat, ist umstritten. Einordnung nach unserer Recherche, keine Wirkungsanalyse."
   },
   {
    "id": "GP6",
@@ -7683,10 +8367,12 @@
    "ueberschrift": "Die Referenz enthält oft schon Klimaschutz",
    "claims": [
     "O01",
-    "O11"
+    "O11",
+    "O11a"
    ],
-   "kurz": "Mehrere Studien rechnen gegen einen Vergleichspfad, der schon beschlossene Klimapolitik enthält; dann messen niedrige Mehrkosten nur den letzten Schritt. Die Studie mit der fossilsten Referenz kommt auf bis zu [[bipfest_ise2021_g3b|max]] Prozent des BIP; mehr auf der Belegseite.",
-   "lang": "Die Referenz enthält oft schon Klimaschutz: KfW 2021 rechnet gegen eine Referenz mit beschlossener Politik, Ariadne gegen „Existierende Politiken“. Prognos verzichtet 2026 auf ein Referenzszenario und vergleicht nur je Anlage mit fossiler Referenztechnik. Niedrige Mehrkosten messen dann nur den letzten Schritt zum Ziel. Die Studie mit der fossilsten Referenz, Fraunhofer ISE 2021, liefert die höchsten Mehrkosten: [[bipfest_ise2021_g3b|min]] bis [[bipfest_ise2021_g3b|max]] Prozent des BIP pro Jahr. Unsere Rechnung mit festem BIP 2024."
+   "kurz": "Mehrere Studien rechnen gegen einen Vergleichspfad, der schon beschlossene Klimapolitik enthält; dann messen niedrige Mehrkosten nur den letzten Schritt. Die Studie mit der fossilsten Referenz kommt auf bis zu [[bipfest_ise2021_g3b|max]] Prozent des BIP, ohne Umweltkosten; mit ihnen nennt sie deutlich weniger. Mehr auf der Belegseite.",
+   "v3": "geändert (P7-A, Runde 2)",
+   "lang": "Die Referenz enthält oft schon Klimaschutz: KfW 2021 rechnet gegen eine Referenz mit beschlossener Politik, Ariadne gegen „Existierende Politiken“. Prognos verzichtet 2026 auf ein Referenzszenario und vergleicht nur je Anlage mit fossiler Referenztechnik. Niedrige Mehrkosten messen dann nur den letzten Schritt zum Ziel. Die Studie mit der fossilsten Referenz, Fraunhofer ISE 2021, liefert die höchsten Mehrkosten: [[bipfest_ise2021_g3b|min]] bis [[bipfest_ise2021_g3b|max]] Prozent des BIP pro Jahr. Unsere Rechnung mit festem BIP 2024. Mit vermiedenen Umweltkosten nach den Kostensätzen des Umweltbundesamts nennt dieselbe Studie für den Zeitraum bis 2045 statt [[ise2021_mehraufwand|min]] bis [[ise2021_mehraufwand|max]] Billionen [[ise2021_mit_umweltkosten|min]] bis [[ise2021_mit_umweltkosten|max]] Milliarden Euro Mehraufwand (Klimakasten)."
   },
   {
    "id": "GP8",
@@ -7744,10 +8430,13 @@
     "E03",
     "E04",
     "E05",
-    "E06"
+    "E06",
+    "E07",
+    "E08"
    ],
-   "kurz": "Unsere Dossiers und die erste Freigabeliste lagen an mehreren Stellen falsch, zugunsten wie zulasten der Energiewende und von R21. Die vollständige Liste mit Richtung steht auf der Belegseite.",
-   "lang": "Unsere Vergleichsrechnung hatte den Wasserstoffspeicher nur für ein einzelnes Fünf-Tage-Ereignis ausgelegt; die zitierte Literatur braucht deutlich mehr. Die Absicherung kostet deshalb eher [[h2_absicherung_dunkelflaute_inv|min]] bis [[h2_absicherung_dunkelflaute_inv|max]] Milliarden Euro Investition, ohne Elektrolyseure, weiter weit unter R21s Batterierechnung. Grober Überschlag des Prüfers. Unser Dossier nannte nur das europäische Extremereignis; das längere Ereignis für Deutschland allein fehlte. Unser Stresstest „China liefert nicht“ hatte den Preisaufschlag zu hoch angesetzt: richtig sind [[stresstest_china_aufschlag_pct|min]], [[stresstest_china_aufschlag_pct|mid]] oder [[stresstest_china_aufschlag_pct|max]] Prozent der Anlagenkosten. Neuberechnung des Prüfers; Teil 4 rechnet nach. Unser Dossier hatte die Reaktivierung von Kernkraftwerken im mittleren Fall zu günstig angesetzt; der Prüfer hält [[kkw_reaktivierung_gw|mid]] Gigawatt für realistisch, ein Gutachten nennt bis zu [[kkw_reaktivierung_gw|max]] Gigawatt. Der mittlere Fall ist eine Setzung des Prüfers; das obere Ende kennen wir nur aus einer Parteiwiedergabe. Die Freigabe v1 war an tragenden Stellen selbst fehlerhaft: Sie gab R21s Kapitalstock-Argument verkürzt wieder, ließ R21s Systempreis, die Batterierechnung und das Engpassmanagement weg, deutete den neuen Netzplan als Kostensenkung und zeigte Unsicherheit nur nach oben. Die Korrekturen stehen in der Tabelle der eigenen Fehler. Die Prüfer haben fast keine falsch abgeschriebenen Zahlen gefunden; die Fehler lagen in Ableitungen, Zusammenfassungen und Weglassungen, in alle Richtungen."
+   "kurz": "Unsere Dossiers und beide bisherigen Freigabelisten lagen an mehreren Stellen falsch, zugunsten wie zulasten der Energiewende und von R21. Die vollständige Liste steht auf der Belegseite, je Zeile mit der Angabe, wem der alte Fehler geschadet hätte.",
+   "v3": "geändert (P7-A, Runde 2)",
+   "lang": "Unsere Vergleichsrechnung hatte den Wasserstoffspeicher nur für ein einzelnes Fünf-Tage-Ereignis ausgelegt; die zitierte Literatur braucht deutlich mehr. Die Absicherung kostet deshalb eher [[h2_absicherung_dunkelflaute_inv|min]] bis [[h2_absicherung_dunkelflaute_inv|max]] Milliarden Euro Investition, ohne Elektrolyseure, weiter weit unter R21s Batterierechnung. Grober Überschlag des Prüfers. Unser Dossier nannte nur das europäische Extremereignis; das längere Ereignis für Deutschland allein fehlte. Unser Stresstest „China liefert nicht“ hatte den Preisaufschlag zu hoch angesetzt: richtig sind [[stresstest_china_aufschlag_pct|min]], [[stresstest_china_aufschlag_pct|mid]] oder [[stresstest_china_aufschlag_pct|max]] Prozent der Anlagenkosten. Neuberechnung des Prüfers; Teil 4 rechnet nach. Unser Dossier hatte die Reaktivierung von Kernkraftwerken im mittleren Fall zu günstig angesetzt; der Prüfer hält [[kkw_reaktivierung_gw|mid]] Gigawatt für realistisch, ein Gutachten nennt bis zu [[kkw_reaktivierung_gw|max]] Gigawatt. Der mittlere Fall ist eine Setzung des Prüfers; das obere Ende kennen wir nur aus einer Parteiwiedergabe. Die Freigabe v1 war an tragenden Stellen selbst fehlerhaft: Sie gab R21s Kapitalstock-Argument verkürzt wieder, ließ R21s Systempreis, die Batterierechnung und das Engpassmanagement weg, deutete den neuen Netzplan als Kostensenkung und zeigte Unsicherheit nur nach oben. Die Korrekturen stehen in der Tabelle der eigenen Fehler. Die Prüfer haben fast keine falsch abgeschriebenen Zahlen gefunden; die Fehler lagen in Ableitungen, Zusammenfassungen und Weglassungen, in alle Richtungen. Die Tabelle der eigenen Fehler nennt je Zeile, wem der alte Fehler geschadet hätte, wäre er stehen geblieben; die Korrektur wirkt jeweils zugunsten dieser Seite. „Zulasten R21“ heißt also: Der alte Fehler hätte R21 geschadet, die Korrektur nützt R21. Auch die zweite Freigabeliste hatte Fehler, in beide Richtungen; fünf unabhängige Nachprüfungen haben sie gefunden, die Korrekturen stehen in derselben Tabelle."
   },
   {
    "id": "KK",
@@ -7760,9 +8449,10 @@
     "K04",
     "K05"
    ],
-   "kurz": "Schäden durch Extremwetter könnten Deutschland bis 2050 mindestens [[klimafolgen_de_2022_2050|min]] Milliarden Euro kosten, laut einer Studie, die wir nur aus einer Meldung kennen. Einzelne Kostenstudien rechnen vermiedene Schäden selbst gegen; das ist keine Aussage über den R21-Pfad, mehr auf der Belegseite.",
+   "kurz": "Schäden durch Extremwetter könnten Deutschland bis 2050 mindestens [[klimafolgen_de_2022_2050|min]] Milliarden Euro kosten, laut einer Studie, die wir nur aus einer Meldung kennen. Fraunhofer ISE 2021 rechnet vermiedene Umweltschäden selbst gegen und kommt dann statt auf [[ise2021_mehraufwand|min]] bis [[ise2021_mehraufwand|max]] Billionen auf [[ise2021_mit_umweltkosten|min]] bis [[ise2021_mit_umweltkosten|max]] Milliarden Euro Mehraufwand bis 2045. R21 will Klimaschutz über den Emissionshandel, macht das Weiterverfolgen des EU-Minderungspfads aber vom Mitziehen anderer Länder abhängig; mehr auf der Belegseite.",
    "hinweis_bau": "Ein Kasten, Vorbehalt sichtbar (Untergrenze, nicht addierbar); keine Überschrift mit „Nichtstun“; Platz nach GP12, nicht unter der Überschrift der Gegenpositionen GP7–GP11 (P085).",
-   "lang": "Schäden nur durch Extremwetter in Deutschland könnten von 2022 bis 2050 [[klimafolgen_de_2022_2050|min]] bis [[klimafolgen_de_2022_2050|max]] Milliarden Euro kosten, schätzt eine Studie von IÖW, Prognos und GWS; laut Bundestagsmeldung ist das eine Untergrenze. Die Studie selbst haben wir nicht gelesen; die Zahl kennen wir aus einer Meldung des Bundestags. Das Umweltbundesamt setzt für eine Tonne CO₂ im Jahr 2025 Klimakosten von [[uba_klimakosten_2025|zeitpraeferenz_1pct]] Euro an, bei Gleichgewichtung heutiger und künftiger Generationen [[uba_klimakosten_2025|zeitpraeferenz_0pct]] Euro; gemeint sind weltweite Schäden. Die Schäden in Deutschland und die Kostensätze je Tonne dürfen nicht addiert werden. Eine eigene Kosten-Nutzen-Rechnung macht Teil 1 nicht. Einzelne Studien rechnen die vermiedenen Schäden selbst gegen. Fraunhofer ISE 2021 kommt mit den Kostensätzen des Umweltbundesamts statt auf [[ise2021_mehraufwand|min]] bis [[ise2021_mehraufwand|max]] Billionen auf [[ise2021_mit_umweltkosten|min]] bis [[ise2021_mit_umweltkosten|max]] Milliarden Euro Mehraufwand bis 2045; Ariadne findet, dass der Nutzen vermiedener Klimaschäden die Kosten „deutlich“ überwiegt, mit [[ariadne_nutzen]] Prozent abgezinst. Das ist keine Aussage über den R21-Pfad. R21 will Klimaschutz über einen EU-weiten Emissionshandel erreichen („Ziel ist nicht weniger Klimaschutz“); wie viel Minderung dieser Pfad bringt, prüft Teil 6."
+   "v3": "geändert (P7-A, Runde 2)",
+   "lang": "Schäden nur durch Extremwetter in Deutschland könnten von 2022 bis 2050 [[klimafolgen_de_2022_2050|min]] bis [[klimafolgen_de_2022_2050|max]] Milliarden Euro kosten, schätzt eine Studie von IÖW, Prognos und GWS; laut Bundestagsmeldung ist das eine Untergrenze. Die Studie selbst haben wir nicht gelesen; die Zahl kennen wir aus einer Meldung des Bundestags. Das Umweltbundesamt setzt für eine Tonne CO₂ im Jahr 2025 Klimakosten von [[uba_klimakosten_2025|zeitpraeferenz_1pct]] Euro an, bei Gleichgewichtung heutiger und künftiger Generationen [[uba_klimakosten_2025|zeitpraeferenz_0pct]] Euro; gemeint sind weltweite Schäden. Die Schäden in Deutschland und die Kostensätze je Tonne dürfen nicht addiert werden. Eine eigene Kosten-Nutzen-Rechnung macht Teil 1 nicht. Einzelne Studien rechnen die vermiedenen Schäden selbst gegen. Fraunhofer ISE 2021 kommt mit den Kostensätzen des Umweltbundesamts statt auf [[ise2021_mehraufwand|min]] bis [[ise2021_mehraufwand|max]] Billionen auf [[ise2021_mit_umweltkosten|min]] bis [[ise2021_mit_umweltkosten|max]] Milliarden Euro Mehraufwand bis 2045; Ariadne findet, dass der Nutzen vermiedener Klimaschäden die Kosten „deutlich“ überwiegt, mit [[ariadne_nutzen]] Prozent abgezinst. Das ist keine Aussage über den R21-Pfad. R21 will Klimaschutz über einen EU-weiten Emissionshandel erreichen („Ziel ist nicht weniger Klimaschutz“). Im Haupttext schlägt R21 zugleich vor, die EU solle glaubwürdig androhen, ihren CO₂-Reduktionspfad nur dann weiterzuverfolgen, wenn andere Länder mitziehen; eine „Pause bei der Klimapolitik“ sei „allemal gerechtfertigt“, wenn andere Länder dadurch ihre Ausrichtung überdenken. R21 versteht das als Druckmittel („Zuckerbrot und Peitsche“). Wie viel Minderung dieser Pfad bringt, prüft Teil 6."
   }
  ],
  "studien": [
@@ -7793,6 +8483,8 @@
    "gelesen": true,
    "in_gruppenspanne": true,
    "gruppe_spanne": "brutto",
+   "original_gelesen": true,
+   "angabe_studie": null,
    "zahlen_erzeugt": {
     "pa": "pa_dihk_g1",
     "pa_wert": {
@@ -7830,7 +8522,15 @@
    "gelesen": true,
    "in_gruppenspanne": true,
    "gruppe_spanne": "brutto",
-   "bip_studie_text": "7–10 % (jährliche Ausgaben)",
+   "original_gelesen": true,
+   "angabe_studie": {
+    "zahl": "ise2024_bip_studie",
+    "min": "min",
+    "max": "max",
+    "text": "[[ise2024_bip_studie|min]] bis [[ise2024_bip_studie|max]] Prozent des BIP (jährliche Ausgaben)",
+    "bezug": "BIP laut Studie",
+    "zeichnen": true
+   },
    "zahlen_erzeugt": {
     "pa": "pa_ise2024_g1",
     "pa_wert": 410.0,
@@ -7864,7 +8564,15 @@
    "gelesen": true,
    "in_gruppenspanne": true,
    "gruppe_spanne": "brutto",
-   "bip_studie_text": "11 %",
+   "original_gelesen": true,
+   "angabe_studie": {
+    "zahl": "agora_bip_studie",
+    "min": "gesamt",
+    "max": "gesamt",
+    "text": "[[agora_bip_studie|gesamt]] Prozent des BIP",
+    "bezug": "BIP laut Studie",
+    "zeichnen": true
+   },
    "zahlen_erzeugt": {
     "pa": "agora_pa",
     "pa_wert": 540.0,
@@ -7898,6 +8606,8 @@
    "gelesen": true,
    "in_gruppenspanne": true,
    "gruppe_spanne": "brutto",
+   "original_gelesen": true,
+   "angabe_studie": null,
    "zahlen_erzeugt": {
     "pa": "kfw2026_ksi_brutto_pa",
     "pa_wert": {
@@ -7934,7 +8644,16 @@
    "gelesen": true,
    "in_gruppenspanne": true,
    "gruppe_spanne": "brutto",
-   "bip_studie_text": "5,2 % des damaligen BIP",
+   "original_gelesen": true,
+   "angabe_studie": {
+    "zahl": "kfw2021",
+    "min": "bip_studie",
+    "max": "bip_studie",
+    "text": "[[kfw2021|bip_studie]] Prozent des damaligen BIP",
+    "bezug": "BIP 2021 laut Fokus",
+    "zeichnen": true
+   },
+   "gelesen_umfang": "nur der KfW-Fokus Nr. 350 gelesen, nicht die zugrunde liegende Studie von Prognos, Nextra und NKI; die Zahlen stammen aus dem Fokus",
    "zahlen_erzeugt": {
     "pa": "kfw2021",
     "pa_wert": 191.0,
@@ -7945,7 +8664,7 @@
   {
    "id": "ariadne_g2",
    "studie": "Ariadne „Die Energiewende kosteneffizient gestalten“ (2025)",
-   "herausgeber": "Kopernikus-Projekt Ariadne, 27 Partner",
+   "herausgeber": "Kopernikus-Projekt Ariadne (Forschungsverbund)",
    "auftraggeber": "gefördert vom BMBF",
    "groesse": "G2",
    "systemgrenze": "nur Energiewende-Investitionen (Teilabgrenzung)",
@@ -7967,7 +8686,15 @@
    "fundstelle": "PDF-S. 6",
    "gelesen": true,
    "in_gruppenspanne": false,
-   "bip_studie_text": "etwa 3,5 % des BIP 2024",
+   "original_gelesen": true,
+   "angabe_studie": {
+    "zahl": "ariadne_bip_studie",
+    "min": null,
+    "max": null,
+    "text": "etwa [[ariadne_bip_studie]] Prozent des BIP 2024",
+    "bezug": "BIP 2024",
+    "zeichnen": true
+   },
    "zahlen_erzeugt": {
     "pa": "ariadne_investitionen_pa",
     "pa_wert": {
@@ -8004,7 +8731,15 @@
    "gelesen": true,
    "in_gruppenspanne": true,
    "gruppe_spanne": "g3a",
-   "bip_studie_text": "3 %",
+   "original_gelesen": true,
+   "angabe_studie": {
+    "zahl": "agora_bip_studie",
+    "min": "mehr",
+    "max": "mehr",
+    "text": "[[agora_bip_studie|mehr]] Prozent des BIP",
+    "bezug": "BIP laut Studie",
+    "zeichnen": true
+   },
    "zahlen_erzeugt": {
     "pa": "agora_pa",
     "pa_wert": 147.0,
@@ -8038,7 +8773,16 @@
    "gelesen": true,
    "in_gruppenspanne": true,
    "gruppe_spanne": "g3a",
-   "bip_studie_text": "14–16 % der Bruttoanlageinvestitionen",
+   "original_gelesen": true,
+   "angabe_studie": {
+    "zahl": "kfw2026_netto_anteil_bai",
+    "min": "min",
+    "max": "max",
+    "text": "[[kfw2026_netto_anteil_bai|min]] bis [[kfw2026_netto_anteil_bai|max]] Prozent der Bruttoanlageinvestitionen",
+    "bezug": "Bruttoanlageinvestitionen der Szenarien",
+    "zeichnen": false,
+    "grund_nicht_gezeichnet": "Anteil an den Bruttoanlageinvestitionen, nicht am BIP"
+   },
    "zahlen_erzeugt": {
     "pa": "kfw2026_netto_studie",
     "pa_wert": {
@@ -8074,7 +8818,15 @@
    "fundstelle": "Focus PDF-S. 1, 3",
    "gelesen": true,
    "in_gruppenspanne": false,
-   "bip_studie_text": "1,5 %",
+   "original_gelesen": true,
+   "angabe_studie": {
+    "zahl": "kfw2026_zuwachs_bip_studie",
+    "min": null,
+    "max": null,
+    "text": "[[kfw2026_zuwachs_bip_studie]] Prozent des BIP 2024",
+    "bezug": "BIP 2024",
+    "zeichnen": true
+   },
    "zahlen_erzeugt": {
     "pa": "kfw2026_zuwachs_pa",
     "pa_wert": 65.0,
@@ -8108,6 +8860,9 @@
    "gelesen": true,
    "in_gruppenspanne": true,
    "gruppe_spanne": "g3a",
+   "original_gelesen": true,
+   "angabe_studie": null,
+   "gelesen_umfang": "nur der KfW-Fokus Nr. 350 gelesen, nicht die zugrunde liegende Studie von Prognos, Nextra und NKI; die Zahlen stammen aus dem Fokus",
    "zahlen_erzeugt": {
     "pa": "kfw2021",
     "pa_wert": 72.0,
@@ -8128,7 +8883,7 @@
    },
    "preisbasis": "keine Angabe gefunden",
    "preisbasis_art": "keine Angabe",
-   "abgezinst": "nein für die Jahreswerte; Abwägung mit Klimaschäden mit 3 % abgezinst",
+   "abgezinst": "nein für die Jahreswerte; nur die Abwägung mit Klimaschäden ist abgezinst (siehe Lesehilfe)",
    "pro_jahr": {
     "zahl": "ariadne_mehrkosten_pa",
     "min": "min",
@@ -8141,6 +8896,8 @@
    "gelesen": true,
    "in_gruppenspanne": true,
    "gruppe_spanne": "g3b",
+   "original_gelesen": true,
+   "angabe_studie": null,
    "zahlen_erzeugt": {
     "pa": "ariadne_mehrkosten_pa",
     "pa_wert": {
@@ -8177,7 +8934,15 @@
    "gelesen": true,
    "in_gruppenspanne": true,
    "gruppe_spanne": "g3b",
-   "bip_studie_text": "1,2 % (Technologieoffen)",
+   "original_gelesen": true,
+   "angabe_studie": {
+    "zahl": "ise2024_differenz_bip_studie",
+    "min": null,
+    "max": null,
+    "text": "rund [[ise2024_differenz_bip_studie]] Prozent des heutigen BIP (mittleres Szenario „Technologieoffen“)",
+    "bezug": "heutiges BIP laut Studie",
+    "zeichnen": true
+   },
    "zahlen_erzeugt": {
     "pa": "ise2024_differenzkosten",
     "pa_wert": {
@@ -8215,7 +8980,15 @@
    "gelesen": true,
    "in_gruppenspanne": true,
    "gruppe_spanne": "g3b",
-   "bip_studie_text": "1 bis 3,0–3,5 % des BIP 2020 (BIP der Studie größer als laut Eurostat)",
+   "original_gelesen": true,
+   "angabe_studie": {
+    "zahl": "ise2021_bip_studie",
+    "min": "suffizienz",
+    "max": "max",
+    "text": "[[ise2021_bip_studie|suffizienz]] bis [[ise2021_bip_studie|max]] Prozent des BIP 2020 pro Jahr (BIP der Studie größer als laut Eurostat)",
+    "bezug": "BIP 2020 laut Studie",
+    "zeichnen": true
+   },
    "zahlen_erzeugt": {
     "pa": "pa_ise2021_g3b",
     "pa_wert": {
@@ -8252,7 +9025,16 @@
    "fundstelle": "Druckseite 3, 12",
    "gelesen": true,
    "in_gruppenspanne": false,
-   "bip_studie_text": "„Zwei- bis Dreifache“ des Jahres-BIP über zwanzig Jahre",
+   "original_gelesen": true,
+   "angabe_studie": {
+    "zahl": null,
+    "min": null,
+    "max": null,
+    "text": "„Zwei- bis Dreifache“ des Jahres-BIP über zwanzig Jahre",
+    "bezug": "Jahres-BIP",
+    "zeichnen": false,
+    "grund_nicht_gezeichnet": "kein Anteil pro Jahr, sondern ein Vielfaches des Jahres-BIP über zwanzig Jahre"
+   },
    "zahlen_erzeugt": {
     "pa": "pa_r21",
     "pa_wert": {
@@ -8290,6 +9072,9 @@
    "fundstelle": "WD 135/24 Fn. 6",
    "gelesen": false,
    "in_gruppenspanne": false,
+   "original_gelesen": false,
+   "angabe_studie": null,
+   "gelesen_umfang": "nicht gelesen; Zahlen nur aus der Kurzinformation und dem DIW",
    "zahlen_erzeugt": {
     "pa": "pa_pwc_2045",
     "pa_wert": 633.0,
@@ -8324,6 +9109,9 @@
    "fundstelle": "DIW S. 618",
    "gelesen": false,
    "in_gruppenspanne": false,
+   "original_gelesen": false,
+   "angabe_studie": null,
+   "gelesen_umfang": "nicht gelesen; Zahlen nur aus der Kurzinformation und dem DIW",
    "zahlen_erzeugt": {
     "pa": "pa_pwc_2050",
     "pa_wert": 512.0,
@@ -8723,6 +9511,24 @@
    "abruf": "2026-11-22",
    "datei": "quellen/raw/P2-02/uba_klimakosten_2026-07-06.pdf"
   },
+  "uba_thg_seite": {
+   "titel": "Treibhausgas-Emissionen (Themenseite), Abschnitt 5 Bundes-Klimaschutzgesetz",
+   "herausgeber": "Umweltbundesamt",
+   "datum": "2026-08-31 (zuletzt aktualisiert)",
+   "auftraggeber": "–",
+   "art": "Primärquelle; für den Gesetzestext Zweitquelle",
+   "url": "https://www.umweltbundesamt.de/themen/klima-energie/treibhausgas-emissionen",
+   "abruf": "2026-11-22",
+   "datei": "quellen/raw/P1-04/uba_thg.html"
+  },
+  "ksg_gesetzestext": {
+   "titel": "Bundes-Klimaschutzgesetz (KSG), § 3",
+   "herausgeber": "Bundesrepublik Deutschland",
+   "datum": "Fassung 2024",
+   "auftraggeber": "–",
+   "art": "nicht gelesen",
+   "ohne_url_grund": "gesetze-im-internet.de ist für die Agenten nicht freigegeben, nicht umgangen"
+  },
   "hib_411_2024": {
    "titel": "hib 411/2024: Kosten durch Klimawandelfolgen",
    "herausgeber": "Deutscher Bundestag (heute im bundestag)",
@@ -8758,6 +9564,22 @@
    "auftraggeber": "–",
    "art": "nicht gelesen",
    "ohne_url_grund": "Studie nicht abgerufen; nur das Podcast-Transkript gelesen (Teil 2 liest das Original)"
+  },
+  "bischof_rbid_2026": {
+   "titel": "RBID-Studie zu Batteriespeichern (Bischof 2026)",
+   "herausgeber": "Bischof (laut R21)",
+   "datum": "2026",
+   "auftraggeber": "unbekannt",
+   "art": "nicht gelesen",
+   "ohne_url_grund": "nicht abgerufen; nur R21s Angabe in Factsheet A-1"
+  },
+  "diw_mcc_2020": {
+   "titel": "DIW-MCC-Studie zur Dauer von Dunkelflauten (2020, laut R21)",
+   "herausgeber": "DIW Berlin und MCC (laut R21)",
+   "datum": "2020",
+   "auftraggeber": "unbekannt",
+   "art": "nicht gelesen",
+   "ohne_url_grund": "nicht abgerufen; nur R21s Angabe in Factsheet A-1"
   },
   "wendland_2026": {
    "titel": "Energiereform mit Kernenergie für Deutschland (Diskussionspapier)",
@@ -8918,6 +9740,42 @@
    "auftraggeber": "kein Auftraggeber",
    "art": "eigenes Dokument",
    "datei": "energiewende/agents/PROTOKOLL.md",
+   "ohne_url_grund": "eigenes Dokument im Repository, keine externe URL"
+  },
+  "reviews_runde2": {
+   "titel": "Nachprüfung Teil 1, Runde 2: Berichte 21 bis 25",
+   "herausgeber": "Daten-WG Knowledge Kitchen (Agenten P6-E)",
+   "datum": "2026-11-23",
+   "auftraggeber": "kein Auftraggeber",
+   "art": "eigenes Dokument",
+   "datei": "energiewende/research/reviews_teil1/runde2/",
+   "ohne_url_grund": "eigenes Dokument im Repository, keine externe URL"
+  },
+  "messlatte_doc": {
+   "titel": "Messlatte · Woran wir Studien und uns selbst messen (v1.1)",
+   "herausgeber": "Daten-WG Knowledge Kitchen",
+   "datum": "2026-11-23",
+   "auftraggeber": "kein Auftraggeber",
+   "art": "eigenes Dokument",
+   "datei": "energiewende/docs/01_messlatte.md",
+   "ohne_url_grund": "eigenes Dokument im Repository, keine externe URL"
+  },
+  "transparenz_richtlinien": {
+   "titel": "Transparenz-Richtlinien (Entwurf v0.2)",
+   "herausgeber": "Daten-WG Knowledge Kitchen",
+   "datum": "2026-11-23",
+   "auftraggeber": "kein Auftraggeber",
+   "art": "eigenes Dokument",
+   "datei": "energiewende/TRANSPARENZ.md",
+   "ohne_url_grund": "eigenes Dokument im Repository, keine externe URL"
+  },
+  "energiewende_readme": {
+   "titel": "README der Energiewende-Reihe (Prämissen und Entscheidungen)",
+   "herausgeber": "Daten-WG Knowledge Kitchen",
+   "datum": "fortlaufend",
+   "auftraggeber": "kein Auftraggeber",
+   "art": "eigenes Dokument",
+   "datei": "energiewende/README.md",
    "ohne_url_grund": "eigenes Dokument im Repository, keine externe URL"
   },
   "eigene_rechnung": {
@@ -9241,8 +10099,9 @@
    "id": "KE01",
    "wo": "Dossier 02",
    "alt": "Beharrung kostet 30–100 % mehr",
-   "neu": "16–235 % (O02)",
+   "neu": "[[beharrung_aufschlag_pct|spanne]] Prozent (O02)",
    "richtung": "zugunsten der Energiewende",
+   "geschadet_haette": "R21",
    "beleg": "Prüfbericht 02 Nr. 24",
    "punkt": null
   },
@@ -9250,8 +10109,9 @@
    "id": "KE02",
    "wo": "Dossier 02",
    "alt": "Mehrkosten 0,4–1,9 % BIP, ISE 2021 als „Ausreißer“",
-   "neu": "0,4–2,9 %, ISE 2021 als Studie mit der fossilsten Referenz (G03, O11)",
+   "neu": "[[spanne_g3b_fest|spanne]] Prozent des BIP, ISE 2021 als Studie mit der fossilsten Referenz (G03, O11)",
    "richtung": "zugunsten der Energiewende",
+   "geschadet_haette": "R21",
    "beleg": "Prüfbericht 02 Nr. 6, 9",
    "punkt": null
   },
@@ -9259,8 +10119,9 @@
    "id": "KE03",
    "wo": "Dossier 05",
    "alt": "Wasserstoffspeicher nur für ein Ereignis, Absicherung 38–111 Mrd. €",
-   "neu": "grob 90–150 Mrd. € ohne Elektrolyseure (E01)",
+   "neu": "grob [[h2_absicherung_dunkelflaute_inv|spanne]] Milliarden Euro ohne Elektrolyseure, Setzung des Prüfers (E01)",
    "richtung": "zugunsten der Energiewende",
+   "geschadet_haette": "R21",
    "beleg": "Prüfbericht 05 Abschn. 3.1",
    "punkt": null
   },
@@ -9268,8 +10129,9 @@
    "id": "KE04",
    "wo": "Dossier 05",
    "alt": "nur das europäische Extremereignis (55 Tage)",
-   "neu": "dazu 109 Tage für Deutschland allein, mit Einschränkungen (R09c)",
+   "neu": "dazu [[dunkelflaute_insel_de|tage]] Tage für Deutschland allein, ohne Austausch mit den Nachbarn und mit rund einem Drittel der üblichen Wind- und Solarerzeugung; nur aus einem Podcast-Transkript, die Studie haben wir nicht gelesen (R09c)",
    "richtung": "zugunsten der Energiewende",
+   "geschadet_haette": "R21",
    "beleg": "Prüfbericht 05 Abschn. 3.3",
    "punkt": null
   },
@@ -9277,8 +10139,9 @@
    "id": "KE05",
    "wo": "Dossier 07",
    "alt": "Stresstest-Aufschlag +7,5 / +27 / +57 %",
-   "neu": "+3 / +10 / +22 % (E03)",
+   "neu": "[[stresstest_china_aufschlag_pct|min]], [[stresstest_china_aufschlag_pct|mid]] oder [[stresstest_china_aufschlag_pct|max]] Prozent der Anlagenkosten (E03)",
    "richtung": "zulasten der Energiewende",
+   "geschadet_haette": "der Energiewende",
    "beleg": "Prüfbericht 07 Urteil Nr. 2",
    "punkt": null
   },
@@ -9288,6 +10151,7 @@
    "alt": "ETS-Werte 40/51/47 % als „Widerspruch“",
    "neu": "uneinheitlich, kein Widerspruch (R11)",
    "richtung": "zulasten R21",
+   "geschadet_haette": "R21",
    "beleg": "Prüfbericht 01 Abschn. 3.4",
    "punkt": null
   },
@@ -9297,6 +10161,7 @@
    "alt": "R21 widerspreche beim Monitoring-Bericht seiner Quelle",
    "neu": "verworfen (F10)",
    "richtung": "zulasten R21",
+   "geschadet_haette": "R21",
    "beleg": "Prüfbericht 01 Abschn. 3.3",
    "punkt": null
   },
@@ -9304,8 +10169,9 @@
    "id": "KE08",
    "wo": "Dossier 09",
    "alt": "Reaktivierung im Mittel 4,1 GW",
-   "neu": "2,7 GW als Setzung des Prüfers (E04)",
+   "neu": "[[kkw_reaktivierung_gw|mid]] Gigawatt als Setzung des Prüfers (E04)",
    "richtung": "zugunsten R21",
+   "geschadet_haette": "der Energiewende",
    "beleg": "Prüfbericht 09 Abschn. 3",
    "punkt": null
   },
@@ -9315,6 +10181,7 @@
    "alt": "Kurzinformation „verlangt ausdrücklich“ den Vergleich",
    "neu": "„referiert“ (F06)",
    "richtung": "zulasten R21",
+   "geschadet_haette": "R21",
    "beleg": "WD 135/24 S. 5",
    "punkt": null
   },
@@ -9324,6 +10191,7 @@
    "alt": "R21 behandle die Summe als reinen Verlust; „Dass mit dem Geld auch etwas gebaut wird, kommt nicht vor“",
    "neu": "Kapitalstock „um, nicht auf“ richtig wiedergegeben, Gegenargument daneben (S08, S09)",
    "richtung": "zulasten R21",
+   "geschadet_haette": "R21",
    "beleg": "R21 Druckseite 9–10",
    "punkt": "P003"
   },
@@ -9331,8 +10199,9 @@
    "id": "KE11",
    "wo": "Freigabe v1 V01/V05 und Story Akt 5/1",
    "alt": "„R21 beziffert den eigenen Kurs nicht; seine Zahlen decken nur Kraftwerke ab“",
-   "neu": "Systempreis 8,2 ct/kWh und Vergleichswert aufgenommen; „Summen“ statt „Zahlen“ (V05, V05a, V05b)",
+   "neu": "Systempreis [[r21_systempreis]] Cent je Kilowattstunde und Vergleichswert aufgenommen; „Summen“ statt „Zahlen“ (V05, V05a, V05b)",
    "richtung": "zulasten R21",
+   "geschadet_haette": "R21",
    "beleg": "R21 Factsheet B-2; Wendland PDF-S. 16",
    "punkt": "P004"
   },
@@ -9342,6 +10211,7 @@
    "alt": "„Spanne gebauter westlicher Projekte“",
    "neu": "Kostenansätze westlicher Neubauprojekte, geplant oder im Bau, gemischte Abgrenzung (V03)",
    "richtung": "zulasten R21",
+   "geschadet_haette": "R21",
    "beleg": "kosten_kernkraft.md Abschn. 7.1",
    "punkt": "P002"
   },
@@ -9351,6 +10221,7 @@
    "alt": "R21s Batterierechnung (1,4 Bio. €) fehlte; eigene Korrektur ohne den Schluss",
    "neu": "R09a, R09b, E01 mit Schluss und Einschränkung",
    "richtung": "zulasten der Energiewende",
+   "geschadet_haette": "der Energiewende",
    "beleg": "R21 Factsheet A-1; Prüfbericht 05",
    "punkt": "P005"
   },
@@ -9360,6 +10231,7 @@
    "alt": "Unsicherheit nur nach oben, Pfeile nach oben offen",
    "neu": "beide Richtungen mit Belegen (O04, O08, O09)",
    "richtung": "zulasten der Energiewende",
+   "geschadet_haette": "der Energiewende",
    "beleg": "KfW-Fokus 555; Photovoltaics Report; ISE 2024",
    "punkt": "P006"
   },
@@ -9369,6 +10241,7 @@
    "alt": "Abstand „älter als die Krise und zuletzt kleiner geworden“",
    "neu": "nach Band und Steuern getrennt (R06a)",
    "richtung": "zulasten R21",
+   "geschadet_haette": "R21",
    "beleg": "Eurostat nrg_pc_205, nachgerechnet",
    "punkt": "P008"
   },
@@ -9378,6 +10251,7 @@
    "alt": "„Der NEP 2025 senkt das wieder auf 364–392 Mrd. €“",
    "neu": "anderer Umfang, nicht gesunkene Preise; Entwurf (N09)",
    "richtung": "zugunsten der Energiewende",
+   "geschadet_haette": "R21",
    "beleg": "NEP kompakt PDF-S. 11–12",
    "punkt": "P009"
   },
@@ -9387,6 +10261,7 @@
    "alt": "„2.100 Mrd. sind bei der DIHK die Systemkosten von zehn Jahren“ ohne Vorbehalt",
    "neu": "mit Vorbehalt der Zuordnung (N03)",
    "richtung": "zulasten R21",
+   "geschadet_haette": "R21",
    "beleg": "DIHK S. 8, 27",
    "punkt": "P012"
   },
@@ -9396,6 +10271,7 @@
    "alt": "die unscharfe Bezeichnung nur R21 angelastet",
    "neu": "beginnt schon in der Kurzinformation (F11)",
    "richtung": "zulasten R21",
+   "geschadet_haette": "R21",
    "beleg": "WD 135/24 S. 2",
    "punkt": "P020"
   },
@@ -9403,8 +10279,9 @@
    "id": "KE19",
    "wo": "Freigabe v1 R12, Datensatz",
    "alt": "ZEW als Spanne 824–1.071, „höher als bei R21“; 20,4 % der 1.071 zugeordnet",
-   "neu": "824 aus der Studie mit Hinweis auf deren Uneinheitlichkeit (R12, R12a)",
+   "neu": "[[zew|hebel_national]] Milliarden aus der Studie mit Hinweis auf deren Uneinheitlichkeit (R12, R12a)",
    "richtung": "ohne Richtung",
+   "geschadet_haette": "keiner Seite",
    "beleg": "ZEW PDF-S. 3, 15",
    "punkt": "P021"
   },
@@ -9414,6 +10291,7 @@
    "alt": "EEG-Konto unter „Mehrkosten zu optimistisch“; „sieht man auf keiner Stromrechnung“",
    "neu": "Verteilung, keine Zusatzkosten (O06)",
    "richtung": "zulasten der Energiewende",
+   "geschadet_haette": "der Energiewende",
    "beleg": "Drucksache 20/14522",
    "punkt": "P022"
   },
@@ -9423,6 +10301,7 @@
    "alt": "39 Zahlen, nur 37 eingeordnet; Fn. 5 „einzige externe Fundstelle“",
    "neu": "alle fünf Kategorien, Titel im Text genannt (S07)",
    "richtung": "zulasten R21",
+   "geschadet_haette": "R21",
    "beleg": "Dossier 01 Zählung",
    "punkt": "P023"
   },
@@ -9432,6 +10311,7 @@
    "alt": "Abweichung „einige Zehntel Prozentpunkte“",
    "neu": "bis gut ein Prozentpunkt; zweite Rechnung mit wachsendem BIP (L01, L02, G04)",
    "richtung": "zulasten R21",
+   "geschadet_haette": "R21",
    "beleg": "Studienangaben; Eurostat",
    "punkt": "P024"
   },
@@ -9441,6 +10321,7 @@
    "alt": "Überschrift „Der Bundesrechnungshof widerspricht dem Bild billiger Erneuerbarer“",
    "neu": "„Gestehungskosten zeigen nicht die ganzen Kosten“ (R15)",
    "richtung": "zulasten der Energiewende",
+   "geschadet_haette": "der Energiewende",
    "beleg": "Drucksache 20/10585 PDF-S. 9",
    "punkt": "P028"
   },
@@ -9450,6 +10331,7 @@
    "alt": "Reaktivierung 2,7 GW und erster Block 2040–2056 als „B · gelesen“",
    "neu": "Setzung (M), R21s eigene Angaben daneben (V04, V04a)",
    "richtung": "zulasten R21",
+   "geschadet_haette": "R21",
    "beleg": "Dossier 09; Prüfbericht 09",
    "punkt": "P030, P046"
   },
@@ -9459,6 +10341,7 @@
    "alt": "Einschränkung „Hochlauf gleicht eher dem Beharrungs-Szenario“ ohne Beleg",
    "neu": "verworfen (O10); echte Einschränkung in O02",
    "richtung": "zulasten der Energiewende",
+   "geschadet_haette": "der Energiewende",
    "beleg": "Freigabe v1 Abschn. 5",
    "punkt": "P032"
   },
@@ -9468,6 +10351,7 @@
    "alt": "Antwort der Bundesregierung nur zur Hälfte wiedergegeben",
    "neu": "vermiedene Klimaschäden und Abhängigkeit ergänzt (G10)",
    "richtung": "zulasten der Energiewende",
+   "geschadet_haette": "der Energiewende",
    "beleg": "Drucksache 21/903 S. 2",
    "punkt": "P039"
   },
@@ -9477,6 +10361,7 @@
    "alt": "Engpassmanagement fehlte, obwohl R21 dort recht hat",
    "neu": "N12 und GP6",
    "richtung": "zulasten R21",
+   "geschadet_haette": "R21",
    "beleg": "SMARD 30.03.2026",
    "punkt": "P040"
   },
@@ -9486,6 +10371,7 @@
    "alt": "Kernkraft-Gegenposition (Asien) und R21s 310 im eigenen Referenzpapier fehlten",
    "neu": "V02, V03a",
    "richtung": "zulasten R21",
+   "geschadet_haette": "R21",
    "beleg": "kosten_kernkraft.md; Wendland PDF-S. 4",
    "punkt": "P044, P045"
   },
@@ -9495,6 +10381,7 @@
    "alt": "„keine der Studien quantifiziert“ Wohlfahrtseffekte",
    "neu": "ZEW beziffert sie für die EU (R12c, L06)",
    "richtung": "zulasten R21",
+   "geschadet_haette": "R21",
    "beleg": "ZEW PDF-S. 3",
    "punkt": "P059"
   },
@@ -9504,6 +10391,7 @@
    "alt": "KfW-Netto-Mehrinvestitionen unter „Mehrkosten“; Grafik „Mehrkosten“ mit G3a-Zeilen",
    "neu": "G3a und G3b getrennt in Text und Grafik (G03, Schritt 5.2)",
    "richtung": "zugunsten der Energiewende",
+   "geschadet_haette": "R21",
    "beleg": "Freigabe v1 Abschn. 8",
    "punkt": "P001"
   },
@@ -9513,6 +10401,7 @@
    "alt": "„verzichtet ganz auf eine Referenz“",
    "neu": "verzichtet auf ein Referenzszenario, vergleicht je Anlage (O01)",
    "richtung": "ohne Richtung",
+   "geschadet_haette": "keiner Seite",
    "beleg": "Prognos S. 14",
    "punkt": "P057"
   },
@@ -9522,6 +10411,7 @@
    "alt": "Stufe A für elf Einzelzitate",
    "neu": "zwei Abzeichen; keine Zahl mehr auf Stufe A",
    "richtung": "ohne Richtung",
+   "geschadet_haette": "keiner Seite",
    "beleg": "TRANSPARENZ Abschn. 2",
    "punkt": "P019"
   },
@@ -9531,6 +10421,7 @@
    "alt": "Klimafolgen 280–900 Mrd. € mit Konfidenz B, nur über eine Meldung bekannt",
    "neu": "C, Vorbehalt (K01)",
    "richtung": "zugunsten der Energiewende",
+   "geschadet_haette": "R21",
    "beleg": "Regel Zweitquellen",
    "punkt": "P053"
   },
@@ -9540,6 +10431,7 @@
    "alt": "Nutzenseite derselben Studien fehlte",
    "neu": "K04",
    "richtung": "zulasten der Energiewende",
+   "geschadet_haette": "der Energiewende",
    "beleg": "ISE 2021 PDF-S. 42; Ariadne PDF-S. 9",
    "punkt": "P010"
   },
@@ -9549,6 +10441,7 @@
    "alt": "Netzentgelte nie beziffert",
    "neu": "N13, N14, L07",
    "richtung": "zugunsten der Energiewende",
+   "geschadet_haette": "R21",
    "beleg": "ef.Ruhr/EWI; Eurostat; Drucksache 20/10585",
    "punkt": "P029"
   },
@@ -9558,6 +10451,7 @@
    "alt": "R21s Netzargument und Hauptargumente nicht als ungeprüft benannt",
    "neu": "N11, R17",
    "richtung": "zulasten R21",
+   "geschadet_haette": "R21",
    "beleg": "R21 Druckseite 3–4, 9–10",
    "punkt": "P042, P047"
   },
@@ -9567,6 +10461,7 @@
    "alt": "Dramaturgie hing an 13,3 statt 13,8; R21s Zugeständnis fehlte",
    "neu": "F12, S10",
    "richtung": "zulasten R21",
+   "geschadet_haette": "R21",
    "beleg": "WD 135/24; R21 Druckseite 12",
    "punkt": "P048, P089"
   },
@@ -9574,8 +10469,9 @@
    "id": "KE38",
    "wo": "Freigabe v1 V09, R08",
    "alt": "„netto 130 bis 153“ und „R21 rechnet mit 7,1 TWh“ standen so in keinem Dokument",
-   "neu": "getrennte Angaben (V09); „rund 7 TWh“ (R08)",
+   "neu": "getrennte Angaben (V09); „rund [[r21_fa_annahmen|kapazitaet_twh]] TWh“ (R08)",
    "richtung": "ohne Richtung",
+   "geschadet_haette": "keiner Seite",
    "beleg": "Prognos; Focus 561; R21 Z. 289",
    "punkt": "P122, P123"
   },
@@ -9585,6 +10481,7 @@
    "alt": "Mehrinvestitionen 1,5–3,5 % mit dem KfW-Zuwachs als Untergrenze",
    "neu": "G3a ohne den Zuwachs; der Zuwachs als eigene Zeile",
    "richtung": "ohne Richtung",
+   "geschadet_haette": "keiner Seite",
    "beleg": "Focus 561",
    "punkt": "P001"
   },
@@ -9594,6 +10491,7 @@
    "alt": "Frankreich als Gegenbeispiel und der Preisverfall bei Modulen fehlten",
    "neu": "R05, R02",
    "richtung": "zulasten der Energiewende",
+   "geschadet_haette": "der Energiewende",
    "beleg": "Eurostat; Comext",
    "punkt": "P103, P096"
   },
@@ -9603,6 +10501,7 @@
    "alt": "„keine lässt sich … aufrechnen“",
    "neu": "K03, K04",
    "richtung": "zulasten der Energiewende",
+   "geschadet_haette": "der Energiewende",
    "beleg": "ISE 2021; Ariadne",
    "punkt": "P007"
   },
@@ -9612,6 +10511,7 @@
    "alt": "ISE 2021 rechne mit einem niedrigeren BIP",
    "neu": "mit dem höheren (O07)",
    "richtung": "ohne Richtung",
+   "geschadet_haette": "keiner Seite",
    "beleg": "ISE 2021 PDF-S. 42",
    "punkt": "P014"
   },
@@ -9621,8 +10521,295 @@
    "alt": "„Keine Zahl auf dieser Seite ist von Hand eingetippt“",
    "neu": "nur mit Prüfskript (P05)",
    "richtung": "ohne Richtung",
+   "geschadet_haette": "keiner Seite",
    "beleg": "TRANSPARENZ Abschn. 4",
    "punkt": "P034"
+  },
+  {
+   "id": "KE44",
+   "wo": "Freigabe v2 V14, beide Seiten",
+   "alt": "„Das Geld liegt im Wie der Energiewende, nicht in ihrem Abbruch“",
+   "neu": "was DIHK/Frontier und ZEW rechnen, mit Geltungsbereich; das ZEW rechnet R21s eigenen Vorschlag (V14)",
+   "richtung": "zulasten R21",
+   "geschadet_haette": "R21",
+   "beleg": "Berichte 23 K1, 25 M3; DIHK PDF-S. 12; ZEW PDF-S. 3",
+   "punkt": null,
+   "runde": 2
+  },
+  {
+   "id": "KE45",
+   "wo": "Freigabe v2 V04, Grafik Akt 5/1",
+   "alt": "„auch nach R21s eigener Bauzeit nicht erreichbar“; R21s Jahr in der Liste „Erster Neubau am Netz“",
+   "neu": "R21s Bauzeit gilt naheliegend für das ganze Programm; unser Einwand stützt sich auf Erfahrungswerte und ist eine Setzung (V04)",
+   "richtung": "zulasten R21",
+   "geschadet_haette": "R21",
+   "beleg": "Bericht 23 K2; R21 Factsheet B-3 (Z. 505–509)",
+   "punkt": null,
+   "runde": 2
+  },
+  {
+   "id": "KE46",
+   "wo": "Freigabe v2 S09, beide Seiten",
+   "alt": "„Für die Mehrkosten trifft R21s Argument dagegen zu.“",
+   "neu": "im engen Sinn, mit dem Gegenwert: geringere Emissionen und geringere Importabhängigkeit (S09)",
+   "richtung": "zugunsten R21",
+   "geschadet_haette": "der Energiewende",
+   "beleg": "Berichte 23 M1, 24 K3; Drucksache 21/903 S. 2",
+   "punkt": null,
+   "runde": 2
+  },
+  {
+   "id": "KE47",
+   "wo": "Freigabe v2 B02 (Vorspann)",
+   "alt": "R21s Spanne nur neben Mehrkosten und Mehrinvestitionen",
+   "neu": "zuerst neben der Brutto-Spanne der Studien, dann Mehrkosten und Mehrinvestitionen (B02)",
+   "richtung": "zulasten R21",
+   "geschadet_haette": "R21",
+   "beleg": "Bericht 23 K4",
+   "punkt": null,
+   "runde": 2
+  },
+  {
+   "id": "KE48",
+   "wo": "Freigabe v2 K05, Klimakasten",
+   "alt": "R21s Klimaposition nur mit „Ziel ist nicht weniger Klimaschutz“",
+   "neu": "mit der Bindung an das Mitziehen anderer Länder und der erwogenen „Pause“ (K05)",
+   "richtung": "zugunsten R21",
+   "geschadet_haette": "der Energiewende",
+   "beleg": "Bericht 24 K2; R21 Druckseite 21",
+   "punkt": null,
+   "runde": 2
+  },
+  {
+   "id": "KE49",
+   "wo": "Freigabe v2 R17, beide Seiten",
+   "alt": "„Sie tragen das Papier auch ohne die Billionen-Zahl.“",
+   "neu": "„Das Papier stützt sich auch auf sie“ (R17)",
+   "richtung": "zugunsten R21",
+   "geschadet_haette": "der Energiewende",
+   "beleg": "Bericht 24 M6",
+   "punkt": null,
+   "runde": 2
+  },
+  {
+   "id": "KE50",
+   "wo": "Freigabe v2 F07 und Grafik Akt 2/2",
+   "alt": "R21s Untergrenze mit dem Abzeichen „Setzung (M)“",
+   "neu": "R21s Zahl mit ihren eigenen Abzeichen, unsere Herleitung als eigene Zahl mit Setzung (F07)",
+   "richtung": "ohne Richtung",
+   "geschadet_haette": "keiner Seite",
+   "beleg": "Berichte 23 k1, 25 M1",
+   "punkt": null,
+   "runde": 2
+  },
+  {
+   "id": "KE51",
+   "wo": "Freigabe v1 und v2 F03",
+   "alt": "„Eine Spanne steht dort auch nicht“",
+   "neu": "„zwischen … oder“ legt eine Spanne nahe; rechnerisch passen die Werte nicht zusammen (F03)",
+   "richtung": "zulasten R21",
+   "geschadet_haette": "R21",
+   "beleg": "Bericht 23 M2; WD 135/24 S. 2",
+   "punkt": null,
+   "runde": 2
+  },
+  {
+   "id": "KE52",
+   "wo": "Freigabe v2, beide Seiten",
+   "alt": "Prämissen nur im README, nicht auf der Seite",
+   "neu": "Prämissen und gesetzliche Klimaziele als Aussagen vor der ersten Zahl (PR1, PR2, PR3, PR4)",
+   "richtung": "zugunsten R21",
+   "geschadet_haette": "der Energiewende",
+   "beleg": "Bericht 24 K1; TRANSPARENZ Abschn. 1",
+   "punkt": null,
+   "runde": 2
+  },
+  {
+   "id": "KE53",
+   "wo": "Freigabe v2, Datensatz",
+   "alt": "R21s Kostensatz je Megawattstunde, Bischofs Werte und die fünf Tage mit Wert B",
+   "neu": "Wert C, weil R21 sie aus Studien übernimmt, die wir nicht gelesen haben (R09a)",
+   "richtung": "zugunsten R21",
+   "geschadet_haette": "der Energiewende",
+   "beleg": "Bericht 24 k1; TRANSPARENZ Abschn. 2",
+   "punkt": null,
+   "runde": 2
+  },
+  {
+   "id": "KE54",
+   "wo": "Freigabe v2, Datensatz",
+   "alt": "Kernkraftanteil des Reform-Systems als „Behauptung“, der Systempreis derselben Simulation als C",
+   "neu": "beide C, die Simulation ist nicht gelesen (V05a)",
+   "richtung": "zulasten R21",
+   "geschadet_haette": "R21",
+   "beleg": "Bericht 23 k2; R21 Factsheet B-2",
+   "punkt": null,
+   "runde": 2
+  },
+  {
+   "id": "KE55",
+   "wo": "Freigabe v2, beide Seiten",
+   "alt": "Spalte „Richtung“ ohne Erklärung, als Richtung der Korrektur lesbar",
+   "neu": "Spalte „Wem der alte Fehler geschadet hätte“ mit Erklärsatz (E07)",
+   "richtung": "ohne Richtung",
+   "geschadet_haette": "keiner Seite",
+   "beleg": "Berichte 23 K3, 24 k2",
+   "punkt": null,
+   "runde": 2
+  },
+  {
+   "id": "KE56",
+   "wo": "Belegseite, Studiengrafik (Bau)",
+   "alt": "„kein BIP-Anteil, nicht gezeichnet“ bei ISE 2021",
+   "neu": "Angabe der Studie als Zahl mit Spanne im Feld angabe_studie (Studientabelle)",
+   "richtung": "ohne Richtung",
+   "geschadet_haette": "keiner Seite",
+   "beleg": "Bericht 21 M1; ISE 2021 PDF-S. 8",
+   "punkt": null,
+   "runde": 2
+  },
+  {
+   "id": "KE57",
+   "wo": "Freigabe v2, beide Seiten",
+   "alt": "Zahlen in den Spalten „Was jetzt gilt“ und „Angabe der Studie“ ohne Zahl-ID und ohne Abzeichen",
+   "neu": "über Zahl-IDs mit Abzeichen; die Tage der Dunkelflaute mit Konfidenz C und der Resterzeugung (KE04)",
+   "richtung": "ohne Richtung",
+   "geschadet_haette": "keiner Seite",
+   "beleg": "Bericht 21 M2",
+   "punkt": null,
+   "runde": 2
+  },
+  {
+   "id": "KE58",
+   "wo": "Freigabe v2, Datensatz",
+   "alt": "Wendland PDF-S. 10 für Reaktivierung und Olkiluoto-3",
+   "neu": "richtige Seitenangabe des Referenzpapiers in den Fundstellen (V03b, V04a)",
+   "richtung": "ohne Richtung",
+   "geschadet_haette": "keiner Seite",
+   "beleg": "Bericht 25, Stichprobe K3",
+   "punkt": null,
+   "runde": 2
+  },
+  {
+   "id": "KE59",
+   "wo": "Freigabe v2 Schritt 2.4",
+   "alt": "„noch leer; Akt 5 nimmt die Waage wieder auf (P120)“",
+   "neu": "„noch leer; beide Schalen füllt Teil 6“",
+   "richtung": "ohne Richtung",
+   "geschadet_haette": "keiner Seite",
+   "beleg": "Berichte 21 K2, 22 k9, 25 K-1",
+   "punkt": null,
+   "runde": 2
+  },
+  {
+   "id": "KE60",
+   "wo": "Story Akt 5/1 (Bau)",
+   "alt": "Waage „mit/ohne Energiewende“ über R21s Kurs",
+   "neu": "keine Waage über R21s Kurs; Bauhinweis zur Kernkraft-Grafik in Akt 5",
+   "richtung": "zulasten R21",
+   "geschadet_haette": "R21",
+   "beleg": "Bericht 23 M3",
+   "punkt": null,
+   "runde": 2
+  },
+  {
+   "id": "KE61",
+   "wo": "Freigabe v2 V02",
+   "alt": "Basis der Summe aus dem Referenzpapier ungenannt",
+   "neu": "der finnische EPR als Basis der Summe, ein zweiter EPR mit seinen Kosten daneben (V02a)",
+   "richtung": "zulasten R21",
+   "geschadet_haette": "R21",
+   "beleg": "Bericht 23 M5; Wendland PDF-S. 3, 16; kosten_kernkraft.md Tab. 1.1",
+   "punkt": null,
+   "runde": 2
+  },
+  {
+   "id": "KE62",
+   "wo": "Datensatz, Belegseite R10 und GP5",
+   "alt": "Kommissionswert mit negativem Vorzeichen gespeichert, auf der Belegseite mit Minus neben „Minderung“",
+   "neu": "als Minderung um rund [[ets_minderung_seit_2005]] Prozent gespeichert (R10)",
+   "richtung": "zulasten R21",
+   "geschadet_haette": "R21",
+   "beleg": "Bericht 21 M3",
+   "punkt": null,
+   "runde": 2
+  },
+  {
+   "id": "KE63",
+   "wo": "Freigabe v2 GP4 (Kachel)",
+   "alt": "R21s Batterierechnung ohne unsere Größenordnung; „fünf Tage sind nicht der schwerste Fall“ ohne Vorbehalt",
+   "neu": "mit dem Überschlag des Prüfers als Setzung und dem Vorbehalt zum Podcast (GP4)",
+   "richtung": "zugunsten R21",
+   "geschadet_haette": "der Energiewende",
+   "beleg": "Berichte 21 K3, 24 M4",
+   "punkt": null,
+   "runde": 2
+  },
+  {
+   "id": "KE64",
+   "wo": "Freigabe v2 GP7, Klimakasten, Vorspann",
+   "alt": "Gegenrechnung von ISE 2021 nur auf der Belegseite",
+   "neu": "ein Satz mit Zahl in GP7 und im Klimakasten, ein Satz im Vorspann (O11a, B03)",
+   "richtung": "zulasten der Energiewende",
+   "geschadet_haette": "der Energiewende",
+   "beleg": "Berichte 21 und 24 M1 bis M3",
+   "punkt": null,
+   "runde": 2
+  },
+  {
+   "id": "KE65",
+   "wo": "Freigabe v2 F11",
+   "alt": "„R21 übernimmt das ungeprüft“",
+   "neu": "„übernimmt die Bezeichnung, ohne die Abgrenzung zu nennen“ (F11)",
+   "richtung": "zulasten R21",
+   "geschadet_haette": "R21",
+   "beleg": "Bericht 23 k4",
+   "punkt": null,
+   "runde": 2
+  },
+  {
+   "id": "KE66",
+   "wo": "Freigabe v2 P04, Belegseite",
+   "alt": "ein Balkenbild über Dokumenttypen hinweg, nur nach v1.0",
+   "neu": "je Dokumenttyp getrennt, Wertung nach v1.0 und v1.1 (P04, P04a, P04b)",
+   "richtung": "zulasten R21",
+   "geschadet_haette": "R21",
+   "beleg": "Bericht 25 M2",
+   "punkt": null,
+   "runde": 2
+  },
+  {
+   "id": "KE67",
+   "wo": "beide Seiten",
+   "alt": "Finanzierung, Verantwortung und Fehlermeldeweg nur im Repository",
+   "neu": "auf beiden Seiten (T01, T02, T03)",
+   "richtung": "ohne Richtung",
+   "geschadet_haette": "keiner Seite",
+   "beleg": "Bericht 25 M4, M5",
+   "punkt": null,
+   "runde": 2
+  },
+  {
+   "id": "KE68",
+   "wo": "Freigabe v2 B03 (Vorspann)",
+   "alt": "Vorspann endete mit R21s Punkt, ohne Nutzenseite und ohne Geltungsbereich des ZEW",
+   "neu": "mit „für die ganze EU“ und dem Satz zu vermiedenen Klimaschäden (B03)",
+   "richtung": "zugunsten R21",
+   "geschadet_haette": "der Energiewende",
+   "beleg": "Bericht 24 M3",
+   "punkt": null,
+   "runde": 2
+  },
+  {
+   "id": "KE69",
+   "wo": "Freigabe v2, Story",
+   "alt": "R21s eigenes Factsheet zur Netzstudie, R21s Wortwahl auf Druckseite 5 und das Angebot „auf eigene Kosten“ fehlten",
+   "neu": "N04 auch in der Story, Q12, V04c",
+   "richtung": "zulasten R21",
+   "geschadet_haette": "R21",
+   "beleg": "Bericht 23 k5, k6 und „Was weiterhin fehlt“",
+   "punkt": null,
+   "runde": 2
   }
  ],
  "arbeitsliste_nachweis": [
@@ -10610,12 +11797,22 @@
   {
    "id": "O-5",
    "frage": "Gesetzliche Klimaziele und CO₂-Budget im Prolog (P052, Klasse C)",
-   "stand": "nicht entschieden; keine Aussage in v2"
+   "stand": "teilweise entschieden (23.11.2026): ein Satz zu den gesetzlichen Klimazielen in den Prämissen (PR4); CO₂-Budget und Emissionslücke nicht aufgenommen"
   },
   {
    "id": "O-6",
    "frage": "Flut-Vergleich aus hib 411/2024 im Klimakasten (P097, Klasse C)",
    "stand": "nicht entschieden; keine Aussage in v2"
+  },
+  {
+   "id": "O-7",
+   "frage": "Dokumenttyp von Teil 1 für die Messlatte",
+   "stand": "nicht entschieden; der Prüfer von Bericht 25 wertet als Gutachten (Quellenprüfung). Als Erklärung eingeordnet, bekäme Teil 1 nach v1.0 bei K6 null statt zwei Punkte"
+  },
+  {
+   "id": "O-8",
+   "frage": "Was „Korrekturweg offen“ bei K10 heißt",
+   "stand": "nicht entschieden; seit v3 steht auf beiden Seiten ein sichtbarer Weg (Issue im Repository, T03), ob das für zwei Punkte reicht, ist offen"
   }
  ]
 }
