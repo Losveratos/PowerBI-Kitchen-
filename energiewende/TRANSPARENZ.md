@@ -1,6 +1,8 @@
 # Transparenz-Richtlinien · Daten-WG Knowledge Kitchen
 
-**Stand:** Entwurf v0.1 vom 22.11.2026, zur Freigabe durch Michael.
+**Stand:** Entwurf v0.2 vom 23.11.2026, zur Freigabe durch Michael. Geändert gegenüber v0.1:
+Abschnitt 2 (zwei getrennte Angaben je Zahl), Abschnitt 4 (keine Ausnahme für Prozesszahlen),
+Abschnitt 8 (Freigabe vor dem Bau). Anlass: die Reviews von Teil 1.
 Zusammengeführt aus den gelebten Regeln der Projekte `strommix/` und `eauto/`,
 ergänzt um Quellentreue, KI-Offenlegung und Korrekturpraxis. Gilt zuerst für
 die Energiewende-Reihe; nach Freigabe für alle Daten-Geschichten der Kitchen.
@@ -25,6 +27,21 @@ wir das Primärdokument selbst gelesen haben.
 `primaer_gelesen: ja/nein` ist ein eigenes Pflichtfeld. Eine Zahl, die nur aus
 einem Suchtreffer-Auszug stammt, kann nie Stufe A sein.
 
+**Zwei getrennte Angaben je Zahl.** Eine Zahl korrekt zu zitieren heißt nicht,
+dass sie stimmt. Auf den Seiten trägt deshalb jede Zahl zwei Abzeichen:
+
+| Angabe | Bedeutung |
+|---|---|
+| **Zitat geprüft** | Die Zahl steht so im genannten Dokument, an der genannten Stelle; wir haben sie dort selbst gelesen. Sagt nichts darüber, ob sie zutrifft. |
+| **Wert: A / B / C** | Wie gut der Wert selbst belegt ist, nach der Tabelle oben. |
+| **Wert: Behauptung** | Das Dokument nennt die Zahl ohne nachprüfbaren Beleg, oder der genannte Beleg trägt sie nicht. |
+| **Wert: eigene Rechnung** | Wir haben die Zahl aus belegten Eingangswerten errechnet; der Rechenweg ist offen. |
+| **Wert: Setzung (M)** | Eigene Annahme. |
+
+Stufe A gibt es nur bei mehreren unabhängigen Quellen. Zweitquellen (eine
+Quelle berichtet über eine andere, die wir nicht gelesen haben) sind höchstens
+C, gleich ob die Zweitquelle ein Institut, ein Parlament oder eine Zeitung ist.
+
 ## 3. Quellentreue
 
 Wir geben eine Quelle so wieder, wie sie es sagt: gleiche Zahl, gleiche
@@ -36,6 +53,10 @@ Ursprungsstudie zu, nicht dem Referat.
 
 Seiten laden ihre Zahlen aus `data/*.json`. Diese Dateien entstehen per Skript
 aus den Dossiers. Wer eine Zahl ändert, ändert sie im Dossier.
+Das gilt auch für Zahlen über den eigenen Prozess (Agentenläufe, Token,
+Zahl der geprüften Werte) und für die Texte der Aussagen: Auch sie stehen im
+Datensatz, nicht von Hand in der Seite. Eine Seite behauptet nur dann „keine
+Zahl von Hand“, wenn ein Prüfskript das bestätigt hat.
 
 ## 5. Bandbreiten, Setzungen, Rechenweg
 
@@ -71,6 +92,11 @@ schlecht ausfällt.
   mit Agenten, die den geprüften Text nicht geschrieben haben.
 - Was nicht geprüft werden konnte (gesperrte Quelle, Bezahlschranke), steht als
   offener Punkt im Stück, nicht nur intern.
+- Bau-Agenten schreiben keine eigenen Tatsachensätze. Jeder tragende Satz
+  einer Seite stammt aus der Freigabeliste; fehlt einer, wird er dort
+  nachgetragen und geprüft, nicht auf der Seite ergänzt.
+- Die Freigabeliste wird selbst gegengelesen, bevor gebaut wird — auch von
+  einem Agenten, der das geprüfte Papier verteidigt.
 
 ## 9. Interessen
 

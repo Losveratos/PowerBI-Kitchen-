@@ -1,6 +1,7 @@
 # Messlatte · Woran wir Studien und uns selbst messen
 
-**Stand:** v1.0 vom 22.11.2026. Festgelegt, bevor eine einzelne Studie bewertet
+**Stand:** v1.1 vom 23.11.2026 (Präzisierungen nach der ersten Anwendung, siehe
+„Änderungen“). v1.0 vom 22.11.2026 wurde festgelegt, bevor eine einzelne Studie bewertet
 wurde. Spätere Änderungen stehen mit Datum und Grund am Ende dieser Datei; die
 Git-Historie belegt die Reihenfolge.
 
@@ -48,4 +49,24 @@ gestrichen.
 
 ## Änderungen
 
-Keine.
+**v1.1 vom 23.11.2026.** Die Messlatte wurde am 22.11.2026 zum ersten Mal
+angewendet (`research/reviews_teil1/13_messlatten_pruefer.md`), auf Teil 1
+dieser Reihe, die R21-Erklärung, DIHK/Frontier „Plan B“ und KfW/Prognos 2026.
+Der Prüfer hat fünf Unschärfen gemeldet; die Synthese der Reviews hat sie
+bewertet, Michael hat entschieden, sie zu präzisieren. Die Wertung nach der
+ursprünglichen Fassung (v1.0) bleibt stehen und wird neben der Wertung nach
+v1.1 gezeigt. Die Kriterien-Tabelle oben ist unverändert; es gelten zusätzlich:
+
+| Nr. | Präzisierung | Grund | Erwartete Folge |
+|---|---|---|---|
+| 1 | **K3 nur ab fünf prüfbaren Werten,** sonst „nicht bewertbar“. Der Anteil prüfbarer Werte wird immer mitberichtet; eine „Tendenz“ ist kein Punkt. Summen werden ohne K3 verglichen, K3 steht getrennt. | Sonst bestraft K3 fehlenden Zugang statt fehlender Quellentreue. | keine Punktänderung in der ersten Runde |
+| 2 | **Stichprobenrahmen für K3** sind Zahlen mit zitierter externer Quelle. Zahlen ohne Quelle zählen nur in K2. Bei eigenen Stücken gehören eigene Rechnungen in den Rahmen und werden gegen ihre Eingangsquellen nachgerechnet; Setzungen nicht. | Fehlende Quellen sollen nicht doppelt zählen. | keine |
+| 3 | **K6 richtet sich nach dem Rechenweg, nicht nach dem Dokumenttyp.** 2 Punkte nur, wenn die tragenden Zahlen nachrechenbar sind. Der Typ bleibt Vergleichsgruppe. | In v1.0 bekam ein Positionspapier bei K6 grundsätzlich 0 Punkte, auch wenn einzelne Rechnungen offenlagen (R21, Factsheets A und H). | R21 voraussichtlich 7 statt 6 Punkte |
+| 4 | **Bei Auftragsstudien gilt die Auftraggeberin als Geldgeberin,** wenn sie im Dokument genannt ist und nichts anderes dasteht; der Prüfer vermerkt „angenommen“. | übliches Verständnis | keine |
+| 5 | **K4 ist bei Quellenprüfungen ohne eigenes Modell „nicht anwendbar“** und fällt aus der Summe (dann höchstens 16 ohne K3). Teil 6 dieser Reihe wird voll nach K4 bewertet. | Teil 1 rechnet bewusst nichts selbst; ein Punkt für K4 wäre weder verdient noch vergleichbar. | Teil 1: Summe auf neuer Basis, neu zu bewerten |
+
+Außerdem, als Verfahrensregel: Der Messlatten-Prüfer erhält ein
+abgeschlossenes Paket (Dokument, Messlatte, die zitierten Quellen) und nicht
+das ganze Repository; die Quellen fremder Dokumente werden vor der Bewertung
+beschafft, damit K3 bewertbar wird. Die Neubewertung von Teil 1 nach der
+Überarbeitung macht ein Prüfer, der die Synthese der Reviews nicht kennt.

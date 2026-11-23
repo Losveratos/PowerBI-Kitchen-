@@ -46,7 +46,7 @@ an fremde Studien anlegen (`docs/01_messlatte.md`).
 | BILD | Nur Überschrift und Teaser, geprüft wird am R21-Original |
 | Quellenzugriff | Erlaubnisregeln in `.claude/settings.json` für die freigegebenen Hosts |
 | Gaspreis-Regler | 20 / 35 / 85 €/MWh (min / mid / max), Vorschlag aus Dossier 09, bestätigt |
-| Kernkraft-Neubaukosten | Szenario „R21 wie veröffentlicht“ (6.250 €/kW) neben der Spanne aus gebauten Projekten (7.500 / 12.000 / 17.500 €/kW), bestätigt |
+| Kernkraft-Neubaukosten | Szenario „R21 wie veröffentlicht“ (6.250 €/kW) neben der Spanne aus westlichen Referenzprojekten (7.500 / 12.000 / 17.500 €/kW), bestätigt. **Korrigiert am 23.11.2026:** Hier stand „aus gebauten Projekten“. Das war falsch — die Referenzprojekte sind überwiegend geplant oder im Bau, und ihre Kostenangaben sind gemischt abgegrenzt (teils mit Finanzierung). Gefunden im Review 06. |
 | ZEW-Zahl | Die Reihe nennt die 824 Mrd. € aus der Studie, mit Hinweis auf deren Uneinheitlichkeit; keine eigene „richtige“ Zahl |
 | Kernkraft-Reaktivierung | Mitte 2,7 GW (Isar 2, Emsland), oberes Ende rund 12 GW laut Radiant-Gutachten, sobald im Original gelesen |
 | Dunkelflauten-Definition | Ereignisse über das Tagesmittel, Speicherbedarf über die Energielücke; das strenge Stundenkriterium als günstigste Lesart daneben |
@@ -62,6 +62,13 @@ an fremde Studien anlegen (`docs/01_messlatte.md`).
 | Teil 1 · Kernkraft-Neubau | kurzer Hinweis in Teil 1, die volle Rechnung in Teil 6 |
 | Teil 1 · Klimafolgekosten | ein Kasten mit Vorbehalt (Untergrenze, nicht addierbar) |
 | Teil 1 · übernommene Vorschläge der Freigabeliste (nicht einzeln bestätigt) | BIP-Bezug 2024 für die Studientabelle, 2025 nur für R21s eigene Umrechnung · der ifo-Auszug höchstens als Fußnote · kein Name des BILD-Autors auf der Seite · der Förderhinweis nur im Steckbrief, gleichrangig mit den Auftraggebern der Studien |
+| Veröffentlichung | Nichts wird veröffentlicht, bis die ganze Reihe steht; alles bleibt bis dahin Entwurf im Repository (23.11.2026) |
+| Anfrage an R21 | zurückgestellt, bis die Reihe fertig ist; der Entwurf der Fragen liegt in der Synthese der Reviews |
+| PwC-Studie | Michael lädt sie hoch, wenn er so weit ist; bis dahin tragen die PwC-Aussagen den Vorbehalt |
+| Konfidenz-Abzeichen | zwei getrennte Angaben je Zahl: „Zitat geprüft“ (steht so im genannten Dokument) und die Konfidenz des Werts selbst (A, B, C oder „Behauptung, nicht belegt“) |
+| Länge von Teil 1 | Story straffen, Befund in den Vorspann, Gegenpositionen in der Story kurz mit Verweis; neue Inhalte vorrangig auf die Belegseite |
+| BIP-Bezug | beide Rechnungen zeigen: festes BIP 2024 und wachsendes BIP (Wachstumsannahme als Setzung), dazu die Prozentangaben der Studien selbst |
+| Messlatte | präzisieren, mit Datum und Grund im Änderungsteil; die Seite zeigt die Wertung nach ursprünglicher und nach präzisierter Fassung |
 
 ## Die Reihe
 
@@ -120,6 +127,10 @@ Das Lauf-Protokoll mit Laufzeit und Token je Agent steht in `agents/PROTOKOLL.md
 | 2026-11-22 | 2 · Gegenprüfung | Zehn Prüfberichte in `research/pruefung/`, je Dossier ein Opus-Prüfer, der es nicht geschrieben hat. 428 Werte geprüft: 352 bestätigt, 46 abweichend, 27 nicht prüfbar. Die Daten stimmten fast durchgängig; die Fehler lagen in Ableitungen und Zusammenfassungen — in beide Richtungen (u. a. Stresstest-Aufschlag und Wasserstoff-Lkw zulasten, Speicherkosten und Beharrungs-Mehrkosten zugunsten der Energiewende; zwei Vorwürfe gegen R21 waren zu hart). |
 | 2026-11-22 | 3 · Zusammenführung | `scripts/consolidate_params.py` → `data/model_params.json`: 456 Parameter, 151 Korrekturen aus den Prüfberichten (89 angewendet, 58 Textkorrekturen, 4 nicht zugeordnet), 53 Herabstufungen der Konfidenz; nach der Regel „A nur bei mehreren unabhängigen Quellen“ bleiben 16 Parameter auf Stufe A. Bericht: `research/konsolidierung.md`. Die Dossiers tragen einen Verweis auf Prüfbericht und Parametersatz. |
 | 2026-11-22 | 3 · Freigabe Teil 1 | `docs/03_teil1_freigabe.md`: 87 Aussagen einzeln eingestuft, Erzählbogen, zwölf Pflicht-Gegenpositionen, verworfene Zahlen und Formulierungen. `scripts/build_teil1_data.py` → `data/teil1_data.json` (65 freigegebene Zahlen). |
+| 2026-11-22 | 4 · Seitenbau | `energiewende-1-story.html` und `energiewende-1-belege.html` als Entwurf (noindex, nicht verlinkt). |
+| 2026-11-22 | 5 · Reviews | 13 Berichte in `research/reviews_teil1/`: elf Rollen, ein Freigabe-Prüfer, ein Messlatten-Prüfer. 183 Befunde, gebündelt zu 123 Punkten (20 kritisch, 52 mittel, 51 klein); alle 20 kritischen in der Synthese bestätigt. Richtung der 72 kritischen und mittleren Punkte: 22 hätten zulasten von R21 gewirkt, 13 zulasten der Energiewende, 7 zu ihren Gunsten, 30 ohne Richtung. Messlatte (ohne K3, höchstens 18): Teil 1 dieser Reihe 15, KfW/Prognos 13, DIHK/Frontier 11, R21 6. |
+| 2026-11-23 | 5 · Lehren | Neun Verfahrensfehler benannt (Synthese, Abschnitt 3): Die Freigabeliste war an tragenden Stellen selbst fehlerhaft und hat vorhandenes Material weggelassen; die Bau-Agenten schrieben nicht freigegebene Sätze; der Datensatz war unvollständig; Konfidenz A wurde falsch verwendet; die Prüfung am Handy war zu dünn; eine Entscheidung trug einen falschen Begriff weiter. Die Regeln für Teil 2 bis 6 werden angepasst. |
+| 2026-11-23 | 6 · Überarbeitung | Sieben weitere Entscheidungen von Michael (Tabelle oben). `TRANSPARENZ.md` v0.2 (zwei Abzeichen), Messlatte v1.1 (fünf Präzisierungen mit Datum). Freigabeliste v2 beauftragt. |
 
 ## Offene Punkte
 
