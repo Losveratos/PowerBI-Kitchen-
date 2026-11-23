@@ -1,5 +1,499 @@
 # Changelog · ChartKitchen byDatenWG
 
+## 1.57.0.0 (2026-11-22, Backlog IBCS-Templates Teil 4)
+
+- **B24 · Feste Spaltenzahl für Small Multiples (nach IBCS-Blatt 10G).** Vorher: Das Raster wählte die Spaltenzahl
+  selbst (Wurzel der Kachelzahl, Zellen mindestens 220 px breit); 24 Länder standen auf Full HD als 5 × 5 statt wie
+  auf dem Blatt als 4 Zeilen × 6 Spalten, die Zeilen waren für große Blasen zu flach. Nachher (Format Chart → Small
+  Multiples):
+  - **„Spalten“** (`chart.multiplesColumns`, Zahl 0 bis 24, Standard 0): 0 = automatisch wie bisher (SVG-gleich),
+    sonst feste Spaltenzahl, begrenzt auf 1 bis zur Zahl der Kacheln. Im Formatbereich sichtbar, sobald Small
+    Multiples aktiv sind, auch bei Streu- und Blasendiagramm.
+  - **Wo sie wirkt:** im Raster aller Kachel-Modi, Streu- und Blasenkacheln eingeschlossen, mit Bezugskachel (erste
+    oder letzte), Rest-Kachel von „Top N Kacheln“ und im Zoom (der Faktor misst die Kachel in ihrer festen Zelle).
+    Neben „Erste Kachel groß“ zählt sie das Raster rechts von der großen Kachel. Die feste Zahl gilt auch unterhalb von
+    220 px Zellbreite (Entscheidung des Autors), aber nicht unter 110 px (siehe „Nach dem Review“).
+  - **Mit großer Kachel (Gruppenname, B13 Teil 1b):** die feste Zahl ist der einzige Kandidat, die Raster-Wahl
+    (wenigste leere Plätze, Seitenverhältnis) übergeht sie nicht. Die große Kachel zählt wie zwei Plätze; mit der
+    Begrenzung auf die Kachelzahl bleiben bei Säulen und Linie immer zwei Zeilen. Balken reichen über zwei Spalten, eine
+    feste 1 wird dort zu 2 Spalten. Passen die Kacheln einer Δ-only-Ansicht bei der festen Zahl nicht (zu klein), bleibt
+    das bisherige Raster ohne große Kachel, mit der festen Spaltenzahl.
+  - **Skala:** alle Rasterkacheln haben dieselbe Zellgröße, die gemeinsame Skala bleibt; mit großer Kachel greift der
+    Angleich der px je Einheit wie bisher (geprüft mit `hbIndep` und den `mult-hero`-Markern).
+  - Testmarker `mult-grid` (`data-cols`, `data-rows`, `data-fixed`, `data-span`), nur mit fester Zahl. Tests c555 bis
+    c561: 10G mit 24 Blasenkacheln als 4 × 6 auf 1920 × 1080 (Radius 50, gleiche Radien je Wert), 0 = SVG-gleich mit
+    c937, große Kachel mit 5 Spalten, Balken mit 1 → 2 Spalten, zu hohe (9 bei 4 Kacheln, 40 bei 15 mit großer Kachel)
+    und zu niedrige Zahlen (1, negativ = automatisch), Top N mit Rest und Bezugskachel zuletzt, „Erste Kachel groß“,
+    Zoom. Rezept 10G jetzt: 1920 × 1080, `multiplesColumns=6`, `scatterMaxRadius=50`, sonst wie 10E. 994 resjson-Keys
+    je Sprache (`Chart_MultiplesColumns`, `Desc_Chart_MultiplesColumns`).
+  - **Nach dem Review:**
+    - M1: Weiche Untergrenze. Eine feste Zahl hält jede Zelle ab 110 px Breite (`MULT_MIN_COL_W`); wären die Kacheln
+      schmaler (dasselbe Visual kleiner, außerhalb des Fokusmodus, im Dashboard), zeigt das Raster so viele Spalten,
+      wie hineinpassen, und im Bearbeitungsmodus unten rechts den Hinweis „Spalten 24: Kacheln wären nur 25 px breit,
+      gezeigt werden 5“ (`mult-cols-hint`, Key `Hint_MultColumnsFloor`; nicht in der Leseansicht, nicht im Export).
+      Gilt auch mit großer Kachel. Die Beschreibung im Formatbereich nennt es in allen vier Sprachen. Das 10G-Rezept
+      (6 Spalten) bleibt auf 1920 und auf 960 px unberührt (320 bzw. 160 px je Kachel).
+    - m1: Mit großer Kachel klemmen Säulen und Linie auf `ceil((n + 1) / 2)` Spalten (mehr Spalten könnten nur die
+      zweite Zeile leeren), Balken auf `n + 1` (eine Zeile). Vorher standen 13B mit 15 Spalten in Zeile 1 und Zeile 2
+      blieb leer; c558b zeigt jetzt 8 × 2 ohne Lücke. „Begrenzt auf die Zahl der Kacheln“ gilt also ohne große Kachel.
+    - n3 (unverändert, beschrieben): Neben „Erste Kachel groß“ teilen alle Kacheln die Domain, die große Kachel hat
+      mehr Fläche und damit mehr px je Einheit; wenige Spalten rechts stauchen die Höhe der kleinen Kacheln.
+    - n4: Der Marker `mult-grid` steht nicht mehr im Zoom (`data-floor` mit der gewünschten Zahl, wenn die
+      Untergrenze greift).
+    - Tests c565 bis c575 (m5): Balken und Linie mit großer Kachel, Untergrenze mit Blasen, Säulen und großer Kachel
+      samt Hinweis nur im Bearbeitungsmodus, 10G auf 960 px, Blasen bleiben in ihrer Kachel, Δ-only-Rückfall mit fester
+      Zahl, dunkel und Hochkontrast, 30 Gruppen, Formatbereich, gebrochene Werte (2,6 → 3, 0,4 → automatisch),
+      unabhängige px je Einheit für c557 und c558b. 995 resjson-Keys je Sprache.
+- **B25 · Kein Zoom-Knopf in nicht interaktiver Ausgabe.** Vorher: Small-Multiples-Kacheln zeigten ihren Zoom-Knopf
+  „⤢“ (mit `role=button`, `tabindex` und Zeiger) auch dort, wo der Host keine Interaktion erlaubt. Nachher:
+  Mit `hostCapabilities.allowInteractions === false` (Dashboard-Kacheln; nach der bisherigen Annahme des Projekts auch
+  PDF- und PowerPoint-Export und Abo-Snapshots) steht in jedem Kachel-Modus nur der Kacheltitel
+  (`data-icd="mult-title"`, gleiche Stelle und Schrift, ohne den Platz für ⤢ gekürzt); ein gesetzter Zoom zeigt dort das
+  Raster ohne Zurück-Chip. Interaktiv unverändert (SVG-gleich).
+  - Blasenlegende: Teil- und Σ-Eintrag am Ende bekommen ihren Platz vor den Gruppen, wenn die Zeile sonst nicht passt
+    (vorher liefen sie bei schmaler Kachel über den Rand, und ein „+n“ ließ sie ganz weg). Passende Legenden bleiben
+    SVG-gleich. Gefunden durch den neuen Export-Fall.
+  - `export-cases.js`: neues Blatt `bubblesMult` (10E Germany und France als Kacheln, C24) und für jeden Export die
+    Prüfung „kein Zoom-Knopf ⤢“; gekürzte Panel-Titel dürfen je Kachel einmal vorkommen. Tests c562 bis c564 (10G im
+    Export mit Titeln an derselben Stelle wie im Bericht, große Kachel, „Erste Kachel groß“ mit Top N, Zoom-Zustand,
+    Export gleich Bericht bis auf Kachelköpfe, Legende auf 400 px). Hash aller 867 Bestands-Stufen vorher/nachher gleich.
+  - **Nach dem Review:**
+    - m4: Der Browserdruck eines geöffneten Berichts („Seite drucken“) rendert das interaktive Visual, dort bleibt ⤢
+      stehen; ebenso in Web-Veröffentlichung, Mobile-App und Report Server (interaktiv). Ein echter PDF-Export aus dem
+      Service ist vor dem Release noch anzusehen.
+    - m2: Die Legende rückt nach einem gekürzten Gruppennamen um dessen gezeichnete Breite vor (vorher um die volle;
+      der alte Fehler wurde sichtbar, weil nach „+n“ jetzt Teil und Σ folgen).
+    - m3: Hervorhebung, Teil und Σ am Ende der Legende kürzen auf die Restbreite und entfallen unter 30 px; lange
+      Measure-Namen laufen nicht mehr über den Rand.
+    - n1: „Passende Legenden bleiben gleich“ heißt: die ganze Zeile endet mindestens 6 px vor dem Rand (Regel der
+      Gruppeneinträge). Wird es enger, zeigen Legenden mit Teil, Σ oder Hervorhebung weniger Gruppen und dafür diese
+      Einträge.
+    - Tests c574 (18 Legenden von 260 bis 900 px, mit langem ersten Namen und langen Measures, alle im Visual) und c575
+      (KPI-Karten und Tabelle mit langen Titeln im Export). Hash aller 867 Bestands-Stufen weiter gleich; von den
+      B24/B25-Stufen ändert sich nur c558b (m1).
+
+- **B13 Teil 1b · Frei wählbare große Kachel (nach IBCS-Blatt 13B, auch die doppelt hohe Berlin-Kachel von 13C und
+  13D).** Vorher: „Erste Kachel groß“ gab nur der ersten Kachel eine Spalte links über die volle Höhe, auf der
+  gemeinsamen Skala; eine andere Kachel ließ sich nicht wählen, nicht über zwei Zeilen spannen und nicht oben rechts
+  setzen, ein Ausreißer (Berlin 344 neben Werten um 80) stauchte alle Kacheln, und in der Ansicht „Nur
+  Abweichungs-Panel“ war die große Kachel ganz aus (Review M1 von Teil 2). Nachher (Format Chart → Small Multiples):
+  - **„Große Kachel (Gruppenname)“** (`chart.multiplesHeroTile`, Text, Standard leer): Name einer Kachel, Groß- und
+    Kleinschreibung egal, auch der Titel der Bezugs- oder Rest-Kachel; unabhängig vom Schalter „Erste Kachel groß“.
+    Leer, unbekannter Name, Stapel, Wasserfall-Stil, Serienlinien und die übrigen Modi: alles wie bisher (SVG-gleich).
+  - **Raster:** n + 1 Plätze (Spaltenzahl siehe „Nach dem Review“); die große Kachel bleibt in ihrer natürlichen Spalte und
+    reicht über zwei Zeilen (in der letzten Zeile rückt sie eine Zeile hoch), die übrigen Kacheln füllen die freien
+    Plätze der Reihe nach, eine Bezugskachel „zuletzt“ nimmt den letzten Platz. Mit den Daten von 13B in Blattreihenfolge
+    entsteht genau das Blatt: Berlin oben rechts über zwei Zeilen, „12 weitere“ rechts in Zeile 3, Durchschnitt unten
+    rechts.
+  - **Gleiche Pixel je Einheit:** Die große Kachel skaliert auf ihre eigenen Werte, die kleinen auf alle übrigen
+    Gruppen. Probeläufe (`measureScaleK`) messen die px je Einheit beider; die Seite mit mehr px je Einheit bekommt
+    eine längere Achse (Domain × f), bis beide gleich sind; ebenso die Abweichungs-Panels (Verfahren und Prüfung siehe
+    „Nach dem Review“). Fest eingestellte Obergrenze (`scale.fixedMax`) und
+    Referenzlinie gelten für beide Seiten. In 13B zeichnen die kleinen Kacheln dadurch 0,60 statt 0,22 px je Einheit.
+  - **Mit „Nur Abweichungs-Panel“** (13C, 13D): eine Δ-Skala für große und kleine Kacheln, angeglichen wie oben
+    (Δ und Δ % getrennt). Die Bezugskachel misst ihre Δ-Skala an einer Kachel des Rasters auf deren Domain, auch wenn
+    sie selbst die große Kachel ist (behebt den Anlass von M1). Fällt eine Rasterkachel auf die normale Ansicht zurück
+    (zu klein), bleibt die große Kachel aus wie bisher. Der Schalter „Erste Kachel groß“ bleibt dort ausgeblendet.
+  - **Zoom:** misst die Kachel in ihrem Platz und zeigt sie auf ihrer eigenen, ungestreckten Achse.
+  - Testmarker (`data-icd`, nur mit großer Kachel): `mult-hero` je Kachel mit `data-role` (`hero` | `peer` | `tile`),
+    `data-group`, `data-kind`, `data-px-per-unit` (Werte-Panel, in Δ-only-Kacheln Δ), `data-px-per-unit-abs`,
+    `data-px-per-unit-rel`, `data-col`, `data-row`, `data-rows`, `data-x/y/w/h`. Tests c533 bis c545; Hash aller 756
+    Bestands-Stufen vorher/nachher gleich. Beschreibung von „Nur Abweichungs-Panel“ nennt die benannte große Kachel.
+  - **Nach dem Review:**
+    - M1: Der Angleich wird geprüft. Ein letzter Probelauf beider Seiten vergleicht jedes Panel, das beide zeichnen
+      (Werte, Δ, Δ %); weicht eines um mehr als 0,1 % ab, bleibt das bisherige Raster statt ungleicher Skalen. Die Suche
+      klammert das Ziel ein (Sekante innerhalb der Klammer, sonst Bisektion, bis 16 Schritte), gesetzt wird nur ein
+      gemessener Faktor; bis zu vier Durchgänge, weil Werte- und Δ-Panel im Gleichmaßstab gekoppelt sind. Vorher pendelte
+      die Sekante zwischen Anteils- und Gleichmaßstab-Aufteilung und endete still mit Faktor 3,4 bzw. 22 zwischen großer
+      und kleinen Kacheln (Berlin-Plan 2,5 × Ist).
+    - M1/m1: Absolutes Δ (`abs`, `abs2`) je Seite wie die Werte: die große Kachel auf ihren eigenen Abweichungen, die
+      kleinen auf denen der übrigen. Der Werte-Angleich streckt das Δ mit; ein runder Δ-Zoom (`×2`) gilt für das ganze
+      Deck (der kleinere der beiden natürlichen, `spanZoom` an `sameScaleSplit`). Die kleinen Kacheln halten keinen
+      Platz mehr für Berlins Δ frei (in c549 endet Kölns Δ-Panel 96 px höher).
+    - m2: Der Zoom zeigt die ungestreckte eigene Domain (große Kachel: ihre Werte, kleine: die der übrigen Gruppen).
+    - m3: Spaltenzahl: unter den Zahlen mit Kacheln ab 220 px Breite und Seitenverhältnis 1 : 2 bis 4 : 1 (die alte
+      Regel immer zulässig) die mit den wenigsten leeren Plätzen, dann die nächste an der alten Regel, dann mehr
+      Spalten; in der Δ-only-Ansicht nur Raster, deren Kacheln Δ-only zeichnen. Sechs Gruppen: 4 × 2 statt 3 × 3.
+    - m4: Die Nulllinie der großen Kachel liegt auf der Nulllinie der Zeile daneben (13C, 13D), wenn ihre Werte es
+      zulassen: untere Domain-Grenze samt 2-%-Rand wie die der kleinen, gestreckt wird nur nach oben.
+    - m5: Balken: die große Kachel reicht über zwei Spalten statt zwei Zeilen (Werteachse waagrecht).
+    - n1: „Erste Kachel groß“ sagt in der Beschreibung, dass ein gefundener Name Vorrang hat. n2, n3: kompakte kleine
+      Kacheln neben einer großen mit Panels und „Überlauf kappen“ in der Doku. n4: Probeläufe je Seite und Domain
+      zwischengespeichert (13B 35 statt 17 ms, Δ-only mit Δ und Δ % 54 statt 35 ms je Update).
+    - Neue Marker-Attribute `data-cols` an `mult-hero`. Tests c546 bis c554 (Repro A bis D des Reviews, m1 bis m6,
+      Top N mit Rest, Rest-Kachel groß, 30 Gruppen, Dunkel, Hochkontrast, Δ-only mit Δ und Δ %, Zoom in der Δ-only-Ansicht);
+      Gleichheit unabhängig an Säulen-, Balken-, Pin- und Linienmaßen gemessen, auch in c535, c536, c538, c539, c543,
+      c544. Fuzz des Reviews (1488 Fälle): 0 ungleich, 1 Rückfall auf das bisherige Raster (Δ-only, Balken, Δ und Δ %, 14 Gruppen,
+      1100 × 560: Schlussprüfung nicht bestanden).
+
+- **B20 · Marimekko (nach IBCS-Blatt 02F).** Vorher: 100-%-Balken hatten immer gleich hohe Zeilen, die Größe einer
+  Zeile stand nur im Summenbalken daneben; 02F (Zeilendicke nach Umsatz) war nicht abbildbar. Nachher (Format Chart →
+  Darstellung, nur Balken mit 100 %):
+  - **„Zeilendicke“** (`chart.stackThickness`: `equal` | `total`, Standard `equal`): Mit „Nach Zeilensumme
+    (Marimekko)“ ist jede Zeile so dick wie ihre Summe, die Fläche eines Segments ist sein Wert. Wirkt nur mit
+    gestapelten Balken, gebundener Serie und wirksamen 100 % (keine negative Zelle); bei Werten und bei Säulen ohne
+    Wirkung. Die Zeilen stoßen aneinander, getrennt durch eine Haarlinie (1 px). Σ-Zeile, Zwischensummen und
+    Blockabstand behalten die normale Zeilenhöhe, den Rest teilen die Zeilen nach Summe. Sehr dünne Zeilen bekommen
+    eine Mindestdicke (3 px, Hochkontrast 5 px), der Rest wird neu verteilt; passt nicht einmal die Mindestdicke, steht
+    im Bearbeitungsmodus der Hinweis auf Top N. Zeilen mit Summe 0 entfallen.
+  - **Beschriftung:** Die Segmente zeigen die Werte statt der Anteile (die Dicke trägt die Größe), ebenso der Mix der
+    Σ-Zeile. Ein Segmentwert steht nur, wenn die Zeile mindestens eine Schrifthöhe dick und das Segment breit genug
+    ist, sonst im Tooltip (zusätzlich „Anteil an Gesamt“). Zeilennamen und Zahlen der Spalten werden gierig gesetzt:
+    ein Label entfällt, wenn es ein schon gesetztes berührt; Hervorhebung, Rest-Zeile und dickste Zeile zuerst, dann von
+    oben. Keine überlappenden Zahlen wie auf dem Blatt. Rest-Zeilen samt Zahlen kursiv. Seriennamen in der
+    Schlüsselzeile über den Segmenten der ersten Zeile.
+  - **Summenspalte:** Das Summen-Panel wird zur Zahlenspalte (fette Kopfzeile „Σ AC (↓)“, Zahlen rechtsbündig,
+    Blocksummen und Gesamtsumme fett); Breite aus dem Textmaß. Bedingung wie das Panel (Σ an, ab 280 px Breite).
+  - **„Anteilsspalte“** (`chart.stackShareColumn`, bool, Standard aus, sichtbar bei 100-%-Balken): Spalte „Anteil“ mit
+    dem Anteil jeder Zeile an der Gesamtsumme (eine Nachkommastelle), „100 %“ an der Σ-Zeile, Blockanteil an der
+    Zwischensumme (dann ohne Ellipse). Im Marimekko neben der Zahlenspalte (entfällt zuerst, wenn beide mehr als 30 %
+    der Breite brauchen), ohne Marimekko hinter dem Summenbalken (02D + Anteil).
+  - **Weiter nutzbar:** Sortierung (`sortMode` ac oder series), Top N mit „Rest (n)“, Stapel-Blöcke mit Zwischensummen
+    (eine Dickenskala über alle Zeilen), Small Multiples (Dicke und Anteil je Kachel), FC schraffiert, PL umrandet,
+    Differenzmarker, Hervorhebungsband in Zeilenhöhe, Dunkel und Hochkontrast. Pfeil und Zeilenanteil der
+    Hervorhebung (B10 Teil 2) entfallen im Marimekko (kein Abstand über der Zeile, der Anteil steht in der Spalte).
+  - **Vorlage C25 · Marimekko (02F)**, Galerie-Gruppe „Struktur“, braucht „Stack-Serie“: orientation=bars ·
+    stackNormalize=pct100 · stackThickness=total · stackShareColumn · showTotal · stackTotalRow · sortMode=ac ·
+    stackLegendDirect · ohne Abweichungen. Eine Vorlage mit `sortMode` gilt im selben Rendern als gespeicherte
+    Sortierung.
+  - Geometrie: die Slot-Tabelle aus B10 Teil 2 hat jetzt `slotY`/`slotH` (Zeile: `barW`/`rowH`); mit gleicher Dicke
+    exakt die bisherigen Ausdrücke. Hash aller 701 Harness-Stufen vorher/nachher: geändert nur die Galerie-Stufen
+    c222b, c229, c230 (neue Kachel C25). Testmarker (`data-icd`): Wurzel `data-thickness="total"`, `stack-mekko-row`
+    (`data-cat`, `data-total`, `data-h`, `data-clamped`), `stack-total-col` mit `stack-total-num` (`data-total`),
+    `stack-share-col` mit `stack-share` (`data-share`, `data-i`), `stack-share-block`, `stack-share-grand`,
+    `stack-mekko-skip` (`data-kind` name, total, share, seg), `stack-mekko-hint`; Segment- und Mix-Texte tragen
+    `data-v`, `stack-total-seg` im Marimekko `data-share`. 942 resjson-Keys je Sprache. Tests c960 bis c985.
+  - Abweichungen vom Blatt: Zahlen mit höchstens drei Ziffern (Regel des Visuals seit 1.52: 173 statt 172.5, Summe
+    497 statt 497.2), Seriennamen in der Schlüsselzeile über dem Panel-Titel statt direkt über der ersten Zeile,
+    „Rest of world“ proportional dick (auf dem Blatt dünner als France), keine Säulen-Variante.
+  - **Nach dem Review:**
+    - **Beschriftung in niedrigen Kacheln:** Vorher fiel ein Label weg, sobald die Zeilenmitte zu nah an einem schon
+      gesetzten lag, auch in dicken Zeilen; in 1280 × 190 verlor die 15 px dicke Rest-Zeile Name, Summe und Anteil,
+      während 3-px-Zeilen ihr Label bekamen. Jetzt rutscht das Label in einer Zeile, die dicker als die Schrift ist,
+      innerhalb der Zeile so weit, bis es frei steht; Segmentwerte, Summe und Anteil stehen auf derselben Linie. Die
+      Reihenfolge ist Hervorhebung, Rest-Zeile, dann nach Dicke (dickste zuerst) statt von oben. Name, Summe und Anteil
+      werden gemeinsam gesetzt (Abstand nach der größeren der beiden Schriften), nie mehr ein Name ohne Zahl.
+    - **Vorlage C25 und Sortierung:** Ein Update ohne Host-Echo (Größe, Daten) nach dem Anwenden von C25 ließ die
+      Zeilen unsortiert, bis das Echo kam. Jetzt gilt die Sortierung der Vorlage, solange der Echo-Schutz ihre Werte
+      hält.
+    - **Blockanteil ohne Anteilsspalte:** Mit Blöcken, „Blockanteil“ und Marimekko, aber ohne Anteilsspalte stand kein
+      Blockanteil mehr (1.56 zeigte ihn im Panel). Jetzt steht er in einer Ellipse hinter der Zwischensumme und „100 %“
+      hinter der Σ-Zahl; die Zahlenspalte wird dafür breiter, solange die 30-%-Regel es erlaubt, sonst entfällt er wie
+      die Anteilsspalte. Ganz ohne Spalten (schmal) steht er wie bisher am Balkenende.
+    - **Referenzlinie und Gruppentrenner** lagen hinter den aneinanderstoßenden Zeilen und waren unsichtbar. Im
+      Marimekko liegen beide jetzt über den Zeilen, der Trenner als Linie in Tintenfarbe auf der Haarlinie.
+    - **Differenzmarker:** Das Label saß auf der Grenze zweier Zeilen. Jetzt steht es auf der Beschriftungslinie der
+      Zielzeile, wenn sie mindestens Schrifthöhe + 4 px dick ist; in dünneren Zeilen bleibt es an der Kante.
+    - **Kleinigkeiten:** Panel-Titel im Marimekko „Werte · Länge = Anteil, Dicke = Summe“ statt „Anteile in %“
+      (neuer Key `Title_StackMekko`). Bei gemischten Szenarien (AC und FC) bleibt kein leerer Platz für die
+      entfallende Σ-Zeile. Mit „Beschriftungen anzeigen“ aus entfallen die Segmentwerte, Summen- und Anteilsspalte bleiben
+      (sie sind Tabellenspalten; aus über „Summen-Kopfzeile (Σ)“ bzw. „Anteilsspalte“).
+    - Tests c986 bis c989 (Update ohne Echo, Wechsel C25 → C04, Blockanteil mit und ohne Anteilsspalte, Anteilsspalte
+      mit Blöcken ohne Marimekko, Referenzlinie und Trenner, Beschriftung aus, Differenzmarker, Tooltip, Auswahl,
+      480 × 300), dazu Prüfungen in c967 (Rest-Zeile behält ihre Labels) und c976. Hash aller Stufen: geändert nur
+      B20-Stufen (Titel; c967, c977 Beschriftung; c973 ohne leeren Σ-Platz; c982 Label des Differenzmarkers).
+
+- **B18 · Scatter-Zeitpfad mit Quotenstrahlen (Blätter 07D und 07E, Vorlage C23).** Vorher: Der Scatter zeigte je
+  Kategorie einen Punkt; eine Entwicklung über die Jahre ließ sich nur mit dem Play-Button nacheinander zeigen, eine
+  Quote wie „Umsatz je Mitarbeiter“ nur über eine eigene Measure. Nachher:
+  - **„Zeitpfad“** (`chart.scatterPath`, `off` | `line`, Standard `off`, Gruppe „Scatter / Bubble“): Datenvertrag des
+    Play-Modus ohne neue Rolle, Kategorie = Periode (Reihenfolge wie geliefert), Stack-Serie = Einheit, AC = Y,
+    X-Achse = X; ohne Serie ein einziger Pfad. Je Einheit eine dünne Linie (1 px, Gruppenfarbe bzw. AC-Farbe,
+    Hochkontrast Vordergrund) unter den Punkten. Fehlt X oder Y oder liegt ein Punkt außerhalb fixierter Achsen, bricht
+    der Pfad dort; eine Periode ohne Zeile wird durchverbunden. Segmente in eine Prognose-Periode sind gestrichelt,
+    FC-Punkte hohl. Der Name der Einheit steht am Endpunkt (bei Hervorhebung fett, Pfad 2 px), die Gruppen-Legende
+    entfällt. Der Pfad schaltet Bewegungspfeile und PY-Blasen ab; Quadranten und Trend bleiben wählbar.
+  - **„Periodenlabels“** (`chart.scatterPathLabels`, `auto` | `ends` | `all` | `off`, Standard `auto`): Versuchsfolge
+    oben, rechts, unten, links über die gemeinsame Kollisionsliste. Erste und letzte Periode jeder Einheit stehen
+    immer, Zwischenperioden bei `auto` nach Platz, bei `all` immer. Vierstellige Jahre lesen sich als „'17“.
+  - **„Pfeil am Pfadende“** (`chart.scatterPathArrow`, Standard aus) und **„Start-Ende-Abweichungen“**
+    (`chart.scatterPathDelta`, Standard aus): für hervorgehobene Einheiten (ein einzelner Pfad ohne Serie zählt als
+    hervorgehoben) Hilfslinien vom ersten und letzten Punkt zu den Achsen, Δ X als Pfeil unter der X-Achse (neutral),
+    Δ Y als Pfeil rechts neben dem Plot in Gut- bzw. Schlecht-Farbe.
+  - **„Quotenstrahlen (Scatter)“** (`scale.ratioRays`, Text, Liste mit `;`, Gruppe „Scatter-Achsen“) und **„Einheit
+    der Quotenstrahlen“** (`scale.ratioRayUnit`): Strahlen Y = k · X vom Ursprung bis zum Achsenende, hohler Kreis an
+    Austritt und Ursprung, Label „1,00 mEUR/Rep“ über dem Austritt. Die Strahlen ziehen die 0 in beide linearen Achsen,
+    eine automatische Obergrenze endet dann auf einem runden Wert. Quoten ≤ 0 werden ignoriert, auf Log-Achsen ohne
+    Ursprung gerechnet. Kacheln: Strahlen in jeder Kachel, Labels oben nur in der ersten Zeile, rechts nur in der
+    letzten Spalte. Der Tooltip nennt die Quote Y ÷ X jedes Punkts.
+  - **Play:** Mit Play-Button wächst der Pfad bis zum gezeigten Frame (beim Abspielen fließend, ohne Strichelung), die
+    Periodenlabels ruhen während des Abspielens; Exporte zeigen den ganzen Pfad.
+  - **Vorlage C23** (Galerie-Gruppe Zeitverlauf, braucht „X-Achse (Scatter)“): `orientation=scatter`,
+    `scatterPath=line`, `scatterPathLabels=auto`, `scatterColorBy=group`, `scatterQuadrant=off`, `scatterTrend=off`,
+    `scatterArrows=false`, `scatterPlay=false`. Rezept 07E zusätzlich `scale.ratioRays=1; 0,7; 0,35`,
+    `scale.ratioRayUnit=mEUR/Rep`, Achsen 0 bis 20 und 0 bis 14; Rezept 07D zusätzlich `highlight=Trucks`,
+    `scatterPathDelta=true`.
+  - Testmarker (`data-icd`): `scatter-paths`, `scatter-path` (`data-series`, `data-n`), `scatter-path-head`,
+    `scatter-path-labels`, `scatter-path-label` (`data-cat`, `data-series`), `scatter-path-name`,
+    `scatter-path-guides`, `scatter-path-delta` (`data-axis`, `data-v`) mit `scatter-path-delta-head`, `scatter-rays`,
+    `scatter-ray` (`data-k`), `scatter-ray-end` (`data-x`, `data-y`), `scatter-ray-origin`, `scatter-ray-label`,
+    `scatter-hint-path`. Ohne die neuen Optionen sind alle Bestands-Stufen SVG-gleich (Hash aller 701 Stufen; geändert
+    nur die Galerie-Stufen c222b, c222d, c229, c230 und c230b um die Kachel C23). Tests c900 bis c917. 953 resjson-Keys
+    je Sprache für B18 allein, 965 nach dem Merge mit B20.
+  - Abweichungen von den Blättern: Y-Ticks in Fünfer- statt Zweierschritten (bestehende Tick-Regel), die Achsen reichen
+    um den Markerrand über 20 bzw. 14 hinaus (die Strahlen enden trotzdem genau dort), Δ X neutral statt blau, keine
+    Ellipse um „−4“ (Botschaftsmarke des Titels), Ländernamen in 07E rechts statt über dem Endpunkt, wo Platz ist.
+  - **Nach dem Review:**
+    - Kacheln (M1): Strahl-Labels und Δ-Marker verschoben die Plotfläche je Kachel (507 gegen 489 px für X 0 bis 20).
+      Jetzt reserviert jede Kachel den Rand aller Strahl-Labels und der breitesten Δ-Spalte des Decks
+      (`ScatterShared.deltaTys`), auch wenn ihre eigenen Labels nicht stehen; alle Kacheln haben dieselbe Pixelskala.
+      Labels bleiben auf erste Zeile und letzte Spalte beschränkt, die gezoomte Kachel rechnet wie bisher allein.
+    - Play (m1): Auf dem ersten Frame stand fälschlich „je Einheit mindestens zwei Perioden“; der Hinweis prüft jetzt alle
+      Perioden. Δ (m2): Die Δ-Y-Spalte beginnt hinter den rechten Strahl-Labels, Pfeile und Δ-Texte sind Sperrflächen für
+      Namen und Periodenlabels, die Labels reichen nicht mehr in die Δ-Spalte.
+    - Strahl-Labels (m3) weichen einander aus: oben links oder rechts neben den Kreis, rechts unter den Kreis, sonst nur
+      die Zahl, zuletzt entfällt das Label (`data-dropped` an `scatter-rays`, Quote bleibt im Tooltip). Quoten unter 0,1
+      (m4) mit zwei signifikanten Stellen („0,001“ statt „0,00“), auch im Tooltip.
+    - Sortierung (m5): Sind alle Kategorien Jahreszahlen und steigen sie in einer Einheit nicht an, steht im Bearbeitungsmodus
+      „Zeitpfad: Kategorie ist nicht nach Periode sortiert“ (`scatter-hint-path`, `data-kind="order"`,
+      `Hint_ScatterPathOrder`). Beschreibungen (m6): „Quotenstrahlen“ nennt die Dateneinheit („1M“ bei EUR-Daten mit
+      Mio.-Achse), „Periodenlabels“ den Schalter „Datenbeschriftungen anzeigen“; Doku DE/EN ergänzt.
+    - Kleinere Punkte: Auswahl und Cross-Highlight dimmen Pfad, Hilfslinien, Δ und Labels einer Einheit, deren Punkte alle
+      gedimmt sind; Pfad- und Labelgruppen haben `pointer-events="none"`; Periodenlabels meiden alle Pfadsegmente
+      („'17“ von Trucks steht nicht mehr auf dem ersten Segment); „Datenbeschriftungen anzeigen“ aus blendet die
+      Periodenlabels aus; mit Blasen enden die Segmente am Blasenrand (auch beim Abspielen); eine gewünschte, aber nicht
+      mögliche Log-Achse rundet mit Strahlen wie eine lineare; Hochkontrast: AC-Punkte gefüllt, FC-Punkte hohl; bei zwei
+      und mehr hervorgehobenen Einheiten tragen die Δ-Texte den Namen der Einheit.
+    - Tests c918 bis c929 (gleiche Pixelskala in 2 × 2 Kacheln, Frame 0, Δ gegen Labels, nahe Quoten, 300 × 200, kleine
+      Quoten, Zickzack-Hinweis, Beschreibungen, invert, fehlende Zeile, negative Werte, fixierte Achsen, eine Log-Achse,
+      Zoom, Play-Pfad, Cross-Highlight, Segmente, Blasenrand, Hochkontrast, Log-Rückfall, zwei Δ-Einheiten); c903 prüft
+      die Schlecht-Farbe jetzt ausdrücklich. `scale.html`: RAY07E (Steigung im Pixelmaß, gleiche Pixelskala in 3 Kacheln),
+      `export-cases.js`: Blatt `path` (07E mit Strahlen und Δ in allen Größen und Presets). Geändert nur die B18-Stufen
+      c900 bis c917 (Zeiger-Attribut und Labelplätze überall, dazu das Kachel-Layout in c910, die gefüllten AC-Punkte im
+      Hochkontrast c914 und die am Blasenrand gekürzten Segmente in c916). 984 resjson-Keys je Sprache.
+    - Bewusst nicht geändert: mehr als sechs Einheiten wiederholen die Gruppenfarben (Bestandsregel der Palette, die
+      Namen am Endpunkt tragen); im Hochkontrast sind alle Pfade gleichfarbig (Formen je Gruppe bleiben möglich).
+- **B19 · Blasen mit Kreissegmenten und Gesamtblase (Blätter 10E und 10G, Vorlage C24).** Vorher: Eine Blase zeigte
+  nur ihre Größe; „unser Teil am Marktvolumen“ ließ sich nicht in die Blase zeichnen, und eine Summe über alle Blasen
+  einer Kachel gab es nicht. Nachher:
+  - **Neue Rolle „Blasenanteil (optional)“** (`bubbleShare`, Measure, max 1, hinter „Blasengröße VJ“): der Teil jeder
+    Blase, gezeichnet als Kreissegment ab 12 Uhr im Uhrzeigersinn. Der Grundkreis trägt eine helle Tönung der
+    Punktfarbe (28 % gegen das Papier gemischt, deckend, die Deckkraft der Blasen wirkt auf ihn), das Segment die volle
+    Farbe, Umriss und Radiuslinien 1 px in Tinte. Anteil 1 zeichnet einen Vollkreis ohne Radiuslinie, 0 nur den Kreis;
+    Werte außerhalb von 0 bis 1 werden begrenzt (Hinweis im Bearbeitungsmodus). Unter 6 px Radius entfällt das Segment.
+    Prognose-Blasen bekommen ein schraffiertes Segment, PY-Blasen keins. Wert der Blasengröße in der Mitte (wie bisher
+    mit „Wert der Blasengröße“), Kontrast gegen die Tönung; Teil und Anteil in % im Tooltip. Nicht im Play-Modus und
+    nicht mit „Form je Gruppe“. Ohne Blasengröße: Hinweis im Bearbeitungsmodus. Feld-Intro mit 21 Rollen.
+  - **„Blasenanteil als“** (`chart.scatterShareAs`, `value` | `ratio`, Standard `value`, nur mit gebundenem Feld):
+    Wert in der Einheit der Blasengröße (Anteil = Teil ÷ Größe, 23 von 199) oder Quote 0 bis 1.
+  - **„Gesamtblase“** (`chart.scatterTotalBubble`, Standard aus, nur mit Blasengröße): je Kachel bzw. Diagramm eine
+    Blase mit Fläche = Summe der Blasen, Lage = größengewichtetes Mittel von X und Y, Segment = Summe der Teile (Quote ×
+    Größe bei `ratio`). Füllung 6 %, Segment 14 %, Umriss 1 px, Summe in der Mitte, Teil außen an der Segmentmitte,
+    beide als Kollisionsfläche für die Namen. Sie liegt hinter allen Blasen, hat keine Identität (nicht auswählbar,
+    eigener Tooltip, ein Ziehen auf ihr startet die Rechteck-Auswahl), zählt in die Größenskala und in die
+    Überlaufregel aus B12: `scatterMaxRadius` meint dann die größte Gesamtblase, bei Kacheln deckweit. Nicht im
+    Play-Modus und nicht auf dem Zeitpfad.
+  - **„Farbe der Gesamtblase“** (`chart.scatterTotalColor`, Standard #404040, im dunklen Modus #D9D9D9, solange nicht
+    geändert): Umriss, Segment und Schrift. Das Blatt zeichnet Rot (Rezept), das in ChartKitchen sonst für ungünstige
+    Abweichungen steht.
+  - **Legende:** Zeilen „◔ Teil-Name“ (`scatter-legend-share`) und „Σ Größen-Name“ (`scatter-legend-total`) hinter
+    den Gruppen. Hochkontrast: Papierkreis mit Umriss, Segment in Vordergrundfarbe, Gesamtblase gestrichelt.
+  - **Vorlage C24** (Galerie-Gruppe Korrelation nach C10, braucht „Blasengröße“, Mini `bubblepie`):
+    `orientation=scatter`, `scatterQuadrant=off`, `scatterColorBy=group`, `scatterSizeLegend=false`,
+    `scatterValueLabels=true`, `scatterBubbleOpacity=100`, `scatterTotalBubble=true`, `scatterTrend=off`,
+    `scatterArrows=false`, `scatterPath=off`, `scatterPlay=false`, `scale.xRefLine=1` (seit dem Review auch
+    `scatterMaxRadius=100`). Rezept 10E: Kategorie und Stack-Serie = Branche, Small Multiples = Land, zusätzlich
+    `scatterTotalColor=#FF0000`, Gruppenfarben der Branchen, Achsen 0 bis 2 und −2 bis 12.
+  - Testmarker (`data-icd`): `scatter-pie` (`data-share`, `data-small`), `scatter-pie-rim`, `scatter-pie-sector`,
+    `scatter-total` (`data-v`, `data-part`, `data-x`, `data-y`, `data-n`), `scatter-total-sector`,
+    `scatter-total-value`, `scatter-total-part`, `scatter-legend-share`, `scatter-legend-total`, `scatter-hint-share`
+    (`data-kind` `roles` | `range`). Ohne die neuen Optionen und ohne die Rolle sind alle Bestands-Stufen SVG-gleich
+    (Hash aller 756 Stufen; geändert nur das Feld-Intro c203, c206, c227, c236 um die neue Rolle und die Galerie c221e,
+    c222d, c230 um die Kachel C24; c222 blättert jetzt drei Seiten). Tests c930 bis c946. 983 resjson-Keys je Sprache
+    (Endstand nach den Reviews 987).
+  - Abweichungen von den Blättern: Die Gesamtblase liegt hinter den Blasen (Blatt: halbtransparent darüber), Summe
+    200 statt 199 (das Blatt rundet), Standardfarbe neutral statt Rot, die Größenwerte stehen nur mit „Wert der
+    Blasengröße“ in den Blasen. 10G: die Kacheln tragen den Scatter-Titel und Achsentitel, bei 4 × 6 Kacheln auf
+    1280 × 720 bleibt deshalb wenig Plothöhe, und der Radius ist auf ein Fünftel davon gedeckelt (B12); die meisten
+    Blasen fallen dann unter 6 px und zeigen kein Segment.
+  - **Nach dem Review:**
+    - Leerer Anteil (M1): Mit Blasenanteil wird jede Blase mit positiver Größe als Torte gezeichnet; ein leerer Anteil
+      (BLANK in DAX) ist die helle Tönung ohne Segment (`data-share=""`), nicht mehr eine volle Blase in Vollfarbe, die
+      sich wie 100 % las. Tooltip dann ohne Teil und Anteil.
+    - Lesbarkeit der Vorlage (M2), beides umgesetzt: Die Radiusgrenze (automatisch 22 px bzw. „Max. Blasenradius“) gilt
+      jetzt für die größte Einzelblase, die Gesamtblase wächst flächentreu darüber hinaus, höchstens auf 40 % der
+      kürzeren Plotkante (die Überlaufregel hält sie im Panel); vorher belegte die Gesamtblase den Radius und alle
+      Blasen schrumpften. Dazu schreibt C24 `scatterMaxRadius=100` (die Fünftel-Regel deckelt nach Kachelgröße).
+      Begründung: Die Radiusregel allein ließe C24 bei 22 px (für ein Portfolio zu klein), der Radius in der Vorlage
+      allein hätte weiter jede Blase geschrumpft, sobald jemand die Gesamtblase einschaltet. c930 und c945 treffen 10E
+      jetzt ohne Handradius (IT 97 px, Gesamtblase 155 px auf 1280 × 720).
+    - Formate (m1): Teil und Σ Teil im Format des Anteils-Measures (eigener Formatierer über Teile und Teilsummen;
+      bei `ratio` steht Σ Teil in der Einheit der Größe). Teil 2,5 liest sich „2,5“ statt „3“.
+    - Gesamtblase (m2): erst ab zwei Blasen in der Kachel (wie Blatt 10G); Kreis und Segment bleiben hinter den
+      Blasen, Summe und Teil stehen in einer Ebene über den Marken (`scatter-total-labels`, ohne Zeiger); der Teil
+      weicht den Werten in den Blasen aus (entlang des Segments, dann um den Kreis).
+    - Abschalten (m3): Hinweise im Bearbeitungsmodus `scatter-hint-share` mit `data-kind="off"` (Segmente im Play-Modus
+      oder mit „Form je Gruppe“) und `data-kind="total-off"` (Gesamtblase im Play-Modus oder auf dem Zeitpfad); im
+      Formatbereich verschwinden „Blasenanteil als“ bei Play und Formen, „Gesamtblase“ und ihre Farbe bei Play und Pfad.
+    - Gesamtteil (m4) aus den gekappten Anteilen × Größe, passt also zu den gezeichneten Segmenten; eine Quote über 1
+      bekommt den Hinweis „0 bis 1 erwartet (0,24 statt 24)“.
+    - Werte (m5) in Tortenblasen mit Halo in der Tönung, im Hochkontrast mit Papier-Halo (gelb auf gelbem Segment war
+      halb unsichtbar).
+    - Kleinere Punkte: Anteil knapp unter 1 zeichnet den Vollkreis (vorher konnte der Bogen verschwinden); FC-Segment
+      schraffiert in der Gruppenfarbe; der Paneltitel nennt mit Gesamtblase die größte Einzelblase („max 79“ statt
+      „max 200“); `Tip_Total` im Code wie in resjson; `aria-label` der Tortenblasen mit Größe und Anteil; Doku nennt das
+      10G-Rezept und das Verhalten bei Auswahl.
+    - Tests: c930, c933 (prüft jetzt exakt 90 px für die größte Einzelblase), c937 (10G-Rezept auf 1920 × 1080 mit
+      Radius 40, mindestens 60 % der Blasen mit Segment; das Visual legt 24 Kacheln als 5 × 5 an), c945 sowie neu c947
+      bis c959 (leerer Anteil, C24 pur, Formate, Summe über den Marken und Kachel mit einer Blase, Abschalten und
+      Formatbereich, gekappte Teile und Quote als Prozentzahl, Halo, FC-Schraffur, Zoom, Log-X, fixierte Achsen,
+      Cross-Highlight, Ziehen auf der Gesamtblase, Export ohne Hinweise, Vorlagenwechsel C24 → C10, Vollkreis,
+      `aria-label`, Paneltitel). `scale.html`: BUB10E (Fläche ∝ Größe für Einzel- und Gesamtblasen, Winkel);
+      `export-cases.js`: Blatt `bubbles` (10E France mit C24). Geändert nur B19-Stufen. 987 resjson-Keys je Sprache
+      (`Hint_ScatterShareRatio`, `Hint_ScatterShareOff`, `Hint_ScatterTotalOff`).
+    - Rezept 10G: 1920 × 1080, `scatterMaxRadius=40`, sonst wie 10E; 24 Kacheln stehen als 5 × 5, Kacheltitel und
+      Achsentitel kosten Höhe. Seit B24 gilt das Rezept mit `multiplesColumns=6` (4 × 6 wie das Blatt) und
+      `scatterMaxRadius=50`.
+    - Nicht geändert: Im Export zeigen Small-Multiples-Kacheln weiter ihren Zoom-Knopf „⤢“ (Befund des
+      Export-Falls, betrifft alle Kachel-Modi, nicht B19; der B19-Exportfall ist deshalb ein einzelnes Diagramm).
+      Behoben mit B25, das Blatt `bubblesMult` prüft die Blasenkacheln im Export.
+
+- **Demo-Galerie.** Vorher: Die Demo-Galerie (Leer-Zustand „Demo“ und Hub-Seite „Demo ansehen“) zeigte nur 13 der
+  14 Modi; Bestand & Fluss (seit 1.55) fehlte. War der Modus gewählt, blieb die Subline „Als Nächstes: … in die
+  Feldliste ziehen“ ohne Felder, und die Hero-Stufe zeigte Säulen statt des aktiven Modus. Hub und Tour nannten noch
+  „13 Chart-Typen“ und „17 IBCS-Vorlagen“. Nachher: Bestand & Fluss ist die 14. Kachel (am Ende, die übrigen behalten
+  ihren Platz) mit der Miniatur der Vorlage C20, Nutzen „Kasse, Personal, Lager: Bestand und Flüsse“ und den Feldern
+  „Kategorie (Zeit), AC, Stack-Serie, Waterfall-Typ“; ein Klick setzt
+  `chart.orientation = stockflow`. Die Tour-Karte „Zeitreihen“ zeigt die Miniatur dazu. Die Zahl der Modi (Einträge
+  im Dropdown) und der Vorlagen (Kacheln der Vorlagen-Galerie) steht als `{0}` in den Texten und wird gezählt, statt
+  fest im Text zu stehen. Die Vorlagen C07, C21, C22, C23 und C25 hatte die Vorlagen-Galerie schon; die Demo-Galerie
+  zeigt Modi, keine Varianten, daher dort keine weiteren Kacheln (C24 folgt mit B19 in der Vorlagen-Galerie).
+  Neue Keys `Demo_Use_StockFlow`, `Demo_F_StockFlow`; geändert `Hub_DemoDesc`, `Tour_1_T` bis `Tour_4_T`, `Tour_1_B`,
+  `Tour_11_B`. Tests c990 bis c999, c227b zählt 14 Kacheln.
+
+## 1.56.0.0 (2026-11-22, Backlog IBCS-Templates Teil 3)
+
+- **B13 Teil 2 · Nur Abweichungs-Panel (Blätter 13C und 13D).** Vorher: Kacheln gegen den Durchschnitt zeigten
+  unter dem ΔØ-Panel immer auch ihre Säulen, 13C und 13D waren nur teilweise abbildbar. Nachher:
+  - **„Nur Abweichungs-Panel“** (`chart.varianceOnly`, bool, Standard aus, Gruppe „Small Multiples“, nur Säulen und
+    Balken ohne Stapel und ohne Wasserfall-Stil, wirkt nur mit Small Multiples): Jede Gruppen-Kachel zeigt nur ihr
+    Abweichungs-Panel, mit „Absolute Abweichung“ die ΔØ-Balken (13C), mit „Relative Abweichung“ die ΔØ %-Pins (13D),
+    mit beiden zwei Panels. Alle Kacheln teilen eine Δ-Skala über die gezeichneten Kacheln ohne Bezugskachel (eine
+    summierte Σ-Abweichung staucht die Skala nicht). Kategorie- und Szenario-Beschriftung stehen unten, helle
+    Hilfslinien führen von jeder Marke zur Kategoriezeile, die Plan-Grenze läuft durch das Panel. Wirkt auch mit der
+    Szenario-Basis (ΔPY bzw. ΔPL).
+  - **Bezugskachel:** behält ihre Säulen über die ganze Höhe auf eigener Skala. Mit absolutem Δ nutzt sie den px-Wert
+    je Einheit der ΔØ-Panels (gemessen an einer Gruppen-Kachel gleicher Größe), wenn ihre Werte hineinpassen, sonst
+    eine runde Verkleinerung mit Faktor im Panel-Titel („AC · PL ×0,5“). Nur mit Δ % gibt es keinen Vergleich, sie
+    skaliert für sich.
+  - **Plan-Notation:** Planjahre bleiben wie in Teil 1 umrandet mit blasser Füllung (Balken) bzw. mit hohlem Kopf (Pins).
+  - **Ausgeschaltet in dieser Ansicht** (ganze Kachelgruppe): Kommentar-Marken, Hervorhebungsband, Differenzmarker (B09),
+    Jahressäule (B05), Σ-Kopf, Referenzlinie, gleitender Durchschnitt und Kombi-Linie der Gruppen-Kacheln, doppelte
+    Abweichung. Kacheln unter 110 px Höhe (Säulen) bzw. 240 px Breite (Balken) fallen auf die normale Ansicht zurück.
+  - Testmarker (`data-icd`): `var-only` je Δ-Kachel (`data-px-per-unit`, `data-panels` = `abs`, `rel` oder beides),
+    `var-only-fallback`, `var-only-ref` an der Bezugskachel (`data-px-per-unit`, `data-factor`, `data-k-delta`),
+    `var-only-guides` mit `var-only-guide`. Mit der Option aus sind alle 485 Harness-Stufen SVG-gleich. Tests c700 bis
+    c710. 838 resjson-Keys je Sprache. Abweichungen zu den Blättern: Berlin über zwei Zeilen (13B-Heldenkachel) fehlt,
+    Panel-Titel „ΔØ“ oben links statt rechts an der Nulllinie, Kategoriebeschriftung nach Platz statt fest jedes
+    sechste Jahr.
+  - **Nach dem Review:** Kacheln, die zu klein für die Δ-Ansicht sind, zeigen jetzt wirklich die normale Ansicht.
+    Vorher nahm die Bezugskachel dort eine eigene, nicht ausgewiesene Skala, die Δ-Skala ließ eine summierte
+    Σ-Abweichung weg und Kommentar-Marken, Hervorhebungsband und Differenzmarker fehlten; jetzt fällt die Bezugskachel
+    mit zurück und alles ist SVG-gleich mit der Ansicht ohne Option (`var-only-fallback` trägt `data-px-per-unit`).
+    Die Heldenkachel ist in der Δ-only-Ansicht aus und im Formatbereich ausgeblendet, ebenso die doppelte Abweichung:
+    Eine größere Heldenkachel zeichnete Δ auf anderem px-Wert je Einheit, und als Bezugskachel maß sie ihren Peer in
+    der Heldenzelle („×0,5“ im Titel statt des wahren ×1,32); jetzt misst die Bezugskachel immer eine Gitterkachel
+    gleicher Größe (im Zoom die gezoomte Gruppe). Δ % steht in Δ-Kacheln ganzzahlig (Blatt 13D, vorher eine
+    Nachkommastelle mit überlappenden Labels bei Dichte „alle“). Hochkontrast: Plan-Δ mit gestricheltem Rand (Balken)
+    bzw. Stiel (Pins), günstige bleiben gefüllt (vorher wie ungünstiges Δ hohl). Hilfslinien nur an beschrifteten
+    Kategorien. Die Bezugskachel beachtet ein festes Maximum der Werteachse (`scale.fixedMax`, mit Kappung als hartes
+    Ende) und zeigt bei Mittelwert-Aggregation keinen Σ-Kopf mehr. Der Schalter ist ohne absolute und relative
+    Abweichung ausgeblendet. Die Hervorhebung als Ellipse bleibt in den Δ-Kacheln (13C markiert Zahlen, nur das Band
+    entfällt). Tests c711 bis c725; geändert: c701 (Standarddichte, ganzzahlige Δ %), c705 (Ø-Kachel ohne „Σ 100“),
+    c706 (Bezugskachel fällt mit zurück), c709 (Hochkontrast-Signatur).
+
+- **B10 Teil 2 · Stapel-Blöcke mit Zwischensummen (nach IBCS-Blatt 02A).** Vorher: Gestapelte Balken mit Kategorie-Hierarchie (Region › Land) zeigten jede Zeile als „Europe · Switzerland“ in einer Liste, Sortierung und Top N wirkten über alle Zeilen, und es gab keine Zwischensumme je Region, keinen Blockanteil und keine Pfeile. Nachher (Format Chart → Darstellung, nur Balken mit Hierarchie):
+  - **„Stapel-Blöcke“** (`chart.stackBlocks`: `off` | `gap` | `subtotals` | `subtotalsButLast`, Standard `off`): Die erste Kategorie-Ebene bildet Blöcke, die Zeilen zeigen nur die unteren Ebenen („Switzerland“, bei drei Ebenen „DACH · Switzerland“). „Abstand zwischen Blöcken“ setzt eine halbe Zeile zwischen die Blöcke; „Zwischensumme je Block“ hängt unter jeden Block eine fette Summenzeile mit Linie, Blockname, Summe je Serie (Farbfeld) und Blocksumme („Europe 1.120 · 1.107 · 871 = 3.098“), bei 100 % einen Balken mit dem Blockmix; „Zwischensummen außer letztem Block“ lässt sie am letzten Block weg (wie 02A, dort folgt die Σ-Zeile). Ein Block mit gemischten AC-, FC- und PL-Zeilen bekommt keine Zwischensumme (Regel der Σ-Zeile). Sortierung und Top N wirken je Block, „Rest (n)“ bleibt im Block, die Blöcke folgen bei Sortierung der Blocksumme (absteigend), sonst der Datenreihenfolge; Rest-Zeilen („Rest of Europe“) erkennt die Regel am Blattnamen. Mit Blöcken entfallen die Anteils-Klammer und die Gruppentrenner (`groupEvery`); Differenzmarker finden Zeilen auch über den Blattnamen. Im Summen-Panel bei 100 % steht in der Zwischensummen-Zeile nur die fette Blocksumme.
+  - **„Blockanteil“** (`chart.stackBlockShare`, Standard aus, nur mit Zwischensummen): Anteil des Blocks an der Gesamtsumme in einer Ellipse hinter der Blocksumme („83 %“), „100 %“ hinter der Σ-Zeile und über hervorgehobenen Zeilen deren Anteil („USA 8 %“).
+  - **Pfeil an hervorgehobenen Zeilen:** Bei `highlightStyle` = Ellipse und eingeschalteten Stapel-Blöcken zeigt ein Pfeil ▼ auf das Balkenende hervorgehobener Zeilen (vorher nur fetter Name), auch per Blattname („Switzerland, USA“). Gestapelte Balken ohne Blöcke bleiben wie 1.55 (nur fetter Name).
+  - Mit `off` zeichnet alles wie 1.55, auch mit Hierarchie. Positionen laufen jetzt über eine Slot-Tabelle; SVG-Hash aller 485 bestehenden Harness-Stufen vorher und nachher gleich. Bekannte Abweichungen zum Blatt: Linie über der Zwischensumme über die volle Breite (Blatt: kurz), Zahlen der Rest-Zeilen aufrecht, Blocksumme mit „=“, Ellipse um ein einzelnes Segment nicht abgebildet, Blöcke nur für Balken. Rezept 02A: `orientation=bars`, `sortMode=ac`, `stackBlocks=subtotalsButLast`, `stackBlockShare=true`, `stackTotalRow=true`, `stackTotalLabel=World`, `highlight=Switzerland, USA`, `highlightStyle=ellipse`.
+  - Tests c830 bis c849c (Render-Harness).
+  - **Nach dem Review:**
+    - **Aufklappen:** Power BI liefert ohne Drill nur die oberste Ebene. Mit `stackBlocks` ≠ `off`, gebundener Stack-Serie und drillbarer Kategorie klappt das Visual die Hierarchie jetzt selbst auf (wie Tabelle und GuV über `autoExpandHierarchy`, einmal je Feld-Konstellation, ein Hochklappen des Nutzers bleibt). Gestapelte Balken ohne Blöcke klappen nie auf, bestehende Berichte ändern sich nicht. „Stapel-Blöcke“ steht im Formatbereich schon bei drillbarer Kategorie (vorher erst, wenn zwei Ebenen geliefert waren). Im Harness geprüft über einen Drill-Spion (c851); im Desktop noch nicht verifiziert.
+    - **Nachbarzeile:** Liegt eine hervorgehobene Zeile unter einer längeren Zeile desselben Blocks (bei Sortierung der Normalfall), steht der Zeilenanteil rechts neben der eigenen Summe auf Zeilenhöhe und der Pfeil ist höchstens so hoch wie der Zeilenabstand (unter 6 px entfällt er). Vorher lagen beide auf dem Balken und der Summe der Zeile darüber (c852).
+    - **Negative Summen:** Ist ein Block oder die Gesamtsumme negativ, entfallen alle Anteile (vorher „126 %“ und „−26 %“), ebenso der Anteil einer negativen Zeile (c853).
+    - **Pfeil nur mit Blöcken** (c854, siehe oben). Rest-Zeilen bei drei Ebenen („DACH · Rest of DACH“) erkennt die Regel am Blattnamen: kursiv und bei Sortierung am Blockende (c856, Stufe c846 entsprechend geändert).
+    - **Dunkles Erscheinungsbild (Fix seit 1.55):** Die Stapel-Rampe lief auch im Dunkelmodus vom hellen AC-Ton zu Hellgrau, die Werte der hellen Segmente standen hell auf hell. Jetzt läuft sie zum dunklen Grau, die Textfarbe folgt dem Ton (höherer Kontrast), gemeinsam mit der gestapelten Fläche. Betrifft gestapelte Säulen und Balken im Dunkelmodus (keine bestehende Harness-Stufe betroffen); hell und Hochkontrast unverändert (c855).
+    - Beschreibung: mit Sortierung folgen die Blöcke der Blocksumme, sonst der Datenreihenfolge; Top N zählt je Block. es-ES „Proporción del bloque“ statt „Cuota“.
+    - Tests c851 bis c856.
+    - **Schalter „Hierarchie automatisch aufklappen“ (Schlussrunde):** stand nur in der Gruppe „Tabelle“ und war bei Balken nicht zu erreichen. Mit `stackBlocks` ≠ `off` steht er jetzt in „Darstellung“ direkt nach „Stapel-Blöcke“, sonst wie bisher in „Tabelle“ (ein Schalter, je nach Modus in einer Gruppe); die Beschreibung nennt Balken und Fläche (c857).
+
+- **B11 Teil 2 · Bestand und Fluss: Aggregation über die Zeit, YTD, Fluss-Zoom (Blätter 08E bis 08H, Zoom nach 08G).** Vorher: Jede Zusammenfassung über die Zeit war eine Summe, auch für Bestände (Jahressäule, Tabellenbaum, Trend-Perioden, Kartenwert „Summe“, Σ-Kopf); im Modus `stockflow` war der YTD-Knopf gesperrt; neben einem großen Bestand (Headcount 255 bis 275) blieben Zu- und Abgänge wenige Pixel hoch; widersprüchliche Daten (Bestandsänderung ≠ Netto) fielen nicht auf. Nachher:
+  - **„Aggregation über die Zeit“** (`chart.timeAggregation`, `sum` | `last`, Standard `sum`, Gruppe „Daten & Zeit“, sichtbar in Säulen, Linie, Tabelle, Karten und Bestand & Fluss): Mit `last` nehmen YTD/QTD/R12 (keine laufende Summe, der YTD-Knopf ist dann gesperrt), die Jahressäule (Beschriftung „Ende“ statt „Σ“, Δ des letzten Monats), der Tabellenbaum samt Σ-Zeile und Matrix-Σ, über die Trend-Rolle zusammengeführte Perioden, der Kartenwert „Summe“ und der Σ-Kopf („Ende 263“) den letzten Wert: die letzte Periode mit Ist oder Forecast, sonst die letzte mit Plan oder Vorjahr. **Zeilen mit dem Token `stock` tun das immer**, auch mit `sum`; über Einheiten, Regionen, Spaltengruppen und Small-Multiples-Kacheln bleibt ein Bestand eine Summe.
+  - **YTD im Modus `stockflow`:** `chart.cumulative` und der YTD-Knopf kumulieren die Flüsse je Art (Ist, danach Plan angehängt), der Bestand bleibt wie geliefert; YTD setzt bei Monatsnamen am Fiskaljahresbeginn zurück, sonst beim Wechsel der obersten Hierarchie-Ebene (Jahr). Gesperrt nur noch bei nur Bestandszeilen.
+  - **„Flüsse vergrößern“** (`chart.sfFlowZoom`, Standard aus): Flüsse und Netto mit dem größten runden Faktor aus 2, 4, 5, 10 … , der die vergrößerten Flüsse unter einem Drittel des Bestands hält; ein Skalenband zeigt denselben Wert im Bestands- und im Fluss-Maßstab, „×5“ steht an Netto-, Zu- und Abfluss-Namen. Ein Faktor für alle Kacheln.
+  - **Konsistenzhinweis** im Bearbeitungsmodus, wenn Bestand[t] − Bestand[t−1] vom Netto[t] abweicht (Toleranz eine halbe Einheit der Beschriftung; nicht bei YTD und nicht in Σ-, Ø- und Rest-Kacheln).
+  - **Verhaltensänderungen:** Ein Bericht mit `stock`-Zeilen und Jahressäule, Tabellenbaum, Trend-Rolle oder Kartenwert „Summe“ zeigt jetzt den letzten Wert statt der Summe; im Modus `stockflow` ist der YTD-Knopf frei (Stufe c610 entsprechend angepasst). Ohne `stock`-Zeilen und mit Standardwerten zeichnen alle Stufen SVG-gleich.
+  - Tests c730 bis c743.
+  - **Nach dem Review:**
+    - **Letzter Wert nur über Zeitebenen.** Vorher nahm das Token `stock` (und `timeAggregation` = `last`) im Tabellenbaum, in der Σ-Zeile und in der Matrix auch über Strukturebenen den letzten Wert (Bilanz Gruppe › Konto: Assets 300 statt 600, Σ Total 250 statt 1.000; Konto › Monat: Σ Total 320 statt 440; Matrix mit vier verschiedenen Regeln). Nachher gilt der letzte Wert nur über Ebenen, deren Beschriftungen Perioden sind (Jahr, Quartal, Monatsname, Woche, Datum, ein- bis zweistellige Zahl), in Zeilen wie in Matrix-Spalten (Quartale als Spalten: Σ-Spalte = letztes Quartal). Konten, Regionen, Werke summieren, auch für `stock`-Zeilen und für ausdrücklich gewähltes `last`. Gemischte Kinder (Struktur unter einem Knoten, Zeit darunter) summieren je Periode und nehmen dann die letzte Periode mit Ist oder Forecast. **Verhaltensänderung:** eine flache Tabelle oder ein Baum ohne Periodenebene zeigt mit `timeAggregation` = `last` wieder die Summe.
+    - **YTD im Modus `stockflow` über die gemeinsame Periodenachse.** Vorher lief die laufende Summe je Flussart über die vorhandenen Zeilen der Art; fehlte eine Zeile (leere Measure, im Langformat der Normalfall), setzte YTD nicht zurück (Abgänge Feb 2026 −32 statt −2, Kopf „Σ Layoffs 54“ statt 24) und Monate ohne eigene Zeile hatten kein Segment. Nachher läuft jede Art über alle Perioden der Kachel ab ihrem ersten Auftreten, fehlende Perioden bekommen eine Zeile mit dem laufenden Wert (Szenario der Periode, keine Auswahl); Zeilen mit laufendem Wert 0 entfallen. Folge: auch Tage ohne Bewegung (08E, Wochenende) zeigen jetzt ihr YTD.
+    - Kleinigkeiten: Tooltip der Jahressäule mit letztem Wert in einem FC-Monat nennt „FC“ statt „AC&FC“.
+    - Tests c744 bis c751.
+
+- **B16 · Gestapelte Fläche (Blatt 08A).** Vorher: Blatt 08A ließ sich nur als gestapelte Säulen (C01) bauen, ohne Flächen, ohne Summenlinie und ohne Werte in den Flächen; die Vorlage C07 war reserviert. Nachher:
+  - **„Stapel-Form“** (`chart.stackShape`, „Säulen“ | „Fläche“, Standard Säulen, Formatbereich Chart → „Darstellung“, nur bei Säulen): Mit gebundenem Feld „Stack-Serie“ zeichnet „Fläche“ denselben Stapel als gestapelte Fläche über die Zeit. Datenvertrag, Serienreihenfolge (wie geliefert, erste Serie unten und am dunkelsten), Small-Multiples-Skala und 100 % (`stackNormalize`) bleiben wie bei den Säulen. Ein Punkt je Periode in der Mitte der Periode; das Blatt setzt die Punkte auf die Monatsgrenze, ChartKitchen ordnet Stromgrößen ihrer Periode zu (bewusste Abweichung). Je Serie und Szenario-Lauf eine geschlossene Fläche mit Trennlinien in Papierfarbe, darüber die Nulllinie.
+  - **„Summenlinie“** (`chart.areaTotalLine`, Standard an): Linie mit Punkt und Summe je Periode über dem Stapel (Ist gefüllt, Forecast schraffiert, Plan hohl), Summenlabels nach Priorität (letzte, erste, Hervorhebung, Szenariogrenze, Maximum und Minimum, dann nach Platz). Bei 100 % nie.
+  - **„Werte in den Flächen“** (`chart.areaValueLabels`, „Automatisch (ausdünnen)“ | „Erste und letzte Periode“ | „Aus“, Standard automatisch): ein Wert nur, wo die Fläche mindestens Schrifthöhe plus 2 px hoch ist; Werte an den Enden stehen innerhalb der Fläche; Textfarbe nach Kontrast.
+  - Seriennamen rechts neben der letzten Periode auf halber Höhe ihres Bandes (mit `stackLegendPos` = „Links“ links neben der ersten), ohne Überlappung; passen sie nicht oder bei Small Multiples die Legendenzeile wie im Stapel. Achsengruppen aus der Kategorie-Hierarchie (Jahr unter dem ersten Monat, kurzer Trennstrich am Jahreswechsel; „Achsengruppen“ `axisGroups` gilt jetzt auch hier).
+  - Szenarien wie B06: das Stück zwischen zwei Punkten trägt das Szenario des rechten Punkts; Forecast in der Serienschraffur, Plan getönt mit Umriss; Grenzstrich am letzten Punkt davor, Szenario-Kürzel unter der Achse.
+  - Durchgehend negative Serien stapeln unter null (die Summenlinie zeigt das Netto); wechselt eine Serie das Vorzeichen, bleibt es bei gestapelten Säulen mit Hinweis im Bearbeitungsmodus. Eine Periode ohne Werte unterbricht Flächen und Linie, eine einzelne Periode zwischen Lücken wird als schmaler Stapel gezeichnet, eine fehlende Zelle zählt 0. Ohne Serie bleiben einfache Säulen (Hinweis im Bearbeitungsmodus), bei zu wenig Platz ein Platzhinweis.
+  - Tooltip je Periode und Serie mit Anteil und Periodensumme, Auswahl und Cross-Highlight über eine unsichtbare Zelle (abgeblendet wird mit einem Papierschleier), Kommentar-Marker über dem Summenpunkt, Hervorhebung als Band oder als Ellipse um die Summe, Hochkontrast mit Papierfüllung und Umrissen.
+  - **Vorlage C07 · Gestapelte Fläche (08A)**, Galerie-Gruppe „Zeit“: orientation=columns · stackShape=area · areaTotalLine · areaValueLabels=auto · stackLegendDirect · stackLegendPos=end · showTotal=false · scenarioLabels. Die Blatt-Reihenfolge (Priority 1 oben) entsteht über die Sortierung der Serienspalte im Modell (Priority 6 zuerst); die Töne folgen der Lieferreihenfolge, die oberste Serie ist am hellsten (auf dem Blatt am dunkelsten).
+  - Mit `stackShape` = „Säulen“ (Standard) zeichnen alle bisherigen Stufen unverändert (SVG-Hash). Nicht abgebildet: Differenzmarker und YTD in der Fläche, liegende Variante, Seriennamen nur in der letzten Kachel einer Small-Multiples-Zeile.
+  - Tests c800 bis c823 (Render-Harness), AREA08A in `test/scale.html`.
+  - **Nach dem Review:**
+    - **Aufklappen:** Mit „Fläche“, gebundener Stack-Serie und `axisGroups` ≠ „Aus“ klappt das Visual eine drillbare Kategorie (Jahr › Monat) selbst auf, einmal je Feld-Konstellation; gestapelte Säulen nie (c824). Im Desktop noch nicht verifiziert.
+    - **Dunkles Erscheinungsbild:** Rampe vom AC-Ton zum dunklen Grau statt zu Grau 200 (vorher sechs fast gleiche helle Töne), Werte in den Flächen in der Textfarbe mit dem höheren Kontrast zum Ton (vorher hell auf hell). Stufe c817 entsprechend geändert, Kontrast ≥ 3 geprüft (c826).
+    - **Kappung:** `capOverflow` wirkt nicht auf die Fläche (vorher flache Fläche und flache Summenlinie ohne Bruchzeichen); `fixedMax` erweitert die Skala weiter. Der Schalter ist bei „Fläche“ im Formatbereich verborgen (c824, c825).
+    - **Trennlinien** in Papierfarbe nur über AC- und FC-Stücken; Plan-Stücke behalten ihren Umriss ohne gestrichelten Zickzack (Stufe c805 geändert).
+    - **Seriennamen** neben der letzten Periode mit Werten, wenn die letzten Perioden leer sind (c827). **Hervorhebung** findet eine Periode auch über ihren Blattnamen („Jul“ trifft Jul 2024 und Jul 2025); die Ellipse ohne Summenlinie oder ohne Labels fällt aufs Band zurück (c828).
+    - **Negative Serien:** Werte, die unter der Netto-Summe oder ihrem Punkt lägen, entfallen (Stufe c807 geändert); sind alle Serien negativ, bleibt die Zeile des Paneltitels über der Nulllinie frei (c829). Kommentar-Marker liegen über der Trefferfläche (Stufe c821 geändert).
+    - Tests c824 bis c829.
+    - **Schlussrunde:** Der Schalter „Hierarchie automatisch aufklappen“ steht bei „Fläche“ mit `axisGroups` ≠ „Aus“ in der Gruppe „Bestand & Fluss“ nach „Achsengruppen“ (vorher nur in „Tabelle“, c857b). In c807 saß „549“ (Priority 2, Mai 2024) mit seinem Papierrand auf der Netto-Summe „1.350“: über und unter Summenlabel und Punkt gelten jetzt 4 px Luft statt 2, der Wert entfällt dort (Stufe c807 geändert, c858).
+
+- **B15 · Kumulierte Linie YTD mit gleitender Jahressumme (R12), Monatssäulen und Abstandsmarkern (nach IBCS-Blatt 07C).** Vorher: Die Linie zeigte die kumulierten Werte (YTD) nur als Linien mit Kreisen, R12 gab es nur als eigene Kumulierungsart (ohne Vorgeschichte: der Januar war kein Jahreswert), die Monatswerte verschwanden in der kumulierten Sicht, und der Abstand zum Plan stand nur im Δ-Panel. Nachher, alle Schalter in der neuen Gruppe „Linie“ (Objekt `chart`, nur im Modus Linie sichtbar, Standard aus):
+  - **„Gleitende Jahressumme (R12)“** (`lineR12`, nur mit kumulierter Sicht YTD) zeichnet zusätzlich die Summe der letzten 12 Perioden auf derselben Skala, Name am Linienanfang über **„Name der R12-Linie“** (`lineR12Label`, leer = „R12“, Blatt: „MAT“). Quelle in dieser Reihenfolge: das Feld „Linie“ (fertige R12-Measure, unverändert gezeichnet), sonst aus dem Vorjahr für ein volles Jahr (12 Perioden, Vorjahr in jedem Monat: R12 = Σ PY − PY_YTD + YTD), sonst ein Fenster über mindestens 13 sichtbare Perioden (Linie ab der 12. Periode). Ohne Quelle keine Linie, im Bearbeitungsmodus ein Hinweis. Ist die Basis Plan und dient das Vorjahr nur als R12-Quelle (ohne Doppel-Varianz), entfällt die Vorjahreslinie.
+  - **„Periodensäulen“** (`linePeriodColumns`, `off` | `same`): die unkumulierten Werte als Säulen hinter den Linien, auf derselben Skala und Nulllinie (AC solide, FC schraffiert, PL als versetzter Umriss, PY grau bzw. als Dreieck), Werte über den Säulen; Linienbeschriftungen, die in die Säulen liefen, entfallen dort. Unter 4 px Säulenhöhe keine Säulen und ein Hinweis im Bearbeitungsmodus. Eine eigene Säulenskala (`own`) folgt später.
+  - **„Abstandsmarker“** (`lineGapMarkers`, `off` | `actual` | `end` | `both`): am rechten Rand ein Balken vom Basiswert zum kumulierten Ist am letzten Ist-Monat und vom Basiswert zu AC+FC am Jahresende (schraffiert), dünne Niveaulinien von den Punkten, Δ absolut daneben (Blatt: −192 und +87). Rechts wird Platz reserviert, in Small Multiples deckweit gleich.
+  - **„Punktmarken“** (`lineMarkerShape`, `circle` | `square`) und **„Vergleichslinie beschriften“** (`lineBasisLabels`) wirken in jeder Linie: Quadrate auf dünnen Linien (AC gefüllt, FC schraffiert, PL hohl, keine Strichelung, das Szenario steht an der Marke), Werte der Vergleichslinie auf der Seite weg von der Ist-Linie.
+  - **„Szenario-Kürzel“** (`scenarioLabels`) ist jetzt auch in der Linie sichtbar: AC und FC unter der Achse wie bei den Säulen, dazu das Kürzel am Ende jeder Linie (FC, PL, PY) und an den Periodensäulen.
+  - **Vorlage C21 „Kumulierte Linie mit R12 und Monatssäulen (07C)“** (Galerie-Gruppe Zeitverlauf): orientation=line · comparisonMode=plan · cumulative=true · cumulativeKind=ytd · lineR12 · linePeriodColumns=same · lineGapMarkers=both · lineBasisLabels · lineMarkerShape=square · scenarioLabels · showAbs/showRel/dualVariance=false · showTotal=false.
+  - Verhaltensänderung: Ein Linienbericht mit gespeichertem `scenarioLabels` = true (z. B. von einer Säulen-Vorlage übernommen) zeigt jetzt die Kürzel. Mit irgendeiner Linienoption steht die Ist-Beschriftung an ihrem eigenen Punkt, auf der Seite weg von der Vergleichslinie (vorher über der höchsten Linie, das las sich mit Plan-Quadraten wie ein Planwert). Mit allen Optionen auf Standard zeichnet die Linie SVG-gleich zu 1.55 (Hash aller 485 Harness-Stufen; geändert nur die Galerie-Stufen wegen C21).
+  - Nicht abgebildet: eigene Skala der Monatssäulen (`own`), die Ellipse um −192 (dafür gibt es `highlight`), auf dem Blatt stehen die Linien nicht gestrichelt im FC-Teil, das ist bei Quadraten auch hier so, bei Kreisen bleibt die Strichelung.
+  - Tests c760 bis c774 (Render-Harness).
+  - **Nach dem Review:**
+    - **Bezugskachel Ø, Σ und Rest:** Vorher verlor die Ø-Kachel mit YTD die R12-Linie und die Monatssäulen, zeigte als einzige die PY-Linie mit Kürzel und den falschen Hinweis „Periodensäulen: auf dieser Skala zu klein“; die Σ-Kachel hatte bei R12 aus dem Feld „Linie“ keine R12-Linie. Nachher entstehen Periodenwerte und R12 an den Datenkacheln, bevor die Bezugs- und Rest-Kacheln gebildet werden, und werden dort summiert bzw. gemittelt; PY ist überall gleich ausgeblendet, die Quelle der Kachel ist die ihrer Glieder. Der Säulen-Hinweis erscheint nur, wenn es Säulenwerte gab.
+    - **Bestandszeilen** (Token `stock`): keine R12-Linie, keine Monatssäulen, kein Hinweis (vorher summierte R12 die Bestände und die Säulen wiederholten die Linie).
+    - **R12 aus dem Vorjahr nur für ein Jahr:** zwölf erkannte, verschiedene Monate ab dem Fiskaljahresbeginn. **Verhaltensänderung:** 12 Wochen oder 12 Perioden ohne Monatsnamen bekommen keine R12 aus PY mehr (Hinweis im Bearbeitungsmodus).
+    - **Abstandsmarker gegen Ø** (`multiplesBasis` = `avg`): messen gegen die gezeichnete Vergleichslinie (Plan bzw. Vorjahr) statt gegen den Durchschnitt, ohne Rundungsrest in `data-v`.
+    - **Beschriftung:** Linien-Labels entfallen auch in negativen Säulen und ihren Labels unter null; Marker-Labels weichen Szenario-Kürzeln aus; Kürzel am Linienende rücken rechts neben ein Wert-Label, auf dem sie lägen; die Kommentar-Marke steht über dem Punkt, wenn das Ist-Label darunter steht; beginnt die R12-Linie nicht in der ersten Periode (Fensterquelle), steht ihr Name am Linienende bei den Kürzeln (Platz rechts statt links, Stufe c772 entsprechend).
+    - **Formatbereich:** R12, Periodensäulen, Abstandsmarker, Kumulierungsart und Geschäftsjahresbeginn verschwinden bei `timeAggregation` = `last` (dort läuft nichts auf).
+    - Tests c775 bis c785.
+    - **Jahreswechsel (Schlussrunde):** Über mehrere Geschäftsjahre (24 Monate) zog jede kumulierte Linie einen steilen Strich vom Dezember-YTD zum Januar-YTD. Jetzt bricht die Linie überall dort, wo die laufende Summe neu beginnt (YTD am Fiskaljahresbeginn, QTD an jedem Quartalsanfang), in der Linie mit Optionen (AC, FC, PL, PY) wie in der einfachen Linie; R12 läuft durch, auch eine Ø-Kachel aus kumulierten Gliedern bricht. Stufen c772 und c783 entsprechend geändert. Tests c786 bis c789.
+
+- **B17 · Serienlinien mit Index (nach IBCS-Blatt 07A).** Vorher: Eine im Modus Linie gebundene „Stack-Serie“ ergab keine Linie je Mitglied (die Linie las die Zeilen als eine Reihe), Werte ließen sich nicht auf einen Basistag indexieren, und das Blatt 07A war nicht abbildbar. Nachher, alle Schalter in der Gruppe „Linie“ (Objekt `chart`, nur im Modus Linie sichtbar, Standard aus):
+  - **„Serienlinien“** (`lineSeries`, ausdrücklicher Schalter, nicht automatisch bei gebundener Serie): eine Linie je Mitglied des Felds „Stack-Serie“ über die Kategorien, in einer Linienstärke; das Stück zu einem FC-Punkt gestrichelt, FC-Marken hohl. Serienname mit letztem Wert rechts am Linienende, senkrecht entzerrt. Ohne gebundene Serie bleibt die einfache Linie (Hinweis im Bearbeitungsmodus). Schließt B15 aus: keine kumulierte Sicht (YTD-Knopf gesperrt), R12, Periodensäulen und Abstandsmarker sind ausgeblendet und ohne Wirkung; Δ-Panels, Vorjahr, Plan und Benchmark wirken hier nicht.
+  - **„Index“** (`lineIndex`, `off` | `base100`) und **„Basis-Kategorie des Index“** (`lineIndexBase`, leer = erste Kategorie mit Werten aller Serien): Wert ÷ Basiswert × 100 je Serie, nullbasierte Achse, dünne Linie bei 100, Panel-Titel „Index, 02.01. = 100“, ganzzahlige Werte. Eine Serie ohne Basiswert (leer oder 0) wird nicht gezeichnet, Hinweis im Bearbeitungsmodus.
+  - **„Serienwerte“** (`lineSeriesLabels`, `ends` | `groups` | `all` | `none`, Standard `ends`): mit `groups` und Kategorie-Hierarchie (Monat › Tag) Werte an jedem Gruppenanfang mit einer senkrechten Linie bis zum höchsten Punkt, ohne Hierarchie jeder Punkt nach Platz; Marken nur an beschrifteten Stellen und am Linienende, ein gemeinsamer Wert (die 100 am Basistag) einmal. Die Achse zeigt mit Hierarchie die Monatszeile statt 250 Tageslabels (`axisGroups` ist dafür jetzt auch in der Linie sichtbar).
+  - **„Start-Ende-Marker“** (`lineEndDelta`, Serienliste, `*` = alle): Balken vom Basisniveau zum Endwert am rechten Rand in Gut- bzw. Schlecht-Farbe, mit Index als Δ % (Blatt: −93%), sonst Δ und Δ %.
+  - **„Serienfarben“** (`lineSeriesColor`, `tones` | `palette`): AC-Farbe für die erste bzw. hervorgehobene Serie und abgestufte Grautöne, oder die Gruppenpalette; im Hochkontrast Strichmuster je Serie.
+  - Small Multiples teilen eine Skala; eine Σ-Kachel indexiert die Summen (nicht die Summe der Indizes). Tooltip je Kategorie mit allen Serien (Index und Rohwert), Klick wählt die nächstliegende Linie.
+  - **Vorlage C22 „Serienlinien mit Index (07A)“** (Galerie-Gruppe Zeitverlauf, braucht „Stack-Serie“): orientation=line · lineSeries · lineIndex=base100 · lineSeriesLabels=groups · lineSeriesColor=tones · lineMarkerShape=square · showAbs/showRel/dualVariance=false · cumulative=false · showTotal=false. Die Gruppe Zeitverlauf hat damit neun Kacheln und läuft bei schmaler Galerie in einer zweiten Zeile weiter.
+  - Mit `lineSeries` aus zeichnen alle bestehenden Stufen SVG-gleich (Hash aller 606 Harness-Stufen); geändert nur die Galerie-Stufen wegen C22. Nicht abgebildet: Kommentar-Marken an Serienpunkten; der Endwert steht neben dem Namen statt über dem Punkt.
+  - Tests c860 bis c874 (Render-Harness).
+  - **Nach dem Review:**
+    - **Negativer Basiswert:** Vorher teilte der Index auch durch einen negativen Basiswert (Ergebnis −20 → +13 lief als 100 → −65, Marker „−165 %“ in Schlecht-Farbe, also das Gegenteil der Daten). Jetzt gilt ein Basiswert ≤ 0 wie kein Basiswert: die Serie fehlt, der Hinweis lautet „leer, 0 oder negativ“ (c875).
+    - **Automatische Basis:** die erste Kategorie, in der alle Serien einen Wert über 0 haben (vorher nur „nicht leer“: eine 0 im Januar ließ die Serie ganz fehlen, obwohl der Februar für alle taugte), und zwar eine für alle gezeichneten Kacheln (vorher je Kachel, eine Σ-Kachel konnte gegen einen anderen Tag indexieren als ihre Glieder). Eine genannte Basis darf ein Gruppenname sein („Feb“ bei Monat › Tag = erster Tag im Februar); wird sie nicht gefunden, nennt ein Hinweis im Bearbeitungsmodus die automatische Basis (vorher stiller Rückfall). Stufe c867 nennt die Basis „Jan“ deshalb ausdrücklich (c876, c877, c881).
+    - **Hinweis zur fehlenden Serie** steht in jeder Ansicht (vorher nur im Bearbeitungsmodus, der Leser vermisste eine Serie ohne Erklärung) und in der Titelzeile rechts über dem Plot statt unten rechts auf den Achsenlabels (c867 geändert, c875).
+    - **Σ-, Ø- und Rest-Kachel** behalten die Kategorie-Hierarchie: Monatszeile, Blattlabels und Titel „Index, 01 = 100“ wie die übrigen Kacheln (vorher „Jan · 01“ an jedem Punkt, c878).
+    - **Rechte Spalte bei vielen Serien:** passt sie nicht, entfallen zuerst die Δ-Beschriftungen der Start-Ende-Marker (Balken bleiben), dann rücken die Zeilen bis auf Schrifthöhe zusammen, zuletzt fallen Namen späterer Serien weg; die erste bzw. hervorgehobene bleibt (vorher lagen bei 15 Serien Beschriftungen übereinander, c882). Endet eine Serie früher, führt eine dünne punktierte Linie vom Endpunkt nach rechts (c884). Ein Punkt zwischen zwei Lücken bekommt eine Marke (c891).
+    - **Hochkontrast:** sieben Strichmuster, die Leitserie durchgezogen, die übrigen laufen durch sechs Muster (vorher vier Muster samt dem durchgezogenen, die fünfte Serie sah aus wie die Leitserie, c883).
+    - **Auswahl und Kreuzhervorhebung** sind sichtbar: eine Serie, deren Punkte alle abgeblendet sind, wird blass (Linie, Marken, Endbeschriftung, Marker), eine Kategorie ohne hervorgehobenen Punkt liegt hinter einem Papierschleier (vorher wirkte die Abblendung nur auf unsichtbare Trefferzellen). Ohne Auswahl bleibt das SVG unverändert (c886).
+    - **Formatbereich und Titel:** mit gebundener Serie sind Abweichung absolut, relativ und doppelt, kumulierte Sicht, gleitender Durchschnitt, Gruppentrenner (`groupEvery`), Pin-Form, Δ-Symbole und Szenario-Kürzel ausgeblendet (sie wirkten nicht); der Titel nennt kein „vs. PL, PY“ mehr. Die Beschreibung von „Index“ sagt, dass Referenzlinie und festes Skalen-Maximum mit Index nicht wirken (c887).
+    - **Kleinigkeiten:** Hervorhebung als Ellipse auf einer Serie umkreist ihren Δ-Wert (07A: −93%, c888; vorher zeichnete sie nichts). Ohne Index misst der Start-Ende-Marker ab dem ersten Wert der Serie statt ab der gemeinsamen Basis (c890). Leere Seriennamen (`null` und `""`) bleiben getrennte Serien, `null` heißt „(leer)“ wie im Stapel (c889). „Achsengruppen“ nennt in der Beschreibung die Serienlinien (vier Sprachen).
+    - Tests c875 bis c892 (Σ und Ø mit ungleichen Formen c879, c880; Serie beginnt später c885; Dunkel mit Tonprüfung c892). 930 resjson-Keys je Sprache (neu `Hint_IndexBaseMissing`).
+
 ## 1.55.0.0 (2026-11-21, Backlog IBCS-Templates Teil 2)
 
 **Ziel: weitere IBCS-Template-Blätter direkt abbildbar (Stapel 01D, 01E, 02B bis 02E; Differenzmarker 01A, 01B, 05X; Portfolio-Blasen 10A, 10B, 10D; Small Multiples gegen Durchschnitt 13A; Bestand und Fluss 08E bis 08H). Neue Schalter stehen standardmäßig aus; die Verhaltensänderungen (Top N und „Nach AC“ bei Stapelbalken, Planwert an reinen Planperioden) sind genannt.**

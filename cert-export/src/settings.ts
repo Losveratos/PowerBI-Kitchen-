@@ -95,9 +95,34 @@ const stackNormalizeItems: LocEnumMember[] = [
     { value: "off", displayName: "Values", key: "Enum_StackNorm_Off" },
     { value: "pct100", displayName: "100 % (shares)", key: "Enum_StackNorm_Pct" }
 ];
+// 1.57 (backlog B20, IBCS sheet 02F): row thickness of 100 % bars — equal or by
+// the row total (Marimekko)
+const stackThicknessItems: LocEnumMember[] = [
+    { value: "equal", displayName: "Equal", key: "Chart_StackThickness_Equal" },
+    { value: "total", displayName: "By row total (Marimekko)", key: "Chart_StackThickness_Total" }
+];
+// 1.56 (backlog B10 part 2, IBCS sheet 02A): blocks of stacked bars from the
+// first category level, optionally with a subtotal row per block
+const stackBlocksItems: LocEnumMember[] = [
+    { value: "off", displayName: "Off", key: "Enum_StackBlocks_Off" },
+    { value: "gap", displayName: "Gap between blocks", key: "Enum_StackBlocks_Gap" },
+    { value: "subtotals", displayName: "Subtotal per block", key: "Enum_StackBlocks_Subtotals" },
+    { value: "subtotalsButLast", displayName: "Subtotals except the last block", key: "Enum_StackBlocks_SubtotalsButLast" }
+];
 const stackLegendPosItems: LocEnumMember[] = [
     { value: "end", displayName: "Right of the last column", key: "Enum_StackLegPos_End" },
     { value: "start", displayName: "Left of the first column", key: "Enum_StackLegPos_Start" }
+];
+
+// 1.56 (backlog B16, IBCS sheet 08A): stacked columns drawn as a stacked area
+const stackShapeItems: LocEnumMember[] = [
+    { value: "columns", displayName: "Columns", key: "Enum_StackShape_Columns" },
+    { value: "area", displayName: "Area", key: "Enum_StackShape_Area" }
+];
+const areaValueLabelsItems: LocEnumMember[] = [
+    { value: "auto", displayName: "Automatic (thin out)", key: "Enum_AreaValueLabels_Auto" },
+    { value: "ends", displayName: "First and last period", key: "Enum_AreaValueLabels_Ends" },
+    { value: "off", displayName: "Off", key: "Enum_AreaValueLabels_Off" }
 ];
 
 // 1.55 (backlog B13): small multiples against the average (IBCS sheets 13A, 13C)
@@ -123,6 +148,47 @@ const sfStockAtItems: LocEnumMember[] = [
 const axisGroupsItems: LocEnumMember[] = [
     { value: "auto", displayName: "From the hierarchy", key: "Enum_AxisGroups_Auto" },
     { value: "off", displayName: "Off", key: "Enum_AxisGroups_Off" }
+];
+// 1.56 (backlog B11, part 2): how values aggregate over time (YTD, year column, table
+// tree, merged periods, KPI-card trend, Σ header); stock rows always take the last value
+const timeAggregationItems: LocEnumMember[] = [
+    { value: "sum", displayName: "Sum", key: "Enum_TimeAgg_Sum" },
+    { value: "last", displayName: "Last value", key: "Enum_TimeAgg_Last" }
+];
+
+// 1.56 (backlog B15, IBCS sheet 07C): line mode extras on the cumulated line (YTD) —
+// period columns from the raw values, gap markers at the last actual and at the year
+// end, square markers (AC filled, FC hatched, PL hollow). "own" (columns on their own
+// scale) is not part of 1.56
+const linePeriodColumnsItems: LocEnumMember[] = [
+    { value: "off", displayName: "Off", key: "Enum_PeriodCols_Off" },
+    { value: "same", displayName: "Same scale (behind the lines)", key: "Enum_PeriodCols_Same" }
+];
+const lineGapMarkersItems: LocEnumMember[] = [
+    { value: "off", displayName: "Off", key: "Enum_GapMarkers_Off" },
+    { value: "actual", displayName: "At the last actual", key: "Enum_GapMarkers_Actual" },
+    { value: "end", displayName: "At the year end", key: "Enum_GapMarkers_End" },
+    { value: "both", displayName: "Both", key: "Enum_GapMarkers_Both" }
+];
+const lineMarkerShapeItems: LocEnumMember[] = [
+    { value: "circle", displayName: "Circles", key: "Enum_MarkerShape_Circle" },
+    { value: "square", displayName: "Squares (AC filled, FC hatched, PL hollow)", key: "Enum_MarkerShape_Square" }
+];
+// 1.56 (backlog B17, IBCS sheet 07A): series lines from the Stack-series role, optionally
+// indexed to 100 at a base category; tones (AC colour + greys) or the group palette
+const lineIndexItems: LocEnumMember[] = [
+    { value: "off", displayName: "Off (values)", key: "Enum_LineIndex_Off" },
+    { value: "base100", displayName: "Index (base = 100)", key: "Enum_LineIndex_Base100" }
+];
+const lineSeriesColorItems: LocEnumMember[] = [
+    { value: "tones", displayName: "Grey tones", key: "Enum_SeriesColor_Tones" },
+    { value: "palette", displayName: "Group palette", key: "Enum_SeriesColor_Palette" }
+];
+const lineSeriesLabelsItems: LocEnumMember[] = [
+    { value: "ends", displayName: "End values", key: "Enum_SeriesLabels_Ends" },
+    { value: "groups", displayName: "Group starts and end", key: "Enum_SeriesLabels_Groups" },
+    { value: "all", displayName: "All points", key: "Enum_SeriesLabels_All" },
+    { value: "none", displayName: "None", key: "Enum_SeriesLabels_None" }
 ];
 
 // 1.54 (backlog B14): how EMPHASIZE marks a category: shaded band (default) or an
@@ -239,10 +305,28 @@ const scatterTrendItems: LocEnumMember[] = [
     { value: "off", displayName: "Off", key: "Enum_ScatterTrend_Off" },
     { value: "linear", displayName: "Linear", key: "Enum_ScatterTrend_Linear" }
 ];
+// 1.57 (backlog B18, IBCS sheets 07D/07E): time path per unit (category = period,
+// series = unit) and which period labels it carries
+const scatterPathItems: LocEnumMember[] = [
+    { value: "off", displayName: "Off", key: "Enum_ScatterPath_Off" },
+    { value: "line", displayName: "Line through the periods", key: "Enum_ScatterPath_Line" }
+];
+const scatterPathLabelsItems: LocEnumMember[] = [
+    { value: "auto", displayName: "Auto (where there is room)", key: "Enum_ScatterPathLabels_Auto" },
+    { value: "ends", displayName: "Start and end", key: "Enum_ScatterPathLabels_Ends" },
+    { value: "all", displayName: "All periods", key: "Enum_ScatterPathLabels_All" },
+    { value: "off", displayName: "Off", key: "Enum_ScatterPathLabels_Off" }
+];
+// 1.57 (backlog B19, IBCS sheets 10E/10G): how the bubble share role reads, as a part in
+// the unit of the bubble size (share = part / size) or as a ratio 0..1
+const scatterShareAsItems: LocEnumMember[] = [
+    { value: "value", displayName: "Value (part of the bubble size)", key: "Enum_ScatterShareAs_Value" },
+    { value: "ratio", displayName: "Ratio (0 to 1)", key: "Enum_ScatterShareAs_Ratio" }
+];
 
 // 1.49: IBCS-Chart-Templates als Presets (PnL-Muster). Ein Template schreibt in
 // EINEM persistProperties-Merge Modus + Vergleich + Panels + passende Schalter;
-// danach ist alles frei änderbar. C07 (Fläche) und C11 gibt es im Visual nicht.
+// danach ist alles frei änderbar. C11 gibt es im Visual nicht (C07 Fläche ab 1.56).
 const templateItems: LocEnumMember[] = [
     { value: "off", displayName: "Off (no template)", key: "Enum_Template_Off" },
     { value: "C01", displayName: "C01 · Stacked columns (series)", key: "Enum_Template_C01" },
@@ -251,6 +335,7 @@ const templateItems: LocEnumMember[] = [
     { value: "C04", displayName: "C04 · Bars + variances (PL)", key: "Enum_Template_C04" },
     { value: "C05", displayName: "C05 · Integrated bridge (time)", key: "Enum_Template_C05" },
     { value: "C06", displayName: "C06 · Category bridge vertical", key: "Enum_Template_C06" },
+    { value: "C07", displayName: "C07 · Stacked area (08A)", key: "Enum_Template_C07" },
     { value: "C08", displayName: "C08 · Line (long time series)", key: "Enum_Template_C08" },
     { value: "C09", displayName: "C09 · Scatter", key: "Enum_Template_C09" },
     { value: "C10", displayName: "C10 · Bubble (scatter + size)", key: "Enum_Template_C10" },
@@ -262,7 +347,12 @@ const templateItems: LocEnumMember[] = [
     { value: "C17", displayName: "C17 · Category bridge horizontal (06E)", key: "Enum_Template_C17" },
     { value: "C18", displayName: "C18 · Variance scatter ΔPY % × ΔPL % (10F)", key: "Enum_Template_C18" },
     { value: "C19", displayName: "C19 · Columns vs. plan + year column (03B)", key: "Enum_Template_C19" },
-    { value: "C20", displayName: "C20 · Stock & flow (08E to 08H)", key: "Enum_Template_C20" }
+    { value: "C20", displayName: "C20 · Stock & flow (08E to 08H)", key: "Enum_Template_C20" },
+    { value: "C21", displayName: "C21 · Cumulated line with R12 and month columns (07C)", key: "Enum_Template_C21" },
+    { value: "C22", displayName: "C22 · Series lines with index (07A)", key: "Enum_Template_C22" },
+    { value: "C23", displayName: "C23 · Scatter time path (07D, 07E)", key: "Enum_Template_C23" },
+    { value: "C24", displayName: "C24 · Bubbles with share (10E, 10G)", key: "Enum_Template_C24" },
+    { value: "C25", displayName: "C25 · Marimekko (02F)", key: "Enum_Template_C25" }
 ];
 
 // 1.49: Leer-Zustand — Demo-Galerie (bisheriges Verhalten) · Feld-Intro · eigene Nachricht
@@ -285,8 +375,10 @@ export function localizeEnumItems(lm: powerbi.extensibility.ILocalizationManager
         gridLinesItems, cellLayoutItems, wfAxisBreakItems, scatterQuadrantItems,
         scatterColorByItems, scatterTrendItems, cardTrendChartItems, cardTrendValueItems,
         bridgeOrientationItems, emptyModeItems, sortImpactItems, highlightStyleItems,
-        stackNormalizeItems, stackLegendPosItems, multiplesAggItems, multiplesTotalPosItems,
-        multiplesBasisItems, sfStockAtItems, axisGroupsItems];
+        stackNormalizeItems, stackLegendPosItems, stackBlocksItems, multiplesAggItems, multiplesTotalPosItems,
+        multiplesBasisItems, sfStockAtItems, axisGroupsItems, timeAggregationItems, stackShapeItems, areaValueLabelsItems,
+        linePeriodColumnsItems, lineGapMarkersItems, lineMarkerShapeItems, lineIndexItems, lineSeriesColorItems,
+        lineSeriesLabelsItems, stackThicknessItems, scatterPathItems, scatterPathLabelsItems, scatterShareAsItems];
     for (const items of lists) {
         for (const it of items) {
             const loc = lm.getDisplayName(it.key);
@@ -368,7 +460,7 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
         name: "template",
         displayName: "IBCS chart template",
         displayNameKey: "Chart_Template",
-        description: "Startpunkt nach den IBCS-Chart-Templates: setzt Chart-Typ, Vergleichsbasis, Abweichungs-Panels und die passenden Schalter in einem Schritt — danach ist jede Einstellung frei änderbar. C01/C02 stapeln über das Feld „Stack-Serie\", C10 braucht zusätzlich das Feld „Blasengröße\", C13 behält den Chart-Typ und braucht das Feld „Small Multiples\". C14 bis C16 sind Balkentabellen gegen Plan (sortiert nach ΔPL, ΔPL % bzw. AC), C17 die waagerechte Kategorie-Brücke, C18 der Abweichungs-Scatter (X = ΔPY %, Y = ΔPL % als Measures), C19 Säulen gegen Plan mit Jahressäule, C20 Bestand und Fluss über die Zeit (Zu- und Abflüsse als Säulen, Bestand als Linie, Felder „Stack-Serie“ und „Waterfall-Typ“ mit stock, inflow, outflow). Nicht enthalten: C07 (Fläche) und C11. Aus = keine Vorlage.",
+        description: "Startpunkt nach den IBCS-Chart-Templates: setzt Chart-Typ, Vergleichsbasis, Abweichungs-Panels und die passenden Schalter in einem Schritt — danach ist jede Einstellung frei änderbar. C01/C02 stapeln über das Feld „Stack-Serie\", C10 braucht zusätzlich das Feld „Blasengröße\", C13 behält den Chart-Typ und braucht das Feld „Small Multiples\". C14 bis C16 sind Balkentabellen gegen Plan (sortiert nach ΔPL, ΔPL % bzw. AC), C17 die waagerechte Kategorie-Brücke, C18 der Abweichungs-Scatter (X = ΔPY %, Y = ΔPL % als Measures), C19 Säulen gegen Plan mit Jahressäule, C20 Bestand und Fluss über die Zeit (Zu- und Abflüsse als Säulen, Bestand als Linie, Felder „Stack-Serie“ und „Waterfall-Typ“ mit stock, inflow, outflow), C07 die gestapelte Fläche über die Zeit mit Summenlinie (Feld „Stack-Serie“), C21 die kumulierte Linie YTD gegen Plan mit gleitender Jahressumme (R12), Monatssäulen und Abstandsmarkern (07C), C22 Serienlinien je Mitglied des Felds „Stack-Serie“, indexiert auf 100 (07A), C25 das Marimekko: 100-%-Balken mit Zeilendicke nach Zeilensumme, Summen- und Anteilsspalte (02F, Feld „Stack-Serie“), C23 der Scatter-Zeitpfad je Einheit des Felds „Stack-Serie“ über die Perioden der Kategorie (07D, 07E, Feld „X-Achse (Scatter)“), C24 die Blasen mit Anteil als Kreissegment und Gesamtblase (10E, 10G, Felder „Blasengröße“ und „Blasenanteil“). Nicht enthalten: C11. Aus = keine Vorlage.",
         descriptionKey: "Desc_Chart_Template",
         items: templateItems,
         value: templateItems[0]
@@ -534,6 +626,16 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
         descriptionKey: "Desc_Chart_CumKind",
         items: cumulativeKindItems,
         value: cumulativeKindItems[0]
+    });
+
+    timeAggregation = new formattingSettings.ItemDropdown({
+        name: "timeAggregation",
+        displayName: "Aggregation over time",
+        displayNameKey: "Chart_TimeAgg",
+        description: "Wie Werte über die Zeit zusammengefasst werden (YTD, Jahressäule, Tabellenbaum, zusammengeführte Perioden, Karten-Trend, Σ-Kopf): Summe oder letzter Wert (Stichtag, z. B. Bestand, Headcount). Zeilen mit dem Token stock nehmen immer den letzten Wert.",
+        descriptionKey: "Desc_Chart_TimeAgg",
+        items: timeAggregationItems,
+        value: timeAggregationItems[0]
     });
 
     fiscalStart = new formattingSettings.NumUpDown({
@@ -761,13 +863,38 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
         }
     });
 
+    // 1.57 (B24, IBCS sheet 10G): fixed column count of the tile grid
+    multiplesColumns = new formattingSettings.NumUpDown({
+        name: "multiplesColumns",
+        displayName: "Columns",
+        displayNameKey: "Chart_MultiplesColumns",
+        description: "Feste Spaltenzahl des Kachelrasters, z. B. 6 für 24 Kacheln in 4 Zeilen wie auf dem IBCS-Blatt 10G. 0 = automatisch (bisheriges Verhalten). Begrenzt auf 1 bis zur Zahl der Kacheln. Wären die Kacheln schmaler als 110 px (kleineres Visual, Fokusmodus aus, Dashboard), zeigt das Visual weniger Spalten und im Bearbeitungsmodus einen Hinweis. Gilt in allen Kachel-Modi (auch Streu- und Blasendiagramm, Bezugs-, Rest- und Zoom-Kachel); neben „Erste Kachel groß“ für das Raster rechts davon, wenige Spalten stauchen dort die Höhe der kleinen Kacheln. Mit einer großen Kachel (Gruppenname) zählt diese wie zwei Plätze: Säulen und Linie zeigen höchstens so viele Spalten, dass zwei Zeilen gefüllt sind, Balken höchstens eine Zeile und mindestens 2 Spalten (eine 1 wird zu 2). Alle Kacheln behalten dieselbe Skala.",
+        descriptionKey: "Desc_Chart_MultiplesColumns",
+        value: 0,
+        options: {
+            minValue: { type: 0 /* ValidatorType.Min */, value: 0 },
+            maxValue: { type: 1 /* ValidatorType.Max */, value: 24 }
+        }
+    });
+
     multiplesHero = new formattingSettings.ToggleSwitch({
         name: "multiplesHero",
         displayName: "First tile large",
         displayNameKey: "Chart_MultiplesHero",
-        description: "Gibt der ersten Kachel (z. B. „Σ Gesamt\" oder der größten Gruppe) mehr Platz — alle Kacheln behalten dieselbe Skala (IBCS CT 13).",
+        description: "Gibt der ersten Kachel (z. B. „Σ Gesamt\" oder der größten Gruppe) mehr Platz — alle Kacheln behalten dieselbe Skala (IBCS CT 13). Mit einem gefundenen Namen unter „Große Kachel (Gruppenname)“ ist diese Kachel groß, der Schalter wirkt dann nicht.",
         descriptionKey: "Desc_Chart_MultiplesHero",
         value: false
+    });
+
+    // 1.57 (B13 part 1b, IBCS sheet 13B): a freely chosen large tile over two rows
+    multiplesHeroTile = new formattingSettings.TextInput({
+        name: "multiplesHeroTile",
+        displayName: "Large tile (group name)",
+        displayNameKey: "Chart_MultiplesHeroTile",
+        description: "Name der Gruppe, die groß gezeigt wird (Groß-/Kleinschreibung egal, auch der Titel der Bezugs- oder Rest-Kachel), unabhängig vom Schalter „Erste Kachel groß“. Die Kachel bleibt an ihrem Platz und reicht bei Säulen und Linie über zwei Zeilen, bei Balken über zwei Spalten; die übrigen Kacheln füllen die freien Plätze. Große und kleine Kacheln zeigen dieselben Pixel je Einheit, auch in den Abweichungs-Panels: die große Kachel nimmt den Ausreißer auf, die kleinen skalieren auf ihre eigenen Werte. Gelingt der Angleich nicht, bleibt das bisherige Raster. Auch mit „Nur Abweichungs-Panel“ (eine Δ-Skala). Der Zoom zeigt eine Kachel auf ihrer eigenen Achse. Nur Säulen, Balken und Linie (ohne Stapel und Brücke). Leer oder unbekannter Name = bisheriges Verhalten.",
+        descriptionKey: "Desc_Chart_MultiplesHeroTile",
+        placeholder: "Berlin",
+        value: ""
     });
 
     multiplesSameScale = new formattingSettings.ToggleSwitch({
@@ -841,14 +968,24 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
         value: multiplesBasisItems[0]
     });
 
+    // 1.56 (B13 part 2, IBCS sheets 13C/13D): tiles with only their variance panel
+    varianceOnly = new formattingSettings.ToggleSwitch({
+        name: "varianceOnly",
+        displayName: "Variance panel only",
+        displayNameKey: "Chart_VarianceOnly",
+        description: "Small Multiples mit Säulen oder Balken: jede Kachel zeigt nur ihr Abweichungs-Panel (ΔØ bzw. ΔPY/ΔPL, Balken oder Pins) auf einer gemeinsamen Δ-Skala, Kategorie- und Szenario-Beschriftung stehen unten. Die Bezugskachel (Σ bzw. Ø) behält ihre Säulen bzw. Balken, mit absolutem Δ im Maßstab der Δ-Skala; passen ihre Werte dort nicht hinein, steht der Verkleinerungsfaktor im Titel (z. B. ×0,5), nur mit Δ % skaliert sie für sich. Planjahre erscheinen in Plan-Notation (umrandet, blasse Füllung bzw. hohler Pin-Kopf). Kommentare, Hervorhebungsband, Differenzmarker, Jahressäule, „Erste Kachel groß“ und doppelte Abweichung entfallen in dieser Ansicht; eine benannte große Kachel (Große Kachel) bleibt auf derselben Δ-Skala. Kleine Kacheln fallen auf die normale Ansicht zurück. Rezept 13C: Basis Ø mit absoluter Abweichung, 13D: Basis Ø mit relativer Abweichung.",
+        descriptionKey: "Desc_Chart_VarianceOnly",
+        value: false
+    });
+
     multiplesGroup = new formattingSettings.Group({
         name: "chartMultiples",
         displayName: "Small Multiples",
         displayNameKey: "Group_Multiples",
-        slices: [this.multiplesTotal, this.multiplesTopN, this.multiplesHero,
+        slices: [this.multiplesTotal, this.multiplesTopN, this.multiplesColumns, this.multiplesHero, this.multiplesHeroTile,
             this.multiplesSameScale, this.multiplesAgg, this.multiplesTotalPos,
             this.multiplesTotalShade, this.multiplesTotalLabel, this.multiplesRestLabel,
-            this.multiplesBasis]
+            this.multiplesBasis, this.varianceOnly]
     });
 
     bridgeOrientation = new formattingSettings.ItemDropdown({
@@ -1053,7 +1190,7 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
         name: "autoExpandHierarchy",
         displayName: "Auto-expand hierarchy",
         displayNameKey: "Chart_AutoExpand",
-        description: "Liegen mehrere Felder in „Kategorie\", klappt das Visual die Drill-Hierarchie automatisch auf — der klickbare Zeilenbaum erscheint sofort beim Hineinziehen, ohne die ⫟-Drill-Knöpfe im Visual-Kopf. Manuelles Hochklappen bleibt bestehen (nur ein Feld-Wechsel löst erneut aus). Standard an.",
+        description: "Liegen mehrere Felder in „Kategorie“, klappt das Visual die Drill-Hierarchie automatisch auf: der klickbare Zeilenbaum erscheint sofort beim Hineinziehen, ohne die Drill-Knöpfe im Visual-Kopf. Gilt für Tabelle und GuV, für gestapelte Balken mit Stapel-Blöcken und für die gestapelte Fläche mit Achsengruppen. Manuelles Hochklappen bleibt bestehen (nur ein Feld-Wechsel löst erneut aus). Standard an.",
         descriptionKey: "Desc_Chart_AutoExpand",
         value: true
     });
@@ -1280,7 +1417,7 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
         name: "scatterMaxRadius",
         displayName: "Max. bubble radius (px)",
         displayNameKey: "Chart_ScatterMaxRadius",
-        description: "Nur mit gebundener Blasengröße: Radius der größten Blase in Pixeln (bei Schrift-Presets mitskaliert). 0 = automatisch (höchstens 22 px). Größere Werte für Portfolio-Matrizen mit wenigen Einheiten; der Radius ist auf ein Fünftel der kleineren Plotkante gedeckelt (Plothöhe oder 0,8 × Breite). Große Blasen dürfen über den Achsenrand hinausragen, bleiben aber im Visual.",
+        description: "Nur mit gebundener Blasengröße: Radius der größten Blase in Pixeln (bei Schrift-Presets mitskaliert). 0 = automatisch (höchstens 22 px). Größere Werte für Portfolio-Matrizen mit wenigen Einheiten; der Radius ist auf ein Fünftel der kleineren Plotkante gedeckelt (Plothöhe oder 0,8 × Breite). Große Blasen dürfen über den Achsenrand hinausragen, bleiben aber im Visual. Mit Gesamtblase gilt der Radius für die größte Einzelblase, die Gesamtblase wird größer (höchstens 40 % der kürzeren Plotkante).",
         descriptionKey: "Desc_Chart_ScatterMaxRadius",
         value: 0,
         options: {
@@ -1306,7 +1443,7 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
         name: "scatterEmphFill",
         displayName: "Highlight as color",
         displayNameKey: "Chart_ScatterEmphFill",
-        description: "Hervorgehobene Punkte (Liste „Hervorheben“ bzw. Token emphasize) bekommen die Hervorhebungsfarbe als Füllung statt eines Rings, etwa für Zukäufe. Im Hochkontrast-Modus bleibt die Füllung in Vordergrundfarbe.",
+        description: "Hervorgehobene Punkte (Liste „Kategorien hervorheben“ bzw. Token emphasize) bekommen die Hervorhebungsfarbe als Füllung statt eines Rings, etwa für Zukäufe. Im Hochkontrast-Modus bleibt die Füllung in Vordergrundfarbe.",
         descriptionKey: "Desc_Chart_ScatterEmphFill",
         value: false
     });
@@ -1414,6 +1551,76 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
         value: false
     });
 
+    // 1.57 (backlog B18, IBCS-Blätter 07D/07E): Zeitpfad je Einheit. Kategorie = Periode
+    // (Reihenfolge wie geliefert), Feld „Stack-Serie“ = Einheit. Alles im Standard aus.
+    scatterPath = new formattingSettings.ItemDropdown({
+        name: "scatterPath",
+        displayName: "Time path",
+        displayNameKey: "Chart_ScatterPath",
+        description: "Verbindet je Einheit (Feld „Stack-Serie“, ohne Serie ein einziger Pfad) die Punkte in der Reihenfolge der Kategorie, die hier die Periode ist (z. B. Jahre 2017 bis 2025), mit einer dünnen Linie in der Farbe der Einheit, wie in den IBCS-Blättern 07D und 07E. Der Name der Einheit steht am Endpunkt, die Legende entfällt. Fehlt X oder Y in einer Periode, bricht der Pfad dort; Prognose-Perioden sind gestrichelt und hohl. Schaltet die Bewegungspfeile und die Vorjahres-Blasen ab. Mit Play-Button wächst der Pfad bis zur gezeigten Periode. Standard aus.",
+        descriptionKey: "Desc_Chart_ScatterPath",
+        items: scatterPathItems,
+        value: scatterPathItems[0]
+    });
+
+    scatterPathLabels = new formattingSettings.ItemDropdown({
+        name: "scatterPathLabels",
+        displayName: "Period labels",
+        displayNameKey: "Chart_ScatterPathLabels",
+        description: "Zeitpfad: Periodenlabels an den Punkten (Jahreszahlen werden zu „'17“ verkürzt). Auto beschriftet Start und Ende und die übrigen Perioden, wo Platz ist; Start und Ende nur diese beiden; alle jede Periode (Überlappung möglich); aus keine. Ist „Datenbeschriftungen anzeigen“ aus, entfallen die Periodenlabels ebenfalls (die Namen am Endpunkt bleiben). Standard Auto.",
+        descriptionKey: "Desc_Chart_ScatterPathLabels",
+        items: scatterPathLabelsItems,
+        value: scatterPathLabelsItems[0]
+    });
+
+    scatterPathArrow = new formattingSettings.ToggleSwitch({
+        name: "scatterPathArrow",
+        displayName: "Arrow at path end",
+        displayNameKey: "Chart_ScatterPathArrow",
+        description: "Zeitpfad: Pfeilspitze am letzten Segment jeder Einheit, zeigt die Richtung der jüngsten Bewegung. Die IBCS-Blätter zeichnen ohne. Standard aus.",
+        descriptionKey: "Desc_Chart_ScatterPathArrow",
+        value: false
+    });
+
+    scatterPathDelta = new formattingSettings.ToggleSwitch({
+        name: "scatterPathDelta",
+        displayName: "Start-to-end deltas",
+        displayNameKey: "Chart_ScatterPathDelta",
+        description: "Zeitpfad: für die hervorgehobenen Einheiten (Liste „Kategorien hervorheben“) dünne Hilfslinien vom ersten und letzten Punkt zu den Achsen, Δ X als Pfeil unter der X-Achse und Δ Y als Pfeil rechts neben dem Plot, Δ Y in Gut- bzw. Schlecht-Farbe (Invert wirkt), Δ X neutral. Standard aus.",
+        descriptionKey: "Desc_Chart_ScatterPathDelta",
+        value: false
+    });
+
+    // 1.57 (backlog B19, IBCS-Blätter 10E/10G): Blasen mit Kreissegment (Rolle
+    // bubbleShare) und Gesamtblase je Kachel. Alles im Standard ohne Wirkung.
+    scatterShareAs = new formattingSettings.ItemDropdown({
+        name: "scatterShareAs",
+        displayName: "Bubble share as",
+        displayNameKey: "Chart_ScatterShareAs",
+        description: "Nur mit gebundenem Feld „Blasenanteil“: Wert = Teil in der Einheit der Blasengröße (Anteil = Teil ÷ Größe, z. B. 23 von 199), Quote = Anteil 0 bis 1. Der Anteil wird als Kreissegment ab 12 Uhr im Uhrzeigersinn in Vollfarbe auf der hellen Blase gezeichnet. Standard Wert.",
+        descriptionKey: "Desc_Chart_ScatterShareAs",
+        items: scatterShareAsItems,
+        value: scatterShareAsItems[0]
+    });
+
+    scatterTotalBubble = new formattingSettings.ToggleSwitch({
+        name: "scatterTotalBubble",
+        displayName: "Total bubble",
+        displayNameKey: "Chart_ScatterTotalBubble",
+        description: "Nur mit gebundener Blasengröße: eine Gesamtblase je Kachel bzw. je Diagramm, Fläche = Summe der Blasen, Lage = größengewichtetes Mittel von X und Y, Kreissegment = Summe der Anteile (Feld „Blasenanteil“). Erst ab zwei Blasen in der Kachel. Kreis und Segment liegen hinter allen Blasen, Summe und Teil darüber; sie ist nicht auswählbar und rechnet immer über alle sichtbaren Blasen, auch bei Auswahl. Der Radius der Einzelblasen bleibt, die Gesamtblase wächst darüber hinaus (höchstens 40 % der kürzeren Plotkante). Nicht im Play-Modus und nicht auf dem Zeitpfad. Wie in den IBCS-Blättern 10E und 10G. Standard aus.",
+        descriptionKey: "Desc_Chart_ScatterTotalBubble",
+        value: false
+    });
+
+    scatterTotalColor = new formattingSettings.ColorPicker({
+        name: "scatterTotalColor",
+        displayName: "Total bubble color",
+        displayNameKey: "Chart_ScatterTotalColor",
+        description: "Umriss, Kreissegment und Schrift der Gesamtblase. Standard Dunkelgrau; das Blatt zeichnet Rot, das in ChartKitchen sonst für ungünstige Abweichungen steht.",
+        descriptionKey: "Desc_Chart_ScatterTotalColor",
+        value: { value: "#404040" }
+    });
+
     // eigene Modus-Gruppe wie Brücke/Tabelle/KPI-Karten — nur im Scatter sichtbar.
     // Reihenfolge nach Wichtigkeit: Quadranten → Färbung → Formen → Pfeile →
     // Trend (+R²) → Größen-Legende → Quadranten-Labels → Play
@@ -1424,11 +1631,13 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
         slices: [this.scatterQuadrant, this.scatterColorBy, this.scatterShapes,
             this.scatterArrows, this.scatterTrend, this.scatterTrendR2,
             this.scatterSizeLegend, this.scatterValueLabels, this.scatterMaxRadius,
-            this.scatterBubbleOpacity, this.scatterEmphFill, this.scatterEmphColor, this.scatterEmphLabel,
+            this.scatterBubbleOpacity, this.scatterShareAs, this.scatterTotalBubble, this.scatterTotalColor,
+            this.scatterEmphFill, this.scatterEmphColor, this.scatterEmphLabel,
             this.scatterGroupColor1, this.scatterGroupColor2, this.scatterGroupColor3,
             this.scatterGroupColor4, this.scatterGroupColor5, this.scatterGroupColor6,
             this.scatterQuadLabelTR, this.scatterQuadLabelTL,
-            this.scatterQuadLabelBL, this.scatterQuadLabelBR, this.scatterPlay]
+            this.scatterQuadLabelBL, this.scatterQuadLabelBR, this.scatterPath, this.scatterPathLabels,
+            this.scatterPathArrow, this.scatterPathDelta, this.scatterPlay]
     });
 
     // UX-5 (AUDIT-2026-10-UX §1.5): die Mega-Gruppen „Layout"/„Analyse" aufgabenorientiert
@@ -1456,7 +1665,7 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
         name: "chartDataTime",
         displayName: "Data & time",
         displayNameKey: "Group_DataTime",
-        slices: [this.cumulative, this.cumulativeKind, this.fiscalStart, this.acFcSplit,
+        slices: [this.cumulative, this.cumulativeKind, this.fiscalStart, this.timeAggregation, this.acFcSplit,
             this.topN, this.showTotal, this.yearColumn, this.yearColumnLabel, this.hideBlankCat, this.movingAverage,
             this.highlight, this.highlightStyle, this.diffMarkers, this.groupEvery]
     });
@@ -1494,6 +1703,26 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
         value: stackNormalizeItems[0]
     });
 
+    // 1.57 (B20, IBCS sheet 02F): Marimekko — row thickness by the row total
+    stackThickness = new formattingSettings.ItemDropdown({
+        name: "stackThickness",
+        displayName: "Row thickness",
+        displayNameKey: "Chart_StackThickness",
+        description: "Gestapelte Balken mit 100 %: gleiche Zeilenhöhe (Standard) oder Dicke nach Zeilensumme (Marimekko, Blatt 02F). Dann ist die Fläche jedes Segments sein Wert, die Segmente zeigen die Werte statt der Anteile und rechts stehen die Summen als Zahlenspalte. Σ-Zeile und Zwischensummen behalten die normale Höhe, sehr dünne Zeilen bekommen eine Mindestdicke, Beschriftungen ohne Platz entfallen (Tooltip). Ohne Wirkung bei Werten, bei Säulen und sobald eine Zelle negativ ist.",
+        descriptionKey: "Desc_Chart_StackThickness",
+        items: stackThicknessItems,
+        value: stackThicknessItems[0]
+    });
+
+    stackShareColumn = new formattingSettings.ToggleSwitch({
+        name: "stackShareColumn",
+        displayName: "Share column",
+        displayNameKey: "Chart_StackShareColumn",
+        description: "Gestapelte Balken mit 100 % und Summen (Σ): eine Spalte „Anteil“ rechts mit dem Anteil jeder Zeile an der Gesamtsumme (eine Nachkommastelle), „100 %“ an der Σ-Zeile, der Blockanteil an der Zwischensumme. Im Marimekko neben der Zahlenspalte, sonst hinter dem Summenbalken. Standard aus.",
+        descriptionKey: "Desc_Chart_StackShareColumn",
+        value: false
+    });
+
     stackTotalRow = new formattingSettings.ToggleSwitch({
         name: "stackTotalRow",
         displayName: "Stack total row (Σ)",
@@ -1527,6 +1756,26 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
         }
     });
 
+    // 1.56 (B10 part 2, IBCS sheet 02A): blocks from the first category level
+    stackBlocks = new formattingSettings.ItemDropdown({
+        name: "stackBlocks",
+        displayName: "Stack blocks",
+        displayNameKey: "Chart_StackBlocks",
+        description: "Gestapelte Balken mit Kategorie-Hierarchie: die erste Ebene bildet Blöcke (z. B. Region), die Zeilen zeigen nur die unteren Ebenen. Abstand: halbe Zeile zwischen den Blöcken. Zwischensumme: je Block eine fette Summenzeile mit der Summe je Serie (bei 100 % der Blockmix). Sortierung und Top N wirken je Block (Top N zählt je Block), mit Sortierung folgen die Blöcke der Blocksumme. Liegen zwei Felder in „Kategorie“, klappt das Visual die Ebenen selbst auf. Standard aus.",
+        descriptionKey: "Desc_Chart_StackBlocks",
+        items: stackBlocksItems,
+        value: stackBlocksItems[0]
+    });
+
+    stackBlockShare = new formattingSettings.ToggleSwitch({
+        name: "stackBlockShare",
+        displayName: "Block share",
+        displayNameKey: "Chart_StackBlockShare",
+        description: "Mit Zwischensummen: der Anteil des Blocks an der Gesamtsumme in einer Ellipse hinter der Blocksumme, „100 %“ an der Σ-Zeile und der Anteil hervorgehobener Zeilen über ihrer Summe (unter einer längeren Nachbarzeile rechts daneben). Keine Anteile, sobald ein Block oder die Gesamtsumme negativ ist. Standard aus.",
+        descriptionKey: "Desc_Chart_StackBlockShare",
+        value: false
+    });
+
     stackLegendPos = new formattingSettings.ItemDropdown({
         name: "stackLegendPos",
         displayName: "Series names (columns)",
@@ -1537,11 +1786,41 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
         value: stackLegendPosItems[0]
     });
 
+    // 1.56 (B16, IBCS sheet 08A): stacked columns as a stacked area with a total line
+    stackShape = new formattingSettings.ItemDropdown({
+        name: "stackShape",
+        displayName: "Stack shape",
+        displayNameKey: "Chart_StackShape",
+        description: "Gestapelte Säulen (Feld „Stack-Serie“): als Säulen (Standard) oder als gestapelte Fläche über die Zeit mit Summenlinie, Punkten je Periode und Seriennamen am Ende. Ohne Serie und bei Balken ohne Wirkung.",
+        descriptionKey: "Desc_Chart_StackShape",
+        items: stackShapeItems,
+        value: stackShapeItems[0]
+    });
+
+    areaTotalLine = new formattingSettings.ToggleSwitch({
+        name: "areaTotalLine",
+        displayName: "Total line",
+        displayNameKey: "Chart_AreaTotalLine",
+        description: "Gestapelte Fläche: Linie mit Punkt und Summe je Periode über dem Stapel. Bei 100 % nie. Standard an.",
+        descriptionKey: "Desc_Chart_AreaTotalLine",
+        value: true
+    });
+
+    areaValueLabels = new formattingSettings.ItemDropdown({
+        name: "areaValueLabels",
+        displayName: "Values in the areas",
+        displayNameKey: "Chart_AreaValueLabels",
+        description: "Gestapelte Fläche: Werte in den Flächen, nach Platz ausgedünnt (Standard), nur in der ersten und letzten Periode oder keine. Ein Wert steht nur, wenn die Fläche dort hoch genug ist.",
+        descriptionKey: "Desc_Chart_AreaValueLabels",
+        items: areaValueLabelsItems,
+        value: areaValueLabelsItems[0]
+    });
+
     scenarioLabels = new formattingSettings.ToggleSwitch({
         name: "scenarioLabels",
         displayName: "Scenario labels at the columns",
         displayNameKey: "Chart_ScenarioLabels",
-        description: "Nur Säulen: schreibt die Szenario-Kürzel an die Säulen: AC unter den ersten Ist-Monat, FC unter den ersten Forecast-Monat, AC und FC neben die Teile der Jahressäule. Standard aus.",
+        description: "Säulen, Linie, Bestand & Fluss: schreibt die Szenario-Kürzel an: AC unter den ersten Ist-Monat, FC unter den ersten Forecast-Monat, AC und FC neben die Teile der Jahressäule; in der Linie zusätzlich das Kürzel am Ende jeder Linie (FC, PL). Standard aus.",
         descriptionKey: "Desc_Chart_ScenarioLabels",
         value: false
     });
@@ -1550,8 +1829,10 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
         name: "chartDisplay",
         displayName: "Display",
         displayNameKey: "Group_Display",
-        slices: [this.pinStyle, this.deltaIcons, this.driverNote, this.stackLegendDirect, this.stackLegendPos,
-            this.stackNormalize, this.stackTotalRow, this.stackTotalLabel, this.stackShareBracket, this.scenarioLabels,
+        slices: [this.pinStyle, this.deltaIcons, this.driverNote, this.stackShape, this.areaTotalLine, this.areaValueLabels,
+            this.stackLegendDirect, this.stackLegendPos,
+            this.stackNormalize, this.stackThickness, this.stackShareColumn, this.stackTotalRow, this.stackTotalLabel, this.stackShareBracket,
+            this.stackBlocks, this.stackBlockShare, this.scenarioLabels,
             this.exportExpandAll]
     });
 
@@ -1616,10 +1897,19 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
         name: "axisGroups",
         displayName: "Axis groups",
         displayNameKey: "Chart_AxisGroups",
-        description: "Bestand & Fluss: bei einer Kategorie-Hierarchie (z. B. Jahr, Woche, Tag) höchstens zwei Gruppenzeilen unter der Achse mit Trennlinien; die unterste Ebene beschriftet die Perioden. Aus = nur die Periodennamen.",
+        description: "Bestand & Fluss, gestapelte Fläche und Serienlinien: bei einer Kategorie-Hierarchie (z. B. Jahr, Woche, Tag) höchstens zwei Gruppenzeilen unter der Achse mit Trennlinien; die unterste Ebene beschriftet die Perioden. Bei der gestapelten Fläche klappt das Visual die Ebenen selbst auf. Aus = nur die Periodennamen.",
         descriptionKey: "Desc_Chart_AxisGroups",
         items: axisGroupsItems,
         value: axisGroupsItems[0]
+    });
+
+    sfFlowZoom = new formattingSettings.ToggleSwitch({
+        name: "sfFlowZoom",
+        displayName: "Zoom flows",
+        displayNameKey: "Chart_SfFlowZoom",
+        description: "Bestand & Fluss: Flüsse und Netto mit einem runden Faktor vergrößert, wenn sie neben einem großen Bestand nur wenige Pixel hoch wären (Blatt 08G). Der Faktor steht als „×f“ an den Namen, ein Skalenband zeigt denselben Wert in beiden Maßstäben. Standard aus.",
+        descriptionKey: "Desc_Chart_SfFlowZoom",
+        value: false
     });
 
     stockFlowGroup = new formattingSettings.Group({
@@ -1627,14 +1917,142 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
         displayName: "Stock & flow",
         displayNameKey: "Group_StockFlow",
         slices: [this.sfNet, this.sfNetLabel, this.sfArea, this.sfNegTint, this.sfOpening, this.sfStockAt,
-            this.axisGroups]
+            this.axisGroups, this.sfFlowZoom]
+    });
+
+    // 1.56 (backlog B15, IBCS sheet 07C): line mode extras, all off by default
+    lineMarkerShape = new formattingSettings.ItemDropdown({
+        name: "lineMarkerShape",
+        displayName: "Point markers",
+        displayNameKey: "Chart_LineMarkerShape",
+        description: "Linie: Form der Punktmarken. Quadrate zeigen das Szenario an der Marke (AC gefüllt, FC schraffiert, PL hohl) auf dünnen Linien, wie im IBCS-Blatt 07C. Standard Kreise.",
+        descriptionKey: "Desc_Chart_LineMarkerShape",
+        items: lineMarkerShapeItems,
+        value: lineMarkerShapeItems[0]
+    });
+
+    lineBasisLabels = new formattingSettings.ToggleSwitch({
+        name: "lineBasisLabels",
+        displayName: "Label the comparison line",
+        displayNameKey: "Chart_LineBasisLabels",
+        description: "Linie: beschriftet auch die Werte der Vergleichslinie (PL oder PY), auf der Seite weg von der Ist-Linie. Standard aus.",
+        descriptionKey: "Desc_Chart_LineBasisLabels",
+        value: false
+    });
+
+    lineR12 = new formattingSettings.ToggleSwitch({
+        name: "lineR12",
+        displayName: "Rolling year line (R12)",
+        displayNameKey: "Chart_LineR12",
+        description: "Linie mit kumulierter Sicht YTD: zusätzlich die gleitende Jahressumme der letzten 12 Perioden auf derselben Skala. Quelle in dieser Reihenfolge: das Feld „Linie“ (fertige R12-Measure), sonst abgeleitet aus dem Vorjahr (ein volles Jahr mit Vorjahr in jedem Monat), sonst aus mindestens 13 sichtbaren Perioden. Ohne Quelle keine Linie, im Bearbeitungsmodus ein Hinweis. Ist die Basis Plan und dient das Vorjahr nur als Quelle, entfällt die Vorjahreslinie. Standard aus.",
+        descriptionKey: "Desc_Chart_LineR12",
+        value: false
+    });
+
+    lineR12Label = new formattingSettings.TextInput({
+        name: "lineR12Label",
+        displayName: "R12 line label",
+        displayNameKey: "Chart_LineR12Label",
+        description: "Name der R12-Linie an ihrem Anfang, z. B. „MAT“. Leer = „R12“.",
+        descriptionKey: "Desc_Chart_LineR12Label",
+        placeholder: "R12",
+        value: ""
+    });
+
+    linePeriodColumns = new formattingSettings.ItemDropdown({
+        name: "linePeriodColumns",
+        displayName: "Period columns",
+        displayNameKey: "Chart_LinePeriodColumns",
+        description: "Linie mit kumulierter Sicht YTD: die Werte der einzelnen Perioden als Säulen hinter den Linien, auf derselben Skala und Nulllinie (AC solide, FC schraffiert, PL als Umriss). Sind die Säulen dafür zu klein, entfallen sie (Hinweis im Bearbeitungsmodus). Standard aus.",
+        descriptionKey: "Desc_Chart_LinePeriodColumns",
+        items: linePeriodColumnsItems,
+        value: linePeriodColumnsItems[0]
+    });
+
+    lineGapMarkers = new formattingSettings.ItemDropdown({
+        name: "lineGapMarkers",
+        displayName: "Gap markers",
+        displayNameKey: "Chart_LineGapMarkers",
+        description: "Linie mit kumulierter Sicht YTD: Abstand der Ist-Linie zur Vergleichslinie als Balken mit Δ am rechten Rand, am letzten Ist-Monat (AC gegen Basis) und am Jahresende (AC und FC gegen Basis, schraffiert). Nicht in kleinen Kacheln. Standard aus.",
+        descriptionKey: "Desc_Chart_LineGapMarkers",
+        items: lineGapMarkersItems,
+        value: lineGapMarkersItems[0]
+    });
+
+    // 1.56 (backlog B17, IBCS sheet 07A): series lines, all off by default
+    lineSeries = new formattingSettings.ToggleSwitch({
+        name: "lineSeries",
+        displayName: "Series lines",
+        displayNameKey: "Chart_LineSeries",
+        description: "Linie: eine Linie je Mitglied des Felds „Stack-Serie“ (z. B. drei Aktien über die Tage), Serienname mit letztem Wert am Linienende, wie im IBCS-Blatt 07A. Schließt die kumulierte Sicht und die R12-Optionen aus; Δ-Panels, Vorjahr, Plan und Benchmark wirken hier nicht. Standard aus.",
+        descriptionKey: "Desc_Chart_LineSeries",
+        value: false
+    });
+
+    lineIndex = new formattingSettings.ItemDropdown({
+        name: "lineIndex",
+        displayName: "Index",
+        displayNameKey: "Chart_LineIndex",
+        description: "Serienlinien: Werte je Serie als Index, Basiswert = 100 (Wert ÷ Basiswert × 100), nullbasierte Achse mit einer dünnen Linie bei 100. Eine Serie ohne Basiswert (leer, 0 oder negativ) wird nicht gezeichnet und im Diagramm genannt. Mit Index wirken Referenzlinie und festes Maximum der Skala nicht. Standard aus (Werte).",
+        descriptionKey: "Desc_Chart_LineIndex",
+        items: lineIndexItems,
+        value: lineIndexItems[0]
+    });
+
+    lineIndexBase = new formattingSettings.TextInput({
+        name: "lineIndexBase",
+        displayName: "Index base category",
+        displayNameKey: "Chart_LineIndexBase",
+        description: "Name der Kategorie, deren Werte 100 sind (z. B. „02.01.“); ein Gruppenname (z. B. „Feb“ bei Monat › Tag) meint den ersten Punkt der Gruppe. Leer = erste Kategorie, in der alle Serien einen Wert über 0 haben, in allen Kacheln dieselbe.",
+        descriptionKey: "Desc_Chart_LineIndexBase",
+        placeholder: "",
+        value: ""
+    });
+
+    lineSeriesColor = new formattingSettings.ItemDropdown({
+        name: "lineSeriesColor",
+        displayName: "Series colours",
+        displayNameKey: "Chart_LineSeriesColor",
+        description: "Serienlinien: Grautöne (erste bzw. hervorgehobene Serie in der AC-Farbe, die übrigen abgestuft grau) oder die Gruppenpalette (ab vier Serien besser unterscheidbar, verlässt aber die Szenariofarben). Standard Grautöne.",
+        descriptionKey: "Desc_Chart_LineSeriesColor",
+        items: lineSeriesColorItems,
+        value: lineSeriesColorItems[0]
+    });
+
+    lineSeriesLabels = new formattingSettings.ItemDropdown({
+        name: "lineSeriesLabels",
+        displayName: "Series values",
+        displayNameKey: "Chart_LineSeriesLabels",
+        description: "Serienlinien: welche Werte beschriftet werden. Endwerte (nur am Linienende), Gruppenanfänge und Ende (z. B. jeder Monatsanfang über Tageswerten, ohne Hierarchie jeder Punkt nach Platz), alle Punkte (nach Platz) oder keine. Punktmarken stehen nur an beschrifteten Stellen. Standard Endwerte.",
+        descriptionKey: "Desc_Chart_LineSeriesLabels",
+        items: lineSeriesLabelsItems,
+        value: lineSeriesLabelsItems[0]
+    });
+
+    lineEndDelta = new formattingSettings.TextInput({
+        name: "lineEndDelta",
+        displayName: "Start-to-end markers",
+        displayNameKey: "Chart_LineEndDelta",
+        description: "Serienlinien: Serien mit einem Balken vom Basisniveau (mit Index 100, ohne Index der erste Wert der Serie) zum Endwert am rechten Rand, in Gut- bzw. Schlecht-Farbe, mit Index als Δ % (z. B. −93 %), sonst Δ und Δ %. Liste durch Komma oder Semikolon getrennt, * = alle Serien. Leer = keine.",
+        descriptionKey: "Desc_Chart_LineEndDelta",
+        placeholder: "",
+        value: ""
+    });
+
+    lineGroup = new formattingSettings.Group({
+        name: "chartLine",
+        displayName: "Line",
+        displayNameKey: "Group_Line",
+        slices: [this.lineMarkerShape, this.lineBasisLabels, this.lineR12, this.lineR12Label,
+            this.linePeriodColumns, this.lineGapMarkers, this.lineSeries, this.lineIndex, this.lineIndexBase,
+            this.lineSeriesColor, this.lineSeriesLabels, this.lineEndDelta]
     });
 
     name: string = "chart";
     displayName: string = "Chart";
     displayNameKey: string = "Card_Chart";
     groups = [this.chartTypeGroup, this.varianceGroup, this.dataTimeGroup, this.interactionGroup,
-        this.displayGroup, this.stockFlowGroup, this.multiplesGroup, this.bridgeGroup, this.tableGroup, this.cardsGroup,
+        this.displayGroup, this.stockFlowGroup, this.lineGroup, this.multiplesGroup, this.bridgeGroup, this.tableGroup, this.cardsGroup,
         this.scatterGroup];
 }
 
@@ -2088,11 +2506,32 @@ export class ScaleCardSettings extends formattingSettings.CompositeCard {
         value: false
     });
 
+    // 1.57 (backlog B18, IBCS-Blatt 07E): Quotenstrahlen Y = k · X durch den Ursprung
+    ratioRays = new formattingSettings.TextInput({
+        name: "ratioRays",
+        displayName: "Ratio rays (scatter)",
+        displayNameKey: "Scale_RatioRays",
+        description: "Nur Scatter: Strahlen durch den Ursprung für feste Quoten Y ÷ X (z. B. Umsatz je Mitarbeiter), Liste mit Semikolon getrennt, z. B. „1; 0,7; 0,35“ (k/M/B-Suffixe wie bei der Referenzlinie). Dünne graue Linie bis zum Plotrand, hohler Kreis und Beschriftung am Austritt. Die Strahlen ziehen die 0 in beide Achsen; Quoten ≤ 0 werden ignoriert. Der Tooltip zeigt dann die Quote jedes Punkts. Die Quote gilt in den Einheiten der Daten, nicht der Achsenanzeige (Y in EUR mit Achse in Mio.: „1M“ statt „1“). Leer = aus.",
+        descriptionKey: "Desc_Scale_RatioRays",
+        placeholder: "z. B. 1; 0,7; 0,35",
+        value: ""
+    });
+
+    ratioRayUnit = new formattingSettings.TextInput({
+        name: "ratioRayUnit",
+        displayName: "Ratio ray unit",
+        displayNameKey: "Scale_RatioRayUnit",
+        description: "Zusatz hinter der Quote an den Strahlen und im Tooltip, z. B. „mEUR/Rep“. Leer = nur die Zahl.",
+        descriptionKey: "Desc_Scale_RatioRayUnit",
+        placeholder: "z. B. mEUR/Rep",
+        value: ""
+    });
+
     capOverflow = new formattingSettings.ToggleSwitch({
         name: "capOverflow",
         displayName: "Cap outliers at maximum",
         displayNameKey: "Scale_CapOverflow",
-        description: "Macht das Skalen-Maximum hart: größere Werte werden gekappt und mit Doppelstrich markiert (Label zeigt den echten Wert).",
+        description: "Macht das Skalen-Maximum hart: größere Werte werden gekappt und mit Doppelstrich markiert (Label zeigt den echten Wert). Nicht bei der gestapelten Fläche.",
         descriptionKey: "Desc_Scale_CapOverflow",
         value: false
     });
@@ -2132,7 +2571,8 @@ export class ScaleCardSettings extends formattingSettings.CompositeCard {
         name: "scaleScatterAxes",
         displayName: "Scatter axes",
         displayNameKey: "Group_ScatterAxes",
-        slices: [this.xMin, this.xMax, this.yMin, this.yMax, this.xLogScale, this.yLogScale]
+        slices: [this.xMin, this.xMax, this.yMin, this.yMax, this.xLogScale, this.yLogScale,
+            this.ratioRays, this.ratioRayUnit]
     });
 
     refLineGroup = new formattingSettings.Group({

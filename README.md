@@ -8,7 +8,7 @@ Das Repo hinter **[datenwgknowledgekitchen.com](https://www.datenwgknowledgekitc
 
 | Bereich | Ordner/Dateien | Kurz |
 | --- | --- | --- |
-| **ChartKitchen byDatenWG** | `ibcsInspiredChartDeck/` | Custom Visual mit 13 IBCS-inspirierten Chart-Modi (Säulen, Balken, Linien, Waterfall/Brücke, GuV, Tabelle/Matrix, KPI-Karten, Scatter/Bubble …). Quellcode, Tests, `dist/*.pbiviz`, CHANGELOG |
+| **ChartKitchen byDatenWG** | `ibcsInspiredChartDeck/` | Custom Visual mit 14 IBCS-inspirierten Chart-Modi (Säulen, Balken, Linien, Waterfall/Brücke, GuV, Tabelle/Matrix, KPI-Karten, Scatter/Bubble …). Quellcode, Tests, `dist/*.pbiviz`, CHANGELOG |
 | **P&L Statement byDatenWG** | `pnlByDatenWG/` | Custom Visual für GuV/P&L: Mega-Table mit IBCS-Templates T01A–12H, Treiberbaum, klassische Tabelle |
 | **dataKitchenGantt** | `dataKitchenGantt/` | Custom Visual: Gantt-/Projektplan |
 | **fabscan** | `fabric-app-scanner/` | Governance-Prüfung für Fabric Apps und den Tenant: Berechnungen in der App, Lineage, Sicherheit, veränderte Abfragen, Abweichungen zum Modell. CLI (`pip install`), Skill für Claude (`.claude/skills/fabscan/`, ZIP in `downloads/`), Fabric-Notebook für den Tenant-Scan |

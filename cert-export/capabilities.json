@@ -108,6 +108,15 @@
             "requiredTypes": [ { "numeric": true }, { "integer": true } ]
         },
         {
+            "displayName": "Bubble share (optional)",
+            "description": "Scatter / bubble mode only, with Bubble size: the part of each bubble drawn as a sector from 12 o'clock clockwise (e.g. our sales within the market volume). As a value in the unit of the bubble size (share = part / size) or as a ratio 0 to 1 (setting \"Bubble share as\").",
+            "descriptionKey": "RoleDesc_BubbleShare",
+            "displayNameKey": "Role_BubbleShare",
+            "name": "bubbleShare",
+            "kind": "Measure",
+            "requiredTypes": [ { "numeric": true }, { "integer": true } ]
+        },
+        {
             "displayName": "Stack Series (Gestapelt)",
             "description": "Splits Actual by an additional dimension and stacks the columns/bars by that series, with legend and stack-total labels.",
             "descriptionKey": "RoleDesc_Series",
@@ -197,6 +206,7 @@
                             { "value": "C04", "displayName": "C04 · Balken + Varianzen (PL)" },
                             { "value": "C05", "displayName": "C05 · Integrierte Brücke (Zeit)" },
                             { "value": "C06", "displayName": "C06 · Kategorie-Brücke vertikal" },
+                            { "value": "C07", "displayName": "C07 · Gestapelte Fläche (08A)" },
                             { "value": "C08", "displayName": "C08 · Linie (lange Zeitreihe)" },
                             { "value": "C09", "displayName": "C09 · Scatter" },
                             { "value": "C10", "displayName": "C10 · Bubble (Scatter + Größe)" },
@@ -208,7 +218,12 @@
                             { "value": "C17", "displayName": "C17 · Kategorie-Brücke waagerecht (06E)" },
                             { "value": "C18", "displayName": "C18 · Abweichungs-Scatter ΔPY % × ΔPL % (10F)" },
                             { "value": "C19", "displayName": "C19 · Säulen gegen Plan + Jahressäule (03B)" },
-                            { "value": "C20", "displayName": "C20 · Bestand und Fluss (08E bis 08H)" }
+                            { "value": "C20", "displayName": "C20 · Bestand und Fluss (08E bis 08H)" },
+                            { "value": "C21", "displayName": "C21 · Kumulierte Linie mit R12 und Monatssäulen (07C)" },
+                            { "value": "C22", "displayName": "C22 · Serienlinien mit Index (07A)" },
+                            { "value": "C23", "displayName": "C23 · Scatter-Zeitpfad (07D, 07E)" },
+                            { "value": "C24", "displayName": "C24 · Blasen mit Anteil (10E, 10G)" },
+                            { "value": "C25", "displayName": "C25 · Marimekko (02F)" }
                         ]
                     }
                 },
@@ -436,6 +451,36 @@
                 "scatterQuadLabelBL": { "type": { "text": true } },
                 "scatterQuadLabelBR": { "type": { "text": true } },
                 "scatterPlay": { "type": { "bool": true } },
+                "scatterPath": {
+                    "type": {
+                        "enumeration": [
+                            { "value": "off", "displayName": "Off" },
+                            { "value": "line", "displayName": "Line through the periods" }
+                        ]
+                    }
+                },
+                "scatterPathLabels": {
+                    "type": {
+                        "enumeration": [
+                            { "value": "auto", "displayName": "Auto (where there is room)" },
+                            { "value": "ends", "displayName": "Start and end" },
+                            { "value": "all", "displayName": "All periods" },
+                            { "value": "off", "displayName": "Off" }
+                        ]
+                    }
+                },
+                "scatterPathArrow": { "type": { "bool": true } },
+                "scatterPathDelta": { "type": { "bool": true } },
+                "scatterShareAs": {
+                    "type": {
+                        "enumeration": [
+                            { "value": "value", "displayName": "Value (part of the bubble size)" },
+                            { "value": "ratio", "displayName": "Ratio (0 to 1)" }
+                        ]
+                    }
+                },
+                "scatterTotalBubble": { "type": { "bool": true } },
+                "scatterTotalColor": { "type": { "fill": { "solid": { "color": true } } } },
                 "cardSortSel": { "type": { "text": true } },
                 "cardTint": { "type": { "bool": true } },
                 "cardTintStrength": { "type": { "numeric": true } },
@@ -479,7 +524,9 @@
                 "groupEvery": { "type": { "numeric": true } },
                 "multiplesTotal": { "type": { "bool": true } },
                 "multiplesTopN": { "type": { "numeric": true } },
+                "multiplesColumns": { "type": { "numeric": true } },
                 "multiplesHero": { "type": { "bool": true } },
+                "multiplesHeroTile": { "type": { "text": true } },
                 "multiplesSameScale": { "type": { "bool": true } },
                 "multiplesAgg": {
                     "type": {
@@ -508,6 +555,7 @@
                         ]
                     }
                 },
+                "varianceOnly": { "type": { "bool": true } },
                 "waterfallStyle": { "type": { "bool": true } },
                 "sortByImpact": { "type": { "bool": true } },
                 "sortMode": {
@@ -546,6 +594,73 @@
                         ]
                     }
                 },
+                "sfFlowZoom": { "type": { "bool": true } },
+                "timeAggregation": {
+                    "type": {
+                        "enumeration": [
+                            { "value": "sum", "displayName": "Sum" },
+                            { "value": "last", "displayName": "Last value" }
+                        ]
+                    }
+                },
+                "lineMarkerShape": {
+                    "type": {
+                        "enumeration": [
+                            { "value": "circle", "displayName": "Circles" },
+                            { "value": "square", "displayName": "Squares (AC filled, FC hatched, PL hollow)" }
+                        ]
+                    }
+                },
+                "lineBasisLabels": { "type": { "bool": true } },
+                "lineR12": { "type": { "bool": true } },
+                "lineR12Label": { "type": { "text": true } },
+                "linePeriodColumns": {
+                    "type": {
+                        "enumeration": [
+                            { "value": "off", "displayName": "Off" },
+                            { "value": "same", "displayName": "Same scale (behind the lines)" }
+                        ]
+                    }
+                },
+                "lineGapMarkers": {
+                    "type": {
+                        "enumeration": [
+                            { "value": "off", "displayName": "Off" },
+                            { "value": "actual", "displayName": "At the last actual" },
+                            { "value": "end", "displayName": "At the year end" },
+                            { "value": "both", "displayName": "Both" }
+                        ]
+                    }
+                },
+                "lineSeries": { "type": { "bool": true } },
+                "lineIndex": {
+                    "type": {
+                        "enumeration": [
+                            { "value": "off", "displayName": "Off (values)" },
+                            { "value": "base100", "displayName": "Index (base = 100)" }
+                        ]
+                    }
+                },
+                "lineIndexBase": { "type": { "text": true } },
+                "lineSeriesColor": {
+                    "type": {
+                        "enumeration": [
+                            { "value": "tones", "displayName": "Grey tones" },
+                            { "value": "palette", "displayName": "Group palette" }
+                        ]
+                    }
+                },
+                "lineSeriesLabels": {
+                    "type": {
+                        "enumeration": [
+                            { "value": "ends", "displayName": "End values" },
+                            { "value": "groups", "displayName": "Group starts and end" },
+                            { "value": "all", "displayName": "All points" },
+                            { "value": "none", "displayName": "None" }
+                        ]
+                    }
+                },
+                "lineEndDelta": { "type": { "text": true } },
                 "stackNormalize": {
                     "type": {
                         "enumeration": [
@@ -554,14 +669,52 @@
                         ]
                     }
                 },
+                "stackThickness": {
+                    "type": {
+                        "enumeration": [
+                            { "value": "equal", "displayName": "Equal" },
+                            { "value": "total", "displayName": "By row total (Marimekko)" }
+                        ]
+                    }
+                },
+                "stackShareColumn": { "type": { "bool": true } },
                 "stackTotalRow": { "type": { "bool": true } },
                 "stackTotalLabel": { "type": { "text": true } },
                 "stackShareBracket": { "type": { "numeric": true } },
+                "stackBlocks": {
+                    "type": {
+                        "enumeration": [
+                            { "value": "off", "displayName": "Off" },
+                            { "value": "gap", "displayName": "Gap between blocks" },
+                            { "value": "subtotals", "displayName": "Subtotal per block" },
+                            { "value": "subtotalsButLast", "displayName": "Subtotals except the last block" }
+                        ]
+                    }
+                },
+                "stackBlockShare": { "type": { "bool": true } },
                 "stackLegendPos": {
                     "type": {
                         "enumeration": [
                             { "value": "end", "displayName": "Right of the last column" },
                             { "value": "start", "displayName": "Left of the first column" }
+                        ]
+                    }
+                },
+                "stackShape": {
+                    "type": {
+                        "enumeration": [
+                            { "value": "columns", "displayName": "Columns" },
+                            { "value": "area", "displayName": "Area" }
+                        ]
+                    }
+                },
+                "areaTotalLine": { "type": { "bool": true } },
+                "areaValueLabels": {
+                    "type": {
+                        "enumeration": [
+                            { "value": "auto", "displayName": "Automatic (thin out)" },
+                            { "value": "ends", "displayName": "First and last period" },
+                            { "value": "off", "displayName": "Off" }
                         ]
                     }
                 },
@@ -687,6 +840,8 @@
                 "xRefLine": { "type": { "text": true } },
                 "xLogScale": { "type": { "bool": true } },
                 "yLogScale": { "type": { "bool": true } },
+                "ratioRays": { "type": { "text": true } },
+                "ratioRayUnit": { "type": { "text": true } },
                 "xMin": { "type": { "text": true } },
                 "xMax": { "type": { "text": true } },
                 "yMin": { "type": { "text": true } },
@@ -721,6 +876,7 @@
                     "xPrevious": { "max": 1 },
                     "bubbleSize": { "max": 1 },
                     "bubbleSizePrevious": { "max": 1 },
+                    "bubbleShare": { "max": 1 },
                     "rowType": { "max": 1 },
                     "fcFlag": { "max": 1 },
                     "trend": { "max": 1 },
@@ -761,6 +917,7 @@
                         { "bind": { "to": "xPrevious" } },
                         { "bind": { "to": "bubbleSize" } },
                         { "bind": { "to": "bubbleSizePrevious" } },
+                        { "bind": { "to": "bubbleShare" } },
                         { "bind": { "to": "comments" } },
                         { "bind": { "to": "filterInfo" } }
                     ]
