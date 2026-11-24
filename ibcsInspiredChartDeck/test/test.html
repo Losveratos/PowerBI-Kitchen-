@@ -10629,6 +10629,18 @@ addStage("c422c", "Review m7 · Blasengröße VJ ohne Vorjahr in der Leseansicht
   const GOOD = "#1E8F9E", BAD = "#D64541";
   const markPat = id => wq(id, "pattern").find(p => /-m$/.test(p.id));
   const stemOf = h => h.previousElementSibling;
+  // review 2 (B1): the variance colour must be visible — on ≥ 3 px of stem beside the head, or
+  // on the Δ% label (next element) when the pin is short; grey (immaterial / zero) needs none
+  const colourShown = id => heads(id).map(h => {
+    const l = stemOf(h), c = l.getAttribute("stroke");
+    if (c === "#B3B3B3") { return { ok: true, grey: true }; }
+    const len = Math.hypot(+l.getAttribute("x2") - +l.getAttribute("x1"), +l.getAttribute("y2") - +l.getAttribute("y1"));
+    const half = h.tagName === "circle" ? +h.getAttribute("r") : +h.getAttribute("width") / 2;
+    const lb = h.nextElementSibling;
+    const lbOk = !!lb && lb.tagName === "text" && lb.getAttribute("fill") === c && lb.style.display !== "none"
+      && lb.getAttribute("visibility") !== "hidden" && lb.getAttribute("display") !== "none";
+    return { ok: len - half >= 2.99 || lbOk, short: len - half < 2.99, lbOk };
+  });
   // visible coloured stem of a scenario head: stem length minus the head's half size
   const stemVis = h => {
     const l = stemOf(h); const hr = h.tagName === "circle" ? +h.getAttribute("r") : +h.getAttribute("width") / 2;
@@ -10641,14 +10653,16 @@ addStage("c422c", "Review m7 · Blasengröße VJ ohne Vorjahr in der Leseansicht
   const dv24 = chart => ({ metadata: { columns: [], objects: { chart } }, categorical: { categories: [
     { source: { displayName: "Monat", roles: { category: true } }, values: cats24 },
     { source: { displayName: "FC", roles: { fcFlag: true } }, values: cats24.map((_, i) => i >= 10 ? 1 : 0) }],
-    values: [col("actual", cats24.map((_, i) => 100 + i * 3), "#,0"), col("previousYear", cats24.map((_, i) => 95 + i * 3.4), "#,0")] } });
+    // review 2 (B4): |Δ%| 9 to 10 % so no pin is short and every head keeps r = 2,5 (no pinHeadR cap)
+    values: [col("actual", cats24.map((_, i) => Math.round((100 + i * 3) * (1 + (i % 2 ? 1 : -1) * (0.09 + (i % 3) * 0.005)) * 10) / 10), "#,0"),
+      col("previousYear", cats24.map((_, i) => 100 + i * 3), "#,0")] } });
   for (const [id, shape] of [["c1040", "auto"], ["c1041", "square"]]) {
     addStage(id, `Welle 1 Review B1 · 24 Säulen auf 620 px, FC ab M11, Kopf ${shape === "square" ? "eckig" : "rund"} mit r = 2,5: Schraffur sichtbar (Pixelprobe in shot.js)`, 620, 420);
     runCap(id, dv24({ orientation: "columns", comparisonMode: "py", showAbsoluteVariance: true, showRelativeVariance: true, pinStyle: shape }), 620, 420);
     const fcH = heads(id).filter(h => h.getAttribute("data-pin") === "fc");
     const pat = markPat(id);
     const half = h => h.tagName === "circle" ? +h.getAttribute("r") : +h.getAttribute("width") / 2;
-    check(fcH.length === 14 && fcH.every(h => h.tagName === (shape === "square" ? "rect" : "circle") && h.getAttribute("fill") === `url(#${pat && pat.id})`)
+    check(fcH.length === 14 && fcH.every(h => half(h) === 2.5) && fcH.every(h => h.tagName === (shape === "square" ? "rect" : "circle") && h.getAttribute("fill") === `url(#${pat && pat.id})`)
       && !!pat && fcH.every(h => +pat.getAttribute("width") < 2 * (half(h) - 0.5)),
       `${id}: 14 FC-Köpfe (${shape}) mit feinem Muster, Periode ${pat && pat.getAttribute("width")} px < Innendurchmesser (halbe Größe ${[...new Set(fcH.map(half))].join("/")})`);
   }
@@ -10660,8 +10674,12 @@ addStage("c422c", "Review m7 · Blasengröße VJ ohne Vorjahr in der Leseansicht
     addStage(id, `Welle 1 Review B2 · kleine Δ (Kosten): Kopf ${shape === "square" ? "eckig" : "rund"} gekappt, ≥ 3 px Stiel in Abweichungsfarbe`, 700, 420);
     runCap(id, shortDv({ pinStyle: shape }), 700, 420);
     const st = heads(id).map(stemVis);
-    check(st.length === 5 && st.every(s => s.sw === 2 && s.hr >= 2 && (s.vis >= 2.99 || s.hr === 2)) && st.some(s => s.hr < 4),
+    check(st.length === 5 && st.every(s => s.sw === 2 && s.hr >= 2) && st.some(s => s.hr < 4),
       `${id}: Stiel 2 px, Kopf gekappt (${st.map(s => s.len.toFixed(1) + "/" + s.hr.toFixed(1)).join(" ")})`);
+    // review 2 (B1): a head of 2 px alone is no pass any more — short pins carry the colour on their label
+    const cs = colourShown(id);
+    check(cs.length === 5 && cs.every(x => x.ok) && cs.filter(x => x.short).length >= 3 && cs.filter(x => x.short).every(x => x.lbOk),
+      `${id}: Abweichungsfarbe am Pin oder an seiner Beschriftung (${cs.map(x => x.short ? (x.lbOk ? "L" : "-") : "S").join("")})`);
     check(heads(id).map(stemOf).every(l => [GOOD, BAD].includes(l.getAttribute("stroke"))), `${id}: Stiele grün/rot`);
   }
   // Balken, zweite Basis, Jahressäule, Stufe und Tabelle in eckig
@@ -10693,7 +10711,12 @@ addStage("c422c", "Review m7 · Blasengröße VJ ohne Vorjahr in der Leseansicht
     const all = wq("c1046", "circle, rect").filter(e => e.previousElementSibling && e.previousElementSibling.tagName === "line"
       && e.previousElementSibling.getAttribute("stroke-width") === "2" && (e.getAttribute("fill") === "#404040" || e.hasAttribute("data-pin")));
     const apr = all.map(stemVis).sort((a, b) => a.len - b.len)[0];
-    check(!!apr && apr.hr >= 2 && (apr.vis >= 2.99 || apr.hr === 2) && apr.hr < 3, `c1046: kürzester Pin (Apr) Kopf ${apr && apr.hr.toFixed(1)} bei Länge ${apr && apr.len.toFixed(1)}`);
+    check(!!apr && apr.hr >= 2 && apr.hr < 3, `c1046: kürzester Pin (Apr) Kopf ${apr && apr.hr.toFixed(1)} bei Länge ${apr && apr.len.toFixed(1)}`);
+    // review 2 (B1): the short table pin colours its label
+    const aprHead = all.slice().sort((a, b) => stemVis(a).len - stemVis(b).len)[0];
+    const aprLbl = aprHead && aprHead.nextElementSibling;
+    check(!!aprLbl && aprLbl.tagName === "text" && aprLbl.getAttribute("fill") === stemOf(aprHead).getAttribute("stroke"),
+      `c1046: Beschriftung des kurzen Pins in Abweichungsfarbe (${aprLbl && aprLbl.getAttribute("fill")})`);
   }
   // PL-Kopf (Plan gegen Plan) eckig
   addStage("c1047", "Welle 1 Review · Plan gegen Plan (13D) mit eckigem Kopf: hohl mit Tintenrand", 1280, 720);
@@ -10829,6 +10852,42 @@ addStage("c422c", "Review m7 · Blasengröße VJ ohne Vorjahr in der Leseansicht
       && (rows[rows.length - 1].compareDocumentPosition(g) & Node.DOCUMENT_POSITION_FOLLOWING); });
     check(over.length === 1 && strip.length === 1 && +strip[0].getAttribute("width") === 3.4 && marksAfter
       && a.find(g => g.getAttribute("data-over") !== "1"), "c1010 (B6): Δ-Achse über den Balken mit 3,4-px-Papierstreifen, Δ%-Achse darunter");
+  }
+  // ---- Review 2 · B1: kurze Pins in Small Multiples, GuV-Wasserfall, zweite Basis und Jahressäule
+  addStage("c1063", "Welle 1 Review 2 · Small Multiples 4 × 12 auf 960 × 560: kurze Pins zeigen die Farbe an der Beschriftung", 960, 560);
+  runCap("c1063", dataView(smCats, [col("actual", smAc), col("plan", smPl)],
+    { chart: { comparisonMode: "plan", showAbsoluteVariance: true, showRelativeVariance: true } }, smMult), 960, 560);
+  addStage("c1064", "Welle 1 Review 2 · GuV-Wasserfall 960 × 420 (C12): Δ%-Stufe mit Farbe an Pin oder Beschriftung", 960, 420);
+  runCap("c1064", dataView(pnlCats, [col("actual", pnlVals, "#,0 T€"), col("previousYear", pnlPy, "#,0 T€")],
+    { chart: { template: "C12" } }, null, pnlTypes), 960, 420);
+  addStage("c1065", "Welle 1 Review 2 · zweite Basis und Jahressäule mit kleinen Δ", 1100, 600);
+  runCap("c1065", dataView(months, [col("actual", ac.map(v => v == null ? null : v * 1.004), "#,0 €"), col("forecast", fc, "#,0 €"),
+    col("plan", pl, "#,0 €"), col("previousYear", ac.map((v, i) => (v ?? fc[i]) * (i === 0 ? 0.8 : 0.997)), "#,0 €")],
+    { chart: { orientation: "columns", comparisonMode: "plan", dualVariance: true, yearColumn: true,
+      showAbsoluteVariance: true, showRelativeVariance: true } }), 1100, 600);
+  for (const id of ["c1063", "c1064", "c1065", "c1000", "c1001", "c1003", "c1004", "c1044", "c1048"]) {
+    const cs = colourShown(id);
+    const bad = cs.filter(x => !x.ok).length;
+    check(cs.length > 0 && bad === 0, `${id}: Abweichungsfarbe am Pin oder an seiner Beschriftung (${cs.length} Pins, kurz ${cs.filter(x => x.short).length}, ohne Farbe ${bad})`);
+  }
+  check(colourShown("c1063").filter(x => x.short).length >= 20 && colourShown("c1064").some(x => x.short),
+    "c1063/c1064: die Fälle des Reviews haben kurze Pins (Regel greift)");
+  // Hochkontrast unverändert: keine Beschriftung in Abweichungsfarbe
+  {
+    const hcLbl = wq("c1005", "circle").map(c => c.nextElementSibling).filter(t => t && t.tagName === "text");
+    check(hcLbl.length > 0 && hcLbl.every(t => t.getAttribute("fill") === "#FFFF00"), `c1005: Hochkontrast-Beschriftungen in Vordergrundfarbe (${[...new Set(hcLbl.map(t => t.getAttribute("fill")))]})`);
+  }
+  // ---- Review 2 · B5: FC-Referenzpunkt der KPI-Trendlinie schraffiert
+  addStage("c1066", "Welle 1 Review 2 · KPI-Karten mit Trendlinie, nur FC-Perioden: Referenzpunkt schraffiert statt hohl", 1200, 300);
+  {
+    const k = ["EBIT", "Free Cashflow"];
+    const b = { "EBIT": [42, 38, 12, 55, 61, 8, 47, 52, 66, 58, 63, 71], "Free Cashflow": [20, 15, 33, 41, 28, 36, 5, 44, 39, 12, 25, 30] };
+    const r = trendRows(k, b, { "EBIT": 0.9, "Free Cashflow": 1.1 }, months, 0);
+    runCap("c1066", dataView(r.cats, [col("actual", r.ac), col("previousYear", r.py)],
+      { chart: { orientation: "cards", cardTrendChart: "sparkline" }, __fcFlags: r.flags }, null, null, r.tr), 1200, 300);
+    const refs = wq("c1066", "circle").filter(c => isHatch(c.getAttribute("fill")));
+    check(refs.length === 2 && !wq("c1066", "circle").some(c => c.getAttribute("fill") === "#FFFFFF" && c.getAttribute("stroke") === "#404040"),
+      `c1066: zwei schraffierte FC-Referenzpunkte, keiner hohl (${refs.length})`);
   }
 }
 // ---- WELLE1-REVIEW-END

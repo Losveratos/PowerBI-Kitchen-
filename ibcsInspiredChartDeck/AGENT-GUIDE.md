@@ -19,7 +19,9 @@ Bei Versionssprüngen: CHANGELOG.md zuerst lesen.
 FC `fcMarkFill(cfg)` mit Tintenrand 1, PL `cfg.paper` mit Tintenrand 1,2; jeweils `data-pin` = Szenario. Die
 Abweichungsfarbe (gut, schlecht, unwesentlich grau) steht nur noch am Stiel, Stielbreite `PIN_STEM_W` = 2 (wie die
 Tabelle; Wasserfall-Stufe `max(2, 1,4 · k)`). `pinHeadR(r, Länge)` kappt den Kopf auf `max(2, min(r, Länge − 3))`,
-damit kurze Pins mindestens 3 px farbigen Stiel zeigen. Aufrufer: rel- und rel2-Pins in `renderChartBody` (Säulen,
+damit kurze Pins mindestens 3 px farbigen Stiel zeigen. Bleibt weniger (Länge < Kopf + 3), färbt `pinLabelInk(cfg,
+Länge, Kopf, Stielfarbe)` die Δ%-Beschriftung des Pins in der Abweichungsfarbe (nicht bei grauem Stiel, nicht im
+Hochkontrast); die Beschriftung ist das nächste Element hinter dem Kopf (Prüfung `colourShown` in c1063 bis c1065). Aufrufer: rel- und rel2-Pins in `renderChartBody` (Säulen,
 Balken, Linie; Plan gegen Plan behält `data-icd="var-plan"`), Δ%-Stufe des Wasserfalls (`tierPts[i].isFc`),
 Jahressäule (`anyFc` = `isFc` oder `fcPart`), Δ%-Kopf der Tabelle (FC fein schraffiert, AC bytegleich, Kopf gekappt).
 Alles über `pinHead(…, cfg.pinStyle, …)`, also für runde und eckige Köpfe gleich (`chart.pinStyle`, Standard `auto`,
@@ -29,7 +31,8 @@ ungekappt), weil gut und schlecht dort dieselbe Farbe haben; dort gibt es kein `
 `colors.ac` auf `cfg.paper`) beim ersten Gebrauch in `defs` an (Charts ohne FC bleiben SVG-gleich, ein Muster je
 Render auch in Small Multiples). Das Säulenmuster `patId` (5 px) ließ Köpfe mit r 2,5 bis 4,5 leer oder als „⊘“
 erscheinen. FC-Punkte von Linie, R12-Linie, Dumbbell und Slope nutzen dasselbe Muster, auch im Hochkontrast. Die
-Quadrate von `lineMarkerShape=square` waren schon richtig (`lineSquare`). Bekannt und alt (1.57 gleich): in sehr
+Quadrate von `lineMarkerShape=square` waren schon richtig (`lineSquare`). Der FC-Referenzpunkt der KPI-Trendlinie
+nutzt ebenfalls `fcMarkFill` (c1066). Bekannt und alt (1.57 gleich): in sehr
 flachen Small-Multiples-Kacheln kehrt sich die Δ%-Skala um, positive Pins zeigen nach unten (Backlog).
 
 *3 · Δ-Achsen der Tabelle.* `renderTable` zeichnet die Achsen von `dbar`, `pct` und `d2bar` über
@@ -61,7 +64,9 @@ gibt dasselbe wie die bisherigen Ternaries) und `Visual.roundedZeroPlain()`. Wir
 Null aus `zeroAt` ohne Vorzeichen und ohne Finanzklammer zurück), `fmtPercent`, `ppText` von Tabelle und Matrix, dem
 gerundeten Δ der Tabelle (`rf`), `ppT` und ganzzahligem Δ % von `renderPnlStatement` (mit plain auch ohne „±“), dem
 Index-Δ von `renderLineSeries` und den Pp-Labels der Differenzmarker. Die KPI-Karten laufen über `fmtSigned`/
-`fmtPercent` mit, ihre eigene Regel (Null immer ohne Vorzeichen) kommt aus der Kartenarbeit. **Alle Vorlagen** setzen
+`fmtPercent` mit, wandeln das Ergebnis aber über `Visual.unsignZero` (gerundete Null immer ohne Vorzeichen,
+unabhängig von `labels.roundedZero`); `deltaSign` und `roundedZeroPlain()` sind für eigene Texte exportiert, die Karten
+nutzen sie nicht. **Alle Vorlagen** setzen
 `"labels.roundedZero": "plain"` (eigener Merge-Eintrag `labels`; C18 schreibt damit drei Einträge: chart, scale, labels).
 `TPL_SINCE_158` (`panelTypeTitles`, `scatterTypeTitle`, `scatterScenarioTag`, `labels.roundedZero`): in
 `templateDeviation()` keine Abweichung, solange der Schlüssel den Pane-Standard trägt, damit Berichte mit schon
@@ -87,7 +92,8 @@ breiteste Wert (`blockW` mit 5k Reserve). Ohne Brücke, Trend und Bullet (`right
 Karten; zwei Zeilen (`twoRows`) liegen in allen Karten auf `yMid − 2k` und `yMid + refF + 4k`. Gerundete Null:
 `cardSigned`/`cardPercent` über `Visual.unsignZero` immer ohne Vorzeichen und ohne Finanz-Klammer (Produktentscheidung, keine Option); `Visual.zeroText` prüft nur die erste Ziffernfolge (Einheiten wie „tCO2“). Farbe, Pfeil,
 Streifen und Tönung vom ungerundeten Δ wie bisher; `readsZero` macht eine Zeile nur neutral, wenn Δ und Δ% (fehlt,
-n.a. oder 0,0 %) null lesen. Diagramm- und Tabellenlabels unverändert (`fmtSigned`, 1.52.2). `cardMinus(t, v)`: nur
+n.a. oder 0,0 %) null lesen. Diagramm- und Tabellenlabels folgen `labels.roundedZero` (Standard `signed`, alle Vorlagen
+`plain`), die Karten nicht. `cardMinus(t, v)`: nur
 bei v < 0 ein Bindestrich am Anfang oder hinter einem Währungszeichen vor der Ziffer wird U+2212 (Kartenwert,
 Referenzwerte, Trend-Beschriftung). Tests kpi58a bis kpi58o. Offen: Sortierknopf, wo der Block ihn auch direkt hinter
 dem Wert berührt (Prüfstand 2), stiller Wegfall von Δ-Zeilen (7), `fmtSigned` mit Ziffer in der Einheit (Altbestand).

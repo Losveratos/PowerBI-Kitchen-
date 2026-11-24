@@ -48,7 +48,7 @@ catch { ({ chromium } = require("/opt/node22/lib/node_modules/playwright")); }
             const ctm = el => { const b = el.getBBox(); return { x: b.x + b.width / 2, y: b.y + b.height / 2 }; };
             return [...svg.querySelectorAll('[data-pin="fc"]')].map(hd => {
                 const half = hd.tagName === "circle" ? +hd.getAttribute("r") : +hd.getAttribute("width") / 2;
-                const m = ctm(hd), ri = (half - 0.6) * S, mx = m.x * S, my = m.y * S;
+                const m = ctm(hd), ri = (half - 1.0) * S, mx = m.x * S, my = m.y * S;
                 const x0 = Math.floor(mx - ri), y0 = Math.floor(my - ri), n = Math.ceil(2 * ri) + 1;
                 const d = cx.getImageData(x0, y0, n, n).data;
                 let dark = 0, all = 0;

@@ -8650,7 +8650,7 @@ export class Visual implements IVisual {
                     const flip = v > 0 && this.collidesPanelTitle(c, this.fmtPercent(v), cfg.labelFont,
                         relScale(v) - headR - cfg.labelFont, relRect.y, region.x, `Δ${cfg.basisLabel} %`);
                     this.drawEndLabelAt(tg, c, v, v >= 0 && !flip, relScale, "columns", this.fmtPercent(v),
-                        cfg.labelFont, cfg.ink, Math.round(2 * k), cfg.paper);
+                        cfg.labelFont, this.pinLabelInk(cfg, y - zero, headR, col), Math.round(2 * k), cfg.paper);
                     relLbls.push({ el: tg.lastElementChild as SVGTextElement, prio: Math.abs(v) });
                 }
             }
@@ -11798,7 +11798,7 @@ export class Visual implements IVisual {
                     : p.isFc ? this.pinHeadScen(cfg, "fc") : { fill: cfg.ink, stroke: cfg.ink, "stroke-width": 0 });
                 if (cfg.showLabels) {
                     txt(endX + dir * (r + 4), yMid + rowFont * 0.35, this.fmtPercent(p.varRel),
-                        dir > 0 ? "start" : "end", Math.round(rowFont * 0.92), sum, cfg.ink, g);
+                        dir > 0 ? "start" : "end", Math.round(rowFont * 0.92), sum, this.pinLabelInk(cfg, endX - pctAxis, r, c), g);
                 }
             }
 
@@ -13729,8 +13729,8 @@ export class Visual implements IVisual {
 
     /** 1.58 KPI cards: a number that is not zero but rounds to zero prints without
      *  a sign, always (decision of the author, no option): "+0,0" → "0,0",
-     *  "(0,0M€)" → "0,0M€". Only the cards: the Δ labels of the charts keep their
-     *  signed zero (fmtSigned, convention 1.52.2). */
+     *  "(0,0M€)" → "0,0M€", independent of labels.roundedZero. Charts and table follow
+     *  labels.roundedZero (default signed, every template plain) via fmtSigned/fmtPercent. */
     private static unsignZero(t: string): string {
         return Visual.zeroText(t) ? t.replace(/^[+−-]/, "").replace(/^\((.*)\)$/, "$1") : t;
     }
@@ -14387,7 +14387,8 @@ export class Visual implements IVisual {
                         this.el("circle", {
                             cx: markX, cy: markY, r: mr,
                             ...(refPt.isFc
-                                ? { fill: cfg.paper, stroke: cfg.colors.ac, "stroke-width": 1.2 }
+                                // 1.58 (Welle 1 review 2, B5): FC hatched like the line points
+                                ? { fill: this.fcMarkFill(cfg), stroke: cfg.colors.ac, "stroke-width": 1.2 }
                                 : { fill: cfg.colors.ac })
                         }, tg);
                         markY -= mr;
@@ -21397,7 +21398,7 @@ export class Visual implements IVisual {
                             relScale(p.varRel) - (r + 3) - cfg.labelFont,
                             panels.rel.y, region.x, `Δ${cfg.basisLabel} %`);
                     this.drawEndLabelAt(g, c, p.varRel, p.varRel >= 0 && !flip, relScale, orientation,
-                        relTexts[i], cfg.labelFont, cfg.ink, r + 3, cfg.paper);
+                        relTexts[i], cfg.labelFont, this.pinLabelInk(cfg, end - zero, r, color), r + 3, cfg.paper);
                 }
             } else if (panels.rel && relScale && cfg.showLabels && showRelAt(i) && this.relNa(p)) {
                 this.drawRelNa(g, cx, relScale(0), orientation, cfg);
@@ -21449,7 +21450,7 @@ export class Visual implements IVisual {
                             rel2Scale(p.var2Rel) - (r + 3) - cfg.labelFont,
                             panels.rel2.y, region.x, `Δ${cfg.basis2Label} %`);
                     this.drawEndLabelAt(g, cx, p.var2Rel, p.var2Rel >= 0 && !flip, rel2Scale, orientation,
-                        rel2Texts[i], cfg.labelFont, cfg.ink, r + 3, cfg.paper);
+                        rel2Texts[i], cfg.labelFont, this.pinLabelInk(cfg, end - zero, r, color), r + 3, cfg.paper);
                 }
             } else if (panels.rel2 && rel2Scale && cfg.showLabels && showRel2At(i) && this.relNa(p, true)) {
                 this.drawRelNa(g, cx, rel2Scale(0), orientation, cfg);
@@ -22620,7 +22621,7 @@ export class Visual implements IVisual {
                 : this.pinHeadScen(cfg, anyFc ? "fc" : "ac"));
             if (cfg.showLabels) {
                 this.drawEndLabelAt(g, cx, dr, dr >= 0, scale, "columns", this.relText(p, second),
-                    cfg.labelFont, cfg.ink, r + 3, cfg.paper);
+                    cfg.labelFont, this.pinLabelInk(cfg, end - zero, r, color), r + 3, cfg.paper);
             }
         };
         // Δ far beyond the monthly Δ (cfg.yearDeltaOwn): the year Δ runs on the year
@@ -24595,6 +24596,16 @@ export class Visual implements IVisual {
         return scen === "fc" ? { fill: this.fcMarkFill(cfg), stroke: cfg.ink, "stroke-width": 1, "data-pin": "fc" }
             : scen === "pl" ? { fill: cfg.paper, stroke: cfg.ink, "stroke-width": 1.2, "data-pin": "pl" }
                 : { fill: cfg.ink, "data-pin": "ac" };
+    }
+
+    /** 1.58 (Welle 1 review 2, B1): ink of a scenario-coded pin's Δ% label. When the coloured
+     *  stem left beside the head is shorter than 3 px (length < head + 3), the label takes
+     *  the variance colour (good/bad), like the compact tile, so the direction of the
+     *  business impact stays readable; immaterial and zero Δ (grey stem) keep the ink.
+     *  High contrast unchanged */
+    private pinLabelInk(cfg: ChartConfig, len: number, half: number, stemColor: string): string {
+        if (cfg.hc || stemColor === cfg.colors.py || Math.abs(len) >= half + 3) { return cfg.ink; }
+        return stemColor;
     }
 
     /** 1.58 (Welle 1 review B2): head radius of a scenario-coded pin — on a short pin

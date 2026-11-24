@@ -15,7 +15,12 @@
   Tabelle und Brücken: Kopf AC dunkel gefüllt (Tinte), FC fein schraffiert, Plan gegen Plan (Blatt 13C, `var-plan`)
   hohl mit Tintenrand; der Stiel bleibt grün, rot oder grau und ist jetzt 2 px breit wie die Pins der Tabelle (Stufe
   des Wasserfalls mit Full-HD-Schrift wie bisher etwas breiter). Bei kurzen Pins wird der Kopf kleiner, damit mindestens
-  3 px farbiger Stiel sichtbar bleiben (Untergrenze 2 px); das gilt auch für die Δ%-Pins der Tabelle. Beides gilt für
+  3 px farbiger Stiel sichtbar bleiben (Untergrenze 2 px); das gilt auch für die Δ%-Pins der Tabelle. Bleibt
+  trotzdem weniger als 3 px farbiger Stiel (Pin kürzer als Kopf + 3 px, etwa ±0,3 % neben einem 20-%-Ausreißer,
+  Small Multiples 4 × 12 auf 960 × 560 oder die Δ%-Stufe eines flachen GuV-Wasserfalls), trägt die Δ%-Beschriftung
+  dieses Pins die Abweichungsfarbe (gut/schlecht; unwesentlich und null bleiben in Tinte), wie in der Kompakt-Kachel;
+  die Kopfkennung bleibt. Gilt für erste und zweite Basis, Stufe, Jahressäule und Tabelle, rund und eckig, nicht im
+  Hochkontrast (`pinLabelInk`). Der FC-Referenzpunkt der KPI-Trendlinie ist ebenfalls fein schraffiert statt hohl. Beides gilt für
   runde und eckige Köpfe gleich: `chart.pinStyle` (Automatisch, Rund, Quadratisch, Standard Automatisch) bleibt
   unverändert wählbar. Neue Methoden `pinHeadScen(cfg, "ac" | "fc" | "pl")` und `pinHeadR(r, Länge)`, Kopf mit
   `data-pin` (Testmarker). **Hochkontrast unverändert:** dort trägt der Kopf weiter gut/schlecht (gefüllt/hohl), weil gut
@@ -58,8 +63,9 @@
   Wirkt in `fmtSigned` und `fmtPercent` (alle Δ-, Δ %- und Netto-Beschriftungen), in den Pp- und Rundungs-Texten von
   Tabelle und Matrix, in Pp und ganzzahligem Δ % des GuV-Statements, im Index-Δ der Serienlinien (dort war die
   gerundete Null schon immer ohne Vorzeichen) und in den Pp-Labels der Differenzmarker. **Alle Vorlagen** (C01 bis
-  C25) setzen `plain` (im selben Merge als Objekt `labels`). Für die KPI-Karten exportiert: `deltaSign(v, body, plain)`
-  und `Visual.roundedZeroPlain()`. **Bestehende Berichte:** keine Änderung (Standard `signed`); Berichte, die eine
+  C25) setzen `plain` (im selben Merge als Objekt `labels`). Exportiert für eigene Texte: `deltaSign(v, body, plain)`
+  und `Visual.roundedZeroPlain()`. Die KPI-Karten nutzen das nicht: sie drucken eine gerundete Null immer ohne
+  Vorzeichen (`Visual.unsignZero`), unabhängig von `labels.roundedZero`. **Bestehende Berichte:** keine Änderung (Standard `signed`); Berichte, die eine
   Vorlage schon angewandt haben, bekommen `plain` erst beim erneuten Anwenden. Der Chip „↺ Zum Template zurück“
   erscheint dadurch nicht: Schlüssel, die eine Vorlage erst in 1.58 bekommen hat (`panelTypeTitles`,
   `scatterTypeTitle`, `scatterScenarioTag`, `labels.roundedZero`), zählen nicht als Abweichung, solange sie den
@@ -71,7 +77,10 @@
   Pixelprobe in `test/shot.js`, die die Stufe im Browser 4-fach rastert und in jedem FC-Kopf dunkle Pixel verlangt;
   kurze Pins rund und eckig; eckige Köpfe zweite Basis, Jahressäule, runde Köpfe Tabelle, eckiger Plan-Kopf;
   Dunkelmodus; Small Multiples mit Re-Render; Export; Bestandsberichte C14 und C01 ohne Chip, echte Abweichung mit
-  Chip; GuV-Statement signed und plain; negative gerundete Null; Finanzformat; Pp in der Tabelle), dazu Prüfungen an
+  Chip; GuV-Statement signed und plain; negative gerundete Null; Finanzformat; Pp in der Tabelle) und c1063 bis
+  c1066 nach der zweiten Prüfung (Small Multiples 4 × 12, GuV-Wasserfall 960 × 420, zweite Basis und Jahressäule mit
+  kleinen Δ, FC-Referenzpunkt der KPI-Trendlinie; Prüfung „Abweichungsfarbe am Pin oder an seiner Beschriftung“ auch an
+  c1000, c1001, c1003, c1004, c1042 bis c1044, c1046, c1048; c1040/c1041 jetzt mit ungekapptem r = 2,5), dazu Prüfungen an
   c600, c701, c1002 (genau 7 Köpfe) und c1005 (genau 7 hohle Köpfe, Stiel 1,6 px). Angepasst: c278c, c829, c976
   (prüfen den Typ-Titel und schalten ihn dafür an), c959 (Paneltitel über „○“), Notation Punkt 7 (B5b findet die
   Beschriftung über „PY → AC“), c262 (drei Merge-Einträge: chart, scale, labels), c195, c222, c223, c229 (das
@@ -98,8 +107,9 @@ aus dem unabhängigen Review. Keine neue Property.
 - **Keine gerundete Null mit Vorzeichen (Prüfstand 3).** Vorher „+0,0M€ · +0,1%“, „−0 · −0,6%“. Nachher druckt eine
   Zahl, die ungleich 0 ist, aber auf 0 rundet, in den Karten immer ohne Vorzeichen (Entscheidung des Autors, keine
   Option): „0,0M€ · +0,1%“, „0 tCO2“, im Finanzformat „0,0M€“ statt „(0,0M€)“. Geprüft wird nur der Zahlteil, Ziffern
-  in Einheiten („tCO2“, „m2“) zählen nicht. Eine exakte Null wie bisher. Nur die Karten: Δ-Beschriftungen in
-  Diagrammen und Tabelle behalten ihr Vorzeichen (Konvention 1.52.2).
+  in Einheiten („tCO2“, „m2“) zählen nicht. Eine exakte Null wie bisher. Die Karten tun das unabhängig von
+  `labels.roundedZero`; Δ-Beschriftungen in Diagrammen und Tabelle folgen `labels.roundedZero` (Standard `signed` mit
+  Vorzeichen wie seit 1.52.2, alle Vorlagen `plain`, siehe Punkt 10).
 - **Farbe bleibt am echten Δ.** Farbe, Pfeil (`deltaIcons`), Statusstreifen und Hintergrund-Tönung folgen wie bisher
   dem ungerundeten Δ (Wesentlichkeit, Hervorhebungsfilter). Neutral grau mit ● wird eine Zeile zusätzlich nur, wenn
   alles Sichtbare null liest: der Δ und sein Δ% (fehlt, n.a. oder ebenfalls 0,0 %). „0,0M€ · +10,0%“ bei fester
@@ -127,7 +137,10 @@ aus dem unabhängigen Review. Keine neue Property.
   direkt hinter der Wertspalte), Abstand höchstens 170 px bei einer Karte, keine
   Null mit Vorzeichen oder in Klammern, nur U+2212 außer im Textpräfix, Farbe von Zeile, Streifen und Tönung bei
   „Δ rundet auf null, Δ% deutlich“ und bei „alles null“, Position der n.a.-Zeilen.
-- Offen (Backlog): Sortierknopf über der letzten Karte in den übrigen Lagen (Prüfstand 2), stiller Wegfall von
+- Nebenwirkung: Im Export ohne Chips (Sortierknopf fehlt) steht der Δ-Block etwa 20 px weiter rechts und Titel
+  werden anders gekürzt als am Bildschirm; Bildschirm und Export sind in diesem Punkt nicht deckungsgleich.
+- Offen (Backlog): Sortierknopf über der letzten Karte in den übrigen Lagen (Prüfstand 2), auch der Fall, dass er bei
+  5 Karten auf 1320 × 96 und 4 Karten auf 1320 × 72 den Δ-Block berührt; stiller Wegfall von
   Δ-Zeilen (7), Kleinteile (8); `fmtSigned` erkennt eine Null mit Ziffer in der Einheit nicht („+0 tCO2“ in Diagrammen,
   Altbestand).
 
