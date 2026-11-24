@@ -997,7 +997,7 @@
   "Chart_ScatterTypeTitle": "Charttyp im Paneltitel",
   "Desc_Chart_ScatterTypeTitle": "Scatter und Bubble: der graue Paneltitel beginnt mit „Scatter · AC × X-Name“. Die übrigen Teile (○ Blasengröße, Farbe = Δ, Punkte außerhalb der Achsen) bleiben immer. Standard aus.",
   "Chart_ScatterScenarioTag": "Szenario am Titel der Y-Achse",
-  "Desc_Chart_ScatterScenarioTag": "Scatter und Bubble: hängt das Szenario-Kürzel an den Titel der Y-Achse („Umsatz (AC)“). Falsch, wenn die Achse eine Abweichung zeigt (ΔPL % als Measure); ohne Measure-Namen steht das Kürzel weiterhin allein. Standard aus.",
+  "Desc_Chart_ScatterScenarioTag": "Scatter und Bubble: hängt das Szenario-Kürzel an den Titel der Y-Achse („Umsatz (AC)“) und an den automatischen Diagrammtitel („Umsatz · AC“). Falsch, wenn die Achse eine Abweichung zeigt (ΔPL % als Measure); ohne Measure-Namen steht das Kürzel an der Y-Achse weiterhin allein. Standard aus.",
   "Chart_PanelTypeTitles": "Charttyp in Paneltiteln",
   "Desc_Chart_PanelTypeTitles": "Graue Paneltitel, die nur den Charttyp nennen: „gestapelt“ über gestapelten Säulen, Balken und Flächen (bei AC allein entfällt der Titel ganz), „Brücke + Monatssäulen“ in der Integrierten Brücke und die Leseanleitung des Marimekko. Szenario- und Abweichungstitel (AC · FC, ΔPY, ΔPL %), „Anteile in %“, Faktor und Achsenschnitt bleiben. Standard aus.",
   "Labels_RoundedZero": "Gerundete Null",

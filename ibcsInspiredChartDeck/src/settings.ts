@@ -1645,7 +1645,7 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
         name: "scatterScenarioTag",
         displayName: "Scenario at the Y axis title",
         displayNameKey: "Chart_ScatterScenarioTag",
-        description: "Scatter und Bubble: hängt das Szenario-Kürzel an den Titel der Y-Achse („Umsatz (AC)“). Falsch, wenn die Achse eine Abweichung zeigt (ΔPL % als Measure); ohne Measure-Namen steht das Kürzel weiterhin allein. Standard aus.",
+        description: "Scatter und Bubble: hängt das Szenario-Kürzel an den Titel der Y-Achse („Umsatz (AC)“) und an den automatischen Diagrammtitel („Umsatz · AC“). Falsch, wenn die Achse eine Abweichung zeigt (ΔPL % als Measure); ohne Measure-Namen steht das Kürzel an der Y-Achse weiterhin allein. Standard aus.",
         descriptionKey: "Desc_Chart_ScatterScenarioTag",
         value: false
     });

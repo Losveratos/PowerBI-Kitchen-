@@ -3,31 +3,45 @@
 ## 1.58.0.0 (in Arbeit, Welle 1 aus dem Template-Prüfstand: Notation)
 
 - **1 · FC-Pinköpfe schraffiert statt hohl.** Vorher: Δ%-Pins an Forecast-Perioden hatten einen hohlen Kopf; hohl ist
-  aber die Plan-Kennung. Nachher trägt der Kopf das FC-Schraffurmuster (wie die FC-Säulen) mit Tintenrand. Gilt für
-  Säulen, Balken, Linie und Wasserfall (erste und zweite Basis, Jahressäule mit AC&FC, Δ%-Stufe des Wasserfalls) und
-  für die Δ%-Pins der Tabelle. FC-Punkte der Linie (Kreise), der R12-Linie, von Dumbbell und Slope sind ebenfalls
-  schraffiert statt hohl, mit einem feineren Muster (Periode 2,4 px, nur angelegt, wenn ein FC-Punkt gezeichnet
-  wird), weil das Säulenmuster einen 5-px-Kreis ganz verfehlen kann. **Bestehende Berichte:** FC-Köpfe und FC-Punkte sehen anders aus (Notationskorrektur).
+  aber die Plan-Kennung. Nachher trägt der Kopf eine feine FC-Schraffur (Periode 2,4 px, Strich 1,3 px, Rand in Tinte).
+  Das Säulenmuster (Periode 5 px) ließ Köpfe mit Radius 2,5 bis 4,5 px leer oder als einzelnen Strich („⊘“) erscheinen,
+  deshalb das feinere Muster; es wird erst beim ersten FC-Kopf oder FC-Punkt angelegt, Charts ohne FC bleiben
+  SVG-gleich. Gilt für Säulen, Balken, Linie und Wasserfall (erste und zweite Basis, Jahressäule mit AC&FC, Δ%-Stufe
+  des Wasserfalls) und für die Δ%-Pins der Tabelle. FC-Punkte (Kreise) der Linie, der R12-Linie, von Dumbbell und
+  Slope sind ebenfalls fein schraffiert statt hohl, **auch im Hochkontrast** (diese Marken hatten nie einen eigenen
+  Hochkontrast-Zweig). **Bestehende Berichte:** FC-Köpfe und FC-Punkte sehen anders aus (Notationskorrektur).
 - **2 · Pinköpfe szenariocodiert, nur der Stiel in Abweichungsfarbe.** Vorher: Säulen, Balken, Linie und Wasserfall
-  färbten den Kopf grün bzw. rot (bei unwesentlichen Abweichungen grau). Nachher wie schon in Tabelle und Brücken: AC
-  dunkel gefüllt (Tinte), FC schraffiert, Plan gegen Plan (Blatt 13C, `var-plan`) hohl mit Tintenrand; der Stiel
-  bleibt grün, rot oder grau. Neue Methode `pinHeadScen(cfg, "ac" | "fc" | "pl")`, Kopf mit `data-pin` (Testmarker).
-  **Hochkontrast unverändert:** dort trägt der Kopf weiter gut/schlecht (gefüllt/hohl), weil gut und schlecht im
-  Hochkontrast dieselbe Farbe haben; FC-Köpfe bleiben dort hohl. **Bestehende Berichte:** alle Δ%-Pins in Säulen,
-  Balken, Linie, Wasserfall und Jahressäule zeigen dunkle Köpfe (Notationskorrektur).
+  färbten den Kopf grün bzw. rot (bei unwesentlichen Abweichungen grau), der Stiel war 1,6 px breit. Nachher wie in
+  Tabelle und Brücken: Kopf AC dunkel gefüllt (Tinte), FC fein schraffiert, Plan gegen Plan (Blatt 13C, `var-plan`)
+  hohl mit Tintenrand; der Stiel bleibt grün, rot oder grau und ist jetzt 2 px breit wie die Pins der Tabelle (Stufe
+  des Wasserfalls mit Full-HD-Schrift wie bisher etwas breiter). Bei kurzen Pins wird der Kopf kleiner, damit mindestens
+  3 px farbiger Stiel sichtbar bleiben (Untergrenze 2 px); das gilt auch für die Δ%-Pins der Tabelle. Beides gilt für
+  runde und eckige Köpfe gleich: `chart.pinStyle` (Automatisch, Rund, Quadratisch, Standard Automatisch) bleibt
+  unverändert wählbar. Neue Methoden `pinHeadScen(cfg, "ac" | "fc" | "pl")` und `pinHeadR(r, Länge)`, Kopf mit
+  `data-pin` (Testmarker). **Hochkontrast unverändert:** dort trägt der Kopf weiter gut/schlecht (gefüllt/hohl), weil gut
+  und schlecht im Hochkontrast dieselbe Farbe haben; FC-Köpfe bleiben dort hohl, Stiel 1,6 px. **Bestehende Berichte:**
+  alle Δ%-Pins in Säulen, Balken, Linie, Wasserfall und Jahressäule zeigen dunkle Köpfe und breitere Stiele
+  (Notationskorrektur).
 - **3 · Abweichungsachse der Tabelle nach Basis (C14 bis C16).** Vorher: die Achsen der Spalten Δ, Δ % und der
   zweiten Δ-Spalte waren immer eine graue 2-px-Linie. Nachher wie die Δ-Panels der Säulen: Basis PL Doppellinie,
-  Basis FC Vormonat (`fcrev`) gestrichelte Doppellinie, Basis PY grau wie bisher (SVG-gleich), Ø-Basis grau. Die zweite
-  Δ-Spalte folgt der zweiten Basis. Testmarker `table-var-axis` (`data-basis`). **Bestehende Berichte:** Tabellen
-  gegen Plan oder FC zeigen die Doppellinie (Notationskorrektur), gegen PY keine Änderung.
-- **4 · Scatter ohne „Scatter · AC × …“ und ohne „(AC)“.** Neue Properties im Objekt `chart`, Gruppe „Scatter /
-  Bubble“: `scatterTypeTitle` (Charttyp im Paneltitel, Standard aus) und `scatterScenarioTag` (Szenario am Titel der
-  Y-Achse, Standard aus). Vorher stand über jedem Scatter „Scatter · AC × X-Name“ und an der Y-Achse „Name (AC)“; bei
-  einer Abweichungsachse (C18: ΔPL % als Measure) ist „(AC)“ falsch. Übrige Titelteile (○ Blasengröße, Farbe = Δ,
-  Punkte außerhalb) bleiben; ohne Measure-Namen steht das Kürzel weiter allein. Die Titelzeile behält ihre Höhe, die
-  Plotfläche verschiebt sich nicht. Vorlagen C09, C10, C18, C23, C24 setzen beide ausdrücklich aus.
-  **Bestehende Berichte (Entscheidung: Standard aus für alle):** jeder Scatter und jede Bubble ohne gesetzte Property
-  verliert den grauen Typ-Titel und das „(AC)“ an der Y-Achse. Wer beides behalten will, schaltet die zwei Schalter an.
+  Basis FC Vormonat (`fcrev`) gestrichelte Doppellinie, Basis PY grau wie bisher (SVG-gleich), Ø-Basis grau für die
+  erste Δ-Spalte; die zweite Δ-Spalte folgt der zweiten Basis (wie die Säulen, auch unter der Ø-Basis). Neben den
+  Δ-Balken liegt die Doppellinie über den Zeilen auf einem 3,4 px breiten Streifen in Papierfarbe: ein positiver Balken
+  verdeckte sonst die rechte Linie, jetzt beginnen alle Balken sichtbar an der Außenkante (Geometrie und px je Einheit
+  unverändert). In der Δ %-Spalte liegt sie unter den Pins, damit Köpfe nahe null nicht angeschnitten werden.
+  Testmarker `table-var-axis` (`data-basis`, `data-over`). Auch im Hochkontrast (Doppellinie in der
+  Hochkontrastfarbe). **Bestehende Berichte:** Tabellen gegen Plan oder FC zeigen die Doppellinie (Notationskorrektur),
+  gegen PY keine Änderung.
+- **4 · Scatter ohne „Scatter · AC × …“ und ohne „AC“.** Neue Properties im Objekt `chart`, Gruppe „Scatter / Bubble“:
+  `scatterTypeTitle` (Charttyp im Paneltitel, Standard aus) und `scatterScenarioTag` (Szenario an der Y-Achse und im
+  automatischen Titel, Standard aus). Vorher stand über jedem Scatter „Scatter · AC × X-Name“, an der Y-Achse
+  „Name (AC)“ und im automatischen Diagrammtitel „Name · AC“; bei einer Abweichungsachse (C18: ΔPL % als Measure) ist
+  „AC“ falsch. Übrige Titelteile (○ Blasengröße, Farbe = Δ, Punkte außerhalb) bleiben; ohne Measure-Namen steht das
+  Kürzel an der Y-Achse weiter allein; ein selbst gesetzter Zeitraum im IBCS-Titel bleibt unberührt. Die Titelzeile
+  behält ihre Höhe, die Plotfläche verschiebt sich nicht. Vorlagen C09, C10, C18, C23, C24 setzen beide ausdrücklich
+  aus. **Bestehende Berichte (Entscheidung: Standard aus für alle):** jeder Scatter und jede Bubble ohne gesetzte
+  Property verliert den grauen Typ-Titel und das „AC“ an Y-Achse und automatischem Titel. Wer beides behalten will,
+  schaltet die zwei Schalter an.
 - **5 · Technische Paneltitel aus.** Neue Property `chart.panelTypeTitles` (Gruppe „Darstellung“, Standard aus,
   sichtbar bei Säulen, Balken und Integrierter Brücke). Aus heißt: kein „AC · gestapelt“ über gestapelten Säulen,
   Balken und Flächen (bei gemischten Szenarien bleiben die Kürzel „AC · FC“, bei 100 % bleibt „Anteile in %“), keine
@@ -37,23 +51,31 @@
   C25 setzen den Schalter ausdrücklich aus. Pareto, Dumbbell und der Wasserfall („PY → AC“) sind nicht betroffen.
   **Bestehende Berichte (Entscheidung: Standard aus für alle):** diese Untertitel verschwinden in jedem Bericht ohne
   gesetzte Property; mit dem Schalter an sieht alles aus wie in 1.57.
-- **10 · Gerundete Null ohne Vorzeichen (Option, für die Vorlagen).** Neue Property `labels.roundedZero` (`signed` |
-  `plain`, Standard `signed`), wie `numbers.roundedZero` im P&L-Visual. `plain`: ein Δ, das nicht null ist, aber auf
-  null rundet, druckt ohne Vorzeichen („0,00M“, „0,0%“, „0,0Pp“ statt „+0,00M“, „+0,0%“); exakte Nullen hatten nie ein
-  Vorzeichen. Wirkt in `fmtSigned` und `fmtPercent` (alle Δ-, Δ %- und Netto-Beschriftungen), in den Pp- und
-  Rundungs-Texten der Tabelle und Matrix und in den Pp-Labels der Differenzmarker. Vorlagen C04, C14 und C20 setzen
-  `plain` (im selben Merge als Objekt `labels`). Für die KPI-Karten exportiert: `deltaSign(v, body, plain)` und
-  `Visual.roundedZeroPlain()`. **Bestehende Berichte:** keine Änderung (Standard `signed`); Berichte, die C04, C14
-  oder C20 schon angewandt haben, bekommen `plain` erst beim erneuten Anwenden und zeigen im Bearbeitungsmodus den Chip
-  „↺ Zum Template zurück“, weil die Vorlage jetzt abweicht.
+- **10 · Gerundete Null ohne Vorzeichen in allen Vorlagen.** Neue Property `labels.roundedZero` (`signed` | `plain`,
+  Standard `signed`), wie `numbers.roundedZero` im P&L-Visual. `plain`: ein Δ, das nicht null ist, aber auf null
+  rundet, druckt ohne Vorzeichen und ohne Finanzklammer („0,00M“, „0,0%“, „0,0Pp“, „0%“ statt „+0,00M“, „−0,0%“,
+  „(0,00M)“, „+0%“); exakte Nullen hatten nie ein Vorzeichen, mit `plain` entfällt auch das „±“ des GuV-Statements.
+  Wirkt in `fmtSigned` und `fmtPercent` (alle Δ-, Δ %- und Netto-Beschriftungen), in den Pp- und Rundungs-Texten von
+  Tabelle und Matrix, in Pp und ganzzahligem Δ % des GuV-Statements, im Index-Δ der Serienlinien (dort war die
+  gerundete Null schon immer ohne Vorzeichen) und in den Pp-Labels der Differenzmarker. **Alle Vorlagen** (C01 bis
+  C25) setzen `plain` (im selben Merge als Objekt `labels`). Für die KPI-Karten exportiert: `deltaSign(v, body, plain)`
+  und `Visual.roundedZeroPlain()`. **Bestehende Berichte:** keine Änderung (Standard `signed`); Berichte, die eine
+  Vorlage schon angewandt haben, bekommen `plain` erst beim erneuten Anwenden. Der Chip „↺ Zum Template zurück“
+  erscheint dadurch nicht: Schlüssel, die eine Vorlage erst in 1.58 bekommen hat (`panelTypeTitles`,
+  `scatterTypeTitle`, `scatterScenarioTag`, `labels.roundedZero`), zählen nicht als Abweichung, solange sie den
+  Pane-Standard tragen (`TPL_SINCE_158`).
 - **Tests:** neue Stufen c1000 bis c1033 (Pinköpfe C03, C04, C12, C19, zweite Basis, Hochkontrast, Linie, Tabelle;
   Δ-Achsen der Tabelle mit PL, PY, fcrev und zweiter Basis; Scatter C18, C09 und mit beiden Schaltern an samt
   gleicher Achsenlage; Typ-Titel C01, C05, C25, C07, 100-%-Balken mit gleicher Geometrie; gerundete Null C04, C14,
-  direkt gesetzt, `deltaSign`), dazu Prüfungen an c600 (C20 schreibt `plain`) und c701 (Plan-Köpfe hohl).
-  Angepasst: c278c, c829, c976 (prüfen den Typ-Titel und schalten ihn dafür an), c959 (findet den Paneltitel jetzt
-  über „○“, weil „Scatter ·“ im Standard fehlt) und Notation Punkt 7 (B5b findet die Beschriftung über
-  „PY → AC“ statt über „Brücke + Monatssäulen“). Ergebnis: Render 1398 Prüfungen (vorher 1358), Skalierung 71,
-  Notation 40, Export 746, alle grün. 1005 resjson-Keys je Sprache.
+  direkt gesetzt, `deltaSign`) und c1040 bis c1062 nach dem Review (24 Säulen mit r = 2,5 rund und eckig samt
+  Pixelprobe in `test/shot.js`, die die Stufe im Browser 4-fach rastert und in jedem FC-Kopf dunkle Pixel verlangt;
+  kurze Pins rund und eckig; eckige Köpfe zweite Basis, Jahressäule, runde Köpfe Tabelle, eckiger Plan-Kopf;
+  Dunkelmodus; Small Multiples mit Re-Render; Export; Bestandsberichte C14 und C01 ohne Chip, echte Abweichung mit
+  Chip; GuV-Statement signed und plain; negative gerundete Null; Finanzformat; Pp in der Tabelle), dazu Prüfungen an
+  c600, c701, c1002 (genau 7 Köpfe) und c1005 (genau 7 hohle Köpfe, Stiel 1,6 px). Angepasst: c278c, c829, c976
+  (prüfen den Typ-Titel und schalten ihn dafür an), c959 (Paneltitel über „○“), Notation Punkt 7 (B5b findet die
+  Beschriftung über „PY → AC“), c262 (drei Merge-Einträge: chart, scale, labels), c195, c222, c223, c229 (das
+  Host-Echo enthält jetzt auch das Objekt `labels`, wie es Power BI zurückgibt). 1005 resjson-Keys je Sprache.
 
 ## 1.57.0.0 (2026-11-22, Backlog IBCS-Templates Teil 4)
 

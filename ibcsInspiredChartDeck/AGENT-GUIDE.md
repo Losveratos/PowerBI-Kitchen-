@@ -16,23 +16,34 @@ Bei Versionssprüngen: CHANGELOG.md zuerst lesen.
 **Neu in 1.58 (in Arbeit, Welle 1 aus dem Template-Prüfstand: Notation, 24.11.2026):**
 
 *1/2 · Pinköpfe szenariocodiert.* `pinHeadScen(cfg, "ac" | "fc" | "pl")` liefert die Kopf-Attribute: AC `fill = cfg.ink`,
-FC `url(#cfg.patId)` mit Tintenrand 1, PL `cfg.paper` mit Tintenrand 1,2; jeweils `data-pin` = Szenario. Die
-Abweichungsfarbe (gut, schlecht, unwesentlich grau) steht nur noch am Stiel. Aufrufer: rel- und rel2-Pins in
-`renderChartBody` (Säulen, Balken, Linie; Plan gegen Plan behält `data-icd="var-plan"`), Δ%-Stufe des Wasserfalls
-(`tierPts[i].isFc`), Jahressäule (`anyFc` = `isFc` oder `fcPart`), Δ%-Kopf der Tabelle (nur FC, AC bytegleich).
-Hochkontrast bleibt in allen Zweigen wie bisher (gut gefüllt, schlecht und FC hohl), weil gut und schlecht dort dieselbe
-Farbe haben; dort gibt es kein `data-pin`. FC-Punkte (Kreise) von Linie, R12-Linie, Dumbbell und Slope füllen mit
-`fcMarkFill(cfg)` (Muster `cfg.patMark` = `icd-hatch-<id>-m`, Periode 2,4 px, Strich 1,3, erst beim ersten FC-Punkt in `defs` angelegt, damit Charts ohne FC-Punkte SVG-gleich bleiben) statt `cfg.paper`; das Säulenmuster (5 px) verfehlt
-einen Kreis mit r = 2,6 sonst ganz. Die Quadrate von `lineMarkerShape=square` waren schon richtig (`lineSquare`).
+FC `fcMarkFill(cfg)` mit Tintenrand 1, PL `cfg.paper` mit Tintenrand 1,2; jeweils `data-pin` = Szenario. Die
+Abweichungsfarbe (gut, schlecht, unwesentlich grau) steht nur noch am Stiel, Stielbreite `PIN_STEM_W` = 2 (wie die
+Tabelle; Wasserfall-Stufe `max(2, 1,4 · k)`). `pinHeadR(r, Länge)` kappt den Kopf auf `max(2, min(r, Länge − 3))`,
+damit kurze Pins mindestens 3 px farbigen Stiel zeigen. Aufrufer: rel- und rel2-Pins in `renderChartBody` (Säulen,
+Balken, Linie; Plan gegen Plan behält `data-icd="var-plan"`), Δ%-Stufe des Wasserfalls (`tierPts[i].isFc`),
+Jahressäule (`anyFc` = `isFc` oder `fcPart`), Δ%-Kopf der Tabelle (FC fein schraffiert, AC bytegleich, Kopf gekappt).
+Alles über `pinHead(…, cfg.pinStyle, …)`, also für runde und eckige Köpfe gleich (`chart.pinStyle`, Standard `auto`,
+unverändert). Hochkontrast bleibt in allen Zweigen wie bisher (gut gefüllt, schlecht und FC hohl, Stiel 1,6 px, Kopf
+ungekappt), weil gut und schlecht dort dieselbe Farbe haben; dort gibt es kein `data-pin`.
+`fcMarkFill(cfg)` legt das feine Muster `cfg.patMark` (`icd-hatch-<id>-m`, Periode 2,4 px, Strich 1,3 in
+`colors.ac` auf `cfg.paper`) beim ersten Gebrauch in `defs` an (Charts ohne FC bleiben SVG-gleich, ein Muster je
+Render auch in Small Multiples). Das Säulenmuster `patId` (5 px) ließ Köpfe mit r 2,5 bis 4,5 leer oder als „⊘“
+erscheinen. FC-Punkte von Linie, R12-Linie, Dumbbell und Slope nutzen dasselbe Muster, auch im Hochkontrast. Die
+Quadrate von `lineMarkerShape=square` waren schon richtig (`lineSquare`). Bekannt und alt (1.57 gleich): in sehr
+flachen Small-Multiples-Kacheln kehrt sich die Δ%-Skala um, positive Pins zeigen nach unten (Backlog).
 
-*3 · Δ-Achsen der Tabelle.* `renderTable` zeichnet die Achsen von `dbar`, `pct` und `d2bar` über `varAxis(x, basis)`:
-PY oder Ø-Basis (`cfg.basisAvg`) wie bisher als graues 2-px-Rechteck (bytegleich), sonst `drawBaseline(…, "bars")` in
-einer Gruppe `data-icd="table-var-axis"` mit `data-basis` (`plan` Doppellinie, `fcrev` gestrichelte Doppellinie).
-`d2bar` folgt `this.basis2Mode`. Die Matrix (Mini-Δ-Balken je Block) ist unverändert.
+*3 · Δ-Achsen der Tabelle.* `renderTable` zeichnet die Achsen von `dbar`, `pct` und `d2bar` über
+`varAxis(x, basis, avg, overBars)`: PY oder Ø-Basis wie bisher als graues 2-px-Rechteck (bytegleich), sonst
+`drawBaseline(…, "bars")` in einer Gruppe `data-icd="table-var-axis"` mit `data-basis` (`plan` Doppellinie, `fcrev`
+gestrichelte Doppellinie). `dbar` und `d2bar`: Gruppe direkt im SVG hinter den Zeilen (`data-over="1"`,
+`pointer-events: none`) mit Papierstreifen 3,4 px, damit positive Balken die rechte Linie nicht verdecken; `pct` bleibt
+im Hintergrund (Köpfe nahe null). `d2bar` folgt `this.basis2Mode`, auch unter der Ø-Basis (wie die Säulen-Panels;
+unter Ø ist die zweite Abweichung heute ohnehin aus). Die Matrix (Mini-Δ-Balken je Block) ist unverändert.
 
 *4 · Scatter.* `chart.scatterTypeTitle` und `chart.scatterScenarioTag` (bool, Standard aus, Gruppe „Scatter / Bubble“
 nach `scatterTrendR2`, nur bei Scatter im Pane). Aus: kein Titelteil „Scatter · AC × X“, kein „(AC)“ hinter dem
-Measure-Namen der Y-Achse (ohne Namen bleibt das Kürzel allein). Ist kein Titelteil übrig, entfällt der Text; die Zeile
+Measure-Namen der Y-Achse (ohne Namen bleibt das Kürzel allein) und kein Szenario im automatischen IBCS-Titel
+(`titleScenarios` gibt für Scatter dann leer zurück). Ist kein Paneltitelteil übrig, entfällt der Text; die Zeile
 behält `titleH`, die Plotfläche ist gleich (c1016 gegen c1017). Standard aus gilt für alle Berichte (Entscheidung
 24.11.2026); C09, C10, C18, C23, C24 setzen beide ausdrücklich `false`.
 
@@ -41,22 +52,28 @@ behält `titleH`, die Plotfläche ist gleich (c1016 gegen c1017). Standard aus g
 `Title_StackMekko`; bei gemischten Szenarien bleibt die Kürzel-Liste, bei 100 % (ohne Marimekko) „shares in %“.
 `renderStackedArea` ebenso. Integrierte Brücke: „PY → AC/FC“ ohne `WfBridge_Title`, Faktor und Achsenschnitt bleiben.
 Leerer Titel wird nicht gezeichnet, der Platz bleibt (Geometrie gleich, c1020 gegen c1021, c1024 gegen c1025).
-Nicht betroffen: Pareto, Dumbbell, Wasserfall-Titel „PY → AC“, Linien-Serien. Standard aus für alle Berichte; C01,
-C02, C05, C07, C25 setzen `false`.
+Nicht betroffen: Pareto, Dumbbell (bewusst graue Kennung der Nicht-Kern-Typen), Wasserfall-Titel „PY → AC“,
+Linien-Serien. Standard aus für alle Berichte; C01, C02, C05, C07, C25 setzen `false`.
 
 *10 · Gerundete Null.* `labels.roundedZero` (`signed` | `plain`, Standard `signed`, nach `financeFormat`). Exportiert
 `deltaSign(v, body, plain)` (Vorzeichen eines Δ-Texts aus dem unsignierten Text in Beschriftungsgenauigkeit; signed
 gibt dasselbe wie die bisherigen Ternaries) und `Visual.roundedZeroPlain()`. Wirkt in `fmtSigned` (gibt bei plain die
 Null aus `zeroAt` ohne Vorzeichen und ohne Finanzklammer zurück), `fmtPercent`, `ppText` von Tabelle und Matrix, dem
-gerundeten Δ der Tabelle (`rf`) und den Pp-Labels der Differenzmarker. Die KPI-Karten laufen über `fmtSigned`/
-`fmtPercent` mit, ihre eigene Regel (Null immer ohne Vorzeichen) kommt aus der Kartenarbeit. Vorlagen C04, C14, C20
-setzen `"labels.roundedZero": "plain"` (zweiter Merge-Eintrag `labels`). Achtung: Berichte mit schon angewandter
-C04/C14/C20 zeigen im Bearbeitungsmodus „↺ Zum Template zurück“, bis die Vorlage erneut angewandt wird.
+gerundeten Δ der Tabelle (`rf`), `ppT` und ganzzahligem Δ % von `renderPnlStatement` (mit plain auch ohne „±“), dem
+Index-Δ von `renderLineSeries` und den Pp-Labels der Differenzmarker. Die KPI-Karten laufen über `fmtSigned`/
+`fmtPercent` mit, ihre eigene Regel (Null immer ohne Vorzeichen) kommt aus der Kartenarbeit. **Alle Vorlagen** setzen
+`"labels.roundedZero": "plain"` (eigener Merge-Eintrag `labels`; C18 schreibt damit drei Einträge: chart, scale, labels).
+`TPL_SINCE_158` (`panelTypeTitles`, `scatterTypeTitle`, `scatterScenarioTag`, `labels.roundedZero`): in
+`templateDeviation()` keine Abweichung, solange der Schlüssel den Pane-Standard trägt, damit Berichte mit schon
+angewandter Vorlage keinen „↺ Zum Template zurück“-Chip bekommen. Achtung Tests: ein Host-Echo muss jetzt auch das
+Objekt `labels` enthalten, sonst endet der Echo-Guard erst über die TTL.
 
-Tests c1000 bis c1033 (Block `WELLE1`, Helfer über `window.__w1`), Prüfungen an c600 und c701; angepasst c278c, c829,
-c976 (schalten `panelTypeTitles` an, weil sie den Typ-Titel prüfen), c959 (Paneltitel über „○“) und in
-`test/notation-cases.js` Punkt 7 (B5b findet die Brücken-Beschriftung über „PY → AC“). 1005 resjson-Keys
-je Sprache.
+Tests c1000 bis c1033 (Block `WELLE1`, Helfer über `window.__w1`) und c1040 bis c1062 (Block `WELLE1-REVIEW`):
+Pixelprobe in `test/shot.js` für c1040/c1041 (Stufen-SVG 4-fach im Browser gerastert, jeder FC-Kopf braucht dunkle
+Pixel; mit dem alten 5-px-Muster schlägt sie fehl), beide Kopfformen, kurze Pins, Dunkelmodus, Small Multiples mit
+Re-Render, Export, Bestandsberichte ohne Chip, GuV-Statement, negative und Finanz-Null, Pp. Prüfungen an c600, c701.
+Angepasst c278c, c829, c976 (schalten `panelTypeTitles` an), c959 (Paneltitel über „○“), `test/notation-cases.js`
+Punkt 7, c262 (drei Merge-Einträge), c195, c222, c223, c229 (Echo mit `labels`). 1005 resjson-Keys je Sprache.
 
 **Neu in 1.57 (Backlog IBCS-Templates Teil 4, 22.11.2026):**
 
@@ -519,9 +536,9 @@ reserviert (Fläche, Boxplot). Zuordnung Vorlage → IBCS-Blatt:
 
 | Vorlage | IBCS-Blatt | Properties (Objekt `chart`, sonst mit Objektpräfix) |
 | --- | --- | --- |
-| C14 Balkentabelle nach ΔPL | 04A | orientation=table · comparisonMode=plan · showAbs/showRel=true · dualVariance=false · showTotal=true · totalRowPosition=bottom · tableTotalLegend=true · tableSort=`dabs_desc` · gridLines=none · cumulative=false · topN=0 · labels.roundedZero=plain (ab 1.58) |
-| C15 Balkentabelle nach ΔPL % | 04B | wie C14 mit tableSort=`drel_desc` (ohne labels.roundedZero) |
-| C16 Balkentabelle nach AC | 04C | wie C14 mit tableSort=`ac_desc` (ohne labels.roundedZero) |
+| C14 Balkentabelle nach ΔPL | 04A | orientation=table · comparisonMode=plan · showAbs/showRel=true · dualVariance=false · showTotal=true · totalRowPosition=bottom · tableTotalLegend=true · tableSort=`dabs_desc` · gridLines=none · cumulative=false · topN=0 |
+| C15 Balkentabelle nach ΔPL % | 04B | wie C14 mit tableSort=`drel_desc` |
+| C16 Balkentabelle nach AC | 04C | wie C14 mit tableSort=`ac_desc` |
 | C17 Kategorie-Brücke waagerecht | 06E (06F/06G/06H mit `sortMode` signed/pct/ac) | orientation=catbridge · bridgeOrientation=bars · comparisonMode=py · showAbs/showRel=true · dualVariance=false · pyTriangle=false · groupEvery=4 · driverNote=false |
 | C18 Abweichungs-Scatter | 10F | orientation=scatter · comparisonMode=auto · scatterQuadrant=off · scatterColorBy=group · scatterSizeLegend=true · scatterTrend=off · scatterArrows/scatterShapes=false · `scale.refLine`=0 · `scale.xRefLine`=0 · scatterTypeTitle=false · scatterScenarioTag=false (ab 1.58) |
 | C19 Säulen gegen Plan + Jahressäule | 03B (03A mit comparisonMode=py) | siehe B05 unten |
@@ -797,7 +814,7 @@ gleich setzen (dann wird nichts angewandt) — nur `template` ohne
 | C01 Gestapelte Säulen | orientation=columns · comparisonMode=auto · showAbs/showRel=false · dualVariance=false · waterfallStyle=false (Stapel über Rolle `series`) · panelTypeTitles=false (ab 1.58) |
 | C02 Gestapelte Balken | wie C01 mit orientation=bars |
 | C03 Säulen + Varianzen | orientation=columns · comparisonMode=py · showAbs/showRel=true · dualVariance=false · waterfallStyle=false |
-| C04 Balken + Varianzen | orientation=bars · comparisonMode=plan · showAbs/showRel=true · dualVariance=false · waterfallStyle=false · labels.roundedZero=plain (ab 1.58) |
+| C04 Balken + Varianzen | orientation=bars · comparisonMode=plan · showAbs/showRel=true · dualVariance=false · waterfallStyle=false |
 | C05 Integrierte Brücke | orientation=intwaterfall · comparisonMode=py · showAbs/showRel=true · dualVariance=false · panelTypeTitles=false (ab 1.58) |
 | C06 Kategorie-Brücke vertikal | orientation=catbridge · bridgeOrientation=columns · comparisonMode=py · showAbs/showRel=true · dualVariance=false |
 | C07 Gestapelte Fläche (08A, ab 1.56) | orientation=columns · comparisonMode=auto · showAbs/showRel=false · dualVariance=false · waterfallStyle=false · stackShape=area · areaTotalLine=true · areaValueLabels=auto · stackLegendDirect=true · stackLegendPos=end · showTotal=false · scenarioLabels=true (Rolle `series` binden, siehe B16) · panelTypeTitles=false (ab 1.58) |
@@ -807,12 +824,13 @@ gleich setzen (dann wird nichts angewandt) — nur `template` ohne
 | C12 Waterfall | orientation=waterfall · comparisonMode=auto · showAbs/showRel=true · dualVariance=false |
 | C13 Small Multiples | multiplesTotal=true · multiplesSameScale=true (orientation bleibt; Rolle `multiples` binden) |
 | C14 bis C19 | ab 1.54, siehe „Neu in 1.54“ (Zuordnung zu den IBCS-Blättern 04A, 04B, 04C, 06E, 10F, 03B) |
-| C20 Bestand und Fluss (08E bis 08H, ab 1.55) | orientation=stockflow · sfNet=true · sfArea=true · scenarioLabels=true · showTotal=false · highlightStyle=ellipse (Rollen `series` + `rowType` mit `stock`/`inflow`/`outflow`, siehe B11) · labels.roundedZero=plain (ab 1.58) |
+| C20 Bestand und Fluss (08E bis 08H, ab 1.55) | orientation=stockflow · sfNet=true · sfArea=true · scenarioLabels=true · showTotal=false · highlightStyle=ellipse (Rollen `series` + `rowType` mit `stock`/`inflow`/`outflow`, siehe B11) |
 | C21 Kumulierte Linie mit R12 und Monatssäulen (07C, ab 1.56) | orientation=line · comparisonMode=plan · cumulative=true · cumulativeKind=ytd · lineR12=true · linePeriodColumns=same · lineGapMarkers=both · lineBasisLabels=true · lineMarkerShape=square · scenarioLabels=true · showAbs/showRel=false · dualVariance=false · showTotal=false (PL binden, siehe B15) |
 | C22 Serienlinien mit Index (07A, ab 1.56) | orientation=line · lineSeries=true · lineIndex=base100 · lineSeriesLabels=groups · lineSeriesColor=tones · lineMarkerShape=square · showAbs/showRel=false · dualVariance=false · cumulative=false · showTotal=false (Rolle `series` binden, siehe B17) |
 | C23 Scatter-Zeitpfad (07D, 07E, ab 1.57) | orientation=scatter · comparisonMode=auto · scatterPath=line · scatterPathLabels=auto · scatterColorBy=group · scatterQuadrant=off · scatterTrend=off · scatterArrows=false · scatterPlay=false (Rolle `xValue` binden, Quotenstrahlen über `scale.ratioRays`, siehe B18) · scatterTypeTitle=false · scatterScenarioTag=false (ab 1.58) |
 | C24 Blasen mit Anteil (10E, 10G, ab 1.57) | orientation=scatter · comparisonMode=auto · scatterQuadrant=off · scatterColorBy=group · scatterSizeLegend=false · scatterValueLabels=true · scatterBubbleOpacity=100 · scatterTotalBubble=true · scatterMaxRadius=100 · scatterTrend=off · scatterArrows=false · scatterPath=off · scatterPlay=false · scale.xRefLine=1 (Rollen `bubbleSize` und `bubbleShare` binden) · scatterTypeTitle=false · scatterScenarioTag=false (ab 1.58) |
 | C25 Marimekko (02F, ab 1.57) | orientation=bars · comparisonMode=auto · showAbs/showRel=false · dualVariance=false · waterfallStyle=false · stackNormalize=pct100 · stackThickness=total · stackShareColumn=true · showTotal=true · stackTotalRow=true · sortMode=ac · stackLegendDirect=true (Rolle `series` binden) · panelTypeTitles=false (ab 1.58) |
+| Alle Vorlagen (ab 1.58) | zusätzlich `labels.roundedZero=plain` (eigener Merge-Eintrag `labels`), siehe „Neu in 1.58“ |
 
 **Nicht enthalten:** C11 (Verteilung/Boxplot), die Darstellungsform gibt es
 im Visual nicht (siehe BACKLOG). C07 (Fläche) gibt es ab 1.56 (B16).
@@ -1106,7 +1124,7 @@ deutschen Oberfläche. „Standard“ ist der Wert, der ohne Eintrag in `visual.
 | `scatterTrend` | enum | `off` | `off` · `linear` — Lineare Regression über die sichtbaren Punkte (bei Small Multiples je Kachel) als dünne gepunktete Linie über die Plotbreite. Bei Log-Achsen im logarithmischen Raum gerechnet (Gerade bleibt gerade). Mindestens 3 Punkte. |
 | `scatterTrendR2` | bool | `false` | Beschriftet das Ende der Trendlinie mit dem Bestimmtheitsmaß („R² = 0,87"). |
 | `scatterTypeTitle` | bool | `false` | Scatter und Bubble: der graue Paneltitel beginnt mit „Scatter · AC × X-Name“. Die übrigen Teile (○ Blasengröße, Farbe = Δ, Punkte außerhalb der Achsen) bleiben immer. Standard aus. |
-| `scatterScenarioTag` | bool | `false` | Scatter und Bubble: hängt das Szenario-Kürzel an den Titel der Y-Achse („Umsatz (AC)“). Falsch, wenn die Achse eine Abweichung zeigt (ΔPL % als Measure); ohne Measure-Namen steht das Kürzel weiterhin allein … |
+| `scatterScenarioTag` | bool | `false` | Scatter und Bubble: hängt das Szenario-Kürzel an den Titel der Y-Achse („Umsatz (AC)“) und an den automatischen Diagrammtitel („Umsatz · AC“) … |
 | `scatterSizeLegend` | bool | `true` | Nur mit gebundener Blasengröße: drei Referenzkreise (klein · mittel · groß, auf runde Werte gerundet) kompakt in einer freien Ecke des Plots. Bei Small Multiples einmal in der ersten Kachel. |
 | `scatterValueLabels` | bool | `false` | Nur mit gebundener Blasengröße: schreibt den Wert der Blasengröße in die Blase (Schrift hell auf dunkler Blase, dunkel auf heller). Passt die Zahl nicht hinein, steht sie hinter dem Namen … |
 | `scatterMaxRadius` | numeric | `0` | Bereich 0–200 — Nur mit gebundener Blasengröße: Radius der größten Blase in Pixeln (bei Schrift-Presets mitskaliert). 0 = automatisch (höchstens 22 px) … |

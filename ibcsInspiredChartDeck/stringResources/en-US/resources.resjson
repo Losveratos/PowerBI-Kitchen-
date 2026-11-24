@@ -997,7 +997,7 @@
   "Chart_ScatterTypeTitle": "Chart type in the panel title",
   "Desc_Chart_ScatterTypeTitle": "Scatter and bubble: the grey panel title starts with \"Scatter · AC × X name\". The other parts (○ bubble size, color = Δ, points outside the axes) always stay. Default off.",
   "Chart_ScatterScenarioTag": "Scenario at the Y axis title",
-  "Desc_Chart_ScatterScenarioTag": "Scatter and bubble: appends the scenario code to the Y axis title (\"Revenue (AC)\"). Wrong when the axis shows a variance (ΔPL % as a measure); without a measure name the code still stands alone. Default off.",
+  "Desc_Chart_ScatterScenarioTag": "Scatter and bubble: appends the scenario code to the Y axis title (\"Revenue (AC)\") and to the automatic chart title (\"Revenue · AC\"). Wrong when the axis shows a variance (ΔPL % as a measure); without a measure name the code still stands alone at the Y axis. Default off.",
   "Chart_PanelTypeTitles": "Chart type in panel titles",
   "Desc_Chart_PanelTypeTitles": "Grey panel titles that only name the chart type: \"stacked\" above stacked columns, bars and areas (with AC alone the title is dropped entirely), \"bridge + monthly columns\" in the integrated bridge and the Marimekko reading aid. Scenario and variance titles (AC · FC, ΔPY, ΔPL %), \"shares in %\", factor and axis break stay. Default off.",
   "Labels_RoundedZero": "Rounded zero",

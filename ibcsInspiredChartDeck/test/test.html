@@ -1919,8 +1919,9 @@ for (const [id, tpl, title, w, h, mk] of tplCases) {
     .map(r => +r.getAttribute("width")));
   check(acW > 300, `c258: AC-Balken ohne Σ-Stauchung (breitester ${acW.toFixed(0)} px)`);
   const m18 = window.__persist.c262[0].merge;
-  check(m18.length === 2 && m18[1].objectName === "scale" && m18[1].properties.refLine === "0" && m18[1].properties.xRefLine === "0"
-    && !("scale.refLine" in m18[0].properties), "c262: C18 schreibt die Referenzlinien in denselben Aufruf (Objekt scale)");
+  // 1.58: a third merge entry carries labels.roundedZero = plain (every template)
+  check(m18.length === 3 && m18[1].objectName === "scale" && m18[1].properties.refLine === "0" && m18[1].properties.xRefLine === "0"
+    && m18[2].objectName === "labels" && !("scale.refLine" in m18[0].properties), "c262: C18 schreibt die Referenzlinien in denselben Aufruf (Objekt scale)");
   // Achsenkreuz: genau eine senkrechte und eine waagerechte gestrichelte Linie über (fast) die ganze Plotfläche
   const dl = [...document.querySelectorAll("#c262 line[stroke-dasharray]")].map(l => ({ x1: +l.getAttribute("x1"), x2: +l.getAttribute("x2"),
     y1: +l.getAttribute("y1"), y2: +l.getAttribute("y2") }));
@@ -1953,12 +1954,14 @@ for (const [id, tpl, title, w, h, mk] of tplCases) {
   check(String(cc().orientation.value.value) === "columns" && window.__persist.c195.length === 1,
     "echo-guard (2): stale Update kippt nicht zurück, kein zweiter Merge");
   const echoed = Object.assign({ template: "C03" }, window.__persist.c195[0].merge[0].properties);
-  r.upd(base({ chart: echoed }));
+  // 1.58: the host echoes every merged object, labels.roundedZero (template default) included
+  const lab195 = window.__persist.c195[0].merge[1].properties;
+  r.upd(base({ chart: echoed, labels: lab195 }));
   check(r.v.templatePending === null, "echo-guard (3): Host-Echo beendet den Guard");
-  r.upd(base({ chart: Object.assign({}, echoed, { orientation: "bars" }) }));
+  r.upd(base({ chart: Object.assign({}, echoed, { orientation: "bars" }), labels: lab195 }));
   check(String(cc().orientation.value.value) === "bars" && window.__persist.c195.length === 1,
     "echo-guard (4): Einstellungen danach frei änderbar, kein Re-Apply");
-  r.upd(base({ chart: Object.assign({}, echoed, { orientation: "bars", template: "off" }) }));
+  r.upd(base({ chart: Object.assign({}, echoed, { orientation: "bars", template: "off" }), labels: lab195 }));
   const last = window.__persist.c195[window.__persist.c195.length - 1].merge[0].properties;
   check(window.__persist.c195.length === 2 && JSON.stringify(last) === '{"templateApplied":"off"}'
     && String(cc().orientation.value.value) === "bars", "echo-guard (5): „Aus“ schreibt nur templateApplied=off");
@@ -2311,9 +2314,11 @@ addStage("c222", "Vorlagen-Galerie ohne Felder · Klick C03 → EIN Merge · Ech
     "c222: EIN persistProperties-Merge mit template + templateApplied + Preset " + JSON.stringify(m && m.properties));
   check(hubQ("c222", "hub-tpl-C03").getAttribute("aria-pressed") === "true" && /C03/.test(hubQ("c222", "hub-tpl-hint").textContent),
     "c222: Kachel ✓ + Hinweis „gespeichert … aktiv, sobald Felder gebunden sind“");
-  r.upd(emptyDv({ chart: Object.assign({}, m.properties) }));
+  // 1.58: the echo carries the labels object of the same merge
+  const lab222 = pp[0].merge[1].properties;
+  r.upd(emptyDv({ chart: Object.assign({}, m.properties), labels: lab222 }));
   check(pp.length === 1 && hubQ("c222", "hub-tpl-C03").getAttribute("aria-pressed") === "true", "c222: Host-Echo → kein zweiter Merge, Galerie bleibt");
-  r.upd(bound({ chart: Object.assign({}, m.properties, { orientation: "bars" }) }));
+  r.upd(bound({ chart: Object.assign({}, m.properties, { orientation: "bars" }), labels: lab222 }));
   // Felder gebunden: die gespeicherte Wahl ist schon angewandt — bars aus dem Pane bleibt frei änderbar
   check(pp.length === 1 && String(r.v.formattingSettings.chartCard.orientation.value.value) === "bars" && !!r.v.lastRender,
     "c222: Binden wendet nicht erneut an (frei änderbar), kein Merge");
@@ -2354,7 +2359,8 @@ addStage("c223", "↺-Chip · C03 gesetzt, Chart-Typ auf Balken umgestellt → K
   r.upd(bound({ chart: Object.assign({}, c03, { orientation: "bars" }) }));
   check(String(r.v.formattingSettings.chartCard.orientation.value.value) === "columns" && pp.length === 1,
     "c223: stale Update kippt nicht zurück (Echo-Guard)");
-  r.upd(bound({ chart: Object.assign({}, c03) }));
+  // 1.58: the echo carries labels.roundedZero = plain like the merge
+  r.upd(bound({ chart: Object.assign({}, c03), labels: { roundedZero: "plain" } }));
   check(r.v.templatePending === null && !hubQ("c223", "tpl-reset") && pp.length === 1, "c223: Echo beendet den Guard");
 }
 addStage("c223b", "↺-Chip-Gegenproben · keine Abweichung (links) · Leser mit Abweichung (rechts)", 960, 300);
@@ -3212,7 +3218,7 @@ addStage("c229", "Galerie-Wahl C05 · stale Update (template = off) → kein Rü
   const pp = window.__persist.c229;
   check(pp.length === 1 && String(r.v.formattingSettings.chartCard.template.value.value) === "C05"
     && String(r.v.formattingSettings.chartCard.orientation.value.value) === "intwaterfall", "c229: stale Update → C05 bleibt, ein Merge");
-  r.upd(emptyDv({ chart: Object.assign({}, pp[0].merge[0].properties) }));
+  r.upd(emptyDv({ chart: Object.assign({}, pp[0].merge[0].properties), labels: pp[0].merge[1].properties }));
   check(r.v.templatePending === null && pp.length === 1, "c229: Echo beendet den Guard");
 }
 </script>
@@ -10367,6 +10373,7 @@ addStage("c422c", "Review m7 · Blasengröße VJ ohne Vorjahr in der Leseansicht
 {
   const wq = (id, sel) => [...document.querySelectorAll(`#${id} ${sel}`)];
   const wTexts = id => wq(id, "svg text").map(t => t.textContent);
+  const W1_C1002 = 7;
   const isHatch = f => /^url\(#icd-hatch-[^)]*\)$/.test(f || "") && !/-(good|bad)-/.test(f || "");
   const heads = id => wq(id, "[data-pin]");
   const GOOD = "#1E8F9E", BAD = "#D64541";
@@ -10387,7 +10394,9 @@ addStage("c422c", "Review m7 · Blasengröße VJ ohne Vorjahr in der Leseansicht
       `c1000: AC-Kopf in Tinte, FC-Kopf schraffiert (${fcH.map(e => e.getAttribute("fill")).slice(0, 1)})`);
     check(!h.some(e => [GOOD, BAD, "#FFFFFF"].includes((e.getAttribute("fill") || "").toUpperCase())), "c1000: kein Kopf in Abweichungsfarbe oder hohl");
     const stems = h.map(e => e.previousElementSibling).filter(l => l && l.tagName === "line");
-    check(stems.length === 12 && stems.some(l => l.getAttribute("stroke") === GOOD) && stems.some(l => l.getAttribute("stroke") === BAD)
+    // review B2: stems 2 px like the table pins
+    check(stems.length === 12 && stems.every(l => l.getAttribute("stroke-width") === "2")
+      && stems.some(l => l.getAttribute("stroke") === GOOD) && stems.some(l => l.getAttribute("stroke") === BAD)
       && !h.some(e => [GOOD, BAD].includes(e.getAttribute("fill")) || [GOOD, BAD].includes(e.getAttribute("stroke"))),
       "c1000: Stiele tragen die Abweichungsfarbe");
   }
@@ -10408,7 +10417,7 @@ addStage("c422c", "Review m7 · Blasengröße VJ ohne Vorjahr in der Leseansicht
     { chart: { template: "C12" }, ibcsTitle: { kpi: "GuV", period: "2026" } }, null, pnlTypes), 960, 520);
   {
     const h = heads("c1002");
-    check(h.length >= 5 && h.every(e => e.getAttribute("data-pin") === "ac" && e.getAttribute("fill") === "#404040"), `c1002: ${h.length} dunkle Köpfe in der Δ%-Stufe`);
+    check(h.length === W1_C1002 && h.every(e => e.getAttribute("data-pin") === "ac" && e.getAttribute("fill") === "#404040"), `c1002: ${h.length} dunkle Köpfe in der Δ%-Stufe`);
   }
   // ---- 1/2 · Jahressäule C19: Monate gegen PL, Jahres-Pin AC&FC schraffiert
   addStage("c1003", "Welle 1 · C19 Säulen + Jahressäule: Jahres-Pin AC&FC schraffiert, FC-Monate schraffiert", 1100, 560);
@@ -10444,7 +10453,9 @@ addStage("c422c", "Review m7 · Blasengröße VJ ohne Vorjahr in der Leseansicht
   {
     const circ = wq("c1005", "circle").filter(c => c.getAttribute("stroke-width") === "1.6");
     const hollow = circ.filter(c => c.getAttribute("fill") === "#000000").length;
-    check(heads("c1005").length === 0 && circ.length === 12 && hollow >= 5, `c1005: Hochkontrast ohne Szenario-Köpfe, ${circ.length} Köpfe, hohl ${hollow}`);
+    // 5 FC heads + 2 unfavourable AC months (Feb, Jun) hollow, 5 favourable AC filled, stems 1.6 px as before
+    check(heads("c1005").length === 0 && circ.length === 12 && hollow === 7
+      && circ.every(c => c.previousElementSibling.getAttribute("stroke-width") === "1.6"), `c1005: Hochkontrast ohne Szenario-Köpfe, ${circ.length} Köpfe, hohl ${hollow}`);
   }
   // ---- 1 · Linie: FC-Marken schraffiert
   addStage("c1006", "Welle 1 · Linie mit FC: FC-Punkte schraffiert statt hohl", 960, 380);
@@ -10610,6 +10621,217 @@ addStage("c422c", "Review m7 · Blasengröße VJ ohne Vorjahr in der Leseansicht
   }
 }
 // ---- WELLE1-END
+// ======================================================================
+// 1.58 · Welle 1 Review (B1 bis B7, Kopfform), Stufen c1040 bis c1069
+// ======================================================================
+{
+  const { wq, wTexts, isHatch, heads } = window.__w1;
+  const GOOD = "#1E8F9E", BAD = "#D64541";
+  const markPat = id => wq(id, "pattern").find(p => /-m$/.test(p.id));
+  const stemOf = h => h.previousElementSibling;
+  // visible coloured stem of a scenario head: stem length minus the head's half size
+  const stemVis = h => {
+    const l = stemOf(h); const hr = h.tagName === "circle" ? +h.getAttribute("r") : +h.getAttribute("width") / 2;
+    const len = Math.hypot(+l.getAttribute("x2") - +l.getAttribute("x1"), +l.getAttribute("y2") - +l.getAttribute("y1"));
+    return { len, hr, vis: len - hr, sw: +l.getAttribute("stroke-width") };
+  };
+
+  // ---- B1 · 24 Säulen auf 620 px, FC ab M11: Köpfe mit r = 2,5 tragen das feine Muster
+  const cats24 = Array.from({ length: 24 }, (_, i) => "M" + (i + 1));
+  const dv24 = chart => ({ metadata: { columns: [], objects: { chart } }, categorical: { categories: [
+    { source: { displayName: "Monat", roles: { category: true } }, values: cats24 },
+    { source: { displayName: "FC", roles: { fcFlag: true } }, values: cats24.map((_, i) => i >= 10 ? 1 : 0) }],
+    values: [col("actual", cats24.map((_, i) => 100 + i * 3), "#,0"), col("previousYear", cats24.map((_, i) => 95 + i * 3.4), "#,0")] } });
+  for (const [id, shape] of [["c1040", "auto"], ["c1041", "square"]]) {
+    addStage(id, `Welle 1 Review B1 · 24 Säulen auf 620 px, FC ab M11, Kopf ${shape === "square" ? "eckig" : "rund"} mit r = 2,5: Schraffur sichtbar (Pixelprobe in shot.js)`, 620, 420);
+    runCap(id, dv24({ orientation: "columns", comparisonMode: "py", showAbsoluteVariance: true, showRelativeVariance: true, pinStyle: shape }), 620, 420);
+    const fcH = heads(id).filter(h => h.getAttribute("data-pin") === "fc");
+    const pat = markPat(id);
+    const half = h => h.tagName === "circle" ? +h.getAttribute("r") : +h.getAttribute("width") / 2;
+    check(fcH.length === 14 && fcH.every(h => h.tagName === (shape === "square" ? "rect" : "circle") && h.getAttribute("fill") === `url(#${pat && pat.id})`)
+      && !!pat && fcH.every(h => +pat.getAttribute("width") < 2 * (half(h) - 0.5)),
+      `${id}: 14 FC-Köpfe (${shape}) mit feinem Muster, Periode ${pat && pat.getAttribute("width")} px < Innendurchmesser (halbe Größe ${[...new Set(fcH.map(half))].join("/")})`);
+  }
+
+  // ---- B2 · kurze Pins: Stiel 2 px, mindestens 3 px Stiel sichtbar, Kopf nie unter 2 px (rund und eckig)
+  const shortDv = chart => dataView(["A", "B", "C", "D", "E"], [col("actual", [100, 103, 98, 101, 120], "#,0"), col("plan", [101, 101, 100, 100, 100], "#,0")],
+    { chart: Object.assign({ orientation: "columns", comparisonMode: "plan", showAbsoluteVariance: true, showRelativeVariance: true, invert: true }, chart) });
+  for (const [id, shape] of [["c1042", "auto"], ["c1043", "square"]]) {
+    addStage(id, `Welle 1 Review B2 · kleine Δ (Kosten): Kopf ${shape === "square" ? "eckig" : "rund"} gekappt, ≥ 3 px Stiel in Abweichungsfarbe`, 700, 420);
+    runCap(id, shortDv({ pinStyle: shape }), 700, 420);
+    const st = heads(id).map(stemVis);
+    check(st.length === 5 && st.every(s => s.sw === 2 && s.hr >= 2 && (s.vis >= 2.99 || s.hr === 2)) && st.some(s => s.hr < 4),
+      `${id}: Stiel 2 px, Kopf gekappt (${st.map(s => s.len.toFixed(1) + "/" + s.hr.toFixed(1)).join(" ")})`);
+    check(heads(id).map(stemOf).every(l => [GOOD, BAD].includes(l.getAttribute("stroke"))), `${id}: Stiele grün/rot`);
+  }
+  // Balken, zweite Basis, Jahressäule, Stufe und Tabelle in eckig
+  addStage("c1044", "Welle 1 Review · eckige Köpfe: zweite Basis (Säulen), FC schraffiert, Stiel 2 px", 960, 640);
+  runCap("c1044", dataView(months, [col("actual", ac, "#,0 €"), col("previousYear", py, "#,0 €"), col("plan", pl, "#,0 €"),
+    col("forecast", fc, "#,0 €")], { chart: { orientation: "columns", comparisonMode: "plan", dualVariance: true,
+      showAbsoluteVariance: true, showRelativeVariance: true, pinStyle: "square" } }), 960, 640);
+  {
+    const h = heads("c1044");
+    check(h.length === 24 && h.every(e => e.tagName === "rect") && h.filter(e => e.getAttribute("data-pin") === "fc").every(e => isHatch(e.getAttribute("fill")))
+      && h.map(stemVis).every(s => s.sw === 2), `c1044: 24 eckige Köpfe, FC schraffiert, Stiele 2 px`);
+  }
+  addStage("c1045", "Welle 1 Review · C19 Jahressäule mit eckigem Kopf (Vorlage) und Stufe C12 rund: Stiel 2 px", 1100, 560);
+  runCap("c1045", dataView(months, [col("actual", ac, "#,0 €"), col("forecast", fc, "#,0 €"), col("plan", pl, "#,0 €")],
+    { chart: { template: "C19" } }), 1100, 560);
+  {
+    const yp = wq("c1045", '[data-part="pin"]');
+    check(yp.length === 1 && yp[0].getAttribute("stroke-width") === "2" && yp[0].nextElementSibling.tagName === "rect"
+      && isHatch(yp[0].nextElementSibling.getAttribute("fill")), "c1045: Jahres-Pin eckig, schraffiert, Stiel 2 px");
+    const t = heads("c1002").map(stemVis);
+    check(t.length > 0 && t.every(s => s.sw >= 2), `c1002 (Review): Stufen-Stiele ≥ 2 px (${t.map(s => s.sw).join(",")})`);
+  }
+  addStage("c1046", "Welle 1 Review · Tabelle mit FC-Zeilen, runde Köpfe (pinStyle round): FC schraffiert, kurzer Pin gekappt", 1100, 460);
+  runCap("c1046", dataView(months, [col("actual", ac.map((v, i) => v ?? fc[i]), "#,0 €"), col("plan", pl.map((v, i) => i === 3 ? (ac[3] ?? 0) - 500 : v), "#,0 €")],
+    { __fcFlags: [0,0,0,0,0,0,0,1,1,1,1,1], chart: { orientation: "table", comparisonMode: "plan", pinStyle: "round" } }), 1100, 460);
+  {
+    const h = heads("c1046");
+    check(h.length === 5 && h.every(e => e.tagName === "circle" && isHatch(e.getAttribute("fill"))), `c1046: 5 runde FC-Köpfe schraffiert (${h.length})`);
+    const all = wq("c1046", "circle, rect").filter(e => e.previousElementSibling && e.previousElementSibling.tagName === "line"
+      && e.previousElementSibling.getAttribute("stroke-width") === "2" && (e.getAttribute("fill") === "#404040" || e.hasAttribute("data-pin")));
+    const apr = all.map(stemVis).sort((a, b) => a.len - b.len)[0];
+    check(!!apr && apr.hr >= 2 && (apr.vis >= 2.99 || apr.hr === 2) && apr.hr < 3, `c1046: kürzester Pin (Apr) Kopf ${apr && apr.hr.toFixed(1)} bei Länge ${apr && apr.len.toFixed(1)}`);
+  }
+  // PL-Kopf (Plan gegen Plan) eckig
+  addStage("c1047", "Welle 1 Review · Plan gegen Plan (13D) mit eckigem Kopf: hohl mit Tintenrand", 1280, 720);
+  {
+    const { regions, years } = avg18;
+    runCap("c1047", avgDv(regions, vo13({ showAbsoluteVariance: false, showRelativeVariance: true, pinStyle: "square" }),
+      { years, objs: { ibcsTitle: { kpi: "Nettogewinn", unit: "kEUR" } } }), 1280, 720);
+    const vp = wq("c1047", '[data-icd="var-plan"][data-pin]');
+    check(vp.length > 0 && vp.every(e => e.tagName === "rect" && e.getAttribute("data-pin") === "pl" && e.getAttribute("fill") === "#FFFFFF"
+      && e.getAttribute("stroke") === "#404040"), `c1047: ${vp.length} eckige Plan-Köpfe hohl`);
+  }
+
+  // ---- Dunkelmodus, Small Multiples, Re-Render, Export
+  addStage("c1048", "Welle 1 Review · C03 im Dunkelmodus: Köpfe in heller Tinte, FC-Muster auf dunklem Grund", 960, 480, "#1E1E1E");
+  runCap("c1048", dataView(months, [col("actual", ac, "#,0 €"), col("previousYear", py, "#,0 €"), col("forecast", fc, "#,0 €")],
+    { chart: { template: "C03" }, colors: { appearance: "dark" } }), 960, 480);
+  {
+    const h = heads("c1048"), pat = markPat("c1048");
+    const bgFill = pat && pat.querySelector("rect").getAttribute("fill");
+    check(h.length === 12 && h.filter(e => e.getAttribute("data-pin") === "ac").every(e => e.getAttribute("fill") === "#E0E0E0")
+      && !!pat && bgFill !== "#FFFFFF", `c1048: AC-Köpfe #E0E0E0, Musterhintergrund ${bgFill}`);
+  }
+  addStage("c1049", "Welle 1 Review · Small Multiples (3 Kacheln) mit FC: ein feines Muster, alle FC-Köpfe schraffiert", 1340, 520);
+  const mc = [], mv = [], a2 = [], f2 = [], p2 = [];
+  ["Nord", "Süd", "West"].forEach((r, ri) => months.forEach((m, i) => { mc.push(m); mv.push(r);
+    a2.push(ac[i] == null ? null : ac[i] * (1 + ri * 0.2)); f2.push(fc[i] == null ? null : fc[i] * (1 + ri * 0.2)); p2.push(py[i] * (1 + ri * 0.15)); }));
+  const mDv = extra => dataView(mc, [col("actual", a2, "#,0 €"), col("previousYear", p2, "#,0 €"), col("forecast", f2, "#,0 €")],
+    Object.assign({ chart: { orientation: "columns", showAbsoluteVariance: true, showRelativeVariance: true } }, extra || {}), mv);
+  const r49 = runCap("c1049", mDv(), 1340, 520);
+  {
+    const fcH = heads("c1049").filter(h => h.getAttribute("data-pin") === "fc");
+    check(fcH.length === 15 && wq("c1049", "pattern").filter(p => /-m$/.test(p.id)).length === 1 && fcH.every(h => isHatch(h.getAttribute("fill"))),
+      `c1049: 15 FC-Köpfe in 3 Kacheln, Muster einmal (${fcH.length})`);
+    // Re-Render (Dunkelmodus): das Muster wird neu angelegt, nicht verdoppelt, und folgt dem Grund
+    r49.upd(mDv({ colors: { appearance: "dark" } }));
+    const pats = wq("c1049", "pattern").filter(p => /-m$/.test(p.id));
+    check(pats.length === 1 && pats[0].querySelector("rect").getAttribute("fill") !== "#FFFFFF"
+      && heads("c1049").filter(h => h.getAttribute("data-pin") === "fc").length === 15, "c1049: Re-Render dunkel, ein Muster mit dunklem Grund");
+  }
+  addStage("c1050", "Welle 1 Review · Export (allowInteractions=false): Linie mit FC-Punkten und Pins", 960, 380);
+  runCap("c1050", dataView(months, [col("actual", ac, "#,0 €"), col("previousYear", py, "#,0 €"), col("forecast", fc, "#,0 €")],
+    { chart: { orientation: "line", showAbsoluteVariance: true, showRelativeVariance: true } }), 960, 380, { noInteract: true });
+  {
+    const pts = wq("c1050", "circle").filter(c => c.getAttribute("r") === "2.6" && isHatch(c.getAttribute("fill")));
+    const h = heads("c1050");
+    check(pts.length === 5 && !!markPat("c1050") && h.filter(e => e.getAttribute("data-pin") === "fc").length === 5,
+      `c1050: Export mit 5 schraffierten FC-Punkten und 5 FC-Köpfen (${pts.length}/${h.length})`);
+  }
+
+  // ---- B3 · Bestandsbericht (template = templateApplied, Properties aus 1.57): kein ↺-Chip
+  const tc = ["Nord", "Süd", "West", "Ost"], tacN = [1000300, 999700, 800000, 640000], tplN = [1000000, 1000000, 840000, 640000];
+  const old14 = { template: "C14", templateApplied: "C14", orientation: "table", comparisonMode: "plan", showAbsoluteVariance: true,
+    showRelativeVariance: true, dualVariance: false, showTotal: true, totalRowPosition: "bottom", tableTotalLegend: true,
+    tableSort: "dabs_desc", gridLines: "none", cumulative: false, topN: 0 };
+  addStage("c1051", "Welle 1 Review B3 · Bestandsbericht C14 aus 1.57 im Bearbeitungsmodus: kein ↺-Chip, nichts persistiert", 1280, 420);
+  runCap("c1051", dataView(tc, [col("actual", tacN, "#,0"), col("plan", tplN, "#,0")], { chart: old14 }), 1280, 420, { viewMode: 1 });
+  check(!hubQ("c1051", "tpl-reset") && window.__persist.c1051.length === 0, "c1051: kein ↺-Chip, kein Persist");
+  addStage("c1052", "Welle 1 Review B3 · Bestandsbericht C14 mit abweichender 1.57-Property (gridLines): Chip erscheint weiter", 1280, 420);
+  runCap("c1052", dataView(tc, [col("actual", tacN, "#,0"), col("plan", tplN, "#,0")], { chart: Object.assign({}, old14, { gridLines: "both" }) }), 1280, 420, { viewMode: 1 });
+  check(!!hubQ("c1052", "tpl-reset"), "c1052: echte Abweichung zeigt den Chip");
+  addStage("c1053", "Welle 1 Review B3 · Bestandsbericht C01 aus 1.57: kein ↺-Chip", 960, 420);
+  runCap("c1053", tplStack("C01", { chart: { template: "C01", templateApplied: "C01", orientation: "columns", comparisonMode: "auto",
+    showAbsoluteVariance: false, showRelativeVariance: false, dualVariance: false, waterfallStyle: false } }), 960, 420, { viewMode: 1 });
+  check(!hubQ("c1053", "tpl-reset"), "c1053: kein ↺-Chip");
+  // plain in allen Vorlagen
+  {
+    const pp = window.__persist;
+    const ids = ["c1000", "c1001", "c1002", "c1003", "c1015", "c1018", "c1020", "c1022", "c1024", "c1027"];
+    const missing = ids.filter(id => !(pp[id] || []).some(c => c.merge.some(m => m.objectName === "labels" && m.properties.roundedZero === "plain")));
+    check(missing.length === 0, `Vorlagen C03, C04, C12, C19, C18, C09, C01, C05, C25, C07 schreiben labels.roundedZero = plain (fehlt: ${missing.join(",") || "–"})`);
+  }
+
+  // ---- B4 · GuV-Statement (Pp und ganzzahliges Δ %) und negative/Finanz-Null
+  const guvAc2 = guvAc.slice(), guvPy2 = guvPy.slice();
+  guvAc2[0] = 9800; guvPy2[0] = 9780;   // Δ % +0,2 → ganzzahlig 0
+  guvAc2[3] = 57.14; guvPy2[3] = 57.1;  // Δ +0,04 Pp
+  guvAc2[7] = 27.46; guvPy2[7] = 27.5;  // Δ −0,04 Pp
+  for (const [id, rz] of [["c1054", "signed"], ["c1055", "plain"]]) {
+    addStage(id, `Welle 1 Review B4 · GuV-Statement, labels.roundedZero = ${rz}: Pp und ganzzahliges Δ %`, 1280, 480);
+    runCap(id, dataView(guvCats, [col("actual", guvAc2, "#,0 T€"), col("previousYear", guvPy2, "#,0 T€")],
+      { chart: { orientation: "pnl" }, labels: { roundedZero: rz } }, null, guvTypes), 1280, 480);
+  }
+  {
+    const t54 = wTexts("c1054"), t55 = wTexts("c1055");
+    check(t54.includes("+0,0Pp") && t54.includes("−0,0Pp") && t54.includes("+0%"), `c1054: signed wie bisher (${t54.filter(s => /^[+−±]?0(,0)?(Pp|%)$/.test(s)).join(" ")})`);
+    check(t55.filter(s => s === "0,0Pp").length >= 2 && t55.includes("0%") && !t55.some(s => /^[+−±]0(,0)?(Pp|%)$/.test(s)),
+      `c1055: plain ohne Vorzeichen (${t55.filter(s => /^[+−±]?0(,0)?(Pp|%)$/.test(s)).join(" ")})`);
+  }
+  const negDv = labels => dataView(tc, [col("actual", [999700, 1500000, 800000, 640000], "#,0"), col("plan", [1000000, 1400000, 840000, 640000], "#,0")],
+    { chart: { orientation: "bars", comparisonMode: "plan", showAbsoluteVariance: true, showRelativeVariance: true }, labels });
+  addStage("c1056", "Welle 1 Review · negative gerundete Null: signed „−0,00M“, plain „0,00M“", 960, 360);
+  runCap("c1056", negDv({ roundedZero: "signed" }), 960, 360);
+  addStage("c1057", "Welle 1 Review · negative gerundete Null mit plain", 960, 360);
+  runCap("c1057", negDv({ roundedZero: "plain" }), 960, 360);
+  addStage("c1058", "Welle 1 Review · plain mit Finanzformat: keine Klammer um die gerundete Null", 960, 360);
+  runCap("c1058", negDv({ roundedZero: "plain", financeFormat: true }), 960, 360);
+  addStage("c1059", "Welle 1 Review · signed mit Finanzformat: „(0,00M)“ wie bisher", 960, 360);
+  runCap("c1059", negDv({ roundedZero: "signed", financeFormat: true }), 960, 360);
+  {
+    const z = id => wTexts(id).filter(s => /^[(+−]?0,0+\s*[A-Za-z€]*%?\)?$/.test(s));
+    check(z("c1056").some(s => /^−0,00/.test(s)) && z("c1056").includes("−0,0%"), `c1056: ${z("c1056").join(" ")}`);
+    check(z("c1057").some(s => /^0,00/.test(s)) && z("c1057").includes("0,0%") && !z("c1057").some(s => /^[−+(]/.test(s)), `c1057: ${z("c1057").join(" ")}`);
+    check(z("c1058").some(s => /^0,00/.test(s)) && !z("c1058").some(s => /^[−+(]/.test(s)), `c1058: ${z("c1058").join(" ")}`);
+    check(z("c1059").some(s => /^\(0,00/.test(s)), `c1059: ${z("c1059").join(" ")}`);
+  }
+  // Pp in der Tabelle (Margenzeilen) mit plain und Finanzformat
+  for (const [id, labels] of [["c1060", { roundedZero: "plain" }], ["c1061", { roundedZero: "plain", financeFormat: true }], ["c1062", { roundedZero: "signed" }]]) {
+    addStage(id, `Welle 1 Review · Tabelle mit Margenzeilen, ${JSON.stringify(labels)}: Pp der gerundeten Null`, 1200, 420);
+    runCap(id, dataView(["Umsatz", "Materialaufwand", "Bruttoergebnis", "Marge %", "Opex", "EBIT", "EBIT-Marge %"],
+      [col("actual", [9800, -4200, 5600, 57.14, -2900, 2700, 27.46], "#,0 T€"), col("previousYear", [9100, -3900, 5200, 57.1, -2700, 2500, 27.5], "#,0 T€")],
+      { chart: { orientation: "table" }, labels }, null, ["sum", "delta", "sum", "pct", "delta", "sum", "pct"]), 1200, 420);
+  }
+  {
+    const pp = id => wTexts(id).filter(s => /Pp/.test(s));
+    check(pp("c1060").filter(s => s === "0,0Pp").length === 2, `c1060: ${pp("c1060").join(" ")}`);
+    check(pp("c1061").filter(s => s === "0,0Pp").length === 2, `c1061: ${pp("c1061").join(" ")}`);
+    check(pp("c1062").includes("+0,0Pp") && pp("c1062").some(s => /^(−0,0Pp|\(0,0Pp\))$/.test(s)), `c1062: ${pp("c1062").join(" ")}`);
+  }
+
+  // ---- B5 · automatischer Titel des Scatters ohne „AC“
+  {
+    const title = id => (document.querySelector(`#${id} svg > text`) || {}).textContent || "";
+    check(!/\bAC\b/.test(title("c1015")) && !/\bAC\b/.test(title("c1017")) && /: AC$|· AC$/.test(title("c1016")),
+      `B5: Titel C18 „${title("c1015")}“, Standard „${title("c1017")}“, mit Schalter „${title("c1016")}“`);
+  }
+
+  // ---- B6 · Doppellinie liegt über den Δ-Balken (Papierstreifen), Pin-Spalte darunter; PY unverändert
+  {
+    const a = wq("c1010", '[data-icd="table-var-axis"]');
+    const over = a.filter(g => g.getAttribute("data-over") === "1");
+    const strip = over.map(g => g.querySelector("rect")).filter(Boolean);
+    const marksAfter = over.every(g => { const rows = wq("c1010", "g.icd-cat"); return rows.length > 0
+      && (rows[rows.length - 1].compareDocumentPosition(g) & Node.DOCUMENT_POSITION_FOLLOWING); });
+    check(over.length === 1 && strip.length === 1 && +strip[0].getAttribute("width") === 3.4 && marksAfter
+      && a.find(g => g.getAttribute("data-over") !== "1"), "c1010 (B6): Δ-Achse über den Balken mit 3,4-px-Papierstreifen, Δ%-Achse darunter");
+  }
+}
+// ---- WELLE1-REVIEW-END
 </script>
 </body>
 </html>

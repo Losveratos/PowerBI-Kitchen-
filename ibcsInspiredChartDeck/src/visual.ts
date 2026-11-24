@@ -104,38 +104,43 @@ type TplValue = string | boolean | number;
 const CHART_TEMPLATES: Record<string, Record<string, TplValue>> = {
     // C01/C02: structure over time / per category — stacking comes from the Serie role
     // 1.58 (Welle 1): templates state the defaults of the new notation switches
-    // (panelTypeTitles, scatterTypeTitle, scatterScenarioTag = off; labels.roundedZero =
-    // plain where the sheets print a rounded zero without its sign) explicitly, so a
-    // later change of the pane default does not change the template look
+    // (panelTypeTitles, scatterTypeTitle, scatterScenarioTag = off) explicitly, so a later
+    // change of the pane default does not change the template look; every template prints a
+    // rounded zero without its sign like the sheets (labels.roundedZero = plain, review
+    // decision). TPL_SINCE_158 keeps these keys from flagging older reports as deviating
     C01: { orientation: "columns", comparisonMode: "auto", showAbsoluteVariance: false,
-        showRelativeVariance: false, dualVariance: false, waterfallStyle: false, panelTypeTitles: false },
+        showRelativeVariance: false, dualVariance: false, waterfallStyle: false, panelTypeTitles: false,
+        "labels.roundedZero": "plain" },
     C02: { orientation: "bars", comparisonMode: "auto", showAbsoluteVariance: false,
-        showRelativeVariance: false, dualVariance: false, waterfallStyle: false, panelTypeTitles: false },
+        showRelativeVariance: false, dualVariance: false, waterfallStyle: false, panelTypeTitles: false,
+        "labels.roundedZero": "plain" },
     // C03: multi-tier columns — AC/PY base, ΔPY panel, ΔPY% pins
     C03: { orientation: "columns", comparisonMode: "py", showAbsoluteVariance: true,
-        showRelativeVariance: true, dualVariance: false, waterfallStyle: false },
+        showRelativeVariance: true, dualVariance: false, waterfallStyle: false, "labels.roundedZero": "plain" },
     // C04: bars with ΔPL panel + ΔPL% pins
     C04: { orientation: "bars", comparisonMode: "plan", showAbsoluteVariance: true,
         showRelativeVariance: true, dualVariance: false, waterfallStyle: false, "labels.roundedZero": "plain" },
     // C05: integrated bridge over time (PY total → monthly Δ → AC/FC total)
     C05: { orientation: "intwaterfall", comparisonMode: "py", showAbsoluteVariance: true,
-        showRelativeVariance: true, dualVariance: false, panelTypeTitles: false },
+        showRelativeVariance: true, dualVariance: false, panelTypeTitles: false, "labels.roundedZero": "plain" },
     // C06: category bridge drawn as vertical column cascade
     C06: { orientation: "catbridge", comparisonMode: "py", showAbsoluteVariance: true,
-        showRelativeVariance: true, dualVariance: false, bridgeOrientation: "columns" },
+        showRelativeVariance: true, dualVariance: false, bridgeOrientation: "columns",
+        "labels.roundedZero": "plain" },
     // C08: line for long time series — ΔBasis panel, no Δ%-pin forest
     C08: { orientation: "line", comparisonMode: "auto", showAbsoluteVariance: true,
-        showRelativeVariance: false, dualVariance: false },
+        showRelativeVariance: false, dualVariance: false, "labels.roundedZero": "plain" },
     // C09/C10: scatter with mean quadrants; C10 additionally the size legend (bubble role)
     C09: { orientation: "scatter", comparisonMode: "auto", scatterQuadrant: "mean",
-        scatterColorBy: "single", scatterTypeTitle: false, scatterScenarioTag: false },
+        scatterColorBy: "single", scatterTypeTitle: false, scatterScenarioTag: false, "labels.roundedZero": "plain" },
     C10: { orientation: "scatter", comparisonMode: "auto", scatterQuadrant: "mean",
-        scatterColorBy: "single", scatterSizeLegend: true, scatterTypeTitle: false, scatterScenarioTag: false },
+        scatterColorBy: "single", scatterSizeLegend: true, scatterTypeTitle: false, scatterScenarioTag: false,
+        "labels.roundedZero": "plain" },
     // C12: waterfall (sum/delta rows or bridge from the basis)
     C12: { orientation: "waterfall", comparisonMode: "auto", showAbsoluteVariance: true,
-        showRelativeVariance: true, dualVariance: false },
+        showRelativeVariance: true, dualVariance: false, "labels.roundedZero": "plain" },
     // C13: small multiples — chart type stays, Σ tile + same scale for bridges too
-    C13: { multiplesTotal: true, multiplesSameScale: true },
+    C13: { multiplesTotal: true, multiplesSameScale: true, "labels.roundedZero": "plain" },
     // 1.54 (backlog B01) — presets for IBCS sheets that were already configurable.
     // C07/C11 stay reserved (area, box plot); the new codes map to the sheets:
     // C14–C16 = 04A/04B/04C bar table vs. PL sorted by ΔPL · ΔPL% · AC with the Σ
@@ -147,27 +152,29 @@ const CHART_TEMPLATES: Record<string, Record<string, TplValue>> = {
         "labels.roundedZero": "plain" },
     C15: { orientation: "table", comparisonMode: "plan", showAbsoluteVariance: true,
         showRelativeVariance: true, dualVariance: false, showTotal: true, totalRowPosition: "bottom",
-        tableTotalLegend: true, tableSort: "drel_desc", gridLines: "none", cumulative: false, topN: 0 },
+        tableTotalLegend: true, tableSort: "drel_desc", gridLines: "none", cumulative: false, topN: 0,
+        "labels.roundedZero": "plain" },
     C16: { orientation: "table", comparisonMode: "plan", showAbsoluteVariance: true,
         showRelativeVariance: true, dualVariance: false, showTotal: true, totalRowPosition: "bottom",
-        tableTotalLegend: true, tableSort: "ac_desc", gridLines: "none", cumulative: false, topN: 0 },
+        tableTotalLegend: true, tableSort: "ac_desc", gridLines: "none", cumulative: false, topN: 0,
+        "labels.roundedZero": "plain" },
     // C17 = 06E: horizontal category bridge PY → AC, PY as grey bar behind AC (no
     // triangle), separators every 4 rows, no driver note
     C17: { orientation: "catbridge", bridgeOrientation: "bars", comparisonMode: "py",
         showAbsoluteVariance: true, showRelativeVariance: true, dualVariance: false,
-        pyTriangle: false, groupEvery: 4, driverNote: false },
+        pyTriangle: false, groupEvery: 4, driverNote: false, "labels.roundedZero": "plain" },
     // C18 = 10F: variance scatter (X = ΔPY %, Y = ΔPL % as measures), colour per
     // group, axis cross at 0 instead of mean quadrants — "object.property" keys
     // address another card (here the scale card's reference lines)
     C18: { orientation: "scatter", comparisonMode: "auto", scatterQuadrant: "off",
         scatterColorBy: "group", scatterSizeLegend: true, scatterTrend: "off",
         scatterArrows: false, scatterShapes: false, scatterTypeTitle: false, scatterScenarioTag: false,
-        "scale.refLine": "0", "scale.xRefLine": "0" },
+        "scale.refLine": "0", "scale.xRefLine": "0", "labels.roundedZero": "plain" },
     // 1.54 (B05) C19 = 03B: monthly columns vs. plan with the year column on its own
     // scale (AC + FC), scenario labels at the axis; 03A is the same with basis PY
     C19: { orientation: "columns", comparisonMode: "plan", showAbsoluteVariance: true,
         showRelativeVariance: true, dualVariance: false, waterfallStyle: false, cumulative: false,
-        yearColumn: true, scenarioLabels: true, pinStyle: "square" },
+        yearColumn: true, scenarioLabels: true, pinStyle: "square", "labels.roundedZero": "plain" },
     // 1.55 (B11) C20 = 08E to 08H: stock & flow over time (net panel, flows ±, stock line
     // with area), scenario labels at the axis, emphasis as ellipse around the stock label
     C20: { orientation: "stockflow", sfNet: true, sfArea: true, scenarioLabels: true, showTotal: false,
@@ -177,38 +184,42 @@ const CHART_TEMPLATES: Record<string, Record<string, TplValue>> = {
     C07: { orientation: "columns", comparisonMode: "auto", showAbsoluteVariance: false,
         showRelativeVariance: false, dualVariance: false, waterfallStyle: false, stackShape: "area",
         areaTotalLine: true, areaValueLabels: "auto", stackLegendDirect: true, stackLegendPos: "end",
-        showTotal: false, scenarioLabels: true, panelTypeTitles: false },
+        showTotal: false, scenarioLabels: true, panelTypeTitles: false, "labels.roundedZero": "plain" },
     // 1.56 (B15) C21 = 07C: cumulated YTD lines AC/FC against PL with the rolling year
     // (R12), the months as columns behind the lines on the same scale, gap markers at the
     // last actual and at the year end, square markers, scenario codes at the line ends
     C21: { orientation: "line", comparisonMode: "plan", showAbsoluteVariance: false,
         showRelativeVariance: false, dualVariance: false, cumulative: true, cumulativeKind: "ytd",
         lineR12: true, linePeriodColumns: "same", lineGapMarkers: "both", lineBasisLabels: true,
-        lineMarkerShape: "square", scenarioLabels: true, showTotal: false },
+        lineMarkerShape: "square", scenarioLabels: true, showTotal: false, "labels.roundedZero": "plain" },
     // 1.56 (B17) C22 = 07A: one line per member of the series role, indexed to 100 at the
     // first category with values of all series, values at the group starts (months over
     // days), series name and last value at the line end; no Δ panels, no cumulation
     C22: { orientation: "line", lineSeries: true, lineIndex: "base100", lineSeriesLabels: "groups",
         lineSeriesColor: "tones", lineMarkerShape: "square", showAbsoluteVariance: false,
-        showRelativeVariance: false, dualVariance: false, cumulative: false, showTotal: false },
+        showRelativeVariance: false, dualVariance: false, cumulative: false, showTotal: false,
+        "labels.roundedZero": "plain" },
     // 1.57 (B18) C23 = 07D/07E: scatter time path, category = period, series = unit, one
     // thin line per unit through its periods, period labels, unit name at the end point
     C23: { orientation: "scatter", comparisonMode: "auto", scatterPath: "line", scatterPathLabels: "auto",
         scatterColorBy: "group", scatterQuadrant: "off", scatterTrend: "off", scatterArrows: false,
-        scatterPlay: false, scatterTypeTitle: false, scatterScenarioTag: false },
+        scatterPlay: false, scatterTypeTitle: false, scatterScenarioTag: false, "labels.roundedZero": "plain" },
     // 1.57 (B19) C24 = 10E/10G: bubbles with a share sector (role bubbleShare) and a total
     // bubble per tile, group colors, values in the bubbles, opaque, X reference at 1
     C24: { orientation: "scatter", comparisonMode: "auto", scatterQuadrant: "off", scatterColorBy: "group",
         scatterSizeLegend: false, scatterValueLabels: true, scatterBubbleOpacity: 100, scatterTotalBubble: true,
         scatterMaxRadius: 100, scatterTrend: "off", scatterArrows: false, scatterPath: "off", scatterPlay: false,
-        scatterTypeTitle: false, scatterScenarioTag: false, "scale.xRefLine": "1" },
+        scatterTypeTitle: false, scatterScenarioTag: false, "scale.xRefLine": "1", "labels.roundedZero": "plain" },
     // 1.57 (B20) C25 = 02F: Marimekko — 100 % bars, row thickness by the row total,
     // values in the segments, total and share columns, Σ row, sorted by the total
     C25: { orientation: "bars", comparisonMode: "auto", showAbsoluteVariance: false,
         showRelativeVariance: false, dualVariance: false, waterfallStyle: false, stackNormalize: "pct100",
         stackThickness: "total", stackShareColumn: true, showTotal: true, stackTotalRow: true, sortMode: "ac",
-        stackLegendDirect: true, panelTypeTitles: false }
+        stackLegendDirect: true, panelTypeTitles: false, "labels.roundedZero": "plain" }
 };
+
+/** 1.58 (Welle 1 review B3): template keys added in 1.58 — not a deviation while at their default */
+const TPL_SINCE_158 = new Set(["panelTypeTitles", "scatterTypeTitle", "scatterScenarioTag", "labels.roundedZero"]);
 
 /** 1.50 start hub: schematic preview per IBCS template — keys of drawModeMini, the
  *  same SVG pipeline as the demo gallery (nothing is embedded as a bitmap) */
@@ -1324,6 +1335,8 @@ function relVar(dAbs: number | null, basis: number | null): number | null {
     if (dAbs == null || basis == null || relIsNa(dAbs, basis)) { return null; }
     return (dAbs / Math.abs(basis)) * 100;
 }
+/** 1.58 (Welle 1 review B2): stem width of the scenario-coded Δ% pins, as in the table */
+const PIN_STEM_W = 2;
 /** fixed, language-neutral marker (IBCS uses "n.a." internationally) */
 const REL_NA = "n.a.";
 
@@ -2152,7 +2165,12 @@ export class Visual implements IVisual {
         const props = CHART_TEMPLATES[tpl];
         if (!props) { return null; }
         for (const [k, v] of Object.entries(props)) {
-            if (!this.chartSliceIs(k, v)) { return tpl; }
+            if (this.chartSliceIs(k, v)) { continue; }
+            // 1.58 (Welle 1 review B3): keys a template gained in 1.58 are no deviation while
+            // they still carry their pane default — reports that applied the template before
+            // (template = templateApplied) must not show "↺ back to template" unasked
+            if (TPL_SINCE_158.has(k) && this.chartSliceIs(k, this.templateDefault(k) as TplValue)) { continue; }
+            return tpl;
         }
         return null;
     }
@@ -8621,12 +8639,14 @@ export class Visual implements IVisual {
                 const col = (v === 0 || !cfg.isMaterial(tierPts[i]))
                     ? cfg.colors.py : (good(v, tierPts[i]) ? cfg.colors.good : cfg.colors.bad);
                 const y = relScale(v);
-                this.el("line", { x1: c, y1: zero, x2: c, y2: y, stroke: col, "stroke-width": Math.max(1.6, 1.4 * k) }, tg);
-                // 1.58 (Welle 1): head in scenario notation, colour on the stem (hc unchanged)
-                this.pinHead(tg, c, y, Math.max(2.6, 2.2 * k), "round", cfg.pinStyle,
+                // 1.58 (Welle 1): head in scenario notation, colour on the stem (hc unchanged);
+                // review B2: stem as wide as the table pins, head capped on short pins
+                const headR = cfg.hc ? Math.max(2.6, 2.2 * k) : this.pinHeadR(Math.max(2.6, 2.2 * k), y - zero);
+                this.el("line", { x1: c, y1: zero, x2: c, y2: y, stroke: col,
+                    "stroke-width": cfg.hc ? Math.max(1.6, 1.4 * k) : Math.max(PIN_STEM_W, 1.4 * k) }, tg);
+                this.pinHead(tg, c, y, headR, "round", cfg.pinStyle,
                     cfg.hc ? { fill: col } : this.pinHeadScen(cfg, tierPts[i]?.isFc ? "fc" : "ac"));
                 if (showTierLabels) {
-                    const headR = Math.max(2.6, 2.2 * k);
                     const flip = v > 0 && this.collidesPanelTitle(c, this.fmtPercent(v), cfg.labelFont,
                         relScale(v) - headR - cfg.labelFont, relRect.y, region.x, `Δ${cfg.basisLabel} %`);
                     this.drawEndLabelAt(tg, c, v, v >= 0 && !flip, relScale, "columns", this.fmtPercent(v),
@@ -10640,9 +10660,13 @@ export class Visual implements IVisual {
         // margin rows follow the finance convention like every other label site
         const pctT = (v: number) => this.financeFmt && v < 0
             ? `(${pctFmt.format(Math.abs(v))} %)` : `${pctFmt.format(v)} %`;
-        const ppT = (d: number) => this.financeFmt && d < 0
+        // 1.58 (Welle 1 review B4): labels.roundedZero = plain prints a rounded (and the
+        // exact) zero without sign or "±"; signed keeps "±" at an exact zero as before
+        const zpP = this.roundedZeroPlain();
+        const ppZero = (d: number) => zpP && !/[1-9]/.test(pctFmt.format(Math.abs(d)));
+        const ppT = (d: number) => this.financeFmt && d < 0 && !ppZero(d)
             ? `(${pctFmt.format(Math.abs(d))}Pp)`
-            : `${d > 0 ? "+" : d < 0 ? "−" : "±"}${pctFmt.format(Math.abs(d))}Pp`;
+            : `${ppZero(d) ? "" : d > 0 ? "+" : d < 0 ? "−" : "±"}${pctFmt.format(Math.abs(d))}Pp`;
 
         // ------- rows
         shown.forEach((r, i) => {
@@ -10766,7 +10790,8 @@ export class Visual implements IVisual {
                         txt(dp >= 0 ? pAxis + w + 3 : pAxis - w - 3, cy + lf * 0.3, "▸▸",
                             dp >= 0 ? "start" : "end", Math.round(lf * 0.8), false, c, g);
                     }
-                    txt(lxp, cy + lf * 0.36, `${dp > 0 ? "+" : dp < 0 ? "−" : "±"}${Math.round(Math.abs(dp))}%`,
+                    // 1.58 (review B4): whole percent; a rounded zero follows labels.roundedZero
+                    txt(lxp, cy + lf * 0.36, `${zpP && Math.round(Math.abs(dp)) === 0 ? "" : dp > 0 ? "+" : dp < 0 ? "−" : "±"}${Math.round(Math.abs(dp))}%`,
                         dp >= 0 ? "start" : "end", lf, sum, cfg.ink, g);
                 }
             }
@@ -11488,25 +11513,34 @@ export class Visual implements IVisual {
         }
         // 1.58 (Welle 1): the Δ axes follow the basis notation like the Δ panels of the
         // column chart: PY grey (unchanged), PL double line, FC of the prior cycle
-        // (fcrev) dashed double line; the Ø basis keeps the grey axis
-        const varAxis = (x: number, basis: Basis) => {
-            if (basis === "py" || cfg.basisAvg) {
+        // (fcrev) dashed double line; the Ø basis keeps the grey axis for the first Δ, the
+        // second Δ follows basis2Mode like the column panels (review B7).
+        // Review B6: next to the Δ bars the double line lies ABOVE the rows on a paper strip
+        // (3.4 px), so a positive bar no longer covers the right line and every bar reads as
+        // starting at the outer edge; the pin column keeps it underneath (heads near zero
+        // would be cut). Geometry and px per unit stay the same
+        const varAxis = (x: number, basis: Basis, avg: boolean, overBars: boolean) => {
+            if (basis === "py" || avg) {
                 this.el("rect", { x: x - 1, y: top, width: 2, height: rowsBottom - top, fill: cfg.colors.py }, bg);
                 return;
             }
-            const ag = this.el("g", { "data-icd": "table-var-axis", "data-basis": basis }, bg);
+            const ag = this.el("g", { "data-icd": "table-var-axis", "data-basis": basis,
+                ...(overBars ? { "data-over": "1", "pointer-events": "none" } : {}) }, overBars ? this.svg : bg);
+            if (overBars) {
+                this.el("rect", { x: x - 1.7, y: top, width: 3.4, height: rowsBottom - top, fill: cfg.paper }, ag);
+            }
             this.drawBaseline(ag, { x, y: top, w: 0, h: rowsBottom - top }, () => x, "bars", top, rowsBottom,
                 basis, cfg.colors);
         };
-        if (colX["dbar"]) { varAxis(dAxis, cfg.basisMode); }
+        if (colX["dbar"]) { varAxis(dAxis, cfg.basisMode, cfg.basisAvg, true); }
         const pctRoom = colX["pct"] ? colX["pct"].w - lf * 6 : 0;
         const pctAxis = colX["pct"] ? colX["pct"].x + lf * 3 + zeroFrac * pctRoom : 0;
         const pinUnit = colX["pct"] ? unitOf(pctRoom, negP, posP) : 0;
-        if (colX["pct"]) { varAxis(pctAxis, cfg.basisMode); }
+        if (colX["pct"]) { varAxis(pctAxis, cfg.basisMode, cfg.basisAvg, false); }
         const d2Axis = colX["d2bar"] ? colX["d2bar"].x + 4 + zeroFrac * (colX["d2bar"].w - 8) : 0;
         const d2Unit = colX["d2bar"] ? (kBar > 0 && Number.isFinite(fitMin) ? kBar * tblZoom : d2Fit) : 0;
         // the second Δ compares against the second basis (the real one from parseData)
-        if (colX["d2bar"]) { varAxis(d2Axis, this.basis2Mode); }
+        if (colX["d2bar"]) { varAxis(d2Axis, this.basis2Mode, false, true); }
 
         // sum-safe rounding: adjust the level-0 detail labels (largest remainder)
         // so they visibly add up to the synthetic Σ row
@@ -11753,8 +11787,10 @@ export class Visual implements IVisual {
                 const sideMax = Math.max(8, pctRoom * (dir > 0 ? 1 - zeroFrac : zeroFrac) - 1);
                 const len = Math.min(sideMax, Math.abs(p.varRel) * pinUnit);
                 const c = colOf(p.varRel, p);
-                const r = Math.max(2.4, 3 * k);
                 const endX = pctAxis + dir * Math.max(len, 2);
+                // 1.58 (Welle 1 review B2): head capped on short pins so ≥ 3 px of the coloured
+                // stem stay visible (outside high contrast), round and square alike
+                const r = cfg.hc ? Math.max(2.4, 3 * k) : this.pinHeadR(Math.max(2.4, 3 * k), endX - pctAxis);
                 this.el("line", { x1: pctAxis, y1: yMid, x2: endX, y2: yMid, stroke: c, "stroke-width": 2 }, g);
                 // 1.58 (Welle 1): FC hatched like the FC bars (hollow is the plan notation)
                 this.pinHead(g, endX, yMid, r, "square", cfg.pinStyle, cfg.hc
@@ -19107,7 +19143,9 @@ export class Visual implements IVisual {
         const deltaText = (x: { base: number; end: number; d: number }): string => {
             if (so.index) {
                 const r = Math.round(x.d);
-                return `${r > 0 ? "+" : r < 0 ? "−" : ""}${idxNf.format(Math.abs(r))}%`;
+                // 1.58 (review B4): sign via deltaSign on the rounded value — a rounded zero
+                // has always printed unsigned here ("0%"), in both roundedZero modes
+                return `${deltaSign(r, idxNf.format(Math.abs(r)), this.roundedZeroPlain())}${idxNf.format(Math.abs(r))}%`;
             }
             const rel = relVar(x.d, x.base);
             const abs = this.fmtSigned(cfg.fmtDiff, x.d);
@@ -21177,7 +21215,10 @@ export class Visual implements IVisual {
                 const c = cx;
                 const zero = relScale(0);
                 const end = relScale(p.varRel);
-                const r = Math.max(2.5, Math.min(4.5, slotW * 0.12));
+                // 1.58 (review B2): outside high contrast the head is capped on short pins so the
+                // coloured stem stays visible (≥ 3 px), never below 2 px
+                const r0 = Math.max(2.5, Math.min(4.5, slotW * 0.12));
+                const r = cfg.hc ? r0 : this.pinHeadR(r0, end - zero);
                 const hollowPin = p.isFc || p.varPlan === true || (cfg.hc && !good && p.varRel !== 0);
                 // 1.55 (B13): plan-against-plan pins carry the var-plan marker (hollow head)
                 // 1.56 (B13 part 2 review, m2): high contrast keeps the good/bad head
@@ -21193,7 +21234,8 @@ export class Visual implements IVisual {
                     ? { fill: hollowPin ? cfg.paper : color, stroke: color, "stroke-width": 1.6 }
                     : this.pinHeadScen(cfg, p.isFc ? "fc" : "ac");
                 const stem: Record<string, string | number> = hcPlan
-                    ? { stroke: color, "stroke-width": 1.6, "stroke-dasharray": "3 2" } : { stroke: color, "stroke-width": 1.6 };
+                    ? { stroke: color, "stroke-width": 1.6, "stroke-dasharray": "3 2" }
+                    : { stroke: color, "stroke-width": cfg.hc ? 1.6 : PIN_STEM_W };
                 if (orientation === "columns") {
                     this.el("line", { x1: c, y1: zero, x2: c, y2: end, ...stem }, g);
                     this.pinHead(g, c, end, r, "round", cfg.pinStyle, headAttrs);
@@ -21238,17 +21280,19 @@ export class Visual implements IVisual {
                     ? cfg.colors.py : (good ? cfg.colors.good : cfg.colors.bad);
                 const zero = rel2Scale(0);
                 const end = rel2Scale(p.var2Rel);
-                const r = Math.max(2.5, Math.min(4.5, slotW * 0.12));
+                const r0 = Math.max(2.5, Math.min(4.5, slotW * 0.12));
+                const r = cfg.hc ? r0 : this.pinHeadR(r0, end - zero);
+                const sw2 = cfg.hc ? 1.6 : PIN_STEM_W;
                 const hollowPin = p.isFc || (cfg.hc && !good && p.var2Rel !== 0);
                 // 1.58 (Welle 1): scenario head outside high contrast (see the first basis)
                 const head2: Record<string, string | number> = cfg.hc
                     ? { fill: hollowPin ? cfg.paper : color, stroke: color, "stroke-width": 1.6 }
                     : this.pinHeadScen(cfg, p.isFc ? "fc" : "ac");
                 if (orientation === "columns") {
-                    this.el("line", { x1: cx, y1: zero, x2: cx, y2: end, stroke: color, "stroke-width": 1.6 }, g);
+                    this.el("line", { x1: cx, y1: zero, x2: cx, y2: end, stroke: color, "stroke-width": sw2 }, g);
                     this.pinHead(g, cx, end, r, "round", cfg.pinStyle, head2);
                 } else {
-                    this.el("line", { x1: zero, y1: cx, x2: end, y2: cx, stroke: color, "stroke-width": 1.6 }, g);
+                    this.el("line", { x1: zero, y1: cx, x2: end, y2: cx, stroke: color, "stroke-width": sw2 }, g);
                     this.pinHead(g, end, cx, r, "round", cfg.pinStyle, head2);
                 }
                 if (cfg.showLabels && showRel2At(i)) {
@@ -21908,7 +21952,10 @@ export class Visual implements IVisual {
             || /\bAC\s*(&|\+|\/|und)\s*FC\b/i.test(this.measureName || "");
         const valueScen = fcInAc ? `${cfg.scenL.ac}&${cfg.scenL.fc}` : cfg.scenL.ac;
         // B17 review (m11): series lines draw no PY, PL or BM, the title names no "vs."
-        if (cfg.scatter || cfg.lineOpts?.series) { return valueScen; }
+        // 1.58 (Welle 1 review B5): a scatter names its scenario only with
+        // chart.scatterScenarioTag — on a variance scatter (C18) "AC" is the wrong code
+        if (cfg.scatter) { return this.formattingSettings.chartCard.scatterScenarioTag.value === true ? valueScen : ""; }
+        if (cfg.lineOpts?.series) { return valueScen; }
         const basis = cfg.basisMode === "plan" ? (cfg.hasPl ? cfg.scenL.pl : "")
             : cfg.basisMode === "fcrev" ? `${cfg.scenL.fc} Vm`
             : (cfg.hasPy ? cfg.scenL.py : "");
@@ -22414,9 +22461,11 @@ export class Visual implements IVisual {
             }
             const good = cfg.isGood(dr, p);
             const color = (dr === 0 || !mat) ? cfg.colors.py : (good ? cfg.colors.good : cfg.colors.bad);
-            const r = Math.max(2.5, Math.min(4.5, slotW * 0.12));
             const zero = scale(0), end = scale(dr);
-            this.el("line", { x1: cx, y1: zero, x2: cx, y2: end, stroke: color, "stroke-width": 1.6, "data-part": "pin" }, g);
+            // 1.58 (review B2): wider stem, head capped on short pins (outside high contrast)
+            const r0 = Math.max(2.5, Math.min(4.5, slotW * 0.12));
+            const r = cfg.hc ? r0 : this.pinHeadR(r0, end - zero);
+            this.el("line", { x1: cx, y1: zero, x2: cx, y2: end, stroke: color, "stroke-width": cfg.hc ? 1.6 : PIN_STEM_W, "data-part": "pin" }, g);
             // 1.58 (Welle 1): scenario head (AC&FC hatched) outside high contrast
             this.pinHead(g, cx, end, r, "round", cfg.pinStyle, cfg.hc
                 ? { fill: anyFc || (!good && dr !== 0) ? cfg.paper : color, stroke: color, "stroke-width": 1.6 }
@@ -24393,9 +24442,17 @@ export class Visual implements IVisual {
      *  their high-contrast branch (good = filled, bad = hollow) unchanged. `data-pin`
      *  names the scenario for the tests */
     private pinHeadScen(cfg: ChartConfig, scen: "ac" | "fc" | "pl"): Record<string, string | number> {
-        return scen === "fc" ? { fill: `url(#${cfg.patId})`, stroke: cfg.ink, "stroke-width": 1, "data-pin": "fc" }
+        // review B1: the fine hatch (period 2.4 px) — the bar hatch (5 px) leaves heads of
+        // r 2.5 to 4.5 empty or as a single stroke ("⊘")
+        return scen === "fc" ? { fill: this.fcMarkFill(cfg), stroke: cfg.ink, "stroke-width": 1, "data-pin": "fc" }
             : scen === "pl" ? { fill: cfg.paper, stroke: cfg.ink, "stroke-width": 1.2, "data-pin": "pl" }
                 : { fill: cfg.ink, "data-pin": "ac" };
+    }
+
+    /** 1.58 (Welle 1 review B2): head radius of a scenario-coded pin — on a short pin
+     *  capped so that at least 3 px of the coloured stem stay visible, never below 2 px */
+    private pinHeadR(r: number, len: number): number {
+        return Math.max(2, Math.min(r, Math.abs(len) - 3));
     }
 
     /** Δ%-pin head — draws a circle or a square around (x, y). The pane choice
