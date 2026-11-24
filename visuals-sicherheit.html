@@ -135,7 +135,7 @@ a.inl{color:var(--accent-deep);font-weight:600;}
     <h1 class="hero-title">Sicherheit &amp; Betrieb der <em>byDatenWG</em>-Visuals</h1>
     <p class="dek">Eine Seite für alle, die ein Custom Visual freigeben müssen: was die Visuals tun, was sie nicht tun, was im Bericht gespeichert wird, wie die Freigabe im Organisations-Store läuft und wo die Grenzen liegen. Sachlich und prüfbar — jede Aussage ist am Quellcode oder an der Microsoft-Dokumentation nachvollziehbar, die Checkliste in Abschnitt 07 führt Sie durch die Prüfung.</p>
     <div class="chips">
-      <span class="chip">Stand 23.10.2026</span>
+      <span class="chip">Stand 23.11.2026</span>
       <span class="chip teal">privileges: [] in allen drei Visuals</span>
       <span class="chip">Quellcode offen</span>
       <span class="chip">nicht von Microsoft zertifiziert</span>
@@ -162,7 +162,7 @@ a.inl{color:var(--accent-deep);font-weight:600;}
       <article class="vcard">
         <h3>ChartKitchen byDatenWG</h3>
         <dl class="facts">
-          <dt>Version</dt><dd><code>1.53.0.0</code></dd>
+          <dt>Version</dt><dd><code>1.57.0.0</code></dd>
           <dt>API</dt><dd><code>5.11.0</code></dd>
           <dt>GUID</dt><dd><code>chartKitchenByDatenWGD9DE0F7AD44D41058672C6FBF6F5A18D</code></dd>
           <dt>Lizenz</dt><dd>Apache-2.0 (<code>LICENSE</code> + <code>NOTICE</code>)</dd>
@@ -172,7 +172,7 @@ a.inl{color:var(--accent-deep);font-weight:600;}
       <article class="vcard pnl">
         <h3>P&amp;L Statement byDatenWG</h3>
         <dl class="facts">
-          <dt>Version</dt><dd><code>1.8.2.0</code></dd>
+          <dt>Version</dt><dd><code>1.8.3.0</code></dd>
           <dt>API</dt><dd><code>5.11.0</code></dd>
           <dt>GUID</dt><dd><code>pnlByDatenWG3F9A7D2C51E64B08A1C4E7F0B92D6358</code></dd>
           <dt>Lizenz</dt><dd>MIT (<code>LICENSE</code> im Repo-Wurzelverzeichnis)</dd>
@@ -182,7 +182,7 @@ a.inl{color:var(--accent-deep);font-weight:600;}
       <article class="vcard gantt">
         <h3>dataKitchenGantt</h3>
         <dl class="facts">
-          <dt>Version</dt><dd><code>1.15.0.0</code></dd>
+          <dt>Version</dt><dd><code>2.3.1.0</code></dd>
           <dt>API</dt><dd><code>5.3.0</code></dd>
           <dt>GUID</dt><dd><code>dataKitchenGanttD7C41F0A93E24B6BA1F3C5E8A20D9B44</code></dd>
           <dt>Lizenz</dt><dd>MIT (<code>LICENSE</code> im Repo-Wurzelverzeichnis)</dd>
@@ -224,12 +224,14 @@ a.inl{color:var(--accent-deep);font-weight:600;}
         <tr><td class="k">sessionStorage</td><td class="n">0</td><td class="n">0</td><td class="n">0</td></tr>
         <tr><td class="k">document.cookie</td><td class="n">0</td><td class="n">0</td><td class="n">0</td></tr>
         <tr><td class="k">indexedDB</td><td class="n">0</td><td class="n">0</td><td class="n">0</td></tr>
-        <tr><td class="k">Quelldateien in <code>src/</code></td><td class="n">2</td><td class="n">10</td><td class="n">3</td></tr>
+        <tr><td class="k">Quelldateien in <code>src/</code></td><td class="n">2</td><td class="n">10</td><td class="n">4</td></tr>
       </tbody>
     </table></div>
-    <p class="muted" style="font-size:13.5px;">* Der eine Treffer in dataKitchenGantt ist ein Kommentar (<code>gantt.ts</code>, Zeile 20: „Rendering per DOM-Knoten (textContent, kein innerHTML)“), kein Aufruf. Weitere Muster ohne Treffer in allen drei Quellbäumen: <code>importScripts</code>, <code>window.open</code>, <code>postMessage</code>, <code>createObjectURL</code>, <code>new Worker</code>, <code>iframe</code>, <code>DOMParser</code>, <code>document.write</code>, <code>insertAdjacentHTML</code>, <code>outerHTML</code>, <code>navigator.</code>, <code>FontFace</code>. Dieselben zwölf Muster (bei <code>&lt;script</code> ohne das Attribut „src“) ergeben auch im <strong>gebauten Paket</strong> (<code>.pbiviz</code>, Stand der drei Dateien im Repository vom 23.10.2026; P&amp;L: siehe nächster Absatz) 0 Treffer; die einzigen URLs im Bundle sind der SVG-Namensraum <code>http://www.w3.org/2000/svg</code>, die Dokumentations-Adressen unserer Website (ChartKitchen, P&amp;L) und die Support-Links in den Metadaten.</p>
+    <p class="muted" style="font-size:13.5px;">* Der eine Treffer in dataKitchenGantt ist ein Kommentar (<code>gantt.ts</code>, Zeile 20: „Rendering per DOM-Knoten (textContent, kein innerHTML)“), kein Aufruf. Weitere Muster ohne Treffer in allen drei Quellbäumen: <code>importScripts</code>, <code>window.open</code>, <code>postMessage</code>, <code>createObjectURL</code>, <code>new Worker</code>, <code>iframe</code>, <code>DOMParser</code>, <code>document.write</code>, <code>insertAdjacentHTML</code>, <code>outerHTML</code>, <code>navigator.</code>, <code>FontFace</code>. Dieselben zwölf Muster (bei <code>&lt;script</code> ohne das Attribut „src“) ergeben auch im <strong>gebauten Paket</strong> (<code>.pbiviz</code>, Versionen und Prüfsummen im nächsten Absatz) 0 Treffer; die einzigen URLs im Bundle sind der SVG-Namensraum <code>http://www.w3.org/2000/svg</code>, die Dokumentations-Adressen unserer Website (ChartKitchen, P&amp;L) und die Support-Links in den Metadaten.</p>
 
-    <p class="muted" style="font-size:13.5px;"><strong>P&amp;L Statement 1.8.2.0, Prüfung vom 22.11.2026:</strong> Paket <code>pnlByDatenWG3F9A7D2C51E64B08A1C4E7F0B92D6358.1.8.2.0.pbiviz</code>, SHA-256 <code>df4fef6e2bf552b60c8e96e64e03ee5a118f85eb182167b26af1dcb6d623d1a7</code>. Die Trefferzahlen oben gelten für den Quellstand dieser Version (zehn Dateien in <code>src/</code>). Im entpackten Bundle: keine Netzwerk-API, kein <code>eval</code>/<code>new Function</code>, kein <code>innerHTML</code>, <code>privileges</code> und <code>externalJS</code> leer; einzige URLs im Code sind der SVG-Namensraum und die zwei Doku-Adressen, dazu stehen zwei Support-Links (GitHub) in den Metadaten. Das gepackte Bundle lief in einem Browser ohne Netzwerk durch 98 Testfälle (Tabelle, Mega-Tabelle, Treiberbaum, Sankey, Kacheln, Kreuz-Hervorhebung, Start-Hub, Hochkontrast, leere Daten) mit 518 Bedienklicks: 0 Netzwerkversuche, 0 Konsolenfehler; „Doku öffnen“ rief nur die zwei festen Adressen auf. Die Laufzeit-Abhängigkeiten haben laut <code>npm audit</code> keine bekannte Schwachstelle. Ergebnis: keine Auffälligkeiten mit diesen Methoden. Das ist eine Prüfhilfe, keine Zertifizierung.</p>
+    <p class="muted" style="font-size:13.5px;"><strong>Prüfung vom 23.11.2026 (ChartKitchen 1.57.0.0, P&amp;L Statement 1.8.3.0, dataKitchenGantt 2.3.1.0):</strong> Pakete und SHA-256: <code>chartKitchenByDatenWGD9DE0F7AD44D41058672C6FBF6F5A18D.1.57.0.0.pbiviz</code> <code>191f3953cf87234f52a0da0088c71b4feac80df9a8e9c337e83c7639e366c345</code> (identisch mit dem Download <code>chartkitchen-byDatenWG-latest.pbiviz</code>), <code>pnlByDatenWG3F9A7D2C51E64B08A1C4E7F0B92D6358.1.8.3.0.pbiviz</code> <code>602eb476a82dd298ade42e894d5b13c84714fafc1cbf129a4d4577b67ca303ff</code>, <code>dataKitchenGanttD7C41F0A93E24B6BA1F3C5E8A20D9B44.2.3.1.0.pbiviz</code> <code>18b00775900892b95dc7feecafc1e39891b67df86f9c297f40393f9f42a1df81</code>. Die Trefferzahlen oben gelten für den Quellstand dieser Versionen. Im entpackten Bundle: 0 Treffer der zwölf Muster, <code>privileges</code> und <code>externalJS</code> leer, im Stylesheet kein <code>url()</code>, kein <code>@import</code> und kein <code>@font-face</code>; einzige URLs im Code sind der SVG-Namensraum und bei ChartKitchen und P&amp;L Statement je die zwei Doku-Adressen. Den Browser-Lauf ohne Netzwerk (nächster Absatz) haben wir für diese Versionen nicht wiederholt. Das ist eine Prüfhilfe, keine Zertifizierung.</p>
+
+    <p class="muted" style="font-size:13.5px;"><strong>Browser-Lauf für P&amp;L Statement 1.8.2.0, Prüfung vom 22.11.2026:</strong> Paket <code>pnlByDatenWG3F9A7D2C51E64B08A1C4E7F0B92D6358.1.8.2.0.pbiviz</code>, SHA-256 <code>df4fef6e2bf552b60c8e96e64e03ee5a118f85eb182167b26af1dcb6d623d1a7</code>. Die Trefferzahlen oben galten auch für den Quellstand dieser Version (zehn Dateien in <code>src/</code>). Im entpackten Bundle: keine Netzwerk-API, kein <code>eval</code>/<code>new Function</code>, kein <code>innerHTML</code>, <code>privileges</code> und <code>externalJS</code> leer; einzige URLs im Code sind der SVG-Namensraum und die zwei Doku-Adressen, dazu stehen zwei Support-Links (GitHub) in den Metadaten. Das gepackte Bundle lief in einem Browser ohne Netzwerk durch 98 Testfälle (Tabelle, Mega-Tabelle, Treiberbaum, Sankey, Kacheln, Kreuz-Hervorhebung, Start-Hub, Hochkontrast, leere Daten) mit 518 Bedienklicks: 0 Netzwerkversuche, 0 Konsolenfehler; „Doku öffnen“ rief nur die zwei festen Adressen auf. Die Laufzeit-Abhängigkeiten haben laut <code>npm audit</code> keine bekannte Schwachstelle. Ergebnis: keine Auffälligkeiten mit diesen Methoden. Das ist eine Prüfhilfe, keine Zertifizierung.</p>
 
     <h3>Die eine Ausnahme: „Doku öffnen“</h3>
     <p>ChartKitchen (<code>visual.ts</code>, Start-Hub) und P&amp;L Statement (<code>visual.ts</code>/<code>hub.ts</code>, nur im Bearbeitungsmodus) rufen auf einen Klick auf „Doku öffnen“ <code>host.launchUrl(…)</code> auf. Die Adresse ist eine feste Konstante (<code>datenwgknowledgekitchen.com/chartkitchen-doku.html</code> bzw. <code>pnl-doku.html</code>, je nach Locale mit <code>_en</code>); Daten werden nicht angehängt. Power BI öffnet die Seite in einem neuen Browser-Tab — das Visual selbst sendet nichts. <code>launchUrl</code> benötigt keine Berechtigung in <code>privileges</code> (<a class="inl" href="https://learn.microsoft.com/power-bi/developer/visuals/launch-url" target="_blank" rel="noopener">Microsoft: Launch URL</a>). dataKitchenGantt hat keinen solchen Knopf.</p>
@@ -343,13 +345,13 @@ npx pbiviz package</pre></div>
     <ul class="plain">
       <li><strong>Kontakt:</strong> Michael Tenner, Daten-WG · <a class="inl" href="mailto:michael.tenner84@gmail.com?subject=Sicherheitsfrage%20byDatenWG-Visuals">michael.tenner84@gmail.com</a>. Auch für Sicherheitsfunde und für Fragen des Datenschutzbeauftragten.</li>
       <li><strong>Fehler und Wünsche:</strong> Issues im <a class="inl" href="https://github.com/Losveratos/PowerBI-Kitchen-/issues" target="_blank" rel="noopener">Repository</a>.</li>
-      <li><strong>Stand dieser Seite:</strong> 23.10.2026, Angaben zum P&amp;L Statement vom 22.11.2026 · ChartKitchen 1.53.0.0 · P&amp;L Statement 1.8.2.0 · dataKitchenGantt 1.15.0.0. Neuere Releases tragen höhere Versionsnummern; prüfen Sie jede Datei nach Abschnitt 07.</li>
+      <li><strong>Stand dieser Seite:</strong> 23.11.2026 für Versionen und Paketprüfung, die übrigen Angaben vom 23.10.2026 · ChartKitchen 1.57.0.0 · P&amp;L Statement 1.8.3.0 · dataKitchenGantt 2.3.1.0. Neuere Releases tragen höhere Versionsnummern; prüfen Sie jede Datei nach Abschnitt 07.</li>
       <li><strong>Gewährleistung:</strong> Die Visuals werden ohne Gewähr bereitgestellt (Lizenztexte im Repository). Diese Seite ist keine Zusicherung im Rechtssinn, sondern eine Prüfhilfe.</li>
     </ul>
   </section>
 
   <footer class="foot">
-    <strong>Sicherheit &amp; Betrieb · byDatenWG-Visuals</strong> · Stand 23.10.2026<br>
+    <strong>Sicherheit &amp; Betrieb · byDatenWG-Visuals</strong> · Stand 23.11.2026<br>
     Dokumentation: <a href="chartkitchen-doku.html">ChartKitchen</a> · <a href="pnl-doku.html">P&amp;L Statement</a> · Schnellstart: <a href="chartkitchen-schnellstart.html">ChartKitchen</a> · <a href="pnl-schnellstart.html">P&amp;L</a><br>
     Kontakt: Michael Tenner · <a href="mailto:michael.tenner84@gmail.com">michael.tenner84@gmail.com</a><br>
     <a href="md/visuals-sicherheit.md">📄 Diese Seite als Markdown</a>

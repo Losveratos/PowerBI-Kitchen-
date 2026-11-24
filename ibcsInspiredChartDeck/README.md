@@ -14,6 +14,20 @@ in **einem** Visual löst:
 > DAX-Fallen, komplette Property-Referenz fürs PBIR-Authoring (inkl.
 > persistierter Zustände), Modus-Matrix und bekannte Stolperfallen.
 
+## Stand 1.57.0.0 (live seit 23.11.2026)
+
+- **25 Vorlagen C01 bis C25** (ohne C11) im Start-Hub, nach Zweck gruppiert. Damit lassen sich alle 62
+  Referenzblätter der IBCS-Vorlagen nachbauen; Abweichungen vom Blatt stehen in der Doku.
+- **Neu in 1.56:** Stapel-Blöcke mit Zwischensummen, gestapelte Fläche (C07), kumulierte Linie mit R12,
+  Monatssäulen und Abstandsmarkern (C21), Serienlinien mit Index (C22), nur Abweichungs-Panel in Small
+  Multiples, Bestand und Fluss mit Aggregation über die Zeit und YTD.
+- **Neu in 1.57:** Scatter-Zeitpfad mit Quotenstrahlen (C23), Blasen mit Kreissegment und Gesamtblase
+  (C24, neue Rolle „Blasenanteil“), Marimekko mit Zeilendicke nach Summe (C25), große Kachel nach
+  Gruppenname und feste Spaltenzahl in Small Multiples, kein Zoom-Knopf in nicht interaktiver Ausgabe.
+- **21 Feldrollen**, 14 Chart-Modi, vier Sprachen (de · en · es · ja).
+- Vollständige Liste: [CHANGELOG.md](CHANGELOG.md), Property-Namen: [AGENT-GUIDE.md](AGENT-GUIDE.md)
+  („Neu in 1.56“, „Neu in 1.57“), Bedienung: [Doku](../chartkitchen-doku.html).
+
 ## Features
 
 - **Szenario-Notation nach IBCS**
@@ -145,7 +159,11 @@ in **einem** Visual löst:
   „Rest (k)"-Kachel aggregiert), **Gesamt-Kachel (Σ)** — „Σ Gesamt" als
   erste Kachel, Summe über alle Gruppen auf derselben Skala — und
   **Erste Kachel groß** (IBCS CT 13): die erste Kachel bekommt volle Höhe
-  links, der Rest rückt als Raster daneben, Skala bleibt identisch
+  links, der Rest rückt als Raster daneben, Skala bleibt identisch. Seit 1.57
+  dazu **Große Kachel (Gruppenname)**: eine beliebige Kachel bleibt an ihrem
+  Platz und reicht über zwei Zeilen (Balken: zwei Spalten), alle Kacheln mit
+  denselben Pixeln je Einheit, und **Spalten** für eine feste Spaltenzahl des
+  Rasters (mindestens 110 px je Kachel)
 - **Varianz-Stufen am Wasserfall** (IBCS CT 12): mit PY/PL am Waterfall
   erscheinen ΔBasis-Balken und ΔBasis-%-Pins je Rechenzeile über der
   Brücke, mit korrekter Referenzachsen-Notation und Farbe nach Wirkung
@@ -179,7 +197,8 @@ in **einem** Visual löst:
 
 ## Installation in Power BI
 
-1. Fertiges Paket: [`dist/`](dist/) (`ibcsInspiredChartDeck….pbiviz`)
+1. Fertiges Paket: [`dist/`](dist/) (`chartKitchenByDatenWG….pbiviz`, derzeit 1.57.0.0) oder der stabile Download
+   [`chartkitchen-byDatenWG-latest.pbiviz`](../downloads/chartkitchen-byDatenWG-latest.pbiviz)
 2. In Power BI Desktop: **Visualisierungen → ⋯ → Visual aus Datei importieren**
    und die `.pbiviz`-Datei auswählen.
 3. Felder zuordnen:

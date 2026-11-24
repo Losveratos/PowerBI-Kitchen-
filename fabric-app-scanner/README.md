@@ -15,6 +15,11 @@ als Bericht in Klartext:
 fabscan liest nur, führt nichts aus und braucht keine Verbindung zu Fabric. Es läuft mit Python ab 3.10 und hat
 keine weiteren Abhängigkeiten.
 
+**Stand 0.6.1** (23.11.2026): Abruf auch ohne Admin-Rechte, Workspace Monitoring über das Monitoring-Item, Lauf über
+den ganzen Tenant, Ausnahmen mit Begründung, Abdeckung im Bericht und weniger Fehlalarme. Was sich je Version
+geändert hat, steht in [UEBERGABE-0.4.md](UEBERGABE-0.4.md); Recherche und Roadmap liegen unter
+[recherche/](recherche/00-ueberblick.md).
+
 ## Drei Wege, es zu nutzen
 
 ### 1 · In Claude (am einfachsten)
