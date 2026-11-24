@@ -13719,6 +13719,43 @@ export class Visual implements IVisual {
         return { name, pts };
     }
 
+    /** 1.58 KPI cards: does the NUMBER part of a label read zero ("0", "0,0M€",
+     *  "(0,0 %)", finance "–")? Only the first run of digits counts, so a digit in
+     *  a unit ("+0 tCO2", "m2") does not hide a zero. */
+    private static zeroText(t: string): boolean {
+        const num = /\d(?:[\d.,'   ]*\d)?/.exec(t);
+        return !num || !/[1-9]/.test(num[0]);
+    }
+
+    /** 1.58 KPI cards: a number that is not zero but rounds to zero prints without
+     *  a sign, always (decision of the author, no option): "+0,0" → "0,0",
+     *  "(0,0M€)" → "0,0M€". Only the cards: the Δ labels of the charts keep their
+     *  signed zero (fmtSigned, convention 1.52.2). */
+    private static unsignZero(t: string): string {
+        return Visual.zeroText(t) ? t.replace(/^[+−-]/, "").replace(/^\((.*)\)$/, "$1") : t;
+    }
+
+    /** Δ text of a KPI card (fmtSigned), a rounded zero without sign */
+    private cardSigned(fmt: IValueFormatter, v: number): string {
+        return Visual.unsignZero(this.fmtSigned(fmt, v));
+    }
+
+    /** Δ% text of a KPI card (fmtPercent), a rounded zero without sign */
+    private cardPercent(v: number): string {
+        return Visual.unsignZero(this.fmtPercent(v));
+    }
+
+    /** 1.58: KPI-card value with the typographic minus (U+2212) like the Δ rows —
+     *  the host formatter writes "-". Only for a negative value and only the sign
+     *  itself: a hyphen at the very start ("-4,2M€", "-Non-GAAP 300") or right before
+     *  the digits behind a currency sign ("€ -4,2"). Hyphens in text prefixes and
+     *  units stay ("Non-GAAP 1.200"). */
+    private cardMinus(t: string, v: number): string {
+        if (!(v < 0)) { return t; }
+        if (t.charAt(0) === "-") { return "−" + t.slice(1); }
+        return t.replace(/^(\s*\p{Sc}\s*)-(?=\d)/u, "$1−");
+    }
+
     /**
      * KPI cards: one tile per category with the KPI-card layout — big value, mini
      * bridge basis → Δ → AC in IBCS notation, and Δ reference rows. Two layouts:
@@ -13828,10 +13865,196 @@ export class Visual implements IVisual {
             return this.digitCap ? capDecimals((unitValMax.get(fp.unit) ?? 0) / fp.unit, fp.prec) : fp.prec;
         };
 
+        // wired to the pane: data-label size drives value/Δ rows, category-axis
+        // size drives the card title (both already include the font preset)
+        const pad = Math.round(10 * k) + Math.round(5 * k);
+        const titleF = Math.max(9, cfg.catFont);
+        const valueF = Math.round(cfg.labelFont * 1.9);
+        const refF = Math.max(9, Math.round(cfg.labelFont * 0.95));
+        const legRoom = Math.round(11 * k);
+        // 1.58 row of a card: "delta" = Δ row ("ΔPY +1,2 · +3,4 %"), "plain" = reference
+        // VALUE row ("PY 45.200"), "na" = the card lacks this basis ("PY n.a."), "blank" =
+        // empty slot that keeps the row grid of the neighbouring cards
+        type CardRow = { lbl: string; v: number; rel: number | null | "na"; kind: "delta" | "plain" | "na" | "blank" };
+        // 1.58: texts and rows of every card in a first pass, so that the flat layout
+        // can put the Δ block of all cards at ONE relative x (before: behind each
+        // card's own title and value width, the card row looked frayed)
+        const cardModel = (p: DataPoint) => {
+            // status source: the variance basis (ΔPL/ΔPY) or the bound benchmark —
+            // monitoring mode judges AC against BM (target/threshold measure)
+            const bmV = (p.bm != null && p.value != null) ? (p.value as number) - p.bm : null;
+            // Δ% vs. BM: "n.a." at a zero benchmark or a sign change (UN 4.1)
+            const bmRel: number | null | "na" = bmV == null ? null
+                : relVar(bmV, p.bm) ?? (relIsNa(bmV, p.bm) ? "na" : null);
+            // per-card formatters: KPI tiles often mix magnitudes (revenue vs. units),
+            // so auto display units scale per card instead of across the whole deck
+            // — but value and Δ rows of ONE card share that unit (S13)
+            const pInt = [p.value, p.py, p.pl, p.fc].every(v => v == null || Number.isInteger(v));
+            const magP = Math.max(
+                Math.abs(p.value ?? 0), Math.abs(p.basis ?? 0), Math.abs(p.py ?? 0), Math.abs(p.pl ?? 0));
+            const magVarP = Math.max(
+                Math.abs(p.varAbs ?? 0), Math.abs(p.var2Abs ?? 0), Math.abs(bmV ?? 0));
+            const uP = unitOfCard(p);
+            const precP = cardPrec(p);
+            const fmtP = this.buildFormatter(uP.unit, precP);
+            const fmtVarP = this.unitSuffixOn
+                ? this.makeVarFormatter(magP, magVarP, pInt, undefined, precP, true)
+                : this.makeVarFormatter(deckMag, deckMag, deckInt, undefined, precP, true);
+            // 1.58: values with the typographic minus, like the Δ rows
+            const fmtV = (v: number) => this.cardMinus(fmtP.format(v), v);
+            const absText = (v: number) => this.cardSigned(fmtVarP, v);
+            // vRel "na": the basis is ≤ 0 — the row says so instead of a bogus percentage
+            const refText = (vAbs: number, vRel: number | null | "na") =>
+                `${absText(vAbs)}${vRel === "na" ? ` · ${REL_NA}`
+                    : vRel != null ? ` · ${this.cardPercent(vRel)}` : ""}`;
+            // 1.58: neutral (grey, ● icon, grey stripe) only when everything visible
+            // reads zero: the Δ AND its Δ% (missing, n.a. or zero as well). A Δ that
+            // rounds to zero beside a real Δ% ("0,0M€ · +10,0 %") keeps its color
+            const readsZero = (vAbs: number, vRel: number | null | "na") => vAbs === 0
+                || (Visual.zeroText(absText(vAbs))
+                    && (vRel == null || vRel === "na" || Visual.zeroText(this.cardPercent(vRel))));
+
+            // Δ rows: variance basis, second basis, benchmark — keyed by label
+            const deltas = new Map<string, CardRow>();
+            if (p.varAbs != null) {
+                deltas.set(cfg.basisLabel, { lbl: cfg.basisLabel, v: p.varAbs,
+                    rel: p.varRel ?? (this.relNa(p) ? "na" : null), kind: "delta" });
+            }
+            if (p.var2Abs != null) {
+                deltas.set(cfg.basis2Label, { lbl: cfg.basis2Label, v: p.var2Abs,
+                    rel: p.var2Rel ?? (this.relNa(p, true) ? "na" : null), kind: "delta" });
+            }
+            if (bmV != null) { deltas.set("BM", { lbl: "BM", v: bmV, rel: bmRel, kind: "delta" }); }
+            // reference VALUES ahead of the variances (beta wish): a card that only
+            // ever showed "ΔPY −1.200" now also states what PY actually was. "basis"
+            // adds the comparison basis alone, "all" every other bound scenario.
+            const vals = new Map<string, CardRow>();
+            const addVal = (lbl: string, v: number | null) => {
+                if (v != null && !vals.has(lbl)) { vals.set(lbl, { lbl, v, rel: null, kind: "plain" }); }
+            };
+            if (cfg.cardRefVals === "basis") {
+                addVal(cfg.basisLabel, p.basis);
+            } else if (cfg.cardRefVals !== "off") {
+                addVal(cfg.scenL.py, p.py);
+                addVal(cfg.scenL.pl, p.pl);
+                // a pure FC period already shows the FC as the big number
+                if (!p.isFc) { addVal(cfg.scenL.fc, p.fc); }
+                addVal("BM", p.bm);
+            }
+            return { fmtV, refText, readsZero, deltas, vals, rows: [] as CardRow[],
+                valueText: fmtV(p.value as number) };
+        };
+        type CardModel = ReturnType<typeof cardModel>;
+        const models = pts.map(cardModel);
+        // 1.58: ONE row grid for the deck — the slots any card has, in a fixed order
+        // (values first; in benchmark-status mode the BM row leads, it carries the
+        // judgement). A card that lacks a basis names it: "PY n.a." in its value row
+        // when reference values are shown, else in the Δ slot (before: the row was
+        // missing, a card without comparison showed title and value only)
+        const valOrder = cfg.cardRefVals === "basis" ? [cfg.basisLabel]
+            : cfg.cardRefVals !== "off" ? [cfg.scenL.py, cfg.scenL.pl, cfg.scenL.fc, "BM"] : [];
+        const deltaOrder = cfg.cardBasis === "benchmark"
+            ? ["BM", cfg.basisLabel, cfg.basis2Label] : [cfg.basisLabel, cfg.basis2Label, "BM"];
+        const valKeys = valOrder.filter((l, j) => valOrder.indexOf(l) === j && models.some(m => m.vals.has(l)));
+        const deltaKeys = deltaOrder.filter((l, j) => deltaOrder.indexOf(l) === j && models.some(m => m.deltas.has(l)));
+        const blankRow = (lbl: string): CardRow => ({ lbl, v: 0, rel: null, kind: "blank" });
+        const naRow = (lbl: string): CardRow => ({ lbl, v: 0, rel: null, kind: "na" });
+        models.forEach((m, j) => {
+            for (const l of valKeys) {
+                // a pure FC period shows the FC as its big number: no "FC n.a."
+                m.rows.push(m.vals.get(l) ?? (l === cfg.scenL.fc && pts[j].isFc ? blankRow(l) : naRow(l)));
+            }
+            for (const l of deltaKeys) {
+                const named = m.rows.some(r => r.kind === "na" && r.lbl === l);
+                m.rows.push(m.deltas.get(l) ?? (named ? blankRow(l) : naRow(l)));
+            }
+        });
+        // value column starts past the widest actual row label ("ΔFC Vm" is wider than
+        // the old fixed 2.6-char slot) so the value never overpaints the label.
+        // 1.58: one width for all cards, so the Δ values line up across the row
+        const refLabelW = Math.max(refF * 2.6, this.maxTextWidth(models.flatMap(m => m.rows
+            .filter(r => r.kind !== "blank").map(r => r.kind === "delta" ? `Δ${r.lbl}` : r.lbl)), refF) + refF * 0.6);
+        // width of one row's value text as drawn (bold Δ, optional ▲ icon)
+        const rowTextW = (m: CardModel, r: CardRow) => r.kind === "blank" ? 0
+            : r.kind === "na" ? this.textWidth(REL_NA, refF)
+            : r.kind === "plain" ? this.textWidth(m.fmtV(r.v), refF)
+            : this.textWidth((cfg.deltaIcons ? "▲ " : "") + m.refText(r.v, r.rel), refF, true);
+
+        // flat layout: wide + short tile → Δ rows and bridge move to the right
+        const cardW = cw - gap, cardH = ch - gap;
+        const flat = cardH < 118 * k && cardW >= 250 * k;
+        // trend chart active: it takes the mini bridge's place (bullet independent);
+        // cards without a series simply keep the area empty
+        const trendOn = cfg.cardTrend !== "off";
+        const flatRows = (m: CardModel) => m.rows.slice(0, m.rows.length >= 2 && cardH >= 52 * k ? 2 : 1);
+        const drawn = (rs: CardRow[]) => rs.some(r => r.kind !== "blank");
+        // 1.58: the chip cluster (sort chip, ⚠ exception chip) sits over the top-right
+        // card; measured up front so a moved Δ block keeps clear of it
+        const chipTop = region.y + Math.round(8 * k) - 2;
+        const chipRight0 = Math.min(region.x + region.w, this.ctlRight) - Math.round(8 * k);
+        const chipFont = Math.round(11 * k);
+        const sortChipOn = this.allowInteractions && region.w >= 220 * k;
+        const sortChipLabels: { [key: string]: string } = {
+            none: this.locStr("Chip_SortNone", "↕ Sort"),
+            deviation: this.locStr("Chip_SortDev", "↕ |Δ|"),
+            worst: this.locStr("Chip_SortWorst", "↓ Worst"),
+            best: this.locStr("Chip_SortBest", "↑ Best")
+        };
+        const sortChipLabel = sortChipLabels[cfg.cardSort === "" ? "none" : cfg.cardSort] ?? sortChipLabels["none"];
+        const sortChipW = sortChipOn ? this.textWidth(sortChipLabel, chipFont) + Math.round(16 * k) : 0;
+        const excChipW = this.allowInteractions && this.exceptionCapable
+            ? this.textWidth(this.exceptionOn ? this.locStr("Chip_ExceptionOn", "⚠ Exceptions")
+                : this.locStr("Chip_ExceptionOff", "⚠ All"), chipFont) + Math.round(16 * k) : 0;
+        const chipLeft = sortChipW + excChipW > 0
+            ? chipRight0 - (sortChipW > 0 ? sortChipW + Math.round(6 * k) : 0) - excChipW : Infinity;
+        // 1.58: ONE Δ column for the whole deck. The column before it holds the widest
+        // title (≤ 170 px·k) or value, but no more than lets every card's Δ block fit,
+        // and never less than the widest value (the value is not truncated, the title is)
+        const flatLay = !flat ? null : (() => {
+            const gapV = Math.round(20 * k);
+            const valueW = (j: number) => models[j].valueText.length * valueF * 0.58 + (pts[j].isFc ? 24 * k : 0);
+            // + a few px: the value column is an estimate (0.58 em per character)
+            const blockW = (m: CardModel) => {
+                const rs = flatRows(m);
+                return !drawn(rs) ? 0 : refLabelW + Math.max(...rs.map(r => rowTextW(m, r))) + Math.round(5 * k);
+            };
+            const need = Math.max(...pts.map((_, j) => valueW(j)));
+            const want = Math.max(need, ...pts.map(q => Math.min(this.maxTextWidth([q.cat], titleF), 170 * k)));
+            const withRows = models.filter(m => drawn(flatRows(m)));
+            const blockMax = Math.max(0, ...withRows.map(blockW));
+            const twoRows = withRows.some(m => flatRows(m).length === 2);
+            // 1.58: right end (relative to the card) the Δ block may reach in the cards
+            // under the chip cluster, when the chips sit at the height of the first row
+            let chipEnd = Infinity;
+            const rowTop = region.y + gap / 2 + 2 + cardH / 2 + (twoRows ? -Math.round(2 * k) : refF * 0.35) - refF;
+            if (chipTop + Math.round(18 * k) > rowTop - 2) {
+                for (let c = 0; c < Math.min(cols, pts.length); c++) {
+                    const cx = region.x + gap / 2 + c * cw + 2;
+                    if (cx + cardW > chipLeft) { chipEnd = Math.min(chipEnd, chipLeft - 4 - cx); }
+                }
+            }
+            const room = Math.min(chipEnd - blockMax - pad - gapV,
+                ...withRows.map(m => cardW - 2 * pad - gapV - blockW(m)));
+            const colW = Math.max(need, Math.min(want, room));
+            const base = pad + colW + gapV;
+            let refDx = base;
+            // 1.58 (test bench 6): nothing right of the Δ rows (no bridge, trend or
+            // bullet) → the block moves toward the card centre instead of leaving the
+            // right half empty. Capped: at most 120 px·k past the value column (one
+            // wide card must not tear value and Δ apart), never into the chip cluster
+            const rightFree = !trendOn && !(cfg.cardBars && pts.some(q => q.basis != null))
+                && !(cfg.cardBullet && pts.some(q => q.bm != null));
+            if (rightFree) {
+                refDx = Math.max(base, Math.min(cardW / 2, cardW - pad - blockMax, base + 120 * k, chipEnd - blockMax));
+            }
+            return { refDx, titleW: refDx - pad - gapV, blockMax, twoRows };
+        })();
+
         pts.forEach((p, i) => {
+            const m = models[i];
             const x = region.x + gap / 2 + (i % cols) * cw + 2;
             const y = region.y + gap / 2 + Math.floor(i / cols) * ch + 2;
-            const w = cw - gap, h = ch - gap;
+            const w = cardW, h = cardH;
             const g = this.el("g", { "class": "icd-cat" }, this.svg) as SVGGElement;
             const emph = cfg.highlight.has(p.cat.toLowerCase());
             this.el("rect", {
@@ -13840,16 +14063,10 @@ export class Visual implements IVisual {
                 stroke: emph ? cfg.ink : cfg.faint,
                 "stroke-width": emph ? 1.6 : 1
             }, g);
-            // status source: the variance basis (ΔPL/ΔPY) or the bound benchmark —
-            // monitoring mode judges AC against BM (target/threshold measure)
-            const bmV = (p.bm != null && p.value != null) ? (p.value as number) - p.bm : null;
-            // Δ% vs. BM: "n.a." at a zero benchmark or a sign change (UN 4.1)
-            const bmRel: number | null | "na" = bmV == null ? null
-                : relVar(bmV, p.bm) ?? (relIsNa(bmV, p.bm) ? "na" : null);
             const sv = statusDev(p);
-            // neutral: no status, immaterial, OR the highlight-status filter hides
-            // this direction (e.g. "only bad" leaves the good ones grey)
-            const neutral = sv.v == null || sv.v === 0 || !cfg.isMaterial(p, sv.v, sv.rel)
+            // neutral: no status, (rounded) zero, immaterial, OR the highlight-status
+            // filter hides this direction (e.g. "only bad" leaves the good ones grey)
+            const neutral = sv.v == null || m.readsZero(sv.v, sv.rel) || !cfg.isMaterial(p, sv.v, sv.rel)
                 || !hlShow(sv.v as number, p);
             // optional status tint over the whole card (light green/red, neutral stays
             // paper); suppressed in high-contrast mode where color must not carry meaning
@@ -13871,29 +14088,7 @@ export class Visual implements IVisual {
                 // 1.49 high contrast: the stripe carries the status as a pattern
                 ...(cfg.hc ? this.hcStatus(neutral ? "neutral" : good(sv.v as number, p) ? "good" : "bad", cfg) : {})
             }, g);
-
-            const pad = Math.round(10 * k) + Math.round(5 * k);
-            // wired to the pane: data-label size drives value/Δ rows, category-axis
-            // size drives the card title (both already include the font preset)
-            const titleF = Math.max(9, cfg.catFont);
-            const valueF = Math.round(cfg.labelFont * 1.9);
-            const refF = Math.max(9, Math.round(cfg.labelFont * 0.95));
-            const legRoom = Math.round(11 * k);
-            // per-card formatters: KPI tiles often mix magnitudes (revenue vs. units),
-            // so auto display units scale per card instead of across the whole deck
-            // — but value and Δ rows of ONE card share that unit (S13)
-            const pInt = [p.value, p.py, p.pl, p.fc].every(v => v == null || Number.isInteger(v));
-            const magP = Math.max(
-                Math.abs(p.value ?? 0), Math.abs(p.basis ?? 0), Math.abs(p.py ?? 0), Math.abs(p.pl ?? 0));
-            const magVarP = Math.max(
-                Math.abs(p.varAbs ?? 0), Math.abs(p.var2Abs ?? 0), Math.abs(bmV ?? 0));
-            const uP = unitOfCard(p);
-            const precP = cardPrec(p);
-            const fmtP = this.buildFormatter(uP.unit, precP);
-            const fmtVarP = this.unitSuffixOn
-                ? this.makeVarFormatter(magP, magVarP, pInt, undefined, precP, true)
-                : this.makeVarFormatter(deckMag, deckMag, deckInt, undefined, precP, true);
-            const valueText = fmtP.format(p.value as number);
+            const valueText = m.valueText;
 
             const txt = (tx: number, ty: number, text: string, font: number, bold: boolean,
                 color: string, anchor = "start") => {
@@ -13912,32 +14107,33 @@ export class Visual implements IVisual {
                     txt(x + pad + vw + 6 * k, tyValue, "FC", Math.round(9 * k), true, cfg.subtle);
                 }
             };
-            // vRel "na": the basis is ≤ 0 — the row says so instead of a bogus percentage
-            const refText = (vAbs: number, vRel: number | null | "na") =>
-                `${this.fmtSigned(fmtVarP, vAbs)}${vRel === "na" ? ` · ${REL_NA}`
-                    : vRel != null ? ` · ${this.fmtPercent(vRel)}` : ""}`;
-            // value column starts past the widest actual row label ("ΔFC Vm" is wider than
-            // the old fixed 2.6-char slot) so the value never overpaints the label
-            let refLabelW = refF * 2.6;
             // plain = a reference VALUE row ("PY  45.200") instead of a variance row
             // ("ΔPY  −1.200 · −2,6 %"): no Δ prefix, no status color, not bold — the
-            // variance keeps the visual weight
-            const refRowAt = (tx: number, ty: number, label: string,
-                vAbs: number | null, vRelCell: number | null | "na", plain = false) => {
-                if (vAbs == null) { return; }
-                const vRel = vRelCell === "na" ? null : vRelCell;
-                if (plain) {
-                    txt(tx, ty, label, refF, false, cfg.subtle);
-                    txt(tx + refLabelW, ty, fmtP.format(vAbs), refF, false, cfg.ink);
+            // variance keeps the visual weight. 1.58: "na" names a missing basis in
+            // grey ("PY  n.a."), "blank" keeps the slot empty
+            const refRowAt = (tx: number, ty: number, r: CardRow) => {
+                if (r.kind === "blank") { return; }
+                if (r.kind === "na") {
+                    txt(tx, ty, r.lbl, refF, false, cfg.subtle);
+                    txt(tx + refLabelW, ty, REL_NA, refF, false, cfg.subtle);
                     return;
                 }
-                const col = (vAbs === 0 || !cfg.isMaterial(p, vAbs, vRel) || !hlShow(vAbs, p))
-                    ? cfg.subtle : (good(vAbs, p) ? cfg.colors.good : cfg.colors.bad);
+                if (r.kind === "plain") {
+                    txt(tx, ty, r.lbl, refF, false, cfg.subtle);
+                    txt(tx + refLabelW, ty, m.fmtV(r.v), refF, false, cfg.ink);
+                    return;
+                }
+                const vRel = r.rel === "na" ? null : r.rel;
+                // color and icon from the unrounded Δ (materiality, highlight filter);
+                // neutral only when the whole row reads zero
+                const zero = m.readsZero(r.v, r.rel);
+                const col = (zero || !cfg.isMaterial(p, r.v, vRel) || !hlShow(r.v, p))
+                    ? cfg.subtle : (good(r.v, p) ? cfg.colors.good : cfg.colors.bad);
                 const icon = !cfg.deltaIcons ? ""
-                    : (vAbs === 0 || !cfg.isMaterial(p, vAbs, vRel)) ? "● "
-                    : vAbs > 0 ? "▲ " : "▼ ";
-                txt(tx, ty, `Δ${label}`, refF, false, cfg.subtle);
-                txt(tx + refLabelW, ty, icon + refText(vAbs, vRelCell), refF, true, col);
+                    : (zero || !cfg.isMaterial(p, r.v, vRel)) ? "● "
+                    : r.v > 0 ? "▲ " : "▼ ";
+                txt(tx, ty, `Δ${r.lbl}`, refF, false, cfg.subtle);
+                txt(tx + refLabelW, ty, icon + m.refText(r.v, r.rel), refF, true, col);
             };
             // mini bridge basis → Δ → AC in IBCS notation; byBottom is the axis line
             const drawBridge = (bx: number, byBottom: number, bw2: number, bridgeH: number) => {
@@ -14089,7 +14285,7 @@ export class Visual implements IVisual {
                 // continues to the right — room reserved on top instead)
                 const lblF = Math.max(8, Math.round(cfg.labelFont * 0.85));
                 const refPt = ref >= 0 ? ser[ref] : null;
-                const lastText = refPt && refPt.value != null ? fmtP.format(refPt.value) : "";
+                const lastText = refPt && refPt.value != null ? m.fmtV(refPt.value) : "";
                 const atEnd = ref === nT - 1;
                 let lblW = 0, headroom = 0;
                 if (lastText && atEnd) {
@@ -14214,75 +14410,28 @@ export class Visual implements IVisual {
                     txt(bx + plotW, byBottom + legF + 2, cfg.trendLabels[nT - 1], legF, false, cfg.subtle, "end");
                 }
             };
-            // trend chart active: it takes the mini bridge's place (bullet independent);
-            // cards without a series (none here) simply keep the area empty
-            const trendOn = cfg.cardTrend !== "off";
-
-            // Δ reference rows: variance basis, second basis, benchmark — in
-            // benchmark-status mode the BM row leads (it carries the judgement)
-            const deltaRows: [string, number, number | null | "na", boolean][] = [];
-            if (p.varAbs != null) {
-                deltaRows.push([cfg.basisLabel, p.varAbs, p.varRel ?? (this.relNa(p) ? "na" : null), false]);
-            }
-            if (p.var2Abs != null) {
-                deltaRows.push([cfg.basis2Label, p.var2Abs, p.var2Rel ?? (this.relNa(p, true) ? "na" : null), false]);
-            }
-            if (bmV != null) {
-                if (cfg.cardBasis === "benchmark") { deltaRows.unshift(["BM", bmV, bmRel, false]); }
-                else { deltaRows.push(["BM", bmV, bmRel, false]); }
-            }
-            // reference VALUES ahead of the variances (beta wish): a card that only
-            // ever showed "ΔPY −1.200" now also states what PY actually was. "basis"
-            // adds the comparison basis alone, "all" every other bound scenario.
-            const valRows: [string, number, number | null | "na", boolean][] = [];
-            if (cfg.cardRefVals !== "off") {
-                const seen = new Set<string>();
-                const addVal = (lbl: string, v: number | null) => {
-                    if (v == null || seen.has(lbl)) { return; }
-                    seen.add(lbl);
-                    valRows.push([lbl, v, null, true]);
-                };
-                if (cfg.cardRefVals === "basis") {
-                    addVal(cfg.basisLabel, p.basis);
-                } else {
-                    addVal(cfg.scenL.py, p.py);
-                    addVal(cfg.scenL.pl, p.pl);
-                    // a pure FC period already shows the FC as the big number
-                    if (!p.isFc) { addVal(cfg.scenL.fc, p.fc); }
-                    addVal("BM", p.bm);
-                }
-            }
-            const refRows: [string, number, number | null | "na", boolean][] = [...valRows, ...deltaRows];
-            refLabelW = Math.max(refLabelW,
-                this.maxTextWidth(refRows.map(([lbl, , , plain]) => plain ? lbl : `Δ${lbl}`), refF)
-                + refF * 0.6);
-
-            // flat layout: wide + short tile → Δ rows and bridge move to the right
-            const flat = h < 118 * k && w >= 250 * k;
-            if (flat) {
+            const refRows = m.rows;
+            if (flatLay) {
                 const blockH = titleF + Math.round(4 * k) + valueF;
                 const top = y + Math.max(Math.round(6 * k), (h - blockH) / 2);
-                const valueW = valueText.length * valueF * 0.58 + (p.isFc ? 24 * k : 0);
-                const titleFull = this.maxTextWidth([p.cat], titleF);
-                const leftW = Math.max(valueW, Math.min(titleFull, 170 * k));
-                titleValue(top + titleF, top + titleF + Math.round(4 * k) + valueF, leftW);
+                titleValue(top + titleF, top + titleF + Math.round(4 * k) + valueF, flatLay.titleW);
 
-                let refX = x + pad + leftW + Math.round(20 * k);
-                let maxRefW = 0;
-                for (const [, va, vr, plain] of refRows) {
-                    maxRefW = Math.max(maxRefW,
-                        this.maxTextWidth([plain ? fmtP.format(va) : refText(va, vr)], refF));
-                }
-                const rowsShown = refRows.slice(0, refRows.length >= 2 && h >= 52 * k ? 2 : 1);
-                if (rowsShown.length > 0 && refX + refLabelW + maxRefW <= x + w - pad) {
+                // 1.58: the Δ block of every card starts at the same relative x
+                let refX = x + flatLay.refDx;
+                const rowsShown = flatRows(m);
+                const maxRefW = Math.max(0, ...rowsShown.map(r => rowTextW(m, r)));
+                if (drawn(rowsShown) && refX + refLabelW + maxRefW <= x + w - pad) {
                     const yMid = y + h / 2;
-                    if (rowsShown.length === 2) {
-                        refRowAt(refX, yMid - Math.round(2 * k), rowsShown[0][0], rowsShown[0][1], rowsShown[0][2], rowsShown[0][3]);
-                        refRowAt(refX, yMid + refF + Math.round(4 * k), rowsShown[1][0], rowsShown[1][1], rowsShown[1][2], rowsShown[1][3]);
+                    // 1.58: one row grid for the deck — as soon as one card shows two
+                    // rows, a single row sits on the baseline of the first of two
+                    // (before: centred, a few px lower than its neighbours)
+                    if (flatLay.twoRows) {
+                        rowsShown.forEach((r, j) => refRowAt(refX,
+                            j === 0 ? yMid - Math.round(2 * k) : yMid + refF + Math.round(4 * k), r));
                     } else {
-                        refRowAt(refX, yMid + refF * 0.35, rowsShown[0][0], rowsShown[0][1], rowsShown[0][2], rowsShown[0][3]);
+                        refRowAt(refX, yMid + refF * 0.35, rowsShown[0]);
                     }
-                    refX += refLabelW + maxRefW + Math.round(24 * k);
+                    refX += flatLay.blockMax + Math.round(24 * k);
                 }
                 // bullet next to the Δ rows when benchmark is bound
                 if (cfg.cardBullet && p.bm != null) {
@@ -14311,12 +14460,12 @@ export class Visual implements IVisual {
                 titleValue(yCur, yCur + valueF + Math.round(4 * k), w - pad * 2);
                 yCur += valueF + Math.round(4 * k) + refF + Math.round(9 * k);
                 if (refRows.length > 0 && yCur <= y + h - 4) {
-                    refRowAt(x + pad, yCur, refRows[0][0], refRows[0][1], refRows[0][2], refRows[0][3]);
+                    refRowAt(x + pad, yCur, refRows[0]);
                     yCur += refF + Math.round(5 * k);
                 }
-                for (const [rLbl, rVa, rVr, rPlain] of refRows.slice(1)) {
+                for (const row of refRows.slice(1)) {
                     if (h < 118 * k || yCur > y + h - 4) { break; }
-                    refRowAt(x + pad, yCur, rLbl, rVa, rVr, rPlain);
+                    refRowAt(x + pad, yCur, row);
                     yCur += refF + Math.round(5 * k);
                 }
                 // bullet under the value/Δ block when benchmark is bound
@@ -14354,8 +14503,7 @@ export class Visual implements IVisual {
         // top-right chip cluster of the tile: sort chip on the outside, ⚠ exception
         // chip to its left — both anchored on the same right edge so they never overlap.
         // Luft zum Kachelrand statt 2px Klebeabstand (Beta-Feedback A. Korn)
-        const chipTop = region.y + Math.round(8 * k) - 2;
-        let chipRight = Math.min(region.x + region.w, this.ctlRight) - Math.round(8 * k);
+        let chipRight = chipRight0;
         // in-chart sort chip (top-right of the region): cycles none → deviation →
         // worst → best; persists as an override of the pane dropdown, bookmarkable
         if (this.allowInteractions && region.w >= 220 * k) {
