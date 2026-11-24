@@ -4857,7 +4857,7 @@ const DETAILS = {
         <li><strong>Premium-Kapazität (P-SKUs) läuft aus</strong> — Microsoft verkauft keine neuen P-SKUs mehr; bestehende enden mit der jeweiligen Vertragslaufzeit. Danach: 30 Tage Kulanz, ab Tag 31 gedrosselt, ab Tag 91 blockiert. Workspaces werden nicht automatisch migriert — F-SKU kaufen, Workspaces zuweisen, dann P-SKU kündigen. Pro, PPU und Embedded-SKUs (A/EM) sind nicht betroffen. Zwei Ausnahmen nennt Microsoft Learn: Sovereign Clouds sind noch nicht betroffen, und Kunden mit laufendem Enterprise Agreement können bestehende P-SKUs bis zum Ende der EA-Laufzeit jährlich verlängern</li>
         <li><strong>F-SKUs werden in Azure gekauft</strong> — Pay-as-you-go oder günstiger per Reservierung, skalier- und pausierbar</li>
         <li><strong>Copilot</strong> im Bericht, in Desktop und in Fabric braucht eine bezahlte Kapazität ab F2 (oder P1) — Pro oder PPU allein reichen nicht (Details in Sektion 10). Ausnahme ist der neue Einstieg <em>Microsoft Copilot in Power BI und Fabric</em> (Vorschau, Stand November 2026): Er braucht laut Learn weder F-SKU noch Premium-Workspace, sein Funktionsumfang hängt von der Copilot-Lizenz ab</li>
-        <li><strong>Fabric Apps mit Pro</strong> — laut Microsoft Learn (Stand November 2026) dürfen Pro-Nutzer in Pro-Workspaces auch Fabric Apps (Daten-Apps, nicht zu verwechseln mit Workspace-Apps und Org-Apps) erstellen und teilen, die mit Semantikmodellen, Lakehouses, Warehouses und SQL-Datenbanken in Fabric verbunden sind, auch aus Power BI Desktop heraus. Die App-Datenbank ist eine PostgreSQL-Datenbank mit maximal 1 GB, geteilt wird nur mit angemeldeten Nutzern im selben Tenant. Das zugehörige Desktop-Erlebnis <em>Power BI Desktop for Apps</em> hat Microsoft im November 2026 als kommende Vorschau angekündigt</li>
+        <li><strong>Fabric Apps mit Pro</strong> — laut Microsoft Learn (Stand November 2026) dürfen Pro-Nutzer in Pro-Workspaces auch Fabric Apps (Daten-Apps, nicht zu verwechseln mit Workspace-Apps und Org-Apps) erstellen und teilen, die mit Semantikmodellen, Lakehouses, Warehouses und SQL-Datenbanken in Fabric verbunden sind, auch aus Power BI Desktop heraus. Die App-Datenbank ist eine PostgreSQL-Datenbank mit maximal 1 GB, geteilt wird nur mit angemeldeten Nutzern im selben Tenant. Das zugehörige Desktop-Erlebnis <em>Power BI Desktop for Apps</em> gibt es seit dem November-2026-Update als Vorschau (Voraussetzungen in Sektion 10 bei Microsoft Fabric)</li>
       </ul>
 
       <div class="example">
@@ -5565,7 +5565,7 @@ const DETAILS = {
 
       <h4>Was gehört in eine Dimension?</h4>
       <ul>
-        <li><strong>Primärschlüssel</strong> — eindeutig, idealerweise Integer (Surrogate Key)</li>
+        <li><strong>Primärschlüssel</strong> — eindeutig, idealerweise ein einspaltiger Surrogate Key</li>
         <li><strong>Business Key</strong> — der externe Schlüssel aus dem Quellsystem (ProduktID, KundenID, ...)</li>
         <li><strong>Beschreibende Attribute</strong> — Name, Kategorie, Adresse, alle textuellen Eigenschaften</li>
         <li><strong>Hierarchie-Ebenen</strong> — Kategorie &gt; Unterkategorie &gt; Produkt</li>
@@ -8490,7 +8490,7 @@ Umsatz GJ VJ  =
         <tr><td>Zugriff nur über die App</td><td>Nutzer mit App-Zugriff können enthaltene Items auch per Direktlink öffnen</td></tr>
       </table>
       <p>Org-Apps sind generally available und funktionieren auch in Pro-Workspaces; bestehende Workspace-Apps laufen unverändert weiter und werden nicht automatisch migriert.</p>
-      <p><strong>Neu im November 2026:</strong> Laut dem November-Update lassen sich Org-Apps, die vor Einführung der Audiences angelegt wurden, auf Audiences umstellen. Die Learn-Seite zu Org-Apps schreibt allerdings noch, Audiences gebe es nur in neuen Org-Apps; fehlt dir die Option, lege eine neue Org-App an. Je Org-App sind bis zu 25 Audiences möglich. Die Navigation ordnest du beim Bearbeiten per Drag-and-Drop. Angekündigt, aber noch im Rollout: Fabric Apps als weiterer Inhaltstyp in Org-Apps und eine neue Apps-Seite, die auch Fabric Apps zeigt. Ebenfalls neu: Eine ganze Workspace-App lässt sich samt Navigation in SharePoint Online einbetten; Berechtigungen und Audiences gelten dort weiter.</p>
+      <p><strong>Neu im November 2026:</strong> Laut dem November-Update lassen sich Org-Apps, die vor Einführung der Audiences angelegt wurden, auf Audiences umstellen. Die Learn-Seite zu Org-Apps schreibt allerdings noch, Audiences gebe es nur in neuen Org-Apps; fehlt dir die Option, lege eine neue Org-App an. Je Org-App sind bis zu 25 Audiences möglich. Die Navigation ordnest du beim Bearbeiten per Drag-and-Drop. Angekündigt, aber noch im Rollout: Fabric Apps als weiterer Inhaltstyp in Org-Apps und eine neue Apps-Seite, die auch Fabric Apps zeigt. Ebenfalls neu laut November-Update: Eine ganze Workspace-App lässt sich samt Navigation in SharePoint Online einbetten; Berechtigungen und Audiences gelten dort weiter. Die Learn-Seite zum Einbetten beschreibt das noch nicht (Stand 24.11.2026).</p>
 
       <figure>
         <img src="assets/learn/org-app-consumer-experience-view.png" alt="Org-App aus Sicht der Anwender mit Reitern für die Audiences All, Leadership und Sales team, linker Navigation und geöffneter Berichtsseite" loading="lazy">
@@ -8718,7 +8718,7 @@ Umsatz GJ VJ  =
         <li>Audiences für verschiedene Zielgruppen</li>
         <li>Konsumenten sehen "Production"-Stand (Workspace-App) bzw. den gespeicherten Stand (Org-App)</li>
         <li>Microsoft-Standard für die breite Verteilung im Unternehmen</li>
-        <li>Seit November 2026 lässt sich eine ganze Workspace-App mit Navigation in SharePoint Online einbetten</li>
+        <li>Laut November-Update 2026 lässt sich eine ganze Workspace-App mit Navigation in SharePoint Online einbetten. Die Learn-Seite zum Einbetten beschreibt das noch nicht (Stand 24.11.2026), also vorher im eigenen Tenant ausprobieren</li>
       </ul>
 
       <h4>2. Direct Sharing (Single Item)</h4>
