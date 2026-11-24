@@ -3,6 +3,32 @@
 Positionierung (aus dem Review): kein Report-Generator, sondern ein **Anforderungswerkzeug mit deterministischem
 Ausgang**. Der Workshop legt Struktur, Felder und Entscheidungen fest; der Bau ist eine Ableitung.
 
+## Neu in v0.7.1 (24.11.2026, lokal auf `feat/mockup-kitchen`)
+
+Vorlagen für das Ziel Fabric App, darunter eine Handy-Vorlage im Hochformat.
+
+- **Fünf neue Vorlagen** (`TEMPLATES` in `catalog.js`, mit Feldbindungen auf das Demo-Modell):
+  `app-phone` (Handy · Übersicht), `app-hub` (Start-Hub), `app-detail` (Übersicht mit Detail-Panel), `app-pnl`
+  (GuV-Cockpit, nur ChartKitchen und P&L) und `app-monthly` (Monatsgespräch). Dazu zwei versteckte Bausteine
+  (`app-phone-trend`, `app-phone-list`, `hidden: true`) für die Zusatzseiten der Handy-Vorlage.
+- **Vorlagen mit Vorgaben** (`setup`): Eine Vorlage kann Canvas, Ziel und Rahmen setzen (`applyTplSetup`), Zusatzseiten
+  anlegen, wenn das Projekt erst eine Seite hat, und ihre Kacheln mit vorhandenen Seiten verknüpfen (`applyTplAfter`,
+  Start-Hub). Der Toast nennt, was gesetzt wurde; Strg+Z nimmt alles in einem Schritt zurück.
+- **Kennzeichen in der Vorlagenauswahl** (`targets`, `form`): Handy, Fabric App, Power BI; das aktuelle Ziel ist
+  hervorgehoben, die Handy-Vorlage zeigt ihre Vorschau im Hochformat.
+- **Handy-Format** (`canvas.base`): 1080 × 1920 mit logischer Breite 400. `ui()` rechnet `Breite / base`, also Faktor
+  2,7 statt 0,84; ohne `base` gilt 1280 wie bisher. `pixelgrid.js` bleibt unberührt, `uiComp()` gleicht Rahmenmaße
+  und Ränder aus. Canvas-Vorgabe „Handy · 1080 × 1920“ (`1080x1920@400`). `a11y.js` prüft Mindestgrößen mit
+  demselben Faktor: die vier Karten der Handy-Vorlage sind 472 × 261 px (Warnschwelle 432 × 243), auch mit Chip-Zeile
+  bleibt es ohne Befund.
+- **Tab-Leiste unten** (`chrome.navPos = 'tabs'`): bis zu fünf Seiten in der Fußleiste, im Entwurf, im PNG und auf der
+  Bühne (Klick wechselt die Seite). Im Hochformat steht die Steuerleiste der Bühne rechts neben der Seite.
+- **Export:** `canvas.base`, `canvas.form`, `zones.footer.navPosition: "tabs"` mit `tabBar`, `app.shell.resolution:
+  "phone"`.
+- **Geprüft:** Pixelraster (`checkLattice`) und `gridcheck` ohne Befund für alle fünf Vorlagen, Felder vollständig
+  gebunden, im Ziel App keine nicht erzeugbaren Kacheln bei Handy, Hub und GuV-Cockpit (Detail-Panel und Monatsgespräch
+  enthalten je eine Text-Kachel für den Kommentar).
+
 ## Neu in v0.7.0 (24.11.2026, lokal auf `feat/mockup-kitchen`)
 
 MockupKitchen als Workshop-Werkzeug, Design-Werkzeug und Vorlage für Rayfin-Apps. Hintergrund, Abgleich mit der

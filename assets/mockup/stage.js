@@ -135,6 +135,11 @@
   .st-hud .pg small{opacity:.6;margin-left:8px;font-family:var(--ff-mono);font-size:11px}
   .st-hud .sep{width:1px;height:18px;background:rgba(255,255,255,.2);margin:0 3px}
   .st-hud .end{background:rgba(255,255,255,.1)}
+  /* Hochformat (Handy): die Leiste steht rechts neben der Seite, sonst verdeckte sie die Tab-Leiste */
+  .st-hud.side{left:auto;right:18px;bottom:50%;transform:translateY(50%);flex-direction:column;border-radius:22px;padding:6px 5px}
+  .st-hud.side .pg{padding:6px 0;max-width:none}.st-hud.side .pg .nm{display:none}.st-hud.side .pg small{margin:0}
+  .st-hud.side .sep{width:18px;height:1px;margin:3px 0}
+  .st-hud.side button{padding:0}
   @media (prefers-reduced-motion:reduce){.st-drawer,.st-scrim,.st-focus,.st-focus .card,body.present .page .tile{transition:none}}
   `;
   document.head.appendChild(Object.assign(document.createElement('style'), { textContent: css }));
@@ -239,9 +244,10 @@
   }
   function syncHud() {
     if (!hud) return; const list = navPages(); const p = curPage(); const i = list.findIndex(x => x.id === p.id);
+    hud.classList.toggle('side', S().canvas.h > S().canvas.w);
     hud.innerHTML = `${ST.history.length ? `<button type="button" data-a="back" title="${esc(t('stage.back'))}">↩</button><span class="sep"></span>` : ''}
       <button type="button" data-a="prev" title="${esc(t('stage.prev'))}" aria-label="${esc(t('stage.prev'))}" ${i <= 0 ? 'disabled' : ''}>‹</button>
-      <span class="pg">${esc(p.name)}<small>${i >= 0 ? esc(t('stage.pageOf', { i: i + 1, n: list.length })) : '↗'}</small></span>
+      <span class="pg"><span class="nm">${esc(p.name)}</span><small>${i >= 0 ? esc(t('stage.pageOf', { i: i + 1, n: list.length })) : '↗'}</small></span>
       <button type="button" data-a="next" title="${esc(t('stage.next'))}" aria-label="${esc(t('stage.next'))}" ${i < 0 || i >= list.length - 1 ? 'disabled' : ''}>›</button>
       <span class="sep"></span>
       <button type="button" data-a="menu" title="${esc(t('stage.menu'))} (M)" aria-label="${esc(t('stage.menu'))}">☰</button>

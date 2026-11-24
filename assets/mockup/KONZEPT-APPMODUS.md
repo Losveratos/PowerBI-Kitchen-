@@ -61,7 +61,44 @@ Gelesen wurde der Worktree `Desktop\PnL Demo\Fabric-Apps-Demo-dwg-mockup` (Branc
 Der nächste Schritt auf dwg-Seite wäre, in `mockup import` `meta.target`, `app.shell` und `zones.chips.views` zu
 lesen und in `DwgShell.tsx` Burger-Panel und gespeicherte Ansichten zu bauen. Das ist dort ein eigener Auftrag.
 
-## 6. Was sich noch vorgeben ließe (Vorschläge, nicht gebaut)
+## 6. Vorlagen für die App und das Handy-Format (0.7.1)
+
+Fünf Vorlagen sind für das Ziel Fabric App gedacht und in der Auswahl gekennzeichnet:
+
+| Vorlage | Aufbau | In dwg erzeugbar |
+|---|---|---|
+| Handy · Übersicht | Hochformat 1080 × 1920: Kopfleiste mit Burger, vier Karten 2 × 2, Verlauf in voller Breite, Top 5 der Abweichungen, Tab-Leiste unten. Legt zwei Zusatzseiten für die Tabs an | ja (KPI, integrierte Brücke, Balken) |
+| Start-Hub | sechs Karten 3 × 2, je Seite eine Kennzahl, mit vorhandenen Seiten verknüpft | ja, Sprungziele kennt dwg noch nicht |
+| Übersicht mit Detail-Panel | Ranking links, rechts Tabelle und Kommentar zur Auswahl | bis auf die Kommentar-Kachel |
+| GuV-Cockpit | P&L Statement auf zwei Dritteln, rechts Ergebnisbrücke und zwei Karten | ja |
+| Monatsgespräch | Karten AC gegen PL und FC, integrierte Brücke, Abweichung je Region, Kommentarzeile | bis auf die Kommentar-Kachel |
+
+**Handy-Format.** Eine Seite mit 1080 px Breite steht für ein Gerät mit rund 400 CSS-Pixeln. Die Basismaße des Tools
+(Schrift 12 px, Kopfband 56 px, Zwischenraum 12 px) beziehen sich deshalb auf die logische Breite `canvas.base = 400`,
+der Faktor ist 2,7. Daraus ergeben sich bei 1080 × 1920: Kopfleiste 151 px, Tab-Leiste 151 px, Rand 52 px,
+Zwischenraum 32 px, zwölf Spalten zu 84 px Schritt. Regeln der Vorlage: nur untereinander, nebeneinander stehen allein
+die Karten; jede Karte über 432 × 243 px (Warnschwelle aus `a11y.js`); Filter und weitere Seiten im Burger-Menü,
+die drei bis fünf wichtigsten Seiten in der Tab-Leiste.
+
+**Was die dwg-Seite für das Handy-Layout braucht** (Auftrag für die spätere dwg-Session):
+
+1. `mockup import` liest `canvas.base`/`canvas.form` bzw. `app.shell.resolution: "phone"` und trägt die Seite mit
+   `width: 1080, height: 1920` in die App-Spec ein, statt die Rechtecke auf das Querformat umzurechnen.
+2. Die Shell braucht eine Auflösung `phone` neben `fullhd`, `hd`, `responsive`: Seite im Hochformat, auf Gerätebreite
+   skaliert (1080 Seitenpixel auf die Breite des Viewports), senkrecht scrollbar statt der heutigen Stapelung unter 900 px.
+3. Die Rahmenmaße der Shell sind heute fest für 1920 × 1080 (Kopf 96, Filter-Panel 300, Fuß 36, Rand 27,
+   Zwischenraum 18). Für `phone` gelten Kopf 151, kein festes Filter-Panel, Tab-Leiste 151, Rand 52, Zwischenraum 32.
+   Am saubersten rechnet die Shell wie das Mockup mit `pixelgrid.zones()` und einem Faktor aus `width / base`;
+   dafür müsste `pixelgrid.js` die Basisbreite als Option bekommen (heute fest 1280, im Mockup über `uiComp()` ausgeglichen).
+4. Tab-Leiste unten (`zones.footer.navPosition: "tabs"`, bis zu fünf Seiten) als Navigationsart der Shell.
+5. Burger-Menü als Panel über der Seite für Filter und alle Seiten (`app.shell.navigation`, `filterPanel: "burger"`);
+   das feste Filter-Panel links passt nicht auf 1080 px Breite.
+6. Schriftgrößen der Visuals: ChartKitchen und P&L brauchen im Handy-Format den Faktor 2,7 (`labels.fontScale` bzw.
+   Preset), sonst sind Achsen und Werte auf dem Gerät zu klein. Der Konverter rechnet das für Power BI schon aus `uiScale`.
+7. Lint: Mindestgröße je Kachel aus `a11y.js` mit dem Faktor der Seite prüfen (432 × 243 px bei `phone`).
+8. Optional: `pages[].group` für die Tab-Leiste (welche Seiten in die Tabs, welche nur ins Burger-Menü).
+
+## 7. Was sich noch vorgeben ließe (Vorschläge, nicht gebaut)
 
 1. **Zustände je Kachel:** leer, lädt, Fehler, keine Berechtigung. In der Bühne per Taste umschaltbar; für Apps Pflicht.
 2. **Responsive Vorschau:** dieselbe Seite bei 1920, 1280 und unter 900 px (gestapelt), so wie die dwg-Shell skaliert.

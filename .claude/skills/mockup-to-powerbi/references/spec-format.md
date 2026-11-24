@@ -124,6 +124,14 @@ Hinweise für den Bau bzw. für `dwg mockup import`.
 | `visuals[].customVisualProps` | Format-Einstellungen eines Custom Visuals byDatenWG als `{"objekt.eigenschaft": Wert}`: `columns.template` und `columns.templateApplied` (beide gleich, sonst wendet das Visual das Template beim ersten Rendern erneut an), `columns.treeCard`, `state.uiState` (JSON-Text mit der Ansicht `tree` bzw. `sankey`), bei der Bilanz ohne Zeilentyp `statement.stockMode: allStock`. Der Konverter schreibt sie nach `visual.objects` (`custom_visual_props`). Zählt zum specHash, fehlt der Schlüssel, bleibt der Hash wie bisher |
 | Issue-Codes `BOOKMARKS_*`, `APP_SHELL_*`, `APP_NOT_BUILDABLE` | Hinweise zu Lesezeichen (Power BI) bzw. zu dem, was die dwg-Shell heute nicht kann |
 
+### Tool 0.7.1: Handy-Format und Tab-Leiste (specVersion bleibt 3)
+
+| Neu | Wo |
+|---|---|
+| `canvas.base`, `canvas.form` | logische Breite der Basismaße (`uiScale = width / base`, Vorgabe 1280). Das Handy-Format ist 1080 × 1920 mit `base: 400` und `form: "phone"`, also `uiScale` 2,7: Kopfleiste 151 px, Zwischenraum 32 px, Titel rund 32 px. Rechtecke und Schriftgrößen stehen wie immer fertig in der Spec, der Konverter rechnet mit `uiScale` weiter. Zählt nicht zum specHash |
+| `zones.footer.navPosition: "tabs"`, `tabBar`, `nav[]` | Tab-Leiste unten mit bis zu fünf Seiten. `nav_position()` liest das als `off`. In Power BI entspricht das einem Seitennavigator in der Fußleiste; für die App ist es eine Vorgabe an die Shell |
+| `app.shell.resolution: "phone"` | Hinweis für `dwg mockup import`, dass die Seite für das Hochformat entworfen ist |
+
 ### Tool 0.6.0: ChartKitchen 1.47 (specVersion bleibt 3)
 
 Wieder abwärtskompatibel: kein Feld wird umbenannt, die Rollen-Schlüssel bleiben

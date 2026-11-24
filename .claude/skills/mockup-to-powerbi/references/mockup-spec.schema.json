@@ -139,6 +139,15 @@
           "minimum": 0.1,
           "maximum": 8
         },
+        "base": {
+          "type": "number",
+          "description": "Ab Tool 0.7.1: logische Breite, auf die sich die Basismaße beziehen (uiScale = width / base). Fehlt das Feld, gilt 1280. Das Handy-Format nutzt 400 (1080 px Breite, Faktor 2,7)."
+        },
+        "form": {
+          "type": "string",
+          "enum": ["phone"],
+          "description": "Ab Tool 0.7.1: gesetzt beim Handy-Format (Hochformat mit base 400)."
+        },
         "pixel": {
           "description": "Rastermodus (assets/mockup/pixelgrid.js, KONZEPT-PIXELRASTER.md): Spaltenschritt, Zeilenschritt, Zwischenraum und Ränder in px. Fehlt der Block, gilt die bisherige Verteilung.",
           "type": "object",

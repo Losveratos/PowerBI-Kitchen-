@@ -1,6 +1,6 @@
 /* MockupKitchen · App-Kern v0.2: Zustand (mehrere Seiten), Container-Layout, Rendering, Interaktion, Datenmodell (TMDL/Demo) */
 // Einzige Quelle der Tool-Version: Kopfzeile, meta.version der Spec, AGENT-BRIEF und WORKSHOP-DOKU lesen diesen Wert.
-window.MK_VERSION = '0.7.0';
+window.MK_VERSION = '0.7.1';
 (function () {
   'use strict';
   const CAT = window.MK_CATALOG;
@@ -310,7 +310,11 @@ window.MK_VERSION = '0.7.0';
 
   let S = null, sel = null, zoom = 1, undoStack = [], redoStack = [], lastRects = { leaves: [], gutters: [] };
   const page = () => S.pages.find(p => p.id === S.cur) || S.pages[0];
-  const ui = () => clamp(S.canvas.w / 1280, 0.6, 3.2);           // Skalierungsfaktor für Schriften/Abstände
+  // Skalierungsfaktor für Schriften/Abstände. canvas.base = logische Breite, auf die sich alle Basismaße beziehen:
+  // 1280 (Vorgabe) für Berichtsseiten, 400 für das Handy-Format (1080 px breit entsprechen rund 400 CSS-Pixeln, Faktor 2,7).
+  const ui = () => clamp(S.canvas.w / (S.canvas.base || 1280), 0.6, 3.2);
+  // pixelgrid.js rechnet intern immer mit Breite/1280. Der Ausgleichsfaktor bringt Rahmenmaße und Ränder auf ui().
+  const uiComp = () => ui() / clamp(S.canvas.w / 1280, 0.6, 3.2);
   const ANTI = { pie: true, gauge: true };                         // nicht IBCS-konforme Typen: Skizze wird markiert
   // Analyse-Angaben einer Kachel mit Defaults auflösen (Vertrag v3): alles Entschiedene steht in v.analysis, Rest wird sichtbar abgeleitet
   function primaryMeasure(v) { const r = v.roles || {}; const list = r.ac || r.indicator || r.values || r.y || []; return list[0] || null; }
@@ -620,7 +624,36 @@ window.MK_VERSION = '0.7.0';
     const tpl = CAT.templates.find(t => t.id === tplId); if (!tpl) return;
     if (visuals().length && !confirm(t('ask.tplReplace', { t: tpl.label, n: visuals().length }))) return;
     if (!S.model.tables.length) { S.model = JSON.parse(JSON.stringify(CAT.demoModel)); syncFieldFlags(); openMeasureTable(); toast(t('toast.demoLoadedTpl')); }
-    page().layout = markTemplate(ensureIds(tpl.tree())); sel = null; commit(); toast(t('toast.tplSet', { t: tpl.label }));
+    const note = tpl.setup ? applyTplSetup(tpl.setup) : (S.canvas.base && S.canvas.base < 1280 && tpl.form !== 'phone' ? t('tplb.landscapeHint') : '');
+    page().layout = markTemplate(ensureIds(tpl.tree())); sel = null;
+    const more = tpl.setup ? applyTplAfter(tpl.setup) : '';
+    fitZoom(); commit(); toast(t('toast.tplSet', { t: tpl.label }) + [note, more].filter(Boolean).map(x => ' · ' + x).join(''));
+  }
+  // Vorgaben einer Vorlage vor dem Layout: Canvas (mit Basisbreite), Ziel, Rahmen. Gibt einen Hinweistext für den Toast zurück.
+  function applyTplSetup(su) {
+    const out = [];
+    if (su.canvas) { const c = su.canvas; const changed = S.canvas.w !== c.w || S.canvas.h !== c.h || (S.canvas.base || 1280) !== (c.base || 1280);
+      S.canvas = Object.assign({}, S.canvas, c); if (!c.base) delete S.canvas.base;
+      if (changed) out.push(t('tplb.canvasSet', { w: c.w, h: c.h })); }
+    if (su.target && window.MK_APPMODE) { if (S.target !== su.target) out.push(t('target.changed', { t: t('target.' + su.target) })); window.MK_APPMODE.applyTarget(su.target, { defaults: true }); }
+    if (su.chrome) { const c = S.chrome, x = su.chrome;
+      if (x.navPos) { c.navPos = x.navPos; c.header.navOn = x.navPos === 'header'; }
+      ['header', 'footer', 'filter', 'nav'].forEach(k => { if (x[k]) Object.assign(c[k], x[k]); }); }
+    return out.join(' · ');
+  }
+  // Nach dem Layout: Zusatzseiten (nur wenn das Projekt erst eine Seite hat) und Kacheln mit vorhandenen Seiten verknüpfen
+  function applyTplAfter(su) {
+    const out = []; const cur = page();
+    if (su.pages && S.pages.length === 1) {
+      su.pages.forEach(sp => { const tp = CAT.templates.find(x => x.id === sp.tpl); if (!tp) return; S.pages.push({ id: uid(), name: sp.name(), notes: '', layout: markTemplate(ensureIds(tp.tree())) }); });
+      out.push(t('tplb.pagesAdded', { n: su.pages.length }));
+    }
+    if (su.linkTiles) {
+      const others = S.pages.filter(p => p.id !== cur.id && roleOf(p) === 'nav'); let n = 0;
+      leaves(cur.layout).filter(l => l.visual && l.visual.kind !== 'text').forEach((l, i) => { if (others[i]) { l.visual.link = others[i].id; n++; } });
+      out.push(n ? t('tplb.linked', { n }) : t('tplb.linkHint'));
+    }
+    return out.join(' · ');
   }
 
   // ------------------------------------------------------------------ Seiten
@@ -734,9 +767,17 @@ window.MK_VERSION = '0.7.0';
   // Kopfband zugeschlagen und danach wieder abgetrennt (z.chips). Ohne gespeicherte Filter ist alles wie bisher.
   const CHIP_H = 30;                                             // Basis-px bei 1280
   const chipsOn = () => !!(S.views && S.views.length);
-  function chromeEff() { if (!chipsOn()) return S.chrome; const h = S.chrome.header; return Object.assign({}, S.chrome, { header: Object.assign({}, h, { on: true, h: (h.on ? h.h : 0) + CHIP_H }) }); }
+  function chromeEff() {
+    const f = uiComp(); if (!chipsOn() && f === 1) return S.chrome;
+    const c = S.chrome, h = c.header;
+    const hd = chipsOn() ? Object.assign({}, h, { on: true, h: (h.on ? h.h : 0) + CHIP_H }) : h;
+    if (f === 1) return Object.assign({}, c, { header: hd });
+    return Object.assign({}, c, { header: Object.assign({}, hd, { h: hd.h * f }), nav: Object.assign({}, c.nav, { w: c.nav.w * f }),
+      filter: Object.assign({}, c.filter, { w: c.filter.w * f, topH: (c.filter.topH || 56) * f }), footer: Object.assign({}, c.footer, { h: c.footer.h * f }) });
+  }
   function zonesFull() {
-    const z = PG.zones(S.canvas, chromeEff(), latticeOn() ? { n: S.pixel.n || 12, margin: S.pixel.margin == null ? 18 : S.pixel.margin, gutter: S.spacing.gutter } : { legacy: true, margin: S.spacing.margin });
+    const f = uiComp();
+    const z = PG.zones(S.canvas, chromeEff(), latticeOn() ? { n: S.pixel.n || 12, margin: (S.pixel.margin == null ? 18 : S.pixel.margin) * f, gutter: S.spacing.gutter * f } : { legacy: true, margin: S.spacing.margin * f });
     if (chipsOn() && z.header) {
       const full = z.header, hh = S.chrome.header.on ? Math.round(S.chrome.header.h * ui()) : 0;
       z.chips = { x: full.x, y: full.y + hh, w: full.w, h: full.h - hh };
@@ -814,7 +855,11 @@ window.MK_VERSION = '0.7.0';
       const burger = burgerOn(c) ? `<div class="burger" data-burger="1" title="${esc(t('tip.filterMenu'))}"><i></i><i></i><i></i>${c.filter.on && c.filter.side === 'burger' && c.filter.fields.length ? `<b>${c.filter.fields.length}</b>` : ''}</div>` : '';
       html += `<div class="zone header ${d.header || 'light'}" style="${css(z.header)}">${burger}${logo('left')}<div style="min-width:0"><div class="ttl">${esc(c.header.title || t('canvas.pageTitle'))}</div>${c.header.sub ? `<div class="sub">${esc(c.header.sub)}</div>` : ''}</div>${nav ? `<div class="nav${c.header.logoPos === 'right' ? ' noauto' : ''}" style="${c.header.logoPos === 'right' ? 'margin-left:auto' : ''}">${nav}</div>` : ''}${logo('right')}</div>`;
     }
-    if (z.footer) { const fnames = navPosOf(c) === 'footer' ? navNames(c) : []; const fnav = fnames.length ? `<div class="nav">${fnames.map(n => `<span class="${n === page().name ? 'act' : ''}" data-goto="${esc(n)}">${esc(n)}</span>`).join('')}</div>` : ''; html += `<div class="zone footer" style="${css(z.footer)}"><span class="ft">${esc(c.footer.text || '')}</span>${fnav}</div>`; }
+    if (z.footer && navPosOf(c) === 'tabs') {
+      // Tab-Leiste unten (Handy-Format, Ziel App): bis zu fünf Seiten, gleich breit, aktive Seite in Akzentfarbe
+      const tabs = navNames(c).slice(0, 5);
+      html += `<div class="zone footer tabs" style="${css(z.footer)}">${tabs.map(n => `<span class="tab${n === page().name ? ' act' : ''}" data-goto="${esc(n)}"><i></i><b>${esc(n)}</b></span>`).join('')}</div>`;
+    } else if (z.footer) { const fnames = navPosOf(c) === 'footer' ? navNames(c) : []; const fnav = fnames.length ? `<div class="nav">${fnames.map(n => `<span class="${n === page().name ? 'act' : ''}" data-goto="${esc(n)}">${esc(n)}</span>`).join('')}</div>` : ''; html += `<div class="zone footer" style="${css(z.footer)}"><span class="ft">${esc(c.footer.text || '')}</span>${fnav}</div>`; }
     if (z.chips) html += `<div class="zone chips" data-chipzone="1" style="${css(z.chips)}">${chipsHtml()}</div>`;
     // Zahnrad je Zone: oeffnet den passenden Abschnitt im Reiter Rahmen (Doppelklick auf die Zone tut dasselbe)
     ['header', 'nav', 'filter', 'footer'].forEach(key => { const r = z[key]; if (!r) return; const gx = r.x + r.w - 26 * k, gy = key === 'footer' ? r.y + (r.h - 22 * k) / 2 : r.y + 4 * k; html += `<div class="zcfg" data-zcfg="${key}" title="${esc(t('tip.zoneCfg'))}" style="left:${gx}px;top:${gy}px">⚙</div>`; });
@@ -1384,7 +1429,7 @@ window.MK_VERSION = '0.7.0';
   $('#ftFieldList').addEventListener('input', e => { const inp = e.target.closest('[data-ftdef]'); if (inp) { S.chrome.filter.fields[+inp.dataset.ftdef].default = inp.value; persist(); } });
   $('#ftFieldList').addEventListener('change', e => { if (e.target.closest('[data-ftdef]')) mark(); const ts = e.target.closest('[data-fttype]'); if (ts) { S.chrome.filter.fields[+ts.dataset.fttype].type = ts.value; commit(); } });
   $('#btnPageDup').onclick = dupPage; $('#btnPageDel').onclick = delPage;
-  bind('canvasPreset', v => { S.canvas.preset = v; if (v !== 'custom') { const [w, h] = v.split('x').map(Number); S.canvas.w = w; S.canvas.h = h; fitZoom(); } });
+  bind('canvasPreset', v => { S.canvas.preset = v; if (v !== 'custom') { const m = /^(\d+)x(\d+)(?:@(\d+))?$/.exec(v); if (m) { S.canvas.w = +m[1]; S.canvas.h = +m[2]; if (m[3]) S.canvas.base = +m[3]; else delete S.canvas.base; } fitZoom(); } });
   bind('canvasW', v => { S.canvas.w = clamp(+v || 1280, 320, 4000); fitZoom(); }); bind('canvasH', v => { S.canvas.h = clamp(+v || 720, 200, 4000); fitZoom(); });
   bind('spPixel', v => { if (v === 'off') delete S.pixel; else S.pixel = { mode: 'lattice', n: +v }; });
   bind('spMargin', v => S.spacing.margin = clamp(+v, 0, 64), 'input'); bind('spGutter', v => S.spacing.gutter = clamp(+v, 0, 48), 'input'); bind('spPad', v => S.spacing.pad = clamp(+v, 0, 32), 'input');
@@ -1472,11 +1517,19 @@ window.MK_VERSION = '0.7.0';
   // ------------------------------------------------------------------ Vorlagen-Dialog
   $('#btnNew').onclick = () => { const n = S.pages.reduce((a, p) => a + leaves(p.layout).filter(l => l.visual).length, 0); if ((n || S.pages.length > 1) && !confirm(t('ask.newReplace', { n, p: S.pages.length }))) return; window.MK.reset(); toast(t('toast.newProject')); };
   // Vorlagenkarten sind per Tab erreichbar und mit Enter/Leertaste wählbar, sonst hat der Dialog nur den Schließen-Knopf
-  $('#btnTemplates').onclick = () => { $('#tplGrid').innerHTML = CAT.templates.map(tp => `<div class="tpl" data-tpl="${tp.id}" role="button" tabindex="0" aria-label="${esc(tp.label)}"><div class="pv">${templateSvg(tp)}</div><b>${esc(tp.label)}</b><small>${esc(tp.desc)}</small></div>`).join(''); $('#dlgTemplates').showModal(); };
+  $('#btnTemplates').onclick = () => { $('#tplGrid').innerHTML = CAT.templates.filter(tp => !tp.hidden).map(tp => `<div class="tpl${tp.form === 'phone' ? ' phone' : ''}" data-tpl="${tp.id}" role="button" tabindex="0" aria-label="${esc(tp.label)}"><div class="pv">${templateSvg(tp)}</div><b>${esc(tp.label)}</b><span class="tplb">${tplBadges(tp)}</span><small>${esc(tp.desc)}</small></div>`).join(''); $('#dlgTemplates').showModal(); };
   $('#tplGrid').addEventListener('click', e => { const el = e.target.closest('[data-tpl]'); if (!el) return; applyTemplate(el.dataset.tpl); $('#dlgTemplates').close(); });
   $('#tplGrid').addEventListener('keydown', e => { if (e.key !== 'Enter' && e.key !== ' ') return; const el = e.target.closest('[data-tpl]'); if (!el) return; e.preventDefault(); el.click(); });
+  // Kennzeichen in der Vorlagenauswahl: für welches Ziel die Vorlage gedacht ist (Handy, App, Power BI)
+  function tplBadges(tp) {
+    const tg = tp.targets || ['pbi', 'app']; const b = [];
+    if (tp.form === 'phone') b.push(['phone', t('tplb.phone')]);
+    if (tg.includes('app')) b.push(['app', t('target.app')]);
+    if (tg.includes('pbi')) b.push(['pbi', t('target.pbi')]);
+    return b.map(x => `<i class="tb-${x[0]}${S.target === x[0] || (x[0] === 'phone' && S.canvas.base && S.canvas.base < 1280) ? ' cur' : ''}">${esc(x[1])}</i>`).join('');
+  }
   function templateSvg(tp) {
-    const tree = tp.tree(); const out = { leaves: [], gutters: [] }; layoutRects(tree, { x: 2, y: 2, w: 196, h: 92 }, out, 3);
+    const tree = tp.tree(); const out = { leaves: [], gutters: [] }; layoutRects(tree, tp.form === 'phone' ? { x: 74, y: 2, w: 52, h: 92 } : { x: 2, y: 2, w: 196, h: 92 }, out, tp.form === 'phone' ? 2 : 3);
     return `<svg viewBox="0 0 200 96">${out.leaves.map(l => `<rect x="${l.rect.x}" y="${l.rect.y}" width="${l.rect.w}" height="${l.rect.h}" rx="2" fill="${l.node.visual ? '#E9EEF5' : '#fff'}" stroke="#C9C6BA" stroke-dasharray="${l.node.visual ? '' : '3 2'}"/>${l.node.visual ? `<text x="${l.rect.x + 4}" y="${l.rect.y + 11}" font-size="7" fill="#475569" font-family="Geist,system-ui">${esc((CAT.byId[l.node.visual.kind] || {}).label || '').slice(0, Math.max(3, l.rect.w / 5))}</text>` : ''}`).join('')}</svg>`;
   }
 

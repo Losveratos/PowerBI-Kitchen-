@@ -146,7 +146,7 @@
     const navPos = MK.navPosOf(c), navList = MK.navNames(c); const navNames = navPos === 'header' ? navList : [];
     if (z.header) Object.assign(zonesOut.header, { style: d.header, logoPos: c.header.logoPos, title: c.header.title, subtitle: c.header.sub, nav: navNames, navOn: navPos === 'header', navPosition: navPos, navAuto: !!c.header.navAuto, burger: c.filter.on && c.filter.side === 'burger' }, navPos === 'burger' ? { burgerNav: true, burgerPages: navList } : {});
     if (z.nav) zonesOut.nav.pages = S.pages.map(p => p.name);
-    if (z.footer) { zonesOut.footer.text = c.footer.text; zonesOut.footer.nav = navPos === 'footer' ? navList : []; zonesOut.footer.navPosition = navPos; }
+    if (z.footer) { zonesOut.footer.text = c.footer.text; zonesOut.footer.nav = (navPos === 'footer' || navPos === 'tabs') ? navList.slice(0, navPos === 'tabs' ? 5 : navList.length) : []; zonesOut.footer.navPosition = navPos; if (navPos === 'tabs') zonesOut.footer.tabBar = true; }
     const slicers = (c.filter.fields || []).map(f => Object.assign(fieldOut(f), { default: f.default || null, type: f.type || 'dropdown' }));
     slicers.filter(f => f.missing).forEach(f => issue('error', 'FIELD_NOT_IN_MODEL', T('exp.issue.slicerNotInModel', { f: f.ref })));
     if (c.filter.on) {
@@ -174,7 +174,7 @@
       pages.forEach(p => p.visuals.forEach(v => { if (!fits(CAT.byId[v.kind])) { notBuildable.push({ page: p.name, id: v.id, kind: v.kind }); issue('warn', 'APP_NOT_BUILDABLE', T('exp.issue.appNotBuildable', { t: v.displayName || v.title || v.label, k: v.kind }), p.name, v.id); } }));
       if (views.length) issue('info', 'APP_SHELL_SAVED_FILTERS', T('exp.issue.appShellViews', { n: views.length }));
       if (MK.burgerOn && MK.burgerOn(c)) issue('info', 'APP_SHELL_BURGER', T('exp.issue.appShellBurger'));
-      appOut = { shell: { navigation: navPos, filterPanel: c.filter.on ? c.filter.side : 'off', savedFilters: views, crossFilter: true, resolution: S.canvas.w === 1920 && S.canvas.h === 1080 ? 'fullhd' : S.canvas.w === 1280 && S.canvas.h === 720 ? 'hd' : 'custom' }, notBuildable };
+      appOut = { shell: { navigation: navPos, filterPanel: c.filter.on ? c.filter.side : 'off', savedFilters: views, crossFilter: true, resolution: S.canvas.base && S.canvas.base < 1280 ? 'phone' : S.canvas.w === 1920 && S.canvas.h === 1080 ? 'fullhd' : S.canvas.w === 1280 && S.canvas.h === 720 ? 'hd' : 'custom' }, notBuildable };
     }
     // Felder: alle gebundenen Felder mit Modell-Definition und Steckbrief
     const used = new Map();
@@ -207,7 +207,7 @@
       meta: { tool: TOOL, version: VER, specVersion: SPEC_VERSION, specHash: '', name: S.name, lang: L, exportedAt: new Date().toISOString(), skill: 'mockup-to-powerbi', target },
       report: Object.assign({ name: S.name }, S.report),
       // Rastermodus (pixelgrid.js): Schritt, Zwischenraum und Ränder; cell je Kachel = Brüche im Pitch-Raum. Zählt nicht zum specHash.
-      canvas: Object.assign({ width: S.canvas.w, height: S.canvas.h, preset: S.canvas.preset, uiScale: +k.toFixed(3) }, MK.lattice && MK.lattice() ? { pixel: window.MK_PIXELGRID.pixelBlock(MK.lattice()) } : {}),
+      canvas: Object.assign({ width: S.canvas.w, height: S.canvas.h, preset: S.canvas.preset, uiScale: +k.toFixed(3) }, S.canvas.base && S.canvas.base !== 1280 ? { base: S.canvas.base, form: 'phone' } : {}, MK.lattice && MK.lattice() ? { pixel: window.MK_PIXELGRID.pixelBlock(MK.lattice()) } : {}),
       spacing: { margin: Math.round(S.spacing.margin * k), gutter: Math.round(S.spacing.gutter * k), tilePadding: Math.round(S.spacing.pad * k), base: { margin: S.spacing.margin, gutter: S.spacing.gutter, tilePadding: S.spacing.pad } },
       design: { nativePalette: d.nativePalette || 'neutral', cornerRadius: Math.round(d.radius * k), tileStyle: d.tile, pageBackground: MK.pageBgOf(d), tileBackground: d.tileBg || '#FFFFFF', headerStyle: d.header, accent: d.accent, variancePalette: d.palette || 'teal', varianceColors: (d.palette || 'teal') === 'ibcs' ? { good: '#3A9A5B', bad: '#C8412F' } : { good: '#1E8F9E', bad: '#D64541' }, colors: { pageBackground: MK.pageBgOf(d), tileBackground: d.tileBg || '#FFFFFF', ink: d.ink || '#0F1E2E', headerBackground: d.header === 'custom' ? d.headerBg : (d.header === 'dark' ? '#0F1E2E' : d.header === 'accent' ? d.accent : '#FFFFFF'), headerInk: d.header === 'custom' ? d.headerInk : (d.header === 'light' ? '#0F1E2E' : '#FFFFFF') }, darkMode: MK.isDark(d.tileBg), fontScale: +k.toFixed(3), typography: Object.assign({ basis: '1280px' }, MK.typo()) },
       zones: zonesOut, pages, links,

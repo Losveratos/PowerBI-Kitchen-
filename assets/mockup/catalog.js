@@ -407,6 +407,60 @@
         [1, row([[1, KPI(TT('kpiRevenue'), MM('revenue'), M('PL'))], [1, KPI(TT('kpiOrders'), MM('orders'), M('PY'))], [1, KPI(TT('kpiCustomers'), MM('customers'), M('PY'))]])],
         [1, row([[1, leaf('line', TT('revTrend'), { category: ['DimDate.Month'], ac: [MM('revenue')], ref: [M('PY')] }, { scenario: 'AC/PY' })], [1, leaf('line', TT('orderTrend'), { category: ['DimDate.Month'], ac: [MM('orders')], ref: [M('PY')] }, { scenario: 'AC/PY' })], [1, leaf('line', TT('customerTrend'), { category: ['DimDate.Month'], ac: [MM('customers')], ref: [M('PY')] }, { scenario: 'AC/PY' })]])]
       ]) },
+    // ---------- Vorlagen für das Ziel Fabric App (ab 0.7.1) ----------
+    // targets: wofür die Vorlage gedacht ist (Kennzeichen in der Auswahl). form 'phone' = Hochformat.
+    // setup: Vorgaben, die app.js beim Anwenden setzt (Canvas mit Basisbreite, Ziel, Rahmen, Zusatzseiten, Kacheln verknüpfen).
+    // hidden: Baustein für Zusatzseiten, erscheint nicht in der Auswahl.
+    // Handy im Hochformat: nur untereinander, nebeneinander stehen allein die vier Karten. Burger für Filter und Seiten, Tab-Leiste unten.
+    { id: 'app-phone', form: 'phone', targets: ['app'],
+      setup: { canvas: { w: 1080, h: 1920, preset: '1080x1920@400', base: 400 }, target: 'app',
+        chrome: { navPos: 'tabs', header: { on: true, h: 56, logoPos: 'none' }, footer: { on: true, h: 56 }, filter: { on: true, side: 'burger' } },
+        pages: [{ name: () => TT('phonePageTrend'), tpl: 'app-phone-trend' }, { name: () => TT('phonePageList'), tpl: 'app-phone-list' }] },
+      tree: () => col([
+        // Gewichte so, dass jede Karte bei Faktor 2,7 über der Warnschwelle aus a11y.js liegt (160 × 90 Basis-px = 432 × 243 px),
+        // auch wenn eine Chip-Zeile für gespeicherte Filter dazukommt
+        [7, row([[1, KPI(TT('kpiRevenue'), MM('revenue'), M('PL'))], [1, KPI(TT('kpiMargin'), MM('margin'), M('PL'))]])],
+        [7, row([[1, KPI(TT('kpiCost'), MM('cost'), M('PL'))], [1, KPI(TT('kpiOrders'), MM('orders'), M('PY'))]])],
+        [12, leaf('varint', TT('revMonthAcFcPl'), { category: ['DimDate.Month'], ac: [M('AC')], ref: [M('PL')], fc: ['DimDate.IsForecast'] }, { scenario: 'AC/PL/FC', sub: TT('inKEUR') })],
+        [11, leaf('bars', TT('top5Delta'), { category: ['DimProduct.Product'], ac: [M('AC')], ref: [M('PL')] }, { analysis: { topN: 5, sort: { by: 'delta', dir: 'desc' } } })]
+      ]) },
+    { id: 'app-phone-trend', form: 'phone', targets: ['app'], hidden: true, tree: () => col([
+        [1, leaf('line', TT('trend12'), { category: ['DimDate.Month'], ac: [M('AC')], ref: [M('PY')] }, { scenario: 'AC/PY' })],
+        [1, leaf('bridge', TT('bridgePyAcRegion'), { category: ['DimRegion.Region'], ac: [M('AC')], ref: [M('PY')] }, { scenario: 'AC/PY' })]
+      ]) },
+    { id: 'app-phone-list', form: 'phone', targets: ['app'], hidden: true, tree: () => col([
+        [3, leaf('table', TT('topProducts'), { rows: ['DimProduct.Product'], ac: [M('AC')], ref: [M('PL')] })],
+        [2, leaf('bars', TT('revByRegion'), { category: ['DimRegion.Region'], ac: [M('AC')], ref: [M('PL')] })]
+      ]) },
+    // Start-Hub: Kachelmenü, je Seite eine Kennzahl. app.js verknüpft die Kacheln der Reihe nach mit den vorhandenen Seiten.
+    { id: 'app-hub', targets: ['app', 'pbi'], setup: { linkTiles: true }, tree: () => col([
+        [1, row([[1, KPI(TT('kpiRevenue'), MM('revenue'), M('PL'))], [1, KPI(TT('kpiMargin'), MM('margin'), M('PL'))], [1, KPI(TT('kpiCost'), MM('cost'), M('PL'))]])],
+        [1, row([[1, KPI(TT('kpiOrders'), MM('orders'), M('PY'))], [1, KPI(TT('kpiCustomers'), MM('customers'), M('PY'))], [1, KPI(TT('kpiAvgOrder'), MM('avgOrder'), M('PY'))]])]
+      ]) },
+    // Übersicht mit Detail-Panel: Ranking links, rechts Tabelle und Kommentar zur gewählten Zeile
+    { id: 'app-detail', targets: ['app', 'pbi'], tree: () => row([
+        [2, leaf('bars', TT('revTop10Customers'), { category: ['DimCustomer.Customer'], ac: [M('AC')], ref: [M('PY')] }, { scenario: 'AC/PY', analysis: { topN: 10, sort: { by: 'value', dir: 'desc' } } })],
+        [3, col([
+          [3, leaf('table', TT('detailTable'), { rows: ['DimProduct.Product'], ac: [M('AC')], ref: [M('PL')] }, { notes: TT('detailTableNote') })],
+          [1, leaf('text', TT('detailComment'), {}, { notes: TT('detailCommentNote') })]
+        ])]
+      ]) },
+    // GuV-Cockpit: nur ChartKitchen und P&L Statement, also in der dwg cli erzeugbar
+    { id: 'app-pnl', targets: ['app', 'pbi'], tree: () => row([
+        [2, leaf('pnl', TT('pnlStatement'), { rows: ['DimAccount.AccountGroup', 'DimAccount.Account'], ac: [M('AC')], ref: [M('PL'), M('PY')] })],
+        [1, col([
+          [3, leaf('bridge', TT('resultBridge'), { category: ['DimAccount.AccountGroup'], ac: [M('AC')], ref: [M('PL')] }, { scenario: 'AC/PL' })],
+          // Karten untereinander: der Baum bleibt zweistufig und lässt sich ohne Rest ins Raster überführen (gridcheck)
+          [1, KPI(TT('kpiMargin'), MM('margin'), M('PL'))],
+          [1, KPI(TT('kpiCost'), MM('cost'), M('PL'))]
+        ])]
+      ]) },
+    // Monatsgespräch: Karten AC gegen PL und FC, integrierte Brücke, Abweichung je Region, Kommentarzeile
+    { id: 'app-monthly', targets: ['app', 'pbi'], tree: () => col([
+        [1, row([[1, KPI(TT('revVsPl'), MM('revenue'), M('PL'))], [1, KPI(TT('revVsFc'), MM('revenue'), M('FC'))], [1, KPI(TT('marginVsPl'), MM('margin'), M('PL'))], [1, KPI(TT('marginVsFc'), MM('margin'), M('FC'))]])],
+        [3, row([[3, leaf('varint', TT('revMonthAcFcPl'), { category: ['DimDate.Month'], ac: [M('AC')], ref: [M('PL')], fc: ['DimDate.IsForecast'] }, { scenario: 'AC/PL/FC', sub: TT('inKEUR') })], [2, leaf('bars', TT('dPlByRegion'), { category: ['DimRegion.Region'], ac: [M('AC')], ref: [M('PL')] })]])],
+        [1, leaf('text', TT('monthlyComment'), {}, { notes: TT('monthlyCommentNote') })]
+      ]) },
     { id: 'empty', tree: () => col([[1, row([[1, leaf()], [1, leaf()]])], [1, row([[1, leaf()], [1, leaf()]])]]) },
     { id: 'single', tree: () => leaf() },
   ];

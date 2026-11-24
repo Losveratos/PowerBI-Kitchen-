@@ -65,6 +65,21 @@
   .vw-row button:hover{color:var(--bad)}
   .bm-warn{margin:8px 0 0;padding:8px 10px;border-radius:8px;border:1px solid #E6C86E;background:#FFF8DC;color:#5A4500;font-size:12px;line-height:1.4}
   .bm-warn.info{border-color:#B9D8D2;background:#EAF5F3;color:#16453E}
+  /* Tab-Leiste unten (navPos 'tabs', Handy-Format) */
+  .zone.footer.tabs{padding:0;gap:0;justify-content:stretch;align-items:stretch;background:var(--tile-bg,#fff);border-top:1px solid #E3E1D8;color:#6B7280}
+  .zone.footer.tabs .tab{flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:calc(4px * var(--ui));font-size:calc(10.5px * var(--ui));position:relative}
+  .zone.footer.tabs .tab i{width:calc(18px * var(--ui));height:calc(18px * var(--ui));border-radius:calc(5px * var(--ui));border:calc(1.5px * var(--ui)) solid currentColor;opacity:.55}
+  .zone.footer.tabs .tab b{font-weight:500;max-width:92%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .zone.footer.tabs .tab.act{color:var(--accent)}
+  .zone.footer.tabs .tab.act i{opacity:1;background:color-mix(in srgb,var(--accent) 18%,transparent)}
+  .zone.footer.tabs .tab.act::before{content:"";position:absolute;top:0;left:22%;right:22%;height:calc(2.5px * var(--ui));background:var(--accent);border-radius:0 0 3px 3px}
+  body.present .page .zone.footer.tabs .tab{cursor:pointer}
+  /* Vorlagenauswahl: Kennzeichen je Ziel */
+  .tpl .tplb{display:flex;gap:4px;margin:3px 0 2px;flex-wrap:wrap}
+  .tpl .tplb i{font-style:normal;font-size:10px;line-height:15px;padding:0 6px;border-radius:999px;background:var(--bg-soft);color:var(--ink-soft);border:1px solid transparent}
+  .tpl .tplb i.tb-phone{background:#EAF5F3;color:#16453E}
+  .tpl .tplb i.cur{border-color:currentColor;font-weight:600}
+  .tpl.phone .pv{background:linear-gradient(180deg,#fff,#F4F7F6)}
   /* Typauswahl */
   dialog#dlgCatalog{width:min(96vw,1180px);max-width:min(96vw,1180px)}
   .cat-filter{display:flex;flex-wrap:wrap;gap:6px;align-items:center;padding:10px 18px 0}
@@ -128,7 +143,9 @@
   const rpField = el(`<div class="field" id="rpTargetField"><label for="rpTarget" data-i18n="target.label"></label><select class="ctl" id="rpTarget">${TARGETS.map(k => `<option value="${k}" data-i18n="target.${k}"></option>`).join('')}</select><p class="hint" id="rpTargetHint"></p></div>`);
   { const nameField = $('#rpName') && $('#rpName').closest('.field'); if (nameField) nameField.insertAdjacentElement('afterend', rpField); }
   // Navigation im Burger-Menü als weitere Position
-  { const np = $('#hdNavPos'); if (np && !np.querySelector('option[value="burger"]')) np.insertAdjacentHTML('beforeend', `<option value="burger" data-i18n="opt.navPos.burger"></option>`); }
+  { const np = $('#hdNavPos'); if (np && !np.querySelector('option[value="burger"]')) np.insertAdjacentHTML('beforeend', `<option value="burger" data-i18n="opt.navPos.burger"></option><option value="tabs" data-i18n="opt.navPos.tabs"></option>`); }
+  // Canvas-Vorgabe für das Handy-Format: 1080 × 1920 mit logischer Breite 400 (Faktor 2,7 statt 0,84)
+  { const cp = $('#canvasPreset'); if (cp && !cp.querySelector('option[value="1080x1920@400"]')) { const o = el(`<option value="1080x1920@400" data-i18n="opt.canvas.phone"></option>`); const cu = cp.querySelector('option[value="custom"]'); if (cu) cp.insertBefore(o, cu); else cp.appendChild(o); I.apply(cp.parentElement); } }
 
   // Dialog: neues Projekt bzw. Ziel wechseln
   const dlg = el(`<dialog id="dlgTarget" class="tg-dlg" aria-labelledby="dlgTargetH">

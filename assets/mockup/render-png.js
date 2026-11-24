@@ -357,6 +357,19 @@
     /* Seitennavigation in der Fussleiste (rechts), wenn so eingestellt */
     var navPos = (S.chrome && S.chrome.navPos) || (c.header.navOn === false ? 'off' : 'header');
     var navW = 0;
+    if (navPos === 'tabs') {
+      /* Tab-Leiste unten (Handy-Format): gleich breite Tabs mit Symbol und Name, aktive Seite in Akzentfarbe */
+      var tn = (c.header.navAuto ? S.pages.filter(function (pg) { return !pg.role || pg.role === 'nav'; }).map(function (pg) { return pg.name; }) : (c.header.nav || []).slice()).slice(0, 5);
+      var tw = z.w / Math.max(1, tn.length), tfs = 10.5 * k, ic = 18 * k;
+      var tout = rc(z.x, z.y, z.w, z.h, { fill: ctx.tileBg }) + ln(z.x, z.y + 0.5, z.x + z.w, z.y + 0.5, '#E3E1D8', 1);
+      tn.forEach(function (nme, i) {
+        var act = nme === ctx.p.name, cx = z.x + tw * (i + 0.5), col = act ? ctx.accent : '#6B7280', top = z.y + (z.h - ic - 4 * k - tfs) / 2;
+        if (act) tout += rc(cx - tw * 0.28, z.y, tw * 0.56, 2.5 * k, { fill: ctx.accent });
+        tout += rc(cx - ic / 2, top, ic, ic, { r: 5 * k, stroke: col, sw: 1.5 * k });
+        tout += tx(cx, top + ic + 4 * k + tfs * 0.8, nme, { size: tfs, anchor: 'middle', fill: col });
+      });
+      return tout;
+    }
     if (navPos === 'footer') {
       var names = c.header.navAuto ? S.pages.map(function (pg) { return pg.name; }) : (c.header.nav || []).slice();
       var nfs = 9.5 * k, bh = Math.round(nfs * LH + 6 * k), g = 5 * k, items = [];
