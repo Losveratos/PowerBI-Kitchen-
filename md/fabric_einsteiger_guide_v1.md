@@ -6,7 +6,7 @@ EINSTEIGER-GUIDE · MICROSOFT FABRIC · END-TO-END
 
 Für alle, die Power BI kennen und jetzt verstehen wollen, was Microsoft Fabric darunter aufbaut — von OneLake über Lakehouse, Warehouse, Pipelines und Notebooks bis zum Direct-Lake-Modell im Power-BI-Bericht. Mit einem End-to-End-Beispiel und Tiefenfokus auf Direct Lake und Snowflake-Integration.
 
-**v 1 · Einsteiger** · Beta · Stand Oktober 2026 · DE · 6 Sektionen · 41 klickbare Detail-Karten
+**v 1 · Einsteiger** · Beta · Stand November 2026 · DE · 6 Sektionen · 41 klickbare Detail-Karten
 
 Michael Tenner · Power BI · Microsoft Fabric · Daten-WG · [LinkedIn](https://www.linkedin.com/in/michael-tenner-5b885970/)
 
@@ -17,6 +17,8 @@ Dieser Guide ist **kein Buch**, das du von vorn nach hinten liest. Es ist eine K
 Wenn du **aus der Power-BI-Welt** kommst, ist der rote Faden: Sektion **1 → 2 → 3** baut das mentale Modell (Was ist Fabric? → Welche Bausteine gibt es? → Wie kommt daraus ein Power-BI-Bericht?). Sektion **4** macht es einmal komplett praktisch durch. Sektion 5 (Snowflake) und 6 (Architektur-Entscheidungen) sind Vertiefung für konkrete Projektfragen.
 
 Wenn du eine Karte anklickst, öffnet sich ein Modal. Mit `Esc` schließen, oder neben das Fenster klicken.
+
+Lieber spielerisch einsteigen? Im Lernspiel [Fabric Alchemie](../fabric-alchemie-post.html) von Ulrik Harnisch braust du aus vier Grundelementen Lakehouse, Pipeline und Semantikmodell zusammen, jedes Element mit Link in die Microsoft-Learn-Doku.
 
 ## Die Reise durch Microsoft Fabric
 
@@ -65,7 +67,7 @@ Microsoft Fabric bündelt den kompletten Analytics-Lebenszyklus — vom Laden de
 
 > **In einem Satz für Power-BI-Menschen:** Fabric ist das, was passiert, wenn man den Power-BI-Service nimmt und den kompletten Daten-Backend-Stack (Data Factory, Synapse, Streaming) in dieselbe Oberfläche, denselben Speicher und dasselbe Lizenzmodell integriert.
 
-> **Kostenlos ausprobieren:** Die Fabric-Trial läuft 60 Tage — je nach Tenant mit 4 oder 64 Capacity Units (F4- bzw. F64-Niveau) und bis zu 1 TB OneLake-Speicher. Das reicht, um alle Übungen dieses Guides nachzubauen; nur Copilot und Fabric Data Agents brauchen eine bezahlte Kapazität (Stand Oktober 2026).
+> **Kostenlos ausprobieren:** Die Fabric-Trial läuft 60 Tage — je nach Tenant mit 4 oder 64 Capacity Units (F4- bzw. F64-Niveau) und bis zu 1 TB OneLake-Speicher. Das reicht, um alle Übungen dieses Guides nachzubauen; nur Copilot und Fabric Data Agents brauchen eine bezahlte Kapazität (Stand November 2026).
 
 **Weiterlesen:** [What is Microsoft Fabric? · Microsoft Learn](https://learn.microsoft.com/fabric/fundamentals/microsoft-fabric-overview) · [Lernpfad: Get started with Microsoft Fabric](https://learn.microsoft.com/training/paths/get-started-fabric/)
 
@@ -94,6 +96,10 @@ Ein typisches Azure-BI-Projekt vor Fabric: Azure Data Factory lädt Daten in ein
 
 **Weiterlesen:** [Microsoft Fabric Overview · Microsoft Learn](https://learn.microsoft.com/fabric/fundamentals/microsoft-fabric-overview) · [James Serra: Benefits of migrating from Synapse to Fabric](https://www.jamesserra.com/archive/2024/11/fabric-benefits-over-synapse/)
 
+**Daten-WG dazu:**
+
+- **[27 Jahre in 10 Minuten · Peter Gluchowski über BI, Data Warehousing, OLAP und den KI-Hype](https://youtu.be/dKA-38gRD8Q)** · Talk · 10 min · DE · [Knowledge Kitchen](../folgen.html#ep-dKA-38gRD8Q)
+
 ### Einordnung: Synapse · ADF · Power BI
 
 *EINORDNUNG · MICROSOFT-STACK*
@@ -110,17 +116,21 @@ Fabric ist der Nachfolger des „Modern Data Warehouse"-Stacks aus Azure Synapse
 
 #### Was Fabric nicht ersetzt
 
-Operative Azure-Dienste laufen weiter: Azure SQL Database als OLTP-Quelle, Event Hubs als Messaging-Backbone, ADLS Gen2 als bestehender Data Lake (den man per Shortcut einbindet statt migriert). Auch bestehende ADF- und Synapse-Umgebungen laufen weiter — es gibt aber keinen automatischen Upgrade-Pfad, Migration ist ein Projekt.
+Operative Azure-Dienste laufen weiter: Azure SQL Database als OLTP-Quelle, Event Hubs als Messaging-Backbone, ADLS Gen2 als bestehender Data Lake (den man per Shortcut einbindet statt migriert). Auch bestehende ADF- und Synapse-Umgebungen laufen weiter.
+
+#### Umzug: geführt, aber kein Knopfdruck
+
+Für Azure Data Factory beschreibt Microsoft Learn inzwischen einen geführten Upgrade-Weg ohne eigene Skripte. Zuerst bewertet ADF selbst jede Pipeline (Ready, Needs review, Coming soon oder Not compatible). Dann hängst du die Data Factory als Item „Azure Data Factory“ in einen Fabric-Workspace ein und überführst die unterstützten Pipelines Schritt für Schritt (die Schaltflächen dafür, „View in Fabric“ und „Start upgrade“, tragen laut Learn noch den Zusatz Preview). Auch Mapping Data Flows lassen sich mitnehmen: Sie werden zu Mapping-Data-Flow-Transformationen in Dataflow Gen2, die laut Learn (What's new) seit November 2026 allgemein verfügbar sind. Für Synapse Dedicated SQL Pools gibt es den *Migration Assistant for Fabric Data Warehouse*. Pipelines, für die Fabric noch keine Entsprechung hat, bleiben Handarbeit. Eine Migration ist also weiterhin ein Projekt, aber kein kompletter Neubau mehr.
 
 > **Für die Architektur-Diskussion:** Die Kernfrage ist nicht „Fabric oder Azure?", sondern: Welche bestehenden Azure-Bausteine bleiben Quelle (per Shortcut/Mirroring angebunden) — und welche Verarbeitungsschritte ziehen nach Fabric um?
 
-**Weiterlesen:** [ADF vs. Fabric Data Factory · Microsoft Learn](https://learn.microsoft.com/fabric/data-factory/compare-fabric-data-factory-and-azure-data-factory) · [endjin: Synapse vs. Fabric side-by-side](https://endjin.com/blog/2023/05/azure-synapse-analytics-versus-microsoft-fabric-a-side-by-side-comparison) · [James Serra: Fabric reference architecture](https://www.jamesserra.com/archive/2024/08/microsoft-fabric-reference-architecture/)
+**Weiterlesen:** [ADF vs. Fabric Data Factory · Microsoft Learn](https://learn.microsoft.com/fabric/data-factory/compare-fabric-data-factory-and-azure-data-factory) · [Upgrade-Planung ADF → Fabric · Microsoft Learn](https://learn.microsoft.com/fabric/data-factory/upgrade-planning-azure-data-factory) · [Migration Assistant for Fabric Data Warehouse · Microsoft Learn](https://learn.microsoft.com/fabric/data-warehouse/migration-assistant) · [endjin: Synapse vs. Fabric side-by-side](https://endjin.com/blog/2023/05/azure-synapse-analytics-versus-microsoft-fabric-a-side-by-side-comparison) · [James Serra: Fabric reference architecture](https://www.jamesserra.com/archive/2024/08/microsoft-fabric-reference-architecture/)
 
 ### Fabric & Power BI
 
 *EINORDNUNG · BEZIEHUNG*
 
-Power BI ist nicht „kompatibel mit" Fabric — es ist eine der Fabric-Experiences. Microsoft formuliert es offiziell: „Power BI Premium is now part of Fabric."
+Power BI ist nicht „kompatibel mit" Fabric — es ist eine der Fabric-Experiences. Microsoft stellt die Power-BI-Premium-Kapazitäten (P-SKUs) ein; an ihre Stelle treten die Fabric-Kapazitäten (F-SKUs).
 
 #### Was das konkret heißt
 
@@ -139,7 +149,7 @@ Kurzfristig: wenig — Berichte, Apps, RLS und Deployment funktionieren wie bish
 
 > **Lizenz-Merksatz:** Zum *Erstellen* von Power-BI-Inhalten braucht es weiterhin eine Pro-Lizenz. Ab F64 dürfen Free-User Inhalte auf der Kapazität *konsumieren* — für Nicht-Power-BI-Items (Lakehouse, Notebook, Pipeline) braucht es gar keine Pro-Lizenz.
 
-**Weiterlesen:** [Power BI Premium FAQ · Microsoft Learn](https://learn.microsoft.com/fabric/enterprise/powerbi/service-premium-faq) · [Build Power BI reports in Microsoft Fabric](https://learn.microsoft.com/power-bi/fundamentals/fabric-get-started)
+**Weiterlesen:** [Power BI Premium to Microsoft Fabric migration FAQ · Microsoft Learn](https://learn.microsoft.com/power-bi/support/premium-migration-faq) · [Build Power BI reports in Microsoft Fabric](https://learn.microsoft.com/power-bi/fundamentals/fabric-get-started)
 
 **Daten-WG dazu:**
 
@@ -151,7 +161,7 @@ Kurzfristig: wenig — Berichte, Apps, RLS und Deployment funktionieren wie bish
 
 Fabric organisiert sich in Workloads (auch „Experiences"): fachliche Sichten auf dieselbe Plattform, jede mit eigenen Item-Typen — aber alle auf demselben OneLake.
 
-#### Die Workload-Landkarte (Stand Oktober 2026)
+#### Die Workload-Landkarte (Stand November 2026)
 
 - **Data Factory** — Pipelines, Copy job, Dataflow Gen2, Mirroring, dazu Apache-Airflow- und dbt-Jobs: Daten bewegen und orchestrieren
 - **Data Engineering** — Lakehouse, Notebooks, Spark Job Definitions, Materialized Lake Views, User Data Functions: Daten mit Spark verarbeiten und Logik kapseln
@@ -160,7 +170,7 @@ Fabric organisiert sich in Workloads (auch „Experiences"): fachliche Sichten a
 - **Real-Time Intelligence** — Real-Time Hub, Eventstream, Eventhouse/KQL-Datenbank, Real-Time Dashboards, Activator
 - **Databases** — SQL database in Fabric (OLTP) und Cosmos DB in Fabric (NoSQL), beide automatisch nach OneLake gespiegelt
 - **Power BI** — semantische Modelle, Berichte, Apps — inklusive **Translytical Task Flows** (seit März 2026 GA): Buttons im Bericht rufen User Data Functions auf und schreiben z. B. in eine SQL database zurück
-- **Fabric IQ** — Geschäftskontext für KI: Ontologien, Planning und der Fabric-IQ-MCP-Server (siehe Karte „Copilot, Data Agents & MCP")
+- **Fabric IQ** — Geschäftskontext für KI: Ontologien, Planning, Graph, semantische Modelle und Data Agents (ein Item kann zu mehreren Workloads gehören). Der IQ-Workload selbst und das Item „Ontology“ sind laut Microsoft Learn noch Preview; allgemein verfügbar sind der Fabric-IQ-MCP-Server und Fabric IQ in Microsoft 365 Copilot (siehe Karte „Copilot, Data Agents & MCP")
 
 ![Diagramm: Alle Fabric-Compute-Engines — Data Engineering, Warehouse, Data Factory, Power BI, Real-Time Intelligence — greifen auf denselben OneLake-Speicher zu](../assets/learn/onelake-architecture.png)
 
@@ -168,9 +178,26 @@ Fabric organisiert sich in Workloads (auch „Experiences"): fachliche Sichten a
 
 > **Warum das für dich zählt:** Du musst nicht alle Workloads lernen. Ein typischer BI-Pfad braucht genau drei: Data Factory (Daten holen) → Data Engineering oder Warehouse (strukturieren) → Power BI (modellieren und berichten). Die Karten dieses Guides folgen diesem Pfad.
 
-> **Neu und noch Preview: Fabric Apps:** Mit Fabric Apps (Rayfin SDK, TypeScript) entstehen eigene Daten-Apps als Fabric-Item — Backend mit SQL database in Fabric, GraphQL-API, Entra-SSO und Hosting inklusive. Braucht eine Fabric-Kapazität und eine Freigabe im Tenant. Für klassische BI-Teams ein Ausblick, kein Pflichtstoff.
+#### Neu: Fabric Apps
 
-**Weiterlesen:** [Fabric terminology · Microsoft Learn](https://learn.microsoft.com/fabric/fundamentals/fabric-terminology) · [Translytical task flows · Microsoft Learn](https://learn.microsoft.com/power-bi/create-reports/translytical-task-flow-overview) · [Fabric Apps (Preview) · Microsoft Learn](https://learn.microsoft.com/fabric/apps/overview)
+Mit Fabric Apps entstehen eigene Daten-Apps als Fabric-Item. Grundlage ist das Rayfin SDK: Du beschreibst das Datenmodell in TypeScript, Fabric erzeugt daraus die Datenbank und eine GraphQL-API und übernimmt Anmeldung (Fabric SSO mit Entra ID) und Hosting. Über Konnektoren liest eine App auch vorhandene Daten, etwa ein Lakehouse, ein Warehouse oder ein semantisches Modell. Für Power-BI-Teams ist der Konnektor zum semantischen Modell der interessante: Die App übernimmt Darstellung und Interaktion, die Kennzahlen kommen weiter aus dem Modell.
+
+- **Mit Kapazität:** im Workspace mit Fabric- oder Trial-Kapazität; die App-Dienste verbrauchen CUs dieser Kapazität, die App-Daten liegen in einer SQL database in Fabric
+- **Mit Power BI Pro:** in einem Pro-Workspace, ganz ohne Fabric-Kapazität. Dann gelten Grenzen: App-Datenbank PostgreSQL bis 1 GB, keine Functions, kein Dateispeicher, kein anonymer Zugriff. Eine Free-Lizenz allein, also ohne Kapazität, reicht zum Erstellen nicht
+- **In beiden Fällen** muss ein Fabric-Admin die Tenant-Einstellung „Fabric Apps“ freigeben
+
+> **Status: Ankündigung und Doku sind sich nicht einig:** Microsoft hat Fabric Apps und Rayfin auf der Microsoft Ignite (17. bis 20.11.2026) als allgemein verfügbar angekündigt (Book of News). Die Learn-Seite „What's new in Microsoft Fabric“ führte das Rayfin-Backend für Fabric Apps am 24.11.2026 noch als Preview. Vor einem produktiven Einsatz deshalb den aktuellen Stand auf Learn und im eigenen Tenant prüfen. Für klassische BI-Teams bleibt das ein Ausblick, kein Pflichtstoff.
+
+![Fabric App Finance KPI Cockpit: sechs KPI-Karten mit Abweichung zu Vorjahr, Plan und Forecast, darunter Umsatz je Monat als Säulen mit Abweichungen und Umsatz nach Land als Balken, rechts ein Filterbereich mit Zeitraum, Vergleich, Versionen und Märkten](../blog/assets/fabric-apps/cockpit-uebersicht.jpg)
+
+**Abb. · Eine Fabric App auf einem semantischen Modell** Das „Finance KPI Cockpit“ aus der Daten-WG: Die App fragt ein bestehendes semantisches Modell ab, Demodaten. Wie es in etwa einer Stunde entstanden ist und was man vorher wissen sollte: [Fabric Apps im Heimrevier von Power BI: Vertrieb und Finance](../fabric-apps-controlling-post.html)
+
+**Weiterlesen:** [Fabric terminology · Microsoft Learn](https://learn.microsoft.com/fabric/fundamentals/fabric-terminology) · [Translytical task flows · Microsoft Learn](https://learn.microsoft.com/power-bi/create-reports/translytical-task-flow-overview) · [What are Fabric Apps? · Microsoft Learn](https://learn.microsoft.com/fabric/apps/overview) · [Lizenzoptionen für Fabric Apps · Microsoft Learn](https://learn.microsoft.com/fabric/apps/licensing) · [Fabric Apps im Controlling (Daten-WG)](../fabric-apps-controlling-post.html)
+
+**Daten-WG dazu:**
+
+- **[Fabric Planning unboxing](https://youtu.be/xCzKEIB4W5I)** · WG Special · 90 min · DE · [Knowledge Kitchen](../folgen.html#ep-xCzKEIB4W5I)
+- **[Fabric Planning Hands-On](https://youtu.be/YRoJ_6t3VrE)** · Hands-On · 66 min · DE · [Knowledge Kitchen](../folgen.html#ep-YRoJ_6t3VrE)
 
 ### Capacities, F-SKUs & Lizenzen
 
@@ -182,19 +209,25 @@ Fabric rechnet in Capacity Units (CU) ab: Eine Kapazität (F-SKU) ist ein Pool a
 
 (1) Der Tenant kauft eine oder mehrere **F-SKUs** in Azure — von F2 (2 CU) über F64 (64 CU, Rechenleistung der alten Premium P1) bis F8192. (2) Workspaces werden einer Kapazität zugeordnet; alles, was darin rechnet (Refresh, Spark-Job, SQL-Query, Bericht, Copilot), verbraucht CUs. (3) Dazu kommen **Per-User-Lizenzen**: Free, Pro, Premium-per-User — wie aus Power BI bekannt.
 
-#### Die wichtigsten Regeln (Stand Oktober 2026)
+#### Die wichtigsten Regeln (Stand November 2026)
 
 - **F-SKUs** laufen Pay-as-you-go (sekundengenau abgerechnet, mindestens eine Minute), lassen sich pausieren und jederzeit skalieren — oder als Reservierung günstiger. Die Preise unterscheiden sich je Azure-Region
-- **Bursting & Smoothing:** Ein Job darf kurzfristig mehr Leistung ziehen, als die SKU hat; der Verbrauch wird über die Zeit verteilt (Background-Jobs über 24 Stunden). Erst anhaltende Überlast führt zu **Throttling** — erst Verzögerung, dann Ablehnung. Auswege: hochskalieren, pausieren und fortsetzen (rechnet die aufgelaufene Last sofort ab), Capacity Overage (zum dreifachen Tarif) oder Surge Protection für Background-Jobs
+- **Bursting & Smoothing:** Ein Job darf kurzfristig mehr Leistung ziehen, als die SKU hat; der Verbrauch wird über die Zeit verteilt (Background-Jobs über 24 Stunden). Erst anhaltende Überlast führt zu **Throttling** — erst Verzögerung, dann Ablehnung. Auswege: hochskalieren, pausieren und fortsetzen (rechnet die aufgelaufene Last sofort ab), Capacity Overage (zum dreifachen Tarif, bei neuen Kapazitäten standardmäßig an, siehe Kasten unten) oder Surge Protection. Surge Protection gibt es auf zwei Ebenen: Auf Kapazitätsebene lehnt sie neue Background-Jobs ab, bevor die Kapazität tief in die Drosselung rutscht; auf Workspace-Ebene (laut Learn seit November 2026 allgemein verfügbar) begrenzt sie, wie viel Rechenleistung ein einzelner Workspace verbrauchen darf, damit kein Workspace die Kapazität allein belegt
 - **P-SKU-Auslauf:** Premium-P-SKUs gibt es nicht mehr neu; jede läuft zum Ende ihrer Vertragslaufzeit aus (aktive Enterprise Agreements können bis Vertragsende verlängern). Danach 30 Tage Grace, Tag 31–90 gedrosselt, ab Tag 91 werden alle Operationen abgelehnt. Die Migration ist manuell: F-SKU kaufen, Workspaces umhängen, dann P-SKU kündigen. Pro, PPU und Embedded-SKUs (A/EM) sind nicht betroffen
 - **Ab F64** können Free-User mit Viewer-Rolle Power-BI-Inhalte konsumieren; von F2 bis F32 braucht jeder Berichts-Konsument Pro oder PPU
 - **Fabric-Items ohne Pro:** Lakehouses, Notebooks, Pipelines kann jeder mit Free-Lizenz in F- oder Trial-Workspaces anlegen — Pro braucht nur, wer Power-BI-Inhalte erstellt und teilt. PPU stellt *keine* Fabric-Kapazität bereit
 - **Trial:** 60 Tage, je nach Tenant mit 4 oder 64 CU (F4/F64) — Admins können eine F4-Trial unter Umständen auf 64 CU erhöhen. Bis 1 TB OneLake; Copilot, Data Agents, AI Functions und Private Link sind im Trial nicht enthalten
-- **KI braucht bezahlte Kapazität:** Copilot und Fabric Data Agents setzen F2+ (oder P1+) voraus. Eine *Fabric Copilot capacity* bündelt den Copilot-Verbrauch einer Nutzergruppe — auch aus Power BI Desktop und Pro-/PPU-Workspaces
+- **KI braucht bezahlte Kapazität:** Copilot und Fabric Data Agents setzen F2+ (oder P1+) voraus. Eine *Fabric Copilot capacity* bündelt den Copilot-Verbrauch einer Nutzergruppe — auch aus Power BI Desktop und Pro-/PPU-Workspaces. Ausnahme seit November 2026: Der neue „Microsoft Copilot in Power BI und Fabric“ (Preview) beantwortet Fragen zu Power-BI-Daten laut Learn auch ohne Fabric-Kapazität
+
+> **Achtung Kosten: Capacity Overage ist bei neuen Kapazitäten eingeschaltet:** Capacity Overage ist seit September 2026 allgemein verfügbar und bei jeder neu angelegten F-Kapazität standardmäßig aktiv. Gerät die Kapazität in die Überlast, drosselt Fabric dann nicht, sondern rechnet den Mehrverbrauch zum **dreifachen Pay-as-you-go-Tarif** über dein Azure-Abo ab. Ab Werk ist eine Schwelle von 25 % zusätzlichem Verbrauch je rollierenden 24 Stunden eingestellt; ist sie erreicht, drosselt Fabric wieder. Diese Schwelle ist ausdrücklich **keine harte Kostenobergrenze**: Fabric prüft nur in Abständen, laufende Vorgänge laufen weiter, die Rechnung kann also höher ausfallen. Wer mit einer kleinen F2 oder F4 übt und lieber eine gedrosselte Kapazität als eine Überraschung auf der Rechnung hat, schaltet die Option beim Anlegen ab oder später unter *OneLake catalog → Govern → Capacities → Settings → Capacity overage*. Die Fabric-Trial ist davon nicht betroffen, Capacity Overage gibt es nur für F-SKUs.
+
+![Screenshot der Kapazitätseinstellung Capacity Overage: Schalter auf On, darunter der Schieberegler für das rollierende 24-Stunden-Limit mit dem Beispielwert 240 CU-Stunden](../assets/learn/capacity-overage-setting.png)
+
+**Abb. · Die Einstellung „Capacity Overage“** Schalter und Schwelle für die rollierenden 24 Stunden (im Bild ein Beispielwert, nicht der Standard von 25 %). Quelle: [Enable capacity overage in Microsoft Fabric · Microsoft Learn](https://learn.microsoft.com/fabric/enterprise/enable-capacity-overage) (CC BY 4.0)
 
 > **Betriebs-Tipp:** CU-Verbrauch überwacht man mit der **Fabric Capacity Metrics App** — Pflicht, sobald mehr als ein Team auf derselben Kapazität arbeitet. Schwere Background-Jobs (Spark, große Refreshes) von interaktiven BI-Lasten trennen, sonst bremsen sie sich gegenseitig aus. Surge Protection hilft, ersetzt aber keine passende Kapazitätsgröße.
 
-**Weiterlesen:** [Understand Microsoft Fabric licenses · Microsoft Learn](https://learn.microsoft.com/fabric/enterprise/licenses) · [Throttling-Policy · Microsoft Learn](https://learn.microsoft.com/fabric/enterprise/throttling) · [FAQ: P-SKU → F-SKU · Microsoft Learn](https://learn.microsoft.com/power-bi/support/premium-migration-faq) · [Fabric-Trial · Microsoft Learn](https://learn.microsoft.com/fabric/fundamentals/fabric-trial)
+**Weiterlesen:** [Understand Microsoft Fabric licenses · Microsoft Learn](https://learn.microsoft.com/fabric/enterprise/licenses) · [Throttling-Policy · Microsoft Learn](https://learn.microsoft.com/fabric/enterprise/throttling) · [Capacity overage · Microsoft Learn](https://learn.microsoft.com/fabric/enterprise/capacity-overage-overview) · [Surge protection · Microsoft Learn](https://learn.microsoft.com/fabric/enterprise/surge-protection) · [FAQ: P-SKU → F-SKU · Microsoft Learn](https://learn.microsoft.com/power-bi/support/premium-migration-faq) · [Fabric-Trial · Microsoft Learn](https://learn.microsoft.com/fabric/fundamentals/fabric-trial)
 
 Weiter vertiefen Sektion 01: Einordnung, Lizenzen & Kapazität
 
@@ -280,7 +313,7 @@ JOIN dbo.dimension_city c ON s.CityKey = c.CityKey
 GROUP BY s.InvoiceDateKey, c.City
 ```
 
-Das Ergebnis ist eine Delta-Tabelle (Direct-Lake-tauglich). Aktualisiert wird nicht per Notebook, sondern über *Materialized lake views → Manage*: Lineage und Zeitplan, Refresh in Abhängigkeitsreihenfolge, wo möglich inkrementell.
+Das Ergebnis ist eine Delta-Tabelle (Direct-Lake-tauglich). Aktualisiert wird nicht per Notebook, sondern über *Materialized lake views → Manage*: Lineage und Zeitplan, Refresh in Abhängigkeitsreihenfolge. Inkrementell aktualisiert Fabric eine Materialized Lake View nur, wenn auf den Quelltabellen der Delta Change Data Feed eingeschaltet ist; ohne ihn entscheidet die Engine nur zwischen „überspringen“ (keine Änderung) und Vollaktualisierung. Materialized Lake Views sind laut Learn (What's new) seit September 2026 allgemein verfügbar.
 
 ![Diagramm: Daten- und Transformationsfluss durch Bronze-, Silber- und Gold-Schicht mit Quelle, Transformation und Ziel je Schritt](../assets/learn/data-transformation-flow.png)
 
@@ -290,7 +323,7 @@ Das Ergebnis ist eine Delta-Tabelle (Direct-Lake-tauglich). Aktualisiert wird ni
 
 > **Muss es immer Medallion sein?** Nein — für kleine Lösungen reicht oft ein Lakehouse mit Schemas bronze/silver/gold. Wichtig ist das Prinzip: Rohdaten unangetastet lassen, Veredelung nachvollziehbar in Stufen.
 
-**Weiterlesen:** [Medallion-Architektur · Microsoft Learn](https://learn.microsoft.com/fabric/onelake/onelake-medallion-lakehouse-architecture) · [Spark-SQL-Referenz Materialized Lake Views · Microsoft Learn](https://learn.microsoft.com/fabric/data-engineering/materialized-lake-views/create-materialized-lake-view) · [Modul: Medallion-Architektur in Fabric](https://learn.microsoft.com/training/modules/describe-medallion-architecture/) · [phData: Medallion & skalierbares Modeling](https://www.phdata.io/blog/medallion-architecture-and-scalable-data-modeling-in-microsoft-fabric/)
+**Weiterlesen:** [Medallion-Architektur · Microsoft Learn](https://learn.microsoft.com/fabric/onelake/onelake-medallion-lakehouse-architecture) · [Spark-SQL-Referenz Materialized Lake Views · Microsoft Learn](https://learn.microsoft.com/fabric/data-engineering/materialized-lake-views/create-materialized-lake-view) · [Materialized Lake Views: Refresh-Optimierung · Microsoft Learn](https://learn.microsoft.com/fabric/data-engineering/materialized-lake-views/overview-materialized-lake-view) · [Modul: Medallion-Architektur in Fabric](https://learn.microsoft.com/training/modules/describe-medallion-architecture/) · [phData: Medallion & skalierbares Modeling](https://www.phdata.io/blog/medallion-architecture-and-scalable-data-modeling-in-microsoft-fabric/)
 
 ### Rolle des semantischen Modells
 
@@ -314,6 +347,10 @@ Weil sonst jeder Bericht seine eigene Logik mitbringt: Drei Analysten definieren
 > **Kein Default-Modell mehr:** Seit dem 5. September 2025 erzeugen neue Lakehouses, Warehouses und Mirrored Databases kein automatisches Default-Semantic-Model mehr; alte Default-Modelle wurden bis 30. November 2025 zu eigenständigen Modellen entkoppelt. Das ist gut so: Modelle entstehen jetzt bewusst, mit ausgewählten Tabellen statt „alles rein". Und weil Copilot und Data Agents ihre Antworten aus diesen Modellen ziehen, zahlt sich jede gepflegte Beschreibung doppelt aus (Karte „Copilot, Data Agents & MCP").
 
 **Weiterlesen:** [Store data in Microsoft Fabric · Microsoft Learn](https://learn.microsoft.com/fabric/fundamentals/store-data) · [Semantic model modes · Microsoft Learn](https://learn.microsoft.com/power-bi/connect-data/service-dataset-modes-understand)
+
+**Daten-WG dazu:**
+
+- **[BI Thinkers Talk nr.79 · Ontologien, OSI und die Suche nach zentralen Metriken](https://youtu.be/hlY7iqHsdzA)** · Talk · 58 min · DE · [Knowledge Kitchen](../folgen.html#ep-hlY7iqHsdzA)
 
 ### OneLake — der Datensee des Tenants
 
@@ -344,7 +381,7 @@ Ein Table-Shortcut kann Dateien automatisch in eine Delta-Tabelle umwandeln: **C
 
 #### Sicherheit & Kosten
 
-Interne Shortcuts autorisieren mit der Identität des abfragenden Users (Berechtigungen der Quelle gelten weiter). Externe Shortcuts nutzen eine hinterlegte Cloud-Connection — für firewall-geschützte ADLS-Konten auch per Workspace Identity (Trusted Workspace Access). Bei Cross-Cloud-Zugriff (z. B. S3) reduziert intelligentes Caching die Egress-Kosten.
+Interne Shortcuts autorisieren mit der Identität des abfragenden Users (Berechtigungen der Quelle gelten weiter). Externe Shortcuts nutzen eine hinterlegte Cloud-Connection — für firewall-geschützte ADLS-Konten auch per Workspace Identity (Trusted Workspace Access). Bei Cross-Cloud-Zugriff kann Shortcut-Caching die Egress-Kosten senken. Es ist allerdings nicht automatisch aktiv: Du schaltest es pro Workspace ein (Workspace-Einstellungen → OneLake, Aufbewahrung 1 bis 28 Tage), und es gilt derzeit für Shortcuts auf Google Cloud Storage, Amazon S3, S3-kompatible Speicher und On-Premises-Gateway-Quellen, nicht für ADLS.
 
 > **Erste Architektur-Regel:** Bestehende Data Lakes nicht migrieren, sondern per Shortcut einbinden — das ist der offizielle Bronze-Layer-Ratschlag der Medallion-Doku („reference statt copy").
 
@@ -430,7 +467,7 @@ Der Endpoint ist ein TDS-Endpunkt (wie ein SQL Server): Du kannst dich mit SSMS,
 #### Die zwei Dinge, die man wissen muss
 
 - **Read-only:** Kein INSERT/UPDATE/DELETE auf Daten — der Endpoint ist die Konsum-Schicht des Lakehouse, nicht sein Schreibweg
-- **Sync-Latenz:** Neue Delta-Tabellen und -Daten erscheinen im Endpoint über einen Hintergrund-Sync — unter normalen Bedingungen in unter einer Minute. Wer in einer Pipeline schreibt und sofort per SQL liest, sollte den Metadaten-Refresh als Schritt einplanen
+- **Sync-Latenz:** Neue Delta-Tabellen und -Daten erscheinen im Endpoint über einen Hintergrund-Sync — unter normalen Bedingungen in unter einer Minute. Wer in einer Pipeline schreibt und sofort per SQL liest, sollte den Metadaten-Refresh als Schritt einplanen. Neu seit November 2026 (laut Learn allgemein verfügbar): die „New metadata sync“. Sie macht neue Daten laut Microsoft innerhalb von Sekunden abfragbar. Du schaltest sie unter *Workspace settings → Data Warehouse → New metadata sync* für neue Endpoints ein; bestehende Endpoints werden separat umgestellt
 
 #### Snippet · View für Ad-hoc-Analysen
 
@@ -452,11 +489,11 @@ Gut für SQL-Analysten, Excel und Import-Modelle. **Nicht** als Quelle für Dire
 
 ![Screenshot: Workspace-Liste mit dem automatisch erzeugten Item vom Typ SQL analytics endpoint neben dem Lakehouse](../assets/learn/sql-endpoint-type.png)
 
-**Abb. · Automatisch erzeugtes Item** Der SQL analytics endpoint erscheint als eigenes Item neben jedem Lakehouse. Quelle: [Fabric Data Warehouse Doku · Microsoft Learn](https://learn.microsoft.com/fabric/data-warehouse/data-warehousing)
+**Abb. · Automatisch erzeugtes Item** Der SQL analytics endpoint erscheint als eigenes Item neben jedem Lakehouse. Das Bild ist älter: Ein „Semantic model (default)“ wie in der mittleren Zeile legt Fabric seit September 2025 nicht mehr an. Quelle: [Fabric Data Warehouse Doku · Microsoft Learn](https://learn.microsoft.com/fabric/data-warehouse/data-warehousing)
 
 > **Für Power-BI-Menschen: Achtung bei SQL-Security:** Der Endpoint ist der Weg, ein Lakehouse per Import oder DirectQuery anzubinden — und die Grundlage von „Direct Lake on SQL". Am Endpoint definierte RLS, OLS oder Dynamic Data Masking zwingen *Direct Lake on SQL* in den DirectQuery-Fallback. *Direct Lake on OneLake* liest dagegen direkt aus OneLake und wendet SQL-RLS **nicht** an — dort gehört die Zeilensicherheit in OneLake Security oder ins semantische Modell.
 
-**Weiterlesen:** [SQL analytics endpoint · Microsoft Learn](https://learn.microsoft.com/fabric/data-engineering/lakehouse-sql-analytics-endpoint) · [Direct Lake security integration · Microsoft Learn](https://learn.microsoft.com/fabric/fundamentals/direct-lake-security-integration)
+**Weiterlesen:** [SQL analytics endpoint · Microsoft Learn](https://learn.microsoft.com/fabric/data-engineering/lakehouse-sql-analytics-endpoint) · [Metadaten-Synchronisierung des Endpoints · Microsoft Learn](https://learn.microsoft.com/fabric/data-engineering/sql-analytics-endpoint-metadata-sync) · [Direct Lake security integration · Microsoft Learn](https://learn.microsoft.com/fabric/fundamentals/direct-lake-security-integration)
 
 ### Pipelines & Copy — Datenintegration
 
@@ -467,7 +504,7 @@ Pipelines sind das Orchestrierungs-Werkzeug von Fabric Data Factory: Daten kopie
 #### Die Bausteine
 
 - **Copy Activity** — der Arbeits-Baustein in Pipelines (Item-Typ heißt heute schlicht „Pipeline"): kopiert Daten aus Dutzenden Quellen nach Lakehouse/Warehouse, skaliert bis in den Petabyte-Bereich, mit leichten Transformationen (Mapping, Format)
-- **Copy job** — Datenbewegung ohne Pipeline-Bau: Full Copy, inkrementell per Watermark oder per CDC (inkl. Deletes); Schreibmodi Append, Merge, Overwrite und **SCD Typ 2** (Preview, mit `Valid_From`/`Valid_To`/`Is_Current`); optional Audit-Spalten und Auto-Partitionierung
+- **Copy job** — Datenbewegung ohne Pipeline-Bau: Full Copy, inkrementell per Watermark oder per CDC (inkl. Deletes); Schreibmodi Append, Merge, Overwrite und **SCD Typ 2** (Historie mit `Valid_From`/`Valid_To`/`Is_Current`); optional Audit-Spalten und Auto-Partitionierung. SCD Typ 2, CDC und Audit-Spalten sind laut Learn (What's new) seit September 2026 allgemein verfügbar; Preview ist nur noch die Auto-Partitionierung
 - **Control Flow** — ForEach, Lookup, If, Invoke Pipeline: verschachtelte Orchestrierung wie in Azure Data Factory
 - **Transformation-Activities** — Notebook, Dataflow Gen2, Stored Procedure, Script, User Data Function: die eigentliche Verarbeitung delegieren
 - **Trigger** — Schedule, Event-basiert (z. B. „neue Datei im Storage") oder on demand
@@ -475,8 +512,6 @@ Pipelines sind das Orchestrierungs-Werkzeug von Fabric Data Factory: Daten kopie
 ![Diagramm: Data-Integration-Stack von Fabric Data Factory — Konnektoren, Data Movement, Orchestrierung und Transformation auf OneLake](../assets/learn/data-integration-stack.png)
 
 **Abb. · Der Data-Factory-Stack** Konnektoren → Movement/Orchestrierung/Transformation → Analytics, alles auf OneLake. Quelle: [What is Data Factory? · Microsoft Learn](https://learn.microsoft.com/fabric/data-factory/data-factory-overview)
-
-> **Leistungs-Referenz:** Microsofts offizielle FAQ-Benchmark: Ein 1-TB-TPC-DI-Datensatz (Parquet) landet in rund 5 Minuten im Lakehouse/Warehouse — eine Milliarde Zeilen in unter einer Minute. Echte Durchsätze hängen an Quelle, Ziel und Netzwerk.
 
 > **On-Premises-Quellen:** Für lokale Datenbanken braucht es das On-Premises Data Gateway — oder man dreht die Richtung um und *pusht* von on-prem nach Fabric (z. B. aus SSIS heraus, siehe Daten-WG-Folgen unten). Für ganze Datenbanken lohnt außerdem der Blick auf Mirroring (SQL Server, Oracle, SAP u. a.).
 
@@ -490,7 +525,7 @@ Dataflow Gen2 ist Power Query als Fabric-Service: dieselbe Oberfläche, die jede
 
 #### Was ist das?
 
-Ein Dataflow Gen2 verbindet sich mit Hunderten Quellen, transformiert mit über 300 Power-Query-Funktionen (M-Engine) und schreibt in ein konfigurierbares **Ziel**: Lakehouse, Warehouse, Eventhouse (KQL) oder Azure SQL. Damit ist er die natürliche Brücke für Power-BI-Teams: bekannte Oberfläche, neues Ziel — statt ins eigene Modell hinein transformiert man in die Plattform hinein, wo alle das Ergebnis nutzen können.
+Ein Dataflow Gen2 verbindet sich mit Hunderten Quellen, transformiert mit über 300 Power-Query-Funktionen (M-Engine) und schreibt in ein konfigurierbares **Ziel**, u. a. Lakehouse-Tabellen und -Dateien, Warehouse, KQL-Datenbank, SQL database in Fabric, Azure SQL, ADLS Gen2, SharePoint-Dateien oder Snowflake. Damit ist er die natürliche Brücke für Power-BI-Teams: bekannte Oberfläche, neues Ziel — statt ins eigene Modell hinein transformiert man in die Plattform hinein, wo alle das Ergebnis nutzen können.
 
 #### Gen2 vs. Gen1 (Power-BI-Dataflows)
 
@@ -498,6 +533,7 @@ Ein Dataflow Gen2 verbindet sich mit Hunderten Quellen, transformiert mit über 
 - **Fast Copy & Co.:** Große Ladevorgänge nutzen die Copy-Infrastruktur. Microsofts Benchmark (August 2026): Bulk-Load mit Fast Copy rund **11× schneller als Gen1** (9:08 min statt 1:38 h) bei 83 % weniger CU. Modern Evaluator, „Optimized copy to Lakehouse" und Partitioned Compute (Preview) beschleunigen weitere Muster
 - **CI/CD & Pipelines:** Seit April 2026 entstehen neue Dataflow Gen2 immer mit Git- und Deployment-Pipeline-Unterstützung; Dataflows lassen sich als Pipeline-Activity orchestrieren und parametrisieren
 - **Gen1 auslaufen lassen:** Microsoft empfiehlt, Gen1-Dataflows nach Gen2 zu migrieren (z. B. per „Save As")
+- **Neu für ADF- und Synapse-Umsteiger:** Transformationen aus Mapping Data Flows gibt es jetzt auch in Dataflow Gen2, samt Migrationsweg aus Azure Data Factory und Synapse. Laut Learn (What's new) ist das seit November 2026 allgemein verfügbar
 
 > **Wann Dataflow, wann Notebook?** Offizielle Personas: Dataflow Gen2 für Business-Analysten und „Citizen Engineers" (Low-Code), Notebooks für Data Engineers (Code-First, komplexe Logik, unstrukturierte Daten). Beide schreiben am Ende dieselben Delta-Tabellen — die Wahl ist eine Team-Frage, keine Architektur-Frage.
 
@@ -590,6 +626,10 @@ Eventhouse-Daten lassen sich in OneLake verfügbar machen (OneLake Availability)
 
 **Weiterlesen:** [Real-Time Intelligence · Microsoft Learn](https://learn.microsoft.com/fabric/real-time-intelligence/overview) · [Eventhouse overview · Microsoft Learn](https://learn.microsoft.com/fabric/real-time-intelligence/eventhouse)
 
+**Daten-WG dazu:**
+
+- **[BI Thinkers Talk nr.77 · Lego-Roboter aus Power BI steuern: Translytical, IoT, Fabric SQL und Eventstreams](https://youtu.be/eWfTt93anl4)** · Talk · 66 min · DE · [Knowledge Kitchen](../folgen.html#ep-eWfTt93anl4)
+
 ### Medallion: Bronze · Silber · Gold
 
 Siehe den gleichnamigen Abschnitt weiter oben.
@@ -602,7 +642,7 @@ Daten-WG · Sprung ins Video
 - [05:04 Shortcut Transformation: warum die ganze Partition ersetzt wird](https://www.youtube.com/watch?v=Z6RZjkn_6lY&t=304s) Shortcut Transformation erklärt · [Karte in der Kitchen](../folgen.html#ep-Z6RZjkn_6lY)
 - [02:10 Blick ins Delta Log — Grundlage für Time Travel](https://www.youtube.com/watch?v=_AxvdCW0ST4&t=130s) Microsoft Fabric Time Travel erklärt · [Karte in der Kitchen](../folgen.html#ep-_AxvdCW0ST4)
 - [17:21 Immer drei Layer — und die sind nicht diskutabel](https://www.youtube.com/watch?v=J-lN5JN-F5I&t=1041s) Daten-WG Life-Update · Fabric Architekturen · [Karte in der Kitchen](../folgen.html#ep-J-lN5JN-F5I)
-- [21:26 SCD Typ 2 im Copy Job (Preview)](https://www.youtube.com/watch?v=pTTYySb0Cyg&t=1286s)Fabric & Power BI Quarterly · 2026-2 · [Karte in der Kitchen](../folgen.html#ep-pTTYySb0Cyg)
+- [21:26 SCD Typ 2 im Copy Job (bei Aufnahme Preview, seit September 2026 allgemein verfügbar)](https://www.youtube.com/watch?v=pTTYySb0Cyg&t=1286s)Fabric & Power BI Quarterly · 2026-2 · [Karte in der Kitchen](../folgen.html#ep-pTTYySb0Cyg)
 
 DatenWG Library · Themen
 
@@ -611,6 +651,8 @@ DatenWG Library · Themen
 - [Delta Lake](../wissensgraph/thema/delta-lake.html)
 - [Data Pipeline](../wissensgraph/thema/data-pipeline.html)
 - [Notebook](../wissensgraph/thema/notebook.html)
+- [Warehouse](../wissensgraph/thema/warehouse.html)
+- [Eventhouse](../wissensgraph/thema/eventhouse.html)
 
 Microsoft Learn · Doku & Training
 
@@ -662,7 +704,9 @@ In den Modell-Settings: **„Keep your Direct Lake data up to date"** (automatis
 
 > **Profi-Weg: XMLA & Tools:** Fabric-Modelle sprechen das XMLA-Protokoll — Tabular Editor, SSMS und CI/CD über TMDL funktionieren wie bei Premium-Datasets; für Direct-Lake-Metadaten braucht das Tool Compatibility Level 1604 oder höher. Wer aus der Enterprise-Power-BI-Welt kommt, nimmt seinen Werkzeugkasten mit (Karte „Nutzung in Power BI & XMLA").
 
-**Weiterlesen:** [Develop Direct Lake semantic models · Microsoft Learn](https://learn.microsoft.com/fabric/fundamentals/direct-lake-develop) · [Direct Lake in Power BI Desktop · Microsoft Learn](https://learn.microsoft.com/fabric/fundamentals/direct-lake-power-bi-desktop) · [Direct Lake im Web-Modeling · Microsoft Learn](https://learn.microsoft.com/fabric/fundamentals/direct-lake-web-modeling)
+> **Neu im November 2026, beides Preview:** *Semantic views:* Du definierst Tabellen, Beziehungen und gemeinsame Kennzahlen in einer „Semantic view“. Beim Veröffentlichen erzeugt Fabric daraus ein verwaltetes, schreibgeschütztes Modell im Modus Direct Lake on OneLake; die View bleibt die maßgebliche Quelle. *M-Parameter für Direct Lake on OneLake:* Mit M-Parametern und Parameterregeln in Deployment Pipelines zeigen Entwicklung, Test und Produktion auf unterschiedliche OneLake-Quellen, ohne dass du die Quellausdrücke von Hand umschreibst. Quelle für beides: Learn „What's new in Power BI“, November 2026.
+
+**Weiterlesen:** [Develop Direct Lake semantic models · Microsoft Learn](https://learn.microsoft.com/fabric/fundamentals/direct-lake-develop) · [Direct Lake in Power BI Desktop · Microsoft Learn](https://learn.microsoft.com/fabric/fundamentals/direct-lake-power-bi-desktop) · [Direct Lake im Web-Modeling · Microsoft Learn](https://learn.microsoft.com/fabric/fundamentals/direct-lake-web-modeling) · [What's new in Power BI (Semantic views, M-Parameter) · Microsoft Learn](https://learn.microsoft.com/power-bi/fundamentals/whats-new) · [Semantic views (Preview) · Microsoft Learn](https://learn.microsoft.com/fabric/fundamentals/semantic-views-overview)
 
 ### Direct Lake verstehen
 
@@ -703,7 +747,7 @@ Quellen für beide Varianten: Lakehouse, Warehouse, SQL database in Fabric, Mirr
 
 Direct Lake hat harte Obergrenzen pro F-SKU — die Guardrails. Wer sie überschreitet, landet je nach Variante im DirectQuery-Fallback oder im Framing-Fehler. Beides sollte man kennen, bevor es passiert.
 
-#### Die Guardrails (offizielle Tabelle, Stand Oktober 2026)
+#### Die Guardrails (offizielle Tabelle, Stand November 2026)
 
 | Fabric SKU | Parquet-Dateien / Tabelle¹ | Zeilen / Tabelle | Modellgröße auf Disk/OneLake | Max Memory² |
 | --- | --- | --- | --- | --- |
@@ -798,6 +842,10 @@ Fabric-Workspaces sprechen das XMLA-Protokoll der Analysis-Services-Engine (Verb
 
 **Weiterlesen:** [Berichte auf Direct-Lake-Modellen bauen · Microsoft Learn](https://learn.microsoft.com/fabric/fundamentals/building-reports) · [XMLA endpoint · Microsoft Learn](https://learn.microsoft.com/fabric/enterprise/powerbi/service-premium-connect-tools) · [Direct Lake security integration · Microsoft Learn](https://learn.microsoft.com/fabric/fundamentals/direct-lake-security-integration)
 
+**Daten-WG dazu:**
+
+- **[#012 · Das größte Power BI Feature der letzten Jahre? (PBIP und Git)](https://youtu.be/rk4ZJ-c8cS4)** · Short · 22 s · DE · [Knowledge Kitchen](../folgen.html#ep-rk4ZJ-c8cS4)
+
 ### Copilot, Data Agents & MCP
 
 *SEMANTIK · KI & AGENTS*
@@ -808,7 +856,11 @@ Drei Begriffe, die oft durcheinandergehen: **Copilot** ist der eingebaute Assist
 
 Jeder Workload hat seinen eigenen Copilot: Notebook-Code, SQL-Abfragen, Dataflow-Schritte, Power-BI-Seiten und -Zusammenfassungen. Voraussetzung: eine bezahlte Kapazität ab **F2** (oder P1) — im Trial nicht verfügbar —, die Copilot-Tenant-Settings und außerhalb von USA/EU die Freigabe zur Verarbeitung außerhalb der Region. Copilot verbraucht CUs der Kapazität; eine *Fabric Copilot capacity* bündelt die Abrechnung.
 
-#### Fabric Data Agents (GA)
+**Wechsel bei Power BI:** Der eigenständige Power-BI-Copilot (eigener Einstieg auf Power BI Home, in Teams und mobil) und der Copilot in Workspace-Apps werden am **15.01.2027** abgeschaltet; am 08.12.2026 wechseln die Standardwerte der Tenant-Einstellungen. Nachfolger ist „Microsoft Copilot in Power BI und Fabric“ (Stand November 2026 Preview): ein Einstieg in der Navigation, der Fragen zu Power-BI-Daten über Fabric IQ beantwortet. Dafür braucht es laut Learn weder eine Fabric-Kapazität noch Copilot (Premium); was ein Nutzer bekommt, hängt an seiner Microsoft-Copilot-Lizenz, nicht an Free, Pro oder PPU. Der Copilot im Berichtsbereich bleibt.
+
+#### Fabric Data Agents
+
+Zum Status widerspricht sich Learn (Stand 24.11.2026): Die Konzeptseite nennt Data Agents allgemein verfügbar, die Status-Übersicht der KI-Funktionen in Fabric führt „Data agent“ noch als Preview. Vor einem Projekt die [Status-Seite](https://learn.microsoft.com/fabric/fundamentals/copilot-ai-feature-state) prüfen.
 
 - **Was:** ein Item, das Fragen in natürlicher Sprache in SQL, DAX oder KQL übersetzt (NL2SQL, NL2DAX, NL2KQL), ausführt und als Antwort zusammenfasst
 - **Quellen:** bis zu fünf aus Lakehouse, Warehouse, semantischem Modell, KQL-Datenbank, Mirrored Database, Ontologie und Microsoft Graph
@@ -817,16 +869,20 @@ Jeder Workload hat seinen eigenen Copilot: Notebook-Code, SQL-Abfragen, Dataflow
 - **Grenzen:** Antworten maximal 25 Zeilen × 25 Spalten, Fragen und Instructions derzeit am besten auf Englisch, keine PDFs/Word-Dateien, Quelle und Agent müssen in derselben Region liegen
 - **Wo nutzbar:** im Fabric-Portal, in Microsoft 365 Copilot, Copilot Studio, Teams, Azure AI Foundry — und als MCP-Server; Git-Integration und Deployment Pipelines werden unterstützt
 
-#### MCP-Server rund um Fabric (Stand Oktober 2026)
+#### MCP-Server rund um Fabric: die vier wichtigsten für BI-Teams (Stand November 2026)
+
+MCP (Model Context Protocol) ist ein offener Standard, über den KI-Agenten Werkzeuge anderer Systeme aufrufen. Microsoft Learn listet inzwischen deutlich mehr Fabric-MCP-Server, etwa für Warehouse (T-SQL), Eventhouse (KQL), Activator oder Ontologien; die Tabelle zeigt nur eine Auswahl.
 
 | Server | Wofür | Betrieb |
 | --- | --- | --- |
 | **Fabric IQ MCP** (GA) | Berichte und Modelle finden, Metadaten lesen, DAX ausführen — read-only, mit deinen Rechten (RLS/OLS greifen). Erste Wahl für Fragen an Power-BI-Daten | remote |
-| **Power BI Authoring MCP** | Modelle bauen und ändern: Tabellen, Measures, Beziehungen, Calculation Groups, Rollen, Doku | remote gehostet oder lokal (XMLA Read/Write) |
-| **Fabric Core MCP** / Fabric MCP Server | Fabric-REST-APIs (Workspaces, Items, Berechtigungen) als Tools; lokal zusätzlich OneLake- und Data-Factory-Tools | remote bzw. lokal |
+| **Power BI Authoring MCP** | Modelle bauen und ändern: Tabellen, Measures, Beziehungen, Calculation Groups, Rollen, Doku | gehostet (Preview) oder lokal (allgemein verfügbar, XMLA Read/Write); laut Microsoft nicht beide gleichzeitig registrieren |
+| **Fabric Core MCP** (GA seit September 2026) / Fabric MCP Server | Fabric-REST-APIs (Workspaces, Items, Berechtigungen) als Tools; lokal zusätzlich OneLake- und Data-Factory-Tools | remote bzw. lokal |
 | **Data Agent als MCP-Server** | einen veröffentlichten Data Agent aus jedem MCP-Client befragen | remote |
 
-#### Snippet · gehosteten Authoring-Server in VS Code eintragen
+Neu angekündigt auf der Microsoft Ignite (November 2026, Book of News): Konnektoren, mit denen ChatGPT und Claude über Fabric IQ Fragen zu Power-BI-Kennzahlen beantworten. Status: Preview.
+
+#### Snippet · gehosteten Authoring-Server (Preview) in VS Code eintragen
 
 ```json
 {
@@ -841,9 +897,11 @@ Jeder Workload hat seinen eigenen Copilot: Notebook-Code, SQL-Abfragen, Dataflow
 
 Voraussetzungen: Tenant-Setting „Users can use the Power BI Model Context Protocol server endpoint", Write-Berechtigung auf dem Modell (mit Build nur DAX-Abfragen), ein MCP-Client im Agent-Modus. Beim ersten Tool-Aufruf meldest du dich mit Entra ID an; der Server handelt mit deinen Rechten.
 
-> **Agent oder Modell?** Ein Agent, der Kennzahlen „on the fly" aus Tabellen errechnet, kann sie jedes Mal leicht anders berechnen. Verbindliche Kennzahlen gehören deshalb als Measure ins semantische Modell — mit Beschreibungen, Synonymen und den „Prep data for AI"-Einstellungen. Dann greifen Copilot, Data Agent und MCP-Clients auf dieselbe Definition zu.
+> **Agent oder Modell?** Ein Agent, der Kennzahlen „on the fly" aus Tabellen errechnet, kann sie jedes Mal leicht anders berechnen. Verbindliche Kennzahlen gehören deshalb als Measure ins semantische Modell — mit Beschreibungen, Synonymen und den „Prep data for AI"-Einstellungen (laut Learn noch Preview). Dann greifen Copilot, Data Agent und MCP-Clients auf dieselbe Definition zu.
 
-**Weiterlesen:** [What is Copilot in Fabric? · Microsoft Learn](https://learn.microsoft.com/fabric/fundamentals/copilot-fabric-overview) · [Fabric data agent concepts · Microsoft Learn](https://learn.microsoft.com/fabric/data-science/concept-data-agent) · [Choose a Fabric MCP server · Microsoft Learn](https://learn.microsoft.com/rest/api/fabric/articles/mcp-servers/fabric-mcp-servers-list) · [Fabric IQ MCP · Microsoft Learn](https://learn.microsoft.com/fabric/iq/connectors/fabric-iq-mcp) · [Power BI Authoring MCP · Microsoft Learn](https://learn.microsoft.com/power-bi/developer/mcp/power-bi-authoring-mcp) · [Modelle für KI vorbereiten · Microsoft Learn](https://learn.microsoft.com/power-bi/create-reports/copilot-prepare-data-ai)
+> **Aus der Daten-WG: vom Transkript zum Data Agent:** Wie aus 126 Folgen der Daten-WG ein Wissensgraph wurde und wie derselbe Weg im eigenen Fabric-Tenant aussähe (Delta-Tabellen im Lakehouse, Graph in Fabric, Data Agent mit dem Graphen als Quelle), beschreibt der Beitrag [Aus 126 Folgen wird ein Wissensgraph](../wissensgraph-aus-transkripten.html).
+
+**Weiterlesen:** [What is Copilot in Fabric? · Microsoft Learn](https://learn.microsoft.com/fabric/fundamentals/copilot-fabric-overview) · [Fabric data agent concepts · Microsoft Learn](https://learn.microsoft.com/fabric/data-science/concept-data-agent) · [List of Microsoft Fabric MCP servers · Microsoft Learn](https://learn.microsoft.com/rest/api/fabric/articles/mcp-servers/fabric-mcp-servers-list) · [Fabric IQ MCP · Microsoft Learn](https://learn.microsoft.com/fabric/iq/connectors/fabric-iq-mcp) · [Power BI Authoring MCP · Microsoft Learn](https://learn.microsoft.com/power-bi/developer/mcp/power-bi-authoring-mcp) · [Modelle für KI vorbereiten (Preview) · Microsoft Learn](https://learn.microsoft.com/power-bi/create-reports/copilot-prepare-data-ai) · [Microsoft Copilot in Power BI und Fabric (Preview) · Microsoft Learn](https://learn.microsoft.com/fabric/iq/connectors/copilot-power-bi-fabric)
 
 Weiter vertiefen Sektion 03: Semantische Modelle, Direct Lake & KI
 
@@ -861,14 +919,15 @@ DatenWG Library · Themen
 - [Semantic Model](../wissensgraph/thema/semantic-model.html)
 - [Data Agent](../wissensgraph/thema/data-agent.html)
 - [Copilot](../wissensgraph/thema/copilot.html)
+- [KI](../wissensgraph/thema/ki.html)
 
 Microsoft Learn · Doku & Training
 
 - [How Direct Lake works (Framing, Fallback)](https://learn.microsoft.com/fabric/fundamentals/direct-lake-how-it-works)
 - [Direct Lake in Power BI Desktop (Live-Editing)](https://learn.microsoft.com/fabric/fundamentals/direct-lake-power-bi-desktop)
 - [Fabric data agent concepts](https://learn.microsoft.com/fabric/data-science/concept-data-agent)
-- [Welcher Fabric-MCP-Server wofür?](https://learn.microsoft.com/rest/api/fabric/articles/mcp-servers/fabric-mcp-servers-list)
-- [Lernpfad: Work with semantic models in Microsoft Fabric](https://learn.microsoft.com/training/paths/work-semantic-models-microsoft-fabric/)
+- [List of Microsoft Fabric MCP servers](https://learn.microsoft.com/rest/api/fabric/articles/mcp-servers/fabric-mcp-servers-list)
+- [Lernpfad: Design and Manage Semantic Models in Microsoft Fabric](https://learn.microsoft.com/training/paths/work-semantic-models-microsoft-fabric/)
 
 ## 04 · End-to-End: *von Daten zum Bericht*
 
@@ -886,9 +945,11 @@ Das Fundament steht in fünf Minuten: Kapazität aktivieren, Workspace anlegen, 
 
 Für Übungen: **Fabric-Trial** aktivieren (app.fabric.microsoft.com → Account-Menü → *Start trial*, Region wählen) — 60 Tage, je nach Tenant mit 4 oder 64 CU; für dieses Tutorial reicht beides. Copilot und Data Agents sind im Trial nicht dabei. Im Unternehmen: bestehende F-SKU nutzen oder eine kleine Pay-as-you-go-Kapazität (F2/F4) im Azure-Portal anlegen — und außerhalb der Arbeitszeit pausieren.
 
+**Achtung beim Anlegen einer eigenen F-Kapazität:** Die Option *Capacity overage* ist seit September 2026 standardmäßig eingeschaltet. Überlast wird dann nicht gedrosselt, sondern zum dreifachen Pay-as-you-go-Tarif abgerechnet, und die voreingestellte Schwelle (25 % Mehrverbrauch je 24 Stunden) ist keine harte Kostenobergrenze. Wer nur üben will, schaltet die Option im Anlage-Dialog ab (oder später unter *OneLake catalog → Govern → Capacities → Settings*). Details in der Karte „Capacities, F-SKUs & Lizenzen“.
+
 #### Workspace anlegen
 
-Neuer Workspace (z. B. „Fabric Lernprojekt"), in den Workspace-Settings unter **Workspace type** (früher „License mode") die Fabric-Kapazität oder *Fabric Trial* wählen. Ohne Kapazitäts-Zuordnung lassen sich keine Fabric-Items anlegen. Die Region der Kapazität bestimmt, wo die Daten liegen — ein späterer Regionswechsel mit Fabric-Items ist aufwendig.
+Neuer Workspace (z. B. „Fabric Lernprojekt"), in den Workspace-Settings unter **Workspace type** (früher „License mode") die Fabric-Kapazität oder *Fabric Trial* wählen. Ohne Kapazitäts-Zuordnung lassen sich Fabric-Items wie Lakehouse, Notebook oder Pipeline nicht anlegen. Die Region der Kapazität bestimmt, wo die Daten liegen — ein späterer Regionswechsel mit Fabric-Items ist aufwendig.
 
 #### Lakehouse erstellen
 
@@ -900,12 +961,7 @@ Im Workspace: **New item → Lakehouse**, Namen vergeben (z. B. „wwilakehouse"
 
 > **Das Original zum Mitbauen:** Diese Sektion folgt dem offiziellen Wide-World-Importers-Tutorial (Retail-Szenario). Link unten — parallel öffnen und mitklicken ist der schnellste Lernweg.
 
-**Weiterlesen:** [Tutorial: Create a Fabric workspace · Microsoft Learn](https://learn.microsoft.com/fabric/data-engineering/tutorial-lakehouse-get-started) · [Create a lakehouse · Microsoft Learn](https://learn.microsoft.com/fabric/data-engineering/create-lakehouse) · [Fabric-Trial · Microsoft Learn](https://learn.microsoft.com/fabric/fundamentals/fabric-trial)
-
-**Daten-WG dazu:**
-
-- **[Fabric Planning unboxing](https://youtu.be/xCzKEIB4W5I)** · WG Special · 90 min · DE · [Knowledge Kitchen](../folgen.html#ep-xCzKEIB4W5I)
-- **[Fabric Planning Hands-On](https://youtu.be/YRoJ_6t3VrE)** · Hands-On · 66 min · DE · [Knowledge Kitchen](../folgen.html#ep-YRoJ_6t3VrE)
+**Weiterlesen:** [Tutorial: Create a Fabric workspace · Microsoft Learn](https://learn.microsoft.com/fabric/data-engineering/tutorial-lakehouse-get-started) · [Create a lakehouse · Microsoft Learn](https://learn.microsoft.com/fabric/data-engineering/create-lakehouse) · [Fabric-Trial · Microsoft Learn](https://learn.microsoft.com/fabric/fundamentals/fabric-trial) · [Capacity overage ein- und ausschalten · Microsoft Learn](https://learn.microsoft.com/fabric/enterprise/enable-capacity-overage)
 
 ### Daten nach OneLake bringen
 
@@ -1127,7 +1183,7 @@ Snowflake-Umgebungen sind oft über Jahre gewachsen — mit ELT-Strecken (häufi
 
 > **Die Leitfrage:** Wo soll die Abfrage-Last laufen (und bezahlt werden) — in Snowflake oder in Fabric? Und: Wer besitzt die Daten-Governance? Die Antworten sortieren die drei Wege fast von selbst (Karte „Die drei Ansätze im Vergleich").
 
-**Weiterlesen:** [James Serra: Three ways to use Snowflake data in Microsoft Fabric](https://www.jamesserra.com/archive/2026/01/three-ways-to-use-snowflake-data-in-microsoft-fabric/)
+**Weiterlesen:** [James Serra: drei OneLake-Wege für Snowflake-Daten (Shortcut, Iceberg in OneLake, Mirroring)](https://www.jamesserra.com/archive/2026/01/three-ways-to-use-snowflake-data-in-microsoft-fabric/). Achtung: Serra teilt anders ein als diese Karte; der Connector (Import/DirectQuery) kommt bei ihm nicht vor, dafür trennt er Iceberg-Shortcut und Iceberg direkt in OneLake.
 
 ### Snowflake Mirroring
 
@@ -1143,18 +1199,18 @@ Beim Anlegen einer **Mirrored Database** wählst du Snowflake-Datenbank und Tabe
 
 **Abb. · Snowflake-Mirroring** Snowflake → Replikation → Delta-Tabellen in OneLake, mit SQL-Endpoint obendrauf. Quelle: [Mirroring Snowflake · Microsoft Learn](https://learn.microsoft.com/fabric/mirroring/snowflake)
 
-#### Die Konditionen (Stand Oktober 2026)
+#### Die Konditionen (Stand November 2026)
 
 - **Replikations-Compute: kostenlos** — verbraucht keine Fabric-CUs; Abfragen per SQL, Spark oder Power BI kosten normal
 - **Mirroring-Storage: frei bis 1 TB pro Capacity Unit** (eine F64 hat also 64 TB freien Mirror-Speicher); darüber oder bei pausierter Kapazität fällt OneLake-Storage an — und eine pausierte Kapazität stoppt die Replikation
 - **Snowflake-Seite kostet:** Das Virtual Warehouse läuft, wenn geänderte Daten gelesen werden — plus Cloud-Services-Kosten für Metadaten-Checks. Tipp von Microsoft: dasselbe Warehouse wie die Ladestrecken nutzen und nur benötigte Tabellen spiegeln
-- **Extended Capabilities kosten extra:** Delta Change Data Feed und das Spiegeln von Views (beide Preview) werden nach Nutzung abgerechnet — Core-Mirroring bleibt kostenlos
+- **Extended Capabilities kosten extra:** Delta Change Data Feed und das Spiegeln von Views sind seit September 2026 allgemein verfügbar und werden nach Nutzung abgerechnet — Core-Mirroring bleibt kostenlos. Views gibt es dabei nur für Snowflake
 - **Erzeugt wird:** die Mirrored Database + automatisch ein SQL Analytics Endpoint; die Delta-Tabellen sind Direct-Lake-tauglich (beide Varianten)
 
 #### Grenzen, die man kennen muss
 
 - Views und Materialized Views synchronisieren nur alle 12 Stunden (kostenpflichtige Extended Capability); External, Transient, Temporary und Dynamic Tables gar nicht
-- **Snowflake-Berechtigungen werden laut Learn nicht übernommen** — granulare Sicherheit muss in Fabric neu definiert werden (SQL-Berechtigungen, OneLake Security oder Modell-RLS). Die Daten-WG-Quarterly 2026-4 berichtet von einer Ankündigung zur Übernahme von Snowflake-Security-Rollen; vor Projektstart den aktuellen Stand prüfen
+- **Snowflake-Zeilen- und Spaltenregeln werden laut Learn nicht übernommen** — RLS- und CLS-Richtlinien aus Snowflake müssen in Fabric neu definiert werden (SQL-Berechtigungen, OneLake Security oder Modell-RLS). Neu in Preview (laut Learn „What's new“, September 2026): *Snowflake security-role mirroring*, das Rollendefinitionen aus Snowflake nach Fabric übernimmt. Eine Detailseite dazu gibt es auf Learn noch nicht; vor Projektstart den aktuellen Stand prüfen
 - Schemaänderungen (z. B. durch dbt-Deployments) können **Reseeds** auslösen — volle Neuladung der Tabelle, mit entsprechenden Snowflake-Compute-Kosten
 - Mirroring läuft kontinuierlich — es gibt kein Scheduling („nur nachts spiegeln" geht nicht)
 - Authentifizierung per Benutzer/Passwort, Entra-ID-SSO oder Key Pair (keine Workspace Identity); hinter einer Firewall über VNet- oder On-Premises-Gateway — direkter Private Link noch nicht
@@ -1189,14 +1245,14 @@ In Fabric liest der SQL Analytics Endpoint des Items dieselbe Tabelle — und ei
 
 #### Weg 3 · Snowflake liest Fabric-Daten
 
-Fabric-Delta-Tabellen bekommen auf Wunsch virtuelle Iceberg-Metadaten (Tenant- oder Workspace-Einstellung). Snowflake referenziert sie über ein External Volume und eine Catalog Integration — oder über den **Iceberg-REST-Catalog-Endpunkt von OneLake** (`onelake.table.fabric.microsoft.com`), mit dem eine catalog-linked Database Schemas und Tabellen automatisch entdeckt. Microsofts Formulierung: „Both Fabric and Snowflake can work with the same copy of data."
+Delta-Tabellen im Tables-Bereich von OneLake enthalten laut Learn inzwischen automatisch virtuelle Iceberg-Metadaten (Ordner `metadata` im Tabellenverzeichnis); eine eigene Einstellung zum Einschalten beschreibt Learn nicht mehr. Damit Snowflake zugreifen darf, müssen aber zwei Tenant-Settings aktiv sein: „Service principals can use Fabric APIs“ und „Users can access data stored in OneLake with apps external to Fabric“. Snowflake referenziert sie über ein External Volume und eine Catalog Integration — oder über den **Iceberg-REST-Catalog-Endpunkt von OneLake** (`onelake.table.fabric.microsoft.com`), mit dem eine catalog-linked Database Schemas und Tabellen automatisch entdeckt. Microsofts Formulierung: „Both Fabric and Snowflake can work with the same copy of data."
 
 #### Voraussetzungen & Trade-offs
 
 - Die Tabellen müssen als **Iceberg** vorliegen — klassische Snowflake-Managed-Tables brauchen eine Umstellung (oder Mirroring)
 - Updates sind **sofort sichtbar** (keine Replikations-Latenz), die Daten bleiben unter Snowflake-Kontrolle
 - Snowflake erreicht OneLake nur über das öffentliche Netz — Workspaces mit Private Link oder Netzwerkbeschränkung werden nicht unterstützt
-- Abfrage-Latenz hängt am Quellspeicher; Cross-Cloud-Zugriffe puffert OneLake-Caching
+- Abfrage-Latenz hängt am Quellspeicher; Cross-Cloud-Zugriffe kann Shortcut-Caching puffern, sofern es im Workspace eingeschaltet ist und die Quelle unterstützt (derzeit GCS, S3 und S3-kompatibel, nicht ADLS)
 
 > **Wann dieser Weg?** Wenn das Snowflake-Team ohnehin auf Iceberg setzt (Open-Table-Format-Strategie) und Governance bei Snowflake bleiben soll — dann ist Zero-Copy dem Mirroring vorzuziehen: keine zweite Datenhaltung, kein Sync-Monitoring.
 
@@ -1233,7 +1289,7 @@ Mirroring, Iceberg-Shortcut oder Connector? Die Entscheidung fällt entlang von 
 
 #### Der Vergleich
 
-- **Mirroring** — Kopie in OneLake (Delta), near-real-time. Abfragen treffen Fabric, *nicht* Snowflake → keine Snowflake-Compute-Kosten pro Bericht. Replikation kostenlos, 1 TB Storage/CU frei. Governance/RLS muss in Fabric neu aufgebaut werden. Ideal: BI-Workloads mit Direct Lake auf Snowflake-Daten
+- **Mirroring** — Kopie in OneLake (Delta), near-real-time. Abfragen treffen Fabric, *nicht* Snowflake → keine Snowflake-Compute-Kosten pro Bericht. Replikation kostenlos, 1 TB Storage/CU frei. Governance/RLS muss in Fabric neu aufgebaut werden (die Übernahme von Snowflake-Rollen ist erst Preview). Ideal: BI-Workloads mit Direct Lake auf Snowflake-Daten
 - **Iceberg-Shortcut** — Zero-Copy, Daten bleiben unter Snowflake-Kontrolle, Updates sofort sichtbar. Voraussetzung: Iceberg-Format. Latenz hängt am Quellspeicher. Ideal: Open-Format-Strategien, bei denen beide Plattformen dieselbe Kopie nutzen sollen
 - **Connector Import** — schnellste Abfragen, aber Refresh-Latenz und Modell-Duplikat. Ideal: kleinere Datenmengen, kein Fabric nötig
 - **Connector DirectQuery** — maximale Frische und Snowflake-RLS via SSO, aber jede Interaktion kostet Snowflake-Compute und Performance hängt an Snowflake. Ideal: operative Berichte mit Quell-Security
@@ -1244,7 +1300,7 @@ Mirroring verschiebt die Konsum-Governance nach Fabric (OneLake-Berechtigungen, 
 
 > **Pragmatischer Default 2026:** Für Power-BI-Reporting auf Snowflake-Beständen: Mirroring zuerst prüfen — kostenlose Replikation, Direct-Lake-Performance, minimaler Aufwand. Iceberg-Shortcuts, wenn die Format-Strategie es hergibt. Connector für Spezialfälle (SSO-RLS, kein Fabric).
 
-**Weiterlesen:** [James Serra: Three ways to use Snowflake data in Fabric](https://www.jamesserra.com/archive/2026/01/three-ways-to-use-snowflake-data-in-microsoft-fabric/) · [What is Mirroring? · Microsoft Learn](https://learn.microsoft.com/fabric/mirroring/overview)
+**Weiterlesen:** [James Serra: drei OneLake-Wege für Snowflake-Daten (ohne Connector)](https://www.jamesserra.com/archive/2026/01/three-ways-to-use-snowflake-data-in-microsoft-fabric/) · [What is Mirroring? · Microsoft Learn](https://learn.microsoft.com/fabric/mirroring/overview)
 
 ### Berichte auf Snowflake-Daten
 
@@ -1337,7 +1393,7 @@ Fünf Wege, Daten nach Fabric zu bewegen — der offizielle Decision Guide sorti
 #### Die fünf Optionen
 
 - **Copy Activity (Pipeline)** — Migration und Ingestion bis in den Petabyte-Bereich, 50+ Konnektoren, nur leichte Transformationen. Persona: Data Engineer / Integrator
-- **Copy job** — Datenbewegung ohne Pipeline-Bau: Bulk, inkrementell (Watermark) oder CDC, schreibend als Append, Merge, Overwrite oder SCD Typ 2 (Preview) — der unkomplizierte Mittelweg
+- **Copy job** — Datenbewegung ohne Pipeline-Bau: Bulk, inkrementell (Watermark) oder CDC, schreibend als Append, Merge, Overwrite oder SCD Typ 2 (seit September 2026 allgemein verfügbar) — der unkomplizierte Mittelweg
 - **Dataflow Gen2** — 150+ Konnektoren, 300+ Transformationen, Power-Query-Oberfläche. Persona: Business Analyst / Citizen Engineer
 - **Eventstream** — kontinuierliche Event-Ingestion (Kafka, Event Hubs, CDC-Feeds), No-Code-Routing an Eventhouse/Lakehouse/Activator
 - **Spark (Notebook/Job)** — Code-First, beliebig komplexe Transformationen, strukturiert + unstrukturiert. Persona: Data Engineer
@@ -1420,14 +1476,15 @@ Die technisch beste Architektur scheitert an weichen Faktoren: CU-Haushalt, Work
 
 - Alle Workloads teilen sich die CUs einer Kapazität — ein außer Kontrolle geratener Spark-Job bremst die Berichte des Vorstands
 - **Fabric Capacity Metrics App** installieren, Benachrichtigungen bei hoher Auslastung einrichten — Pflicht ab dem ersten Produktiv-Workspace
-- Bewährt: Dev/Test/Prod und schwere Background-Lasten auf getrennte Kapazitäten; **Surge Protection** begrenzt Background-Jobs, wenn interaktive Berichte leiden; eine pausierte „Rettungs-Kapazität" fängt Spitzen ab
+- Bewährt: Dev/Test/Prod und schwere Background-Lasten auf getrennte Kapazitäten; **Surge Protection** begrenzt Background-Jobs, wenn interaktive Berichte leiden, und seit November 2026 (allgemein verfügbar) auch den Verbrauch einzelner Workspaces; eine pausierte „Rettungs-Kapazität" fängt Spitzen ab
+- **Capacity Overage** bewusst entscheiden: Bei neuen F-Kapazitäten ist es standardmäßig an und rechnet Überlast zum dreifachen Pay-as-you-go-Tarif ab, statt zu drosseln. Die Schwelle ist keine harte Kostenobergrenze, also den Overage-Verbrauch in der Capacity Metrics App und in Azure Cost Management (eigener Abrechnungs-Meter) beobachten oder die Option abschalten
 - Copilot-Verbrauch über eine Fabric Copilot capacity bündeln, damit KI-Nutzung nicht unbemerkt die Berichts-Kapazität auffrisst
 
 #### Workspace-Schnitt & Lifecycle
 
 - Pro Medallion-Layer ein Workspace (Bronze/Silber: Engineers, Gold: BI-Team, Berichte: Fachbereich) — Berechtigungen folgen dem Datenfluss; **Domains** gruppieren Workspaces nach Geschäftsbereich
 - **Git-Integration** (Azure DevOps, GitHub, GitHub Enterprise — jeweils Cloud) versioniert Lakehouses, Notebooks, Pipelines, Dataflows Gen2, Copy jobs, semantische Modelle, Berichte, Data Agents u. v. m. auf Workspace-Ebene
-- **Deployment Pipelines** (Dev → Test → Prod) für Fabric-Items wie für Power-BI-Inhalte, ergänzt um **Variable Libraries** (Umgebungswerte statt hart codierter Verbindungen) und **Deployment Plans** (Reihenfolge und Aktionsschritte)
+- **Deployment Pipelines** (Dev → Test → Prod) für Fabric-Items wie für Power-BI-Inhalte, ergänzt um **Variable Libraries** (Umgebungswerte statt hart codierter Verbindungen) und **Deployment Plans** (Reihenfolge und Aktionsschritte; laut Learn „What's new“ noch Preview)
 - Endorsement (Promoted/Certified), Lineage und der **OneLake catalog** machen die „richtigen" Datenprodukte auffindbar — dessen Bereich *Govern* bündelt inzwischen auch Tenant-Settings, Kapazitäten und Domains
 
 #### Sicherheit & Compliance
@@ -1442,7 +1499,7 @@ Die ehrliche Frage: Hat das Team Spark-Kompetenz — oder ist es ein Power-Query
 
 > **Well-Architected:** Microsoft hat die fünf Well-Architected-Säulen (Reliability, Security, Cost, Operational Excellence, Performance) für Fabric ausformuliert — als Checkliste für Architektur-Reviews sehr brauchbar.
 
-**Weiterlesen:** [Well-Architected für Fabric · Microsoft Learn](https://learn.microsoft.com/azure/well-architected/microsoft-fabric/overview) · [Fabric CI/CD: Konzepte & Best Practices · Microsoft Learn](https://learn.microsoft.com/fabric/fundamentals/understand-best-practices-fabric-cicd) · [Data security in OneLake · Microsoft Learn](https://learn.microsoft.com/fabric/onelake/security/get-started-security) · [Workspace identity · Microsoft Learn](https://learn.microsoft.com/fabric/security/workspace-identity) · [Purview & Fabric · Microsoft Learn](https://learn.microsoft.com/fabric/governance/microsoft-purview-fabric) · [Capacity-Planning-Guide · Microsoft Learn](https://learn.microsoft.com/fabric/enterprise/capacity-planning-overview)
+**Weiterlesen:** [Well-Architected für Fabric · Microsoft Learn](https://learn.microsoft.com/azure/well-architected/microsoft-fabric/overview) · [Fabric CI/CD: Konzepte & Best Practices · Microsoft Learn](https://learn.microsoft.com/fabric/fundamentals/understand-best-practices-fabric-cicd) · [Data security in OneLake · Microsoft Learn](https://learn.microsoft.com/fabric/onelake/security/get-started-security) · [Workspace identity · Microsoft Learn](https://learn.microsoft.com/fabric/security/workspace-identity) · [Purview & Fabric · Microsoft Learn](https://learn.microsoft.com/fabric/governance/microsoft-purview-fabric) · [Capacity-Planning-Guide · Microsoft Learn](https://learn.microsoft.com/fabric/enterprise/capacity-planning-overview) · [Capacity overage · Microsoft Learn](https://learn.microsoft.com/fabric/enterprise/capacity-overage-overview) · [Surge protection · Microsoft Learn](https://learn.microsoft.com/fabric/enterprise/surge-protection)
 
 ### Die Entscheidungs-Checkliste
 
@@ -1452,7 +1509,7 @@ Alle Kernentscheidungen dieses Guides auf einer Karte — in der Reihenfolge, in
 
 #### Plattform-Frage
 
-Brauchen wir Fabric — oder reicht Power BI Pro? Sobald eigene Daten-Pipelines, große Modelle (Direct Lake) oder Streaming ins Spiel kommen: Fabric. Nur Berichte auf fertigen Quellen: Pro reicht. Kapazität: Trial → F2/F4 zum Entwickeln → F64+, wenn Free-User konsumieren sollen.
+Brauchen wir Fabric — oder reicht Power BI Pro? Sobald eigene Daten-Pipelines, große Modelle (Direct Lake) oder Streaming ins Spiel kommen: Fabric. Nur Berichte auf fertigen Quellen: Pro reicht. Kapazität: Trial → F2/F4 zum Entwickeln → F64+, wenn Free-User konsumieren sollen. Bei jeder neuen F-Kapazität entscheiden, ob Capacity Overage (Standard: an, dreifacher Tarif) eingeschaltet bleibt.
 
 #### Speicher-Frage
 
@@ -1507,18 +1564,25 @@ Microsoft Learn · Doku & Training
 
 ## Quellen & *weiterführende Literatur*
 
-Dieser Guide stützt sich auf die offizielle Microsoft-Learn-Dokumentation zu Microsoft Fabric und auf etablierte Community-Quellen (SQLBI/Marco Russo, Chris Webb, Sandeep Pawar, Nikola Ilic, James Serra u. a.). Jede zitierte Zahl ist hier rückverfolgbar. **Quellen-Validierung Oktober 2026:** F-SKU-Staffelung (F2–F8192), Trial (F4/F64), P-SKU-Auslauf (30 Tage Grace, dann Drosselung, ab Tag 91 Sperre), Direct-Lake-Guardrails inkl. Row Groups, Direct Lake on OneLake vs. on SQL samt `DirectLakeBehavior`, V-Order-Default (in neuen Workspaces für Spark aus), Snowflake-Mirroring (Iceberg-Tabellen, kostenpflichtige Extended Capabilities), Snowflake database item, Copilot/Data-Agent-Voraussetzungen, MCP-Server und die Decision-Guide-Kriterien wurden gegen Microsoft Learn verifiziert. **Screenshots:** Die in den Modal-Karten eingebetteten Abbildungen stammen direkt vom Microsoft-Learn-CDN und stehen unter der Microsoft-Dokumentations-Lizenz (CC BY 4.0) zur Nutzung mit Quellenangabe. Fabric entwickelt sich monatlich weiter — im Zweifel die jeweils verlinkte Quell-Seite konsultieren.
+Dieser Guide stützt sich auf die offizielle Microsoft-Learn-Dokumentation zu Microsoft Fabric und auf etablierte Community-Quellen (SQLBI/Marco Russo, Chris Webb, Sandeep Pawar, Nikola Ilic, James Serra u. a.). Jede zitierte Zahl ist hier rückverfolgbar. **Erneute Prüfung am 24.11.2026:** Alle Inhalte wurden noch einmal gegen Microsoft Learn und gegen die Ankündigungen von FabCon Europe (September 2026) und Microsoft Ignite (November 2026) geprüft; wo sich Ankündigung und Learn-Seite widersprechen, steht das in der jeweiligen Karte. **Quellen-Validierung Oktober 2026:** F-SKU-Staffelung (F2–F8192), Trial (F4/F64), P-SKU-Auslauf (30 Tage Grace, dann Drosselung, ab Tag 91 Sperre), Direct-Lake-Guardrails inkl. Row Groups, Direct Lake on OneLake vs. on SQL samt `DirectLakeBehavior`, V-Order-Default (in neuen Workspaces für Spark aus), Snowflake-Mirroring (Iceberg-Tabellen, kostenpflichtige Extended Capabilities), Snowflake database item, Copilot/Data-Agent-Voraussetzungen, MCP-Server und die Decision-Guide-Kriterien wurden gegen Microsoft Learn verifiziert. **Screenshots:** Die in den Modal-Karten eingebetteten Abbildungen stammen aus Microsoft Learn, liegen als lokale Kopie auf dieser Website und stehen unter der Microsoft-Dokumentations-Lizenz (CC BY 4.0) zur Nutzung mit Quellenangabe. Fabric entwickelt sich monatlich weiter — im Zweifel die jeweils verlinkte Quell-Seite konsultieren.
 
 ### Microsoft Learn · Fabric Grundlagen
 
 - [What is Microsoft Fabric? — Übersicht](https://learn.microsoft.com/fabric/fundamentals/microsoft-fabric-overview)
 - [Fabric terminology — Begriffe von Capacity bis Workspace](https://learn.microsoft.com/fabric/fundamentals/fabric-terminology)
 - [Understand Microsoft Fabric licenses — F-SKUs, Free/Pro/PPU](https://learn.microsoft.com/fabric/enterprise/licenses)
-- [Power BI Premium FAQ — P-SKU-Retirement & Übergang zu Fabric](https://learn.microsoft.com/fabric/enterprise/powerbi/service-premium-faq)
+- [Power BI Premium operations FAQ — Autoscale, Auslastung, PPU](https://learn.microsoft.com/fabric/enterprise/powerbi/service-premium-faq)
 - [Migration P-SKU → F-SKU: FAQ mit Zeitplan (Grace, Drosselung, Sperre)](https://learn.microsoft.com/power-bi/support/premium-migration-faq)
 - [Throttling-Policy: Bursting, Smoothing, Overage](https://learn.microsoft.com/fabric/enterprise/throttling)
+- [Capacity overage: dreifacher Tarif, Schwelle ist keine Kostenobergrenze](https://learn.microsoft.com/fabric/enterprise/capacity-overage-overview)
+- [Capacity overage ein- und ausschalten (Standard: an)](https://learn.microsoft.com/fabric/enterprise/enable-capacity-overage)
+- [Surge protection auf Kapazitäts- und Workspace-Ebene](https://learn.microsoft.com/fabric/enterprise/surge-protection)
 - [Fabric-Trial: Umfang & Einschränkungen](https://learn.microsoft.com/fabric/fundamentals/fabric-trial)
 - [Unterschiede Azure Data Factory vs. Fabric Data Factory](https://learn.microsoft.com/fabric/data-factory/compare-fabric-data-factory-and-azure-data-factory)
+- [Upgrade-Planung: Azure Data Factory nach Fabric Data Factory](https://learn.microsoft.com/fabric/data-factory/upgrade-planning-azure-data-factory)
+- [Migration Assistant for Fabric Data Warehouse (Synapse Dedicated SQL Pools)](https://learn.microsoft.com/fabric/data-warehouse/migration-assistant)
+- [What are Fabric Apps? Kapazitäts- oder Pro-Workspace](https://learn.microsoft.com/fabric/apps/overview)
+- [What's new in Microsoft Fabric: Statuswechsel nach Monat](https://learn.microsoft.com/fabric/fundamentals/whats-new)
 - [Well-Architected Framework für Microsoft Fabric](https://learn.microsoft.com/azure/well-architected/microsoft-fabric/overview)
 
 ### Microsoft Learn · OneLake & Komponenten
@@ -1564,15 +1628,15 @@ Dieser Guide stützt sich auf die offizielle Microsoft-Learn-Dokumentation zu Mi
 - [Tutorial Schritt 4 — Daten transformieren (Notebooks)](https://learn.microsoft.com/fabric/data-engineering/tutorial-lakehouse-data-preparation)
 - [Tutorial Schritt 5 — Semantisches Modell & Report](https://learn.microsoft.com/fabric/data-engineering/tutorial-lakehouse-build-report)
 - [Alle offiziellen End-to-End-Tutorials (DW, Data Science, RTI …)](https://learn.microsoft.com/fabric/fundamentals/end-to-end-tutorials)
-- [Lernpfad: Get started with Microsoft Fabric (10 Module)](https://learn.microsoft.com/training/paths/get-started-fabric/)
-- [Lernpfad: Implement a Lakehouse with Microsoft Fabric (7 Module)](https://learn.microsoft.com/training/paths/implement-lakehouse-microsoft-fabric/)
-- [Lernpfad: Ingest data with Microsoft Fabric (6 Module)](https://learn.microsoft.com/training/paths/ingest-data-with-microsoft-fabric/)
+- [Lernpfad: Get started with Microsoft Fabric](https://learn.microsoft.com/training/paths/get-started-fabric/)
+- [Lernpfad: Implement a Lakehouse with Microsoft Fabric](https://learn.microsoft.com/training/paths/implement-lakehouse-microsoft-fabric/)
+- [Lernpfad: Ingest Data with Microsoft Fabric](https://learn.microsoft.com/training/paths/ingest-data-with-microsoft-fabric/)
 - [Build Power BI reports in Microsoft Fabric (Dataflows + Direct Lake)](https://learn.microsoft.com/power-bi/fundamentals/fabric-get-started)
-- [Lernpfad: Work with semantic models in Microsoft Fabric (4 Module)](https://learn.microsoft.com/training/paths/work-semantic-models-microsoft-fabric/)
-- [Lernpfad: Implement a data warehouse with Microsoft Fabric (6 Module)](https://learn.microsoft.com/training/paths/work-with-data-warehouses-using-microsoft-fabric/)
-- [Lernpfad: Implement Real-Time Intelligence with Microsoft Fabric (4 Module)](https://learn.microsoft.com/training/paths/explore-real-time-analytics-microsoft-fabric/)
+- [Lernpfad: Design and Manage Semantic Models in Microsoft Fabric](https://learn.microsoft.com/training/paths/work-semantic-models-microsoft-fabric/)
+- [Lernpfad: Implement a data warehouse with Microsoft Fabric](https://learn.microsoft.com/training/paths/work-with-data-warehouses-using-microsoft-fabric/)
+- [Lernpfad: Implement Real-Time Intelligence with Microsoft Fabric](https://learn.microsoft.com/training/paths/explore-real-time-analytics-microsoft-fabric/)
 - [Study Guide DP-600: Fabric Analytics Engineer (Skills ab 19.10.2026)](https://learn.microsoft.com/credentials/certifications/resources/study-guides/dp-600)
-- [Study Guide DP-700: Fabric Data Engineer (Skills ab 19.10.2026)](https://learn.microsoft.com/credentials/certifications/resources/study-guides/dp-700)
+- [Study Guide DP-700: Fabric Data Engineer](https://learn.microsoft.com/credentials/certifications/resources/study-guides/dp-700)
 
 ### Microsoft Learn · Snowflake & Mirroring
 
@@ -1605,7 +1669,7 @@ Dieser Guide stützt sich auf die offizielle Microsoft-Learn-Dokumentation zu Mi
 - [Copilot in Fabric aktivieren (F2+/P1+, Tenant-Settings)](https://learn.microsoft.com/fabric/fundamentals/copilot-enable-fabric)
 - [Fabric Copilot capacity](https://learn.microsoft.com/fabric/enterprise/fabric-copilot-capacity)
 - [Fabric data agent concepts](https://learn.microsoft.com/fabric/data-science/concept-data-agent)
-- [Choose a Microsoft Fabric MCP server](https://learn.microsoft.com/rest/api/fabric/articles/mcp-servers/fabric-mcp-servers-list)
+- [List of Microsoft Fabric MCP servers: alle gehosteten und lokalen Fabric-MCP-Server](https://learn.microsoft.com/rest/api/fabric/articles/mcp-servers/fabric-mcp-servers-list)
 - [Fabric IQ MCP server](https://learn.microsoft.com/fabric/iq/connectors/fabric-iq-mcp)
 - [Power BI MCP servers overview](https://learn.microsoft.com/power-bi/developer/mcp/mcp-servers-overview)
 - [Power BI Authoring MCP server](https://learn.microsoft.com/power-bi/developer/mcp/power-bi-authoring-mcp)
@@ -1630,12 +1694,18 @@ Dieser Guide stützt sich auf die offizielle Microsoft-Learn-Dokumentation zu Mi
 - [Nikola Ilic: A tale of two Direct Lakes (OneLake vs. SQL-Endpoint)](https://data-mozart.com/a-tale-of-two-direct-lakes-in-microsoft-fabric/)
 - [Nikola Ilic: OneLake Shortcuts — everything you need to know](https://datamozart.substack.com/p/onelake-shortcuts-everything-you)
 - [James Serra: Microsoft Fabric reference architecture](https://www.jamesserra.com/archive/2024/08/microsoft-fabric-reference-architecture/)
-- [James Serra: Three ways to use Snowflake data in Microsoft Fabric](https://www.jamesserra.com/archive/2026/01/three-ways-to-use-snowflake-data-in-microsoft-fabric/)
+- [James Serra: drei OneLake-Wege für Snowflake-Daten (Shortcut, Iceberg in OneLake, Mirroring)](https://www.jamesserra.com/archive/2026/01/three-ways-to-use-snowflake-data-in-microsoft-fabric/)
 - [endjin: Azure Synapse vs Microsoft Fabric — side-by-side](https://endjin.com/blog/2023/05/azure-synapse-analytics-versus-microsoft-fabric-a-side-by-side-comparison)
 - [Koen Verbeeck: Choosing between Lakehouse and Warehouse](https://www.red-gate.com/simple-talk/databases/sql-server/bi-sql-server/choosing-between-the-lakehouse-and-warehouse-in-microsoft-fabric/)
 - [Reitse Eskens: Warehouse vs Lakehouse — Kapazitäts-Benchmark F2–F64](https://sqlreitse.com/2024/05/31/testing-azure-fabric-capacity-data-warehouse-vs-lakehouse-performance/)
 - [Fabric Blog: Snowflake-Iceberg-Daten in OneLake via Shortcuts](https://blog.fabric.microsoft.com/en-US/blog/store-and-use-your-snowflake-iceberg-data-in-onelake/)
 - [Buch: Fundamentals of Microsoft Fabric (Ilic & Weissman, O'Reilly 2025)](https://www.oreilly.com/library/view/fundamentals-of-microsoft/9781098172916/)
+
+### Daten-WG Knowledge Kitchen · eigene Beiträge
+
+- [Fabric Apps im Heimrevier von Power BI: Vertrieb und Finance](../fabric-apps-controlling-post.html)
+- [Aus 126 Folgen wird ein Wissensgraph](../wissensgraph-aus-transkripten.html)
+- [Fabric Alchemie: Fabric lernen, indem man es zusammenbraut](../fabric-alchemie-post.html)
 
 ### Community · Deutschsprachig & Video
 
@@ -1643,7 +1713,7 @@ Dieser Guide stützt sich auf die offizielle Microsoft-Learn-Dokumentation zu Mi
 - [DatenPioniere: OneLake Shortcuts — Nutzen, Security & Anleitung (DE)](https://www.datenpioniere.de/blog/microsoft-fabric-onelake-shortcut)
 - [Mainzer Datenfabrik: OneLake vs. Lakehouse vs. Warehouse (DE)](https://www.madafa.de/blog/microsoft-fabric-onelake-vs-lakehouse-vs-warehouse)
 - [BI or DIE — deutschsprachige Community zu Power BI, Fabric & AI](https://www.biordie.com/)
-- [Will Needham: Learn Microsoft Fabric (YouTube, EN)](https://www.youtube.com/@LearnMicrosoftFabric)
+- [Will Needham: Learn Microsoft Fabric with Will (YouTube, EN)](https://www.youtube.com/@FabricFrontiers)
 - [Daten-WG — der Kanal hinter dieser Knowledge Kitchen (DE)](https://www.youtube.com/@Daten-WG)
 
 **Microsoft Fabric End-to-End · Einsteiger-Guide · v 1** VON MICHAEL TENNER · DEUTSCH · 6 SEKTIONEN · 41 DETAIL-KARTEN
