@@ -393,7 +393,7 @@ darüber oder hinter dem Hauptfenster — klick es weg.</p>
 <p><strong>Sieht „Daten abrufen“ bei dir ganz anders aus?</strong> Dann ist die neue Power-Query-Oberfläche
 eingeschaltet (Vorschau <strong>New Power Query experience</strong>). Du erkennst sie an einem Fenster mit
 Seitenleiste (Home, Neu, Zuletzt verwendet …) und Suchfeld. Seit September 2026 ändert derselbe Schalter auch den
-Power Query-Editor aus Modul 2, und für Web-Adressen gibt es dort ein anderes Verbindungsformular.
+Power Query-Editor aus Modul 2. Im neuen „Daten abrufen“ sieht außerdem das Verbindungsformular für Web-Adressen anders aus.
 Damit du diesem Pfad Schritt für Schritt folgen kannst, schalte die neue Oberfläche aus: direkt unter
 <strong>Start → Daten abrufen</strong> (seit dem November-Update 2026) oder unter
 <strong>Datei → Optionen und Einstellungen → Optionen → Vorschaufeatures</strong>. Ein Neustart ist nicht nötig.</p>
@@ -463,7 +463,8 @@ Klick auf <strong>Start → Erste Zeile als Überschrift verwenden</strong> (der
 <p>⚠️ <strong>Schau jetzt einmal rechts unter Angewendete Schritte.</strong> Steht dort nach dem Schritt mit den
 Überschriften von selbst ein weiterer Schritt <strong>Geänderter Typ</strong> (oft mit einer 1 am Ende)?
 Dann lösch ihn mit dem <strong>X</strong> davor. Sonst rät Power Query die Datentypen mit den Regeln deines
-Windows, und Umsatz und Marge können hundertmal zu groß werden. Steht dort kein solcher Schritt, mach einfach weiter.</p>
+Windows, und Umsatz und Marge können hundertmal zu groß werden. Den gleichnamigen Schritt weiter oben, direkt unter
+<strong>Quelle</strong>, lässt du stehen. Steht nach dem Schritt mit den Überschriften kein solcher Schritt, mach einfach weiter.</p>
 </blockquote>
 <p><strong>Handgriff 3 — leere Zeilen weg</strong>
 Klick auf <strong>Start → Zeilen entfernen → Leere Zeilen entfernen</strong>.</p>
@@ -642,7 +643,8 @@ Im Balkendiagramm steht <strong>Süd</strong> ganz oben.</p>
 Tausendertrennzeichen gelesen, dadurch sind alle Beträge hundertmal zu groß.
 Geh zurück zu Modul 2, Handgriff 7. Prüf dort rechts in <strong>Angewendete Schritte</strong> auch, ob nach dem
 Schritt mit den Überschriften ein von selbst angelegter Schritt <strong>Geänderter Typ</strong> (oft mit einer 1
-am Ende) steht. Wenn ja, lösch ihn mit dem <strong>X</strong> davor (siehe Hinweis nach Handgriff 2).</p>
+am Ende) steht. Wenn ja, lösch ihn mit dem <strong>X</strong> davor (siehe Hinweis nach Handgriff 2) und bestätige eine Rückfrage.
+Geh danach die Handgriffe 6 bis 8 noch einmal durch: Bei <code>Auftragsdatum</code> muss am Ende wieder das Kalendersymbol stehen.</p>
 <p>Steht dort eine viel kleinere Zahl oder „(Leer)"? → Dann ist statt der Summe
 die Anzahl eingestellt. Klick rechts im Feld <strong>Werte</strong> auf den kleinen Pfeil
 neben <strong>Umsatz</strong> und wähle <strong>Summe</strong>.</p>
@@ -889,9 +891,9 @@ Zeile pro Tag, ohne Lücken, über ganze Jahre. Das ist die Voraussetzung für d
 <blockquote class="pp-warn">
 <p>⚠️ <strong>Speichere vorher eine Kopie</strong> (<strong>Datei → Speichern unter</strong>, zum Beispiel <code>business_dax</code>;
 erscheint dabei eine Anmeldung oder OneDrive, lies kurz Modul 6, Schritt 5).
-Sobald du <code>Auftragsdatum</code> in Schritt 2 mit einer Kalendertabelle verbindest, entfernt Power BI die automatisch
+Sobald du <code>Auftragsdatum</code> gleich unten in Punkt 2 (Beziehung ziehen) mit einer Kalendertabelle verbindest, entfernt Power BI die automatisch
 erzeugte, versteckte Datumstabelle zu dieser Spalte. Visuals, die auf deren Hierarchie beruhen — wie die Liniendiagramme aus Modul 3 und 5 —
-können danach anders aussehen oder fehlerhaft sein. Das Markieren als Datumstabelle in Schritt 3 sorgt zusätzlich dafür,
+können danach anders aussehen oder fehlerhaft sein. Das Markieren als Datumstabelle in Punkt 3 sorgt zusätzlich dafür,
 dass Power BI für die Kalendertabelle selbst keine solche Hierarchie anlegt.</p>
 </blockquote>
 <ol>
@@ -928,7 +930,7 @@ summiert den Umsatz vom 1. Januar bis zum jeweiligen Datum — für jeden Monat 
 <p>Die YTD-Linie steigt von Monat zu Monat und endet im Dezember bei <strong>2.100.088 €</strong> (die Summe des ganzen Jahres).
 Im März steht sie bei rund <strong>510.500 €</strong> — das sind Januar, Februar und März zusammen. Die Umsatz-Linie
 daneben schwankt, die YTD-Linie nie.</p>
-<p>Steht bei jedem Monat der gleiche Wert? → Dann fehlt die Beziehung aus Schritt 2 oder sie zeigt in die falsche Richtung. In der
+<p>Steht bei jedem Monat der gleiche Wert? → Dann fehlt die Beziehung aus Punkt 2 (Beziehung ziehen) oder sie zeigt in die falsche Richtung. In der
 Modellansicht muss die Linie von <code>Date</code> (Seite „1“) zu <code>Auftragsdatum</code> (Seite „*“) laufen.</p>
 </blockquote>
 <blockquote class="pp-note">
@@ -1045,7 +1047,7 @@ und <a href="https://learn.microsoft.com/power-bi/collaborate-share/service-shar
 <blockquote class="pp-tip">
 <p><strong>Und der Copilot?</strong> Der Copilot-Knopf steht im Menüband immer da. Nutzbar ist er aber nur, wenn du
 <strong>Schreibzugriff</strong> auf einen Arbeitsbereich mit bezahlter Fabric-Kapazität (ab F2) oder Premium-Kapazität (ab P1) hast
-und die Verwaltung Copilot für euer Unternehmen eingeschaltet hat —
+und eure IT (der Administrator) Copilot für euer Unternehmen eingeschaltet hat —
 oder wenn dein Unternehmen dir eine Fabric-Copilot-Kapazität zugewiesen hat. Testkapazitäten zählen nicht. Mit einer Free- oder
 Pro-Lizenz allein geht es nicht. Für diesen Pfad brauchst du ihn nicht; das PDF ist der Abschluss.</p>
 <p>Gut zu wissen: Den eigenständigen Power-BI-Copilot im Browser, in Teams und in der mobilen App schaltet Microsoft am
