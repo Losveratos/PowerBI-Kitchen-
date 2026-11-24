@@ -55,6 +55,7 @@ const SHOT_FOR = {
   'pnl-treiberbaum-demo.html': 'vis-pnl-baum', 'prototyping-pnl-treiberbaum.html': 'vis-pnl-baum',
   'chartkitchen-doku.html': 'vis-chartkitchen', 'chartkitchen-schnellstart.html': 'vis-chartkitchen',
   'wissensgraph/': 'tool-library', 'mobilitaets-karte-post.html': 'post-mobilitaet',
+  'newsletter-lupe-post.html': 'p-newsletter-lupe-story', 'newsletter-lupe-story.html': 'p-newsletter-lupe-story',
 };
 
 // Was willst du? -> Art
