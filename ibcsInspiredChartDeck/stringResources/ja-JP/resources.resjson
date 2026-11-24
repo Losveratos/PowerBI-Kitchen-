@@ -993,5 +993,15 @@
   "Hint_ScatterPathOrder": "時系列パス: カテゴリが期間順に並んでいません (ビジュアルの並べ替えを期間のままにしてください)",
   "Hint_ScatterShareRatio": "バブルの構成比 (比率): 0 から 1 の値を指定してください (24 ではなく 0.24)",
   "Hint_ScatterShareOff": "バブルの構成比: 再生モードとグループごとの形状では扇形は表示されません",
-  "Hint_ScatterTotalOff": "合計バブル: 再生モードと時系列パスでは表示されません"
+  "Hint_ScatterTotalOff": "合計バブル: 再生モードと時系列パスでは表示されません",
+  "Chart_ScatterTypeTitle": "パネルタイトルにグラフの種類",
+  "Desc_Chart_ScatterTypeTitle": "散布図とバブル: 灰色のパネルタイトルを「Scatter · AC × X 名」で始めます。その他の部分 (○ バブルサイズ、色 = Δ、軸外の点) は常に表示されます。既定はオフ。",
+  "Chart_ScatterScenarioTag": "Y 軸タイトルにシナリオ",
+  "Desc_Chart_ScatterScenarioTag": "散布図とバブル: Y 軸タイトルにシナリオ略称を付けます (「売上 (AC)」)。軸が差異を示す場合 (メジャーとしての ΔPL %) は誤りです。メジャー名がない場合、略称は引き続き単独で表示されます。既定はオフ。",
+  "Chart_PanelTypeTitles": "パネルタイトルにグラフの種類",
+  "Desc_Chart_PanelTypeTitles": "グラフの種類だけを示す灰色のパネルタイトル: 積み上げ縦棒・横棒・面の上の「積み上げ」(AC のみの場合はタイトル全体を省略)、統合ブリッジの「ブリッジ + 月次縦棒」、マリメッコの読み方の説明。シナリオと差異のタイトル (AC · FC、ΔPY、ΔPL %)、「構成比 (%)」、倍率と軸の省略表示は残ります。既定はオフ。",
+  "Labels_RoundedZero": "丸めによるゼロ",
+  "Desc_Labels_RoundedZero": "ゼロではないがゼロに丸められる差異: 符号を残す (「+0.0」、ピンや棒の横で方向が読み取れる) か、参照シートのように符号なしで表示する (「0.0」)。Δ、Δ %、pp に適用されます。厳密なゼロには符号を付けません。既定は符号を残す。",
+  "Enum_RoundedZero_Signed": "符号を残す (+0.0)",
+  "Enum_RoundedZero_Plain": "符号なし (0.0)"
 }

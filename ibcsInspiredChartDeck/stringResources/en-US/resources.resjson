@@ -993,5 +993,15 @@
   "Hint_ScatterPathOrder": "Time path: the category is not sorted by period (keep the visual sorted by the period)",
   "Hint_ScatterShareRatio": "Bubble share as ratio: values from 0 to 1 expected (0.24, not 24)",
   "Hint_ScatterShareOff": "Bubble share: no sectors in play mode or with shape per group",
-  "Hint_ScatterTotalOff": "Total bubble: not in play mode and not on the time path"
+  "Hint_ScatterTotalOff": "Total bubble: not in play mode and not on the time path",
+  "Chart_ScatterTypeTitle": "Chart type in the panel title",
+  "Desc_Chart_ScatterTypeTitle": "Scatter and bubble: the grey panel title starts with \"Scatter · AC × X name\". The other parts (○ bubble size, color = Δ, points outside the axes) always stay. Default off.",
+  "Chart_ScatterScenarioTag": "Scenario at the Y axis title",
+  "Desc_Chart_ScatterScenarioTag": "Scatter and bubble: appends the scenario code to the Y axis title (\"Revenue (AC)\"). Wrong when the axis shows a variance (ΔPL % as a measure); without a measure name the code still stands alone. Default off.",
+  "Chart_PanelTypeTitles": "Chart type in panel titles",
+  "Desc_Chart_PanelTypeTitles": "Grey panel titles that only name the chart type: \"stacked\" above stacked columns, bars and areas (with AC alone the title is dropped entirely), \"bridge + monthly columns\" in the integrated bridge and the Marimekko reading aid. Scenario and variance titles (AC · FC, ΔPY, ΔPL %), \"shares in %\", factor and axis break stay. Default off.",
+  "Labels_RoundedZero": "Rounded zero",
+  "Desc_Labels_RoundedZero": "A variance that is not zero but rounds to zero: keep its sign (\"+0.0\", the direction stays readable next to a pin or bar) or print it without a sign like the reference sheets (\"0.0\"). Applies to Δ, Δ % and pp. Exact zeros never carry a sign. Default keep the sign.",
+  "Enum_RoundedZero_Signed": "Keep the sign (+0.0)",
+  "Enum_RoundedZero_Plain": "Without sign (0.0)"
 }

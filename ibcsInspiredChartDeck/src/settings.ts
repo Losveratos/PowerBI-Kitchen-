@@ -271,6 +271,13 @@ const pinStyleItems: LocEnumMember[] = [
     { value: "square", displayName: "Square", key: "Enum_PinStyle_Square" }
 ];
 
+// 1.58 (Welle 1): a Δ that is not zero but rounds to zero — keep its sign (+0,0) or
+// print it plain like the reference sheets (0,0); exact zeros never carry a sign
+const roundedZeroItems: LocEnumMember[] = [
+    { value: "signed", displayName: "Keep the sign (+0.0)", key: "Enum_RoundedZero_Signed" },
+    { value: "plain", displayName: "Without sign (0.0)", key: "Enum_RoundedZero_Plain" }
+];
+
 const labelDensityItems: LocEnumMember[] = [
     { value: "auto", displayName: "Automatic (thin out)", key: "Enum_LabelDensity_Auto" },
     { value: "all", displayName: "All", key: "Enum_LabelDensity_All" },
@@ -378,7 +385,8 @@ export function localizeEnumItems(lm: powerbi.extensibility.ILocalizationManager
         stackNormalizeItems, stackLegendPosItems, stackBlocksItems, multiplesAggItems, multiplesTotalPosItems,
         multiplesBasisItems, sfStockAtItems, axisGroupsItems, timeAggregationItems, stackShapeItems, areaValueLabelsItems,
         linePeriodColumnsItems, lineGapMarkersItems, lineMarkerShapeItems, lineIndexItems, lineSeriesColorItems,
-        lineSeriesLabelsItems, stackThicknessItems, scatterPathItems, scatterPathLabelsItems, scatterShareAsItems];
+        lineSeriesLabelsItems, stackThicknessItems, scatterPathItems, scatterPathLabelsItems, scatterShareAsItems,
+        roundedZeroItems];
     for (const items of lists) {
         for (const it of items) {
             const loc = lm.getDisplayName(it.key);
@@ -1621,6 +1629,27 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
         value: { value: "#404040" }
     });
 
+    // 1.58 (Welle 1): the grey type title "Scatter · AC × X" and the scenario tag "(AC)"
+    // at the Y axis title. Both default off: on a variance scatter (C18, X = ΔPY %,
+    // Y = ΔPL % as measures) "(AC)" is wrong, and the type title only names the chart type
+    scatterTypeTitle = new formattingSettings.ToggleSwitch({
+        name: "scatterTypeTitle",
+        displayName: "Chart type in the panel title",
+        displayNameKey: "Chart_ScatterTypeTitle",
+        description: "Scatter und Bubble: der graue Paneltitel beginnt mit „Scatter · AC × X-Name“. Die übrigen Teile (○ Blasengröße, Farbe = Δ, Punkte außerhalb der Achsen) bleiben immer. Standard aus.",
+        descriptionKey: "Desc_Chart_ScatterTypeTitle",
+        value: false
+    });
+
+    scatterScenarioTag = new formattingSettings.ToggleSwitch({
+        name: "scatterScenarioTag",
+        displayName: "Scenario at the Y axis title",
+        displayNameKey: "Chart_ScatterScenarioTag",
+        description: "Scatter und Bubble: hängt das Szenario-Kürzel an den Titel der Y-Achse („Umsatz (AC)“). Falsch, wenn die Achse eine Abweichung zeigt (ΔPL % als Measure); ohne Measure-Namen steht das Kürzel weiterhin allein. Standard aus.",
+        descriptionKey: "Desc_Chart_ScatterScenarioTag",
+        value: false
+    });
+
     // eigene Modus-Gruppe wie Brücke/Tabelle/KPI-Karten — nur im Scatter sichtbar.
     // Reihenfolge nach Wichtigkeit: Quadranten → Färbung → Formen → Pfeile →
     // Trend (+R²) → Größen-Legende → Quadranten-Labels → Play
@@ -1630,6 +1659,7 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
         displayNameKey: "Group_Scatter",
         slices: [this.scatterQuadrant, this.scatterColorBy, this.scatterShapes,
             this.scatterArrows, this.scatterTrend, this.scatterTrendR2,
+            this.scatterTypeTitle, this.scatterScenarioTag,
             this.scatterSizeLegend, this.scatterValueLabels, this.scatterMaxRadius,
             this.scatterBubbleOpacity, this.scatterShareAs, this.scatterTotalBubble, this.scatterTotalColor,
             this.scatterEmphFill, this.scatterEmphColor, this.scatterEmphLabel,
@@ -1825,6 +1855,17 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
         value: false
     });
 
+    // 1.58 (Welle 1): technical panel subtitles that only name the chart type
+    // ("AC · stacked", "bridge + monthly columns", the Marimekko reading aid)
+    panelTypeTitles = new formattingSettings.ToggleSwitch({
+        name: "panelTypeTitles",
+        displayName: "Chart type in panel titles",
+        displayNameKey: "Chart_PanelTypeTitles",
+        description: "Graue Paneltitel, die nur den Charttyp nennen: „gestapelt“ über gestapelten Säulen, Balken und Flächen (bei AC allein entfällt der Titel ganz), „Brücke + Monatssäulen“ in der Integrierten Brücke und die Leseanleitung des Marimekko. Szenario- und Abweichungstitel (AC · FC, ΔPY, ΔPL %), „Anteile in %“, Faktor und Achsenschnitt bleiben. Standard aus.",
+        descriptionKey: "Desc_Chart_PanelTypeTitles",
+        value: false
+    });
+
     displayGroup = new formattingSettings.Group({
         name: "chartDisplay",
         displayName: "Display",
@@ -1832,7 +1873,7 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
         slices: [this.pinStyle, this.deltaIcons, this.driverNote, this.stackShape, this.areaTotalLine, this.areaValueLabels,
             this.stackLegendDirect, this.stackLegendPos,
             this.stackNormalize, this.stackThickness, this.stackShareColumn, this.stackTotalRow, this.stackTotalLabel, this.stackShareBracket,
-            this.stackBlocks, this.stackBlockShare, this.scenarioLabels,
+            this.stackBlocks, this.stackBlockShare, this.scenarioLabels, this.panelTypeTitles,
             this.exportExpandAll]
     });
 
@@ -2251,6 +2292,17 @@ export class LabelsCardSettings extends FormattingSettingsCard {
         value: false
     });
 
+    // 1.58 (Welle 1): like the P&L visual's numbers.roundedZero
+    roundedZero = new formattingSettings.ItemDropdown({
+        name: "roundedZero",
+        displayName: "Rounded zero",
+        displayNameKey: "Labels_RoundedZero",
+        description: "Eine Abweichung, die nicht null ist, aber auf null rundet: Vorzeichen behalten („+0,0“, die Richtung bleibt neben Pin oder Balken lesbar) oder ohne Vorzeichen wie in den Referenzblättern („0,0“). Gilt für Δ, Δ % und Pp. Exakte Nullen tragen nie ein Vorzeichen. Standard Vorzeichen behalten.",
+        descriptionKey: "Desc_Labels_RoundedZero",
+        items: roundedZeroItems,
+        value: roundedZeroItems[0]
+    });
+
     // Hausbegriffe: die IBCS-Szenariokürzel in Titeln, Spaltenköpfen und
     // Δ-Beschriftungen umbenennen (leer = Standardkürzel) — Backlog-Wunsch
     labelAc = new formattingSettings.TextInput({
@@ -2304,6 +2356,7 @@ export class LabelsCardSettings extends FormattingSettingsCard {
         this.decimals,
         this.displayUnits,
         this.financeFormat,
+        this.roundedZero,
         this.sumSafeRounding,
         this.unitSuffix,
         this.labelAc,

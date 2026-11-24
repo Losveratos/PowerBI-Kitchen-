@@ -103,19 +103,23 @@ const FETCH_MAX_ROWS = 30000;
 type TplValue = string | boolean | number;
 const CHART_TEMPLATES: Record<string, Record<string, TplValue>> = {
     // C01/C02: structure over time / per category — stacking comes from the Serie role
+    // 1.58 (Welle 1): templates state the defaults of the new notation switches
+    // (panelTypeTitles, scatterTypeTitle, scatterScenarioTag = off; labels.roundedZero =
+    // plain where the sheets print a rounded zero without its sign) explicitly, so a
+    // later change of the pane default does not change the template look
     C01: { orientation: "columns", comparisonMode: "auto", showAbsoluteVariance: false,
-        showRelativeVariance: false, dualVariance: false, waterfallStyle: false },
+        showRelativeVariance: false, dualVariance: false, waterfallStyle: false, panelTypeTitles: false },
     C02: { orientation: "bars", comparisonMode: "auto", showAbsoluteVariance: false,
-        showRelativeVariance: false, dualVariance: false, waterfallStyle: false },
+        showRelativeVariance: false, dualVariance: false, waterfallStyle: false, panelTypeTitles: false },
     // C03: multi-tier columns — AC/PY base, ΔPY panel, ΔPY% pins
     C03: { orientation: "columns", comparisonMode: "py", showAbsoluteVariance: true,
         showRelativeVariance: true, dualVariance: false, waterfallStyle: false },
     // C04: bars with ΔPL panel + ΔPL% pins
     C04: { orientation: "bars", comparisonMode: "plan", showAbsoluteVariance: true,
-        showRelativeVariance: true, dualVariance: false, waterfallStyle: false },
+        showRelativeVariance: true, dualVariance: false, waterfallStyle: false, "labels.roundedZero": "plain" },
     // C05: integrated bridge over time (PY total → monthly Δ → AC/FC total)
     C05: { orientation: "intwaterfall", comparisonMode: "py", showAbsoluteVariance: true,
-        showRelativeVariance: true, dualVariance: false },
+        showRelativeVariance: true, dualVariance: false, panelTypeTitles: false },
     // C06: category bridge drawn as vertical column cascade
     C06: { orientation: "catbridge", comparisonMode: "py", showAbsoluteVariance: true,
         showRelativeVariance: true, dualVariance: false, bridgeOrientation: "columns" },
@@ -124,9 +128,9 @@ const CHART_TEMPLATES: Record<string, Record<string, TplValue>> = {
         showRelativeVariance: false, dualVariance: false },
     // C09/C10: scatter with mean quadrants; C10 additionally the size legend (bubble role)
     C09: { orientation: "scatter", comparisonMode: "auto", scatterQuadrant: "mean",
-        scatterColorBy: "single" },
+        scatterColorBy: "single", scatterTypeTitle: false, scatterScenarioTag: false },
     C10: { orientation: "scatter", comparisonMode: "auto", scatterQuadrant: "mean",
-        scatterColorBy: "single", scatterSizeLegend: true },
+        scatterColorBy: "single", scatterSizeLegend: true, scatterTypeTitle: false, scatterScenarioTag: false },
     // C12: waterfall (sum/delta rows or bridge from the basis)
     C12: { orientation: "waterfall", comparisonMode: "auto", showAbsoluteVariance: true,
         showRelativeVariance: true, dualVariance: false },
@@ -139,7 +143,8 @@ const CHART_TEMPLATES: Record<string, Record<string, TplValue>> = {
     // header sort, written in the same merge
     C14: { orientation: "table", comparisonMode: "plan", showAbsoluteVariance: true,
         showRelativeVariance: true, dualVariance: false, showTotal: true, totalRowPosition: "bottom",
-        tableTotalLegend: true, tableSort: "dabs_desc", gridLines: "none", cumulative: false, topN: 0 },
+        tableTotalLegend: true, tableSort: "dabs_desc", gridLines: "none", cumulative: false, topN: 0,
+        "labels.roundedZero": "plain" },
     C15: { orientation: "table", comparisonMode: "plan", showAbsoluteVariance: true,
         showRelativeVariance: true, dualVariance: false, showTotal: true, totalRowPosition: "bottom",
         tableTotalLegend: true, tableSort: "drel_desc", gridLines: "none", cumulative: false, topN: 0 },
@@ -156,7 +161,8 @@ const CHART_TEMPLATES: Record<string, Record<string, TplValue>> = {
     // address another card (here the scale card's reference lines)
     C18: { orientation: "scatter", comparisonMode: "auto", scatterQuadrant: "off",
         scatterColorBy: "group", scatterSizeLegend: true, scatterTrend: "off",
-        scatterArrows: false, scatterShapes: false, "scale.refLine": "0", "scale.xRefLine": "0" },
+        scatterArrows: false, scatterShapes: false, scatterTypeTitle: false, scatterScenarioTag: false,
+        "scale.refLine": "0", "scale.xRefLine": "0" },
     // 1.54 (B05) C19 = 03B: monthly columns vs. plan with the year column on its own
     // scale (AC + FC), scenario labels at the axis; 03A is the same with basis PY
     C19: { orientation: "columns", comparisonMode: "plan", showAbsoluteVariance: true,
@@ -165,13 +171,13 @@ const CHART_TEMPLATES: Record<string, Record<string, TplValue>> = {
     // 1.55 (B11) C20 = 08E to 08H: stock & flow over time (net panel, flows ±, stock line
     // with area), scenario labels at the axis, emphasis as ellipse around the stock label
     C20: { orientation: "stockflow", sfNet: true, sfArea: true, scenarioLabels: true, showTotal: false,
-        highlightStyle: "ellipse" },
+        highlightStyle: "ellipse", "labels.roundedZero": "plain" },
     // 1.56 (B16) C07 = 08A: stacked area over time (Serie role), total line with points
     // and totals, series names right of the last period, values in the areas
     C07: { orientation: "columns", comparisonMode: "auto", showAbsoluteVariance: false,
         showRelativeVariance: false, dualVariance: false, waterfallStyle: false, stackShape: "area",
         areaTotalLine: true, areaValueLabels: "auto", stackLegendDirect: true, stackLegendPos: "end",
-        showTotal: false, scenarioLabels: true },
+        showTotal: false, scenarioLabels: true, panelTypeTitles: false },
     // 1.56 (B15) C21 = 07C: cumulated YTD lines AC/FC against PL with the rolling year
     // (R12), the months as columns behind the lines on the same scale, gap markers at the
     // last actual and at the year end, square markers, scenario codes at the line ends
@@ -189,19 +195,19 @@ const CHART_TEMPLATES: Record<string, Record<string, TplValue>> = {
     // thin line per unit through its periods, period labels, unit name at the end point
     C23: { orientation: "scatter", comparisonMode: "auto", scatterPath: "line", scatterPathLabels: "auto",
         scatterColorBy: "group", scatterQuadrant: "off", scatterTrend: "off", scatterArrows: false,
-        scatterPlay: false },
+        scatterPlay: false, scatterTypeTitle: false, scatterScenarioTag: false },
     // 1.57 (B19) C24 = 10E/10G: bubbles with a share sector (role bubbleShare) and a total
     // bubble per tile, group colors, values in the bubbles, opaque, X reference at 1
     C24: { orientation: "scatter", comparisonMode: "auto", scatterQuadrant: "off", scatterColorBy: "group",
         scatterSizeLegend: false, scatterValueLabels: true, scatterBubbleOpacity: 100, scatterTotalBubble: true,
         scatterMaxRadius: 100, scatterTrend: "off", scatterArrows: false, scatterPath: "off", scatterPlay: false,
-        "scale.xRefLine": "1" },
+        scatterTypeTitle: false, scatterScenarioTag: false, "scale.xRefLine": "1" },
     // 1.57 (B20) C25 = 02F: Marimekko — 100 % bars, row thickness by the row total,
     // values in the segments, total and share columns, Σ row, sorted by the total
     C25: { orientation: "bars", comparisonMode: "auto", showAbsoluteVariance: false,
         showRelativeVariance: false, dualVariance: false, waterfallStyle: false, stackNormalize: "pct100",
         stackThickness: "total", stackShareColumn: true, showTotal: true, stackTotalRow: true, sortMode: "ac",
-        stackLegendDirect: true }
+        stackLegendDirect: true, panelTypeTitles: false }
 };
 
 /** 1.50 start hub: schematic preview per IBCS template — keys of drawModeMini, the
@@ -700,6 +706,8 @@ interface ChartConfig {
     patId: string;
     patGood: string;
     patBad: string;
+    /** 1.58 (Welle 1): finer FC hatch for small point markers */
+    patMark: string;
     patPrelim: string;
     /** table: extra numeric value columns ("ac" | "basis" | "all") */
     valueCols: string;
@@ -1318,6 +1326,18 @@ function relVar(dAbs: number | null, basis: number | null): number | null {
 }
 /** fixed, language-neutral marker (IBCS uses "n.a." internationally) */
 const REL_NA = "n.a.";
+
+/**
+ * 1.58 (Welle 1): sign of a Δ label whose unsigned text at label precision is `body`.
+ * `plain` (labels.roundedZero = plain, Visual.roundedZeroPlain()) drops the sign of a
+ * Δ that is not zero but rounds to zero ("0,0" like the reference sheets, P&L
+ * numbers.roundedZero); otherwise "+" / "−" by the sign of v, "" at an exact zero —
+ * the same result as the inline ternaries it replaces. Exported for the KPI cards.
+ */
+export function deltaSign(v: number, body: string, plain: boolean): string {
+    if (plain && !/[1-9]/.test(body)) { return ""; }
+    return v > 0 ? "+" : v < 0 ? "−" : "";
+}
 
 /**
  * true when a measure format string already fixes the magnitude itself — a
@@ -2367,6 +2387,9 @@ export class Visual implements IVisual {
         fs.chartCard.bridgeSecondNet.visible = orient === "intwaterfall";
         fs.chartCard.sortByImpact.visible = false;
         fs.chartCard.stackLegendDirect.visible = orient === "columns" || orient === "bars";
+        // 1.58 (Welle 1): type subtitles exist over stacks (columns/bars, area) and in the
+        // integrated bridge
+        fs.chartCard.panelTypeTitles.visible = orient === "columns" || orient === "bars" || orient === "intwaterfall";
         // 1.54 (B05): year column and scenario labels exist only in the column chart
         fs.chartCard.yearColumn.visible = orient === "columns";
         fs.chartCard.yearColumnLabel.visible = orient === "columns" && fs.chartCard.yearColumn.value === true;
@@ -2499,6 +2522,9 @@ export class Visual implements IVisual {
         fs.chartCard.scatterTotalColor.visible = fs.chartCard.scatterTotalBubble.visible === true
             && fs.chartCard.scatterTotalBubble.value === true;
         fs.chartCard.scatterEmphFill.visible = isScatter;
+        // 1.58 (Welle 1)
+        fs.chartCard.scatterTypeTitle.visible = isScatter;
+        fs.chartCard.scatterScenarioTag.visible = isScatter;
         const emphFillOn = isScatter && fs.chartCard.scatterEmphFill.value === true;
         fs.chartCard.scatterEmphColor.visible = emphFillOn;
         fs.chartCard.scatterEmphLabel.visible = emphFillOn;
@@ -3339,6 +3365,8 @@ export class Visual implements IVisual {
         if (!/[1-9]/.test(t)) {
             // rounds to zero: the zero at the label precision, signed ("+0,0", "−0,0", finance "(0,0)")
             const z = (fmt as unknown as CkFormatter).zeroAt?.(v) ?? t.replace(/^[-−(]|\)$/g, "");
+            // 1.58 (Welle 1): labels.roundedZero = plain prints that zero without a sign
+            if (this.roundedZeroPlain()) { return z; }
             t = v < 0 && this.financeFmt ? `(${z})` : z;
         }
         if (v > 0) { return "+" + t; }
@@ -3355,10 +3383,18 @@ export class Visual implements IVisual {
         });
         const body = nf.format(Math.abs(v));
         // 1.52.2: only an exact zero is unsigned; "+0,0%" / "−0,0%" keep the direction
-        if (!/[1-9]/.test(body) && Math.abs(v) <= 1e-9) { return body + "%"; }
+        // 1.58 (Welle 1): … unless labels.roundedZero = plain
+        if (!/[1-9]/.test(body) && (Math.abs(v) <= 1e-9 || this.roundedZeroPlain())) { return body + "%"; }
         if (this.financeFmt && v < 0) { return `(${body}%)`; }
         const sign = v > 0 ? "+" : v < 0 ? "−" : "";
         return sign + body + "%";
+    }
+
+    /** 1.58 (Welle 1): labels.roundedZero = plain — a Δ that is not zero but rounds to
+     *  zero prints without its sign (fmtSigned, fmtPercent, Pp texts; deltaSign for
+     *  own texts). Default "signed" keeps every existing label */
+    public roundedZeroPlain(): boolean {
+        return String((this.formattingSettings?.labelsCard.roundedZero?.value as powerbi.IEnumMember)?.value ?? "signed") === "plain";
     }
 
     /** UN 4.1 "n.a." case of a point's Δ% (primary or second basis): Δ exists, basis ≤ 0 */
@@ -7050,6 +7086,7 @@ export class Visual implements IVisual {
             patId: `icd-hatch-${this.instanceId}`,
             patGood: `icd-hatch-good-${this.instanceId}`,
             patBad: `icd-hatch-bad-${this.instanceId}`,
+            patMark: `icd-hatch-${this.instanceId}-m`,
             patPrelim: `icd-prelim-${this.instanceId}`,
             valueCols: String(s.chartCard.valueColumns.value.value),
             resultSet: listResult,
@@ -7165,6 +7202,7 @@ export class Visual implements IVisual {
         makeHatch(cfg.patId, cfg.colors.ac);
         makeHatch(cfg.patGood, cfg.colors.good);
         makeHatch(cfg.patBad, cfg.colors.bad);
+
         // preliminary actuals: thin paper-colored lines OVER the solid fill —
         // reads as "almost final", clearly lighter than the dense FC hatch
         const patP = this.el("pattern", {
@@ -8584,7 +8622,9 @@ export class Visual implements IVisual {
                     ? cfg.colors.py : (good(v, tierPts[i]) ? cfg.colors.good : cfg.colors.bad);
                 const y = relScale(v);
                 this.el("line", { x1: c, y1: zero, x2: c, y2: y, stroke: col, "stroke-width": Math.max(1.6, 1.4 * k) }, tg);
-                this.pinHead(tg, c, y, Math.max(2.6, 2.2 * k), "round", cfg.pinStyle, { fill: col });
+                // 1.58 (Welle 1): head in scenario notation, colour on the stem (hc unchanged)
+                this.pinHead(tg, c, y, Math.max(2.6, 2.2 * k), "round", cfg.pinStyle,
+                    cfg.hc ? { fill: col } : this.pinHeadScen(cfg, tierPts[i]?.isFc ? "fc" : "ac"));
                 if (showTierLabels) {
                     const headR = Math.max(2.6, 2.2 * k);
                     const flip = v > 0 && this.collidesPanelTitle(c, this.fmtPercent(v), cfg.labelFont,
@@ -9398,8 +9438,10 @@ export class Visual implements IVisual {
             ? ` · ${this.locStr("WfBreak_Title", "axis broken from {0}").replace("{0}", cfg.fmt.format(maxTot > 0 ? cut : -cut))}` : "";
         this.drawPanelTitle(bg, { x: region.x, y: region.y + pad, w: region.w, h: 12 },
             // 1.52.2: the caption speaks the report language (it was German in every locale)
-            `${cfg.basisLabel} → ${cfg.scenL.ac}${cfg.hasFc ? "/" + cfg.scenL.fc : ""} · `
-            + `${this.locStr("WfBridge_Title", "bridge + monthly columns")}${zoomTxt}${cutTxt}`,
+            // 1.58 (Welle 1): "bridge + monthly columns" only with chart.panelTypeTitles
+            `${cfg.basisLabel} → ${cfg.scenL.ac}${cfg.hasFc ? "/" + cfg.scenL.fc : ""}`
+            + (this.panelTypeTitlesOn() ? ` · ${this.locStr("WfBridge_Title", "bridge + monthly columns")}` : "")
+            + `${zoomTxt}${cutTxt}`,
             "columns", Math.round(12 * k), region, undefined, cfg.subtle);
         // scale band: the same value on the anchor scale (total columns) and on the
         // monthly scale — the visible step between both shows the factor (CH 4.3)
@@ -11444,20 +11486,27 @@ export class Visual implements IVisual {
                     hFont, true, cfg.subtle, bg).setAttribute("data-icd", "scale-zoom-table");
             }
         }
-        if (colX["dbar"]) {
-            this.el("rect", { x: dAxis - 1, y: top, width: 2, height: rowsBottom - top, fill: cfg.colors.py }, bg);
-        }
+        // 1.58 (Welle 1): the Δ axes follow the basis notation like the Δ panels of the
+        // column chart: PY grey (unchanged), PL double line, FC of the prior cycle
+        // (fcrev) dashed double line; the Ø basis keeps the grey axis
+        const varAxis = (x: number, basis: Basis) => {
+            if (basis === "py" || cfg.basisAvg) {
+                this.el("rect", { x: x - 1, y: top, width: 2, height: rowsBottom - top, fill: cfg.colors.py }, bg);
+                return;
+            }
+            const ag = this.el("g", { "data-icd": "table-var-axis", "data-basis": basis }, bg);
+            this.drawBaseline(ag, { x, y: top, w: 0, h: rowsBottom - top }, () => x, "bars", top, rowsBottom,
+                basis, cfg.colors);
+        };
+        if (colX["dbar"]) { varAxis(dAxis, cfg.basisMode); }
         const pctRoom = colX["pct"] ? colX["pct"].w - lf * 6 : 0;
         const pctAxis = colX["pct"] ? colX["pct"].x + lf * 3 + zeroFrac * pctRoom : 0;
         const pinUnit = colX["pct"] ? unitOf(pctRoom, negP, posP) : 0;
-        if (colX["pct"]) {
-            this.el("rect", { x: pctAxis - 1, y: top, width: 2, height: rowsBottom - top, fill: cfg.colors.py }, bg);
-        }
+        if (colX["pct"]) { varAxis(pctAxis, cfg.basisMode); }
         const d2Axis = colX["d2bar"] ? colX["d2bar"].x + 4 + zeroFrac * (colX["d2bar"].w - 8) : 0;
         const d2Unit = colX["d2bar"] ? (kBar > 0 && Number.isFinite(fitMin) ? kBar * tblZoom : d2Fit) : 0;
-        if (colX["d2bar"]) {
-            this.el("rect", { x: d2Axis - 1, y: top, width: 2, height: rowsBottom - top, fill: cfg.colors.py }, bg);
-        }
+        // the second Δ compares against the second basis (the real one from parseData)
+        if (colX["d2bar"]) { varAxis(d2Axis, this.basis2Mode); }
 
         // sum-safe rounding: adjust the level-0 detail labels (largest remainder)
         // so they visibly add up to the synthetic Σ row
@@ -11547,9 +11596,11 @@ export class Visual implements IVisual {
             const zeroPct = (v: number) => !/[1-9]/.test(pctNf.format(Math.abs(v)));
             const pctText = (v: number) => zeroPct(v) ? pctNf.format(0) + " %" : this.financeFmt && v < 0
                 ? `(${pctNf.format(Math.abs(v))} %)` : pctNf.format(v) + " %";
-            const ppText = (v: number) => this.financeFmt && v < 0
+            // 1.58 (Welle 1): a rounded zero follows labels.roundedZero (deltaSign)
+            const zp = this.roundedZeroPlain();
+            const ppText = (v: number) => this.financeFmt && v < 0 && !(zp && !/[1-9]/.test(pctNf.format(Math.abs(v))))
                 ? `(${pctNf.format(Math.abs(v))}Pp)`
-                : (v > 0 ? "+" : v < 0 ? "−" : "") + pctNf.format(Math.abs(v)) + "Pp";
+                : deltaSign(v, pctNf.format(Math.abs(v)), zp) + pctNf.format(Math.abs(v)) + "Pp";
             // 1.54: with the Σ legend the AC sum stands once, in the legend
             if (p.value != null && cfg.showLabels && !(totalLegend && row.isTotal && barScale)) {
                 const shownVal = sumSafeVals?.has(p) ? sumSafeVals.get(p) as number : p.value;
@@ -11650,9 +11701,9 @@ export class Visual implements IVisual {
                 : (v === 0 || !material) ? "● " : v > 0 ? "▲ " : "▼ ";
             if (p.varAbs != null && colX["dval"] && cfg.showLabels) {
                 const dTxt = rowPct ? ppText(p.varAbs)
-                    : rf ? (this.financeFmt && p.varAbs < 0
+                    : rf ? (this.financeFmt && p.varAbs < 0 && !(zp && !/[1-9]/.test(rf(Math.abs(p.varAbs))))
                         ? `(${rf(Math.abs(p.varAbs))})`
-                        : (p.varAbs > 0 ? "+" : p.varAbs < 0 ? "−" : "") + rf(Math.abs(p.varAbs)))
+                        : deltaSign(p.varAbs, rf(Math.abs(p.varAbs)), zp) + rf(Math.abs(p.varAbs)))
                     : this.fmtSigned(cfg.fmtVar, p.varAbs);
                 txt(colX["dval"].x + colX["dval"].w, yMid + rowFont * 0.35,
                     dIcon(p.varAbs, cfg.isMaterial(p)) + dTxt, "end", rowFont, sum,
@@ -11705,9 +11756,10 @@ export class Visual implements IVisual {
                 const r = Math.max(2.4, 3 * k);
                 const endX = pctAxis + dir * Math.max(len, 2);
                 this.el("line", { x1: pctAxis, y1: yMid, x2: endX, y2: yMid, stroke: c, "stroke-width": 2 }, g);
-                this.pinHead(g, endX, yMid, r, "square", cfg.pinStyle, {
-                    fill: p.isFc ? cfg.paper : cfg.ink, stroke: cfg.ink, "stroke-width": p.isFc ? 1 : 0
-                });
+                // 1.58 (Welle 1): FC hatched like the FC bars (hollow is the plan notation)
+                this.pinHead(g, endX, yMid, r, "square", cfg.pinStyle, cfg.hc
+                    ? { fill: p.isFc ? cfg.paper : cfg.ink, stroke: cfg.ink, "stroke-width": p.isFc ? 1 : 0 }
+                    : p.isFc ? this.pinHeadScen(cfg, "fc") : { fill: cfg.ink, stroke: cfg.ink, "stroke-width": 0 });
                 if (cfg.showLabels) {
                     txt(endX + dir * (r + 4), yMid + rowFont * 0.35, this.fmtPercent(p.varRel),
                         dir > 0 ? "start" : "end", Math.round(rowFont * 0.92), sum, cfg.ink, g);
@@ -12580,9 +12632,11 @@ export class Visual implements IVisual {
         const zeroPct = (v: number) => !/[1-9]/.test(pctNf.format(Math.abs(v)));
         const pctText = (v: number) => zeroPct(v) ? pctNf.format(0) + " %" : this.financeFmt && v < 0
             ? `(${pctNf.format(Math.abs(v))} %)` : pctNf.format(v) + " %";
-        const ppText = (v: number) => this.financeFmt && v < 0
+        // 1.58 (Welle 1): a rounded zero follows labels.roundedZero (deltaSign)
+        const zp = this.roundedZeroPlain();
+        const ppText = (v: number) => this.financeFmt && v < 0 && !(zp && !/[1-9]/.test(pctNf.format(Math.abs(v))))
             ? `(${pctNf.format(Math.abs(v))}Pp)`
-            : (v > 0 ? "+" : v < 0 ? "−" : "") + pctNf.format(Math.abs(v)) + "Pp";
+            : deltaSign(v, pctNf.format(Math.abs(v)), zp) + pctNf.format(Math.abs(v)) + "Pp";
         // Σ-row placement + hover layers (assigned after the loop; the per-row
         // mouseenter/move closures reference them once populated)
         const sumTop = cfg.totalPos === "top";
@@ -14521,7 +14575,8 @@ export class Visual implements IVisual {
             if (xV != null) {
                 this.el("circle", {
                     cx: xV, cy: y, r,
-                    fill: p.isFc ? cfg.paper : (cfg.hc ? cfg.ink : cfg.colors.ac),
+                    // 1.58 (Welle 1): FC hatched, hollow stays the plan notation
+                    fill: p.isFc ? this.fcMarkFill(cfg) : (cfg.hc ? cfg.ink : cfg.colors.ac),
                     stroke: cfg.colors.ac, "stroke-width": 1.6
                 }, g);
                 if (cfg.showLabels && showValAt(i)) {
@@ -14613,7 +14668,7 @@ export class Visual implements IVisual {
                 ...(p.isFc ? { "stroke-dasharray": "5,4" } : {})
             }, g);
             this.el("circle", { cx: x0, cy: yB, r: 3 * Math.min(k, 1.4), fill: cfg.hc ? cfg.paper : cfg.colors.py, stroke: cfg.colors.py, "stroke-width": 1.2 }, g);
-            this.el("circle", { cx: x1, cy: yV, r: 3 * Math.min(k, 1.4), fill: p.isFc ? cfg.paper : cfg.colors.ac, stroke: cfg.colors.ac, "stroke-width": 1.4 }, g);
+            this.el("circle", { cx: x1, cy: yV, r: 3 * Math.min(k, 1.4), fill: p.isFc ? this.fcMarkFill(cfg) : cfg.colors.ac, stroke: cfg.colors.ac, "stroke-width": 1.4 }, g);
             const isHl = cfg.highlight.has(p.cat.toLowerCase());
             const lt = this.el("text", {
                 x: x0 - 8, y: leftY[i] + cf * 0.35, "text-anchor": "end", "font-size": cf,
@@ -15671,7 +15726,10 @@ export class Visual implements IVisual {
 
         const bg = this.el("g", {}, this.svg);
         // grey panel title — marks the non-IBCS-core chart type (as Pareto/Dumbbell/Slope)
-        const titleParts = [`Scatter · ${cfg.scenL.ac} × ${sc.xName}`];
+        // 1.58 (Welle 1): the type part only with chart.scatterTypeTitle (default off);
+        // the row keeps its height either way, so the plot area does not move
+        const cc58 = this.formattingSettings.chartCard;
+        const titleParts = cc58.scatterTypeTitle.value === true ? [`Scatter · ${cfg.scenL.ac} × ${sc.xName}`] : [];
         // 1.52.2: the size names its unit once in long form, the numbers go without
         // K/M (C10 „○ Umsatz in Mio. (max 9,0)“, was „Umsatz (max 9,0M)“)
         if (hasSize) {
@@ -15689,10 +15747,15 @@ export class Visual implements IVisual {
             titleParts.push(this.locStr("Scatter_Outside", "{0} outside the axes")
                 .replace("{0}", String(outsideN)));
         }
-        this.drawPanelTitle(bg, { x: region.x, y: top, w: region.w, h: titleH }, titleParts.join(" · "),
-            "columns", titleH, region, undefined, cfg.subtle);
+        if (titleParts.length > 0) {
+            this.drawPanelTitle(bg, { x: region.x, y: top, w: region.w, h: titleH }, titleParts.join(" · "),
+                "columns", titleH, region, undefined, cfg.subtle);
+        }
         // axis titles carry name + unit: Y top-left above the plot, X bottom-right
-        const yName = sc.yName ? `${sc.yName} (${cfg.scenL.ac})` : cfg.scenL.ac;
+        // 1.58 (Welle 1): "(AC)" only with chart.scatterScenarioTag (default off) — on a
+        // variance axis (ΔPL % as a measure) it is wrong; a nameless axis keeps the code
+        const yName = sc.yName ? (cc58.scatterScenarioTag.value === true ? `${sc.yName} (${cfg.scenL.ac})` : sc.yName)
+            : cfg.scenL.ac;
         const yt = this.el("text", {
             x: region.x + pad + 2, y: yTitleBase, "font-size": axF, fill: cfg.subtle, "font-family": FONT
         }, bg);
@@ -17611,15 +17674,24 @@ export class Visual implements IVisual {
         if (mekko) { bg.setAttribute("data-thickness", "total"); }
         this.drawBaseline(bg, rect, scale, orientation, bandStart, bandEnd, "ac", cfg.colors);
         // the title names the scenarios that occur (AC only = unchanged text)
+        const stackScen = [scenSet.has("ac") ? cfg.scenL.ac : "", scenSet.has("fc") || points.some(p => p.isFc) ? cfg.scenL.fc : "",
+            scenSet.has("pl") ? cfg.scenL.pl : ""].filter(x => x).join(" · ");
         const stackTitle = !anyScen ? this.locStr("Title_StackedPanel", "AC · stacked")
-            : [scenSet.has("ac") ? cfg.scenL.ac : "", scenSet.has("fc") || points.some(p => p.isFc) ? cfg.scenL.fc : "",
-                scenSet.has("pl") ? cfg.scenL.pl : ""]
-                .filter(x => x).join(" · ") + " · " + this.locStr("Title_StackedPanel", "AC · stacked").replace(/^[^·]*·\s*/, "");
+            : stackScen + " · " + this.locStr("Title_StackedPanel", "AC · stacked").replace(/^[^·]*·\s*/, "");
         // 1.57 review (B20 n5): the Marimekko segments carry values, the title says so
-        this.drawPanelTitle(bg, rect, stackTitle + (mekko ? ` · ${this.locStr("Title_StackMekko", "values · length = share, thickness = total")}`
-            : norm ? ` · ${this.locStr("Title_StackShares", "shares in %")}` : ""),
-            orientation, titleH, region,
-            orientation === "bars" ? region.y + legendH + Math.round(10 * k) : undefined, cfg.subtle);
+        // 1.58 (Welle 1): without chart.panelTypeTitles (default) neither "stacked" nor
+        // the Marimekko reading aid; mixed scenarios and "shares in %" stay. The title
+        // row keeps its room (no geometry change)
+        const stackText = this.panelTypeTitlesOn()
+            ? stackTitle + (mekko ? ` · ${this.locStr("Title_StackMekko", "values · length = share, thickness = total")}`
+                : norm ? ` · ${this.locStr("Title_StackShares", "shares in %")}` : "")
+            : [anyScen ? stackScen : "", norm && !mekko ? this.locStr("Title_StackShares", "shares in %") : ""]
+                .filter(x => x).join(" · ");
+        if (stackText) {
+            this.drawPanelTitle(bg, rect, stackText,
+                orientation, titleH, region,
+                orientation === "bars" ? region.y + legendH + Math.round(10 * k) : undefined, cfg.subtle);
+        }
 
         const ly = region.y + (orientation === "columns" ? pad + legendH - 4 : legendH - 2);
         if (names) {
@@ -18508,11 +18580,16 @@ export class Visual implements IVisual {
 
         // panel title: the scenarios that occur (AC only = the stack title)
         const baseTitle = this.locStr("Title_StackedPanel", "AC · stacked");
-        const title = !anyScen ? baseTitle
-            : [scenSet.has("ac") ? cfg.scenL.ac : "", scenSet.has("fc") ? cfg.scenL.fc : "", scenSet.has("pl") ? cfg.scenL.pl : ""]
-                .filter(x => x).join(" · ") + " · " + baseTitle.replace(/^[^·]*·\s*/, "");
-        this.drawPanelTitle(bg, rect, title + (norm ? ` · ${this.locStr("Title_StackShares", "shares in %")}` : ""),
-            "columns", titleH, region, undefined, cfg.subtle);
+        const areaScen = [scenSet.has("ac") ? cfg.scenL.ac : "", scenSet.has("fc") ? cfg.scenL.fc : "", scenSet.has("pl") ? cfg.scenL.pl : ""]
+            .filter(x => x).join(" · ");
+        const title = !anyScen ? baseTitle : areaScen + " · " + baseTitle.replace(/^[^·]*·\s*/, "");
+        // 1.58 (Welle 1): "stacked" only with chart.panelTypeTitles (default off)
+        const areaText = this.panelTypeTitlesOn()
+            ? title + (norm ? ` · ${this.locStr("Title_StackShares", "shares in %")}` : "")
+            : [anyScen ? areaScen : "", norm ? this.locStr("Title_StackShares", "shares in %") : ""].filter(x => x).join(" · ");
+        if (areaText) {
+            this.drawPanelTitle(bg, rect, areaText, "columns", titleH, region, undefined, cfg.subtle);
+        }
 
         // 1.56 review (m6): a period is found by its full path ("2024 · Jul") or by its
         // leaf ("Jul", then in every year), like the rows of the stack blocks
@@ -20912,9 +20989,10 @@ export class Visual implements IVisual {
                         if (lnSq) {
                             this.lineSquare(g, cx, mainScale(capV(p.value)), lnMk, p.isFc ? "fc" : "ac", cfg, "line-pt", { "data-v": p.value });
                         } else {
+                            // 1.58 (Welle 1): FC points hatched (hollow is the plan notation)
                             this.el("circle", {
                                 cx, cy: mainScale(capV(p.value)), r: 2.6,
-                                fill: p.isFc ? cfg.paper : cfg.colors.ac,
+                                fill: p.isFc ? this.fcMarkFill(cfg) : cfg.colors.ac,
                                 stroke: cfg.colors.ac, "stroke-width": 1.4,
                                 ...(lo ? { "data-icd": "line-pt", "data-shape": "circle", "data-scen": p.isFc ? "fc" : "ac", "data-v": p.value } : {})
                             }, g);
@@ -21104,12 +21182,16 @@ export class Visual implements IVisual {
                 // 1.55 (B13): plan-against-plan pins carry the var-plan marker (hollow head)
                 // 1.56 (B13 part 2 review, m2): high contrast keeps the good/bad head
                 // (filled/hollow), the plan signature is a dashed stem
+                // 1.58 (Welle 1): outside high contrast the head carries the scenario (AC
+                // solid, FC hatched, PL hollow), the variance colour only the stem
                 const hcPlan = cfg.hc && p.varPlan === true;
                 const headAttrs: Record<string, string | number> = hcPlan
                     ? { fill: good && p.varRel !== 0 ? color : cfg.paper, stroke: color, "stroke-width": 1.6, "data-icd": "var-plan" }
                     : p.varPlan
-                    ? { fill: cfg.paper, stroke: color, "stroke-width": 1.6, "data-icd": "var-plan" }
-                    : { fill: hollowPin ? cfg.paper : color, stroke: color, "stroke-width": 1.6 };
+                    ? { ...this.pinHeadScen(cfg, "pl"), "data-icd": "var-plan" }
+                    : cfg.hc
+                    ? { fill: hollowPin ? cfg.paper : color, stroke: color, "stroke-width": 1.6 }
+                    : this.pinHeadScen(cfg, p.isFc ? "fc" : "ac");
                 const stem: Record<string, string | number> = hcPlan
                     ? { stroke: color, "stroke-width": 1.6, "stroke-dasharray": "3 2" } : { stroke: color, "stroke-width": 1.6 };
                 if (orientation === "columns") {
@@ -21158,14 +21240,16 @@ export class Visual implements IVisual {
                 const end = rel2Scale(p.var2Rel);
                 const r = Math.max(2.5, Math.min(4.5, slotW * 0.12));
                 const hollowPin = p.isFc || (cfg.hc && !good && p.var2Rel !== 0);
+                // 1.58 (Welle 1): scenario head outside high contrast (see the first basis)
+                const head2: Record<string, string | number> = cfg.hc
+                    ? { fill: hollowPin ? cfg.paper : color, stroke: color, "stroke-width": 1.6 }
+                    : this.pinHeadScen(cfg, p.isFc ? "fc" : "ac");
                 if (orientation === "columns") {
                     this.el("line", { x1: cx, y1: zero, x2: cx, y2: end, stroke: color, "stroke-width": 1.6 }, g);
-                    this.pinHead(g, cx, end, r, "round", cfg.pinStyle,
-                        { fill: hollowPin ? cfg.paper : color, stroke: color, "stroke-width": 1.6 });
+                    this.pinHead(g, cx, end, r, "round", cfg.pinStyle, head2);
                 } else {
                     this.el("line", { x1: zero, y1: cx, x2: end, y2: cx, stroke: color, "stroke-width": 1.6 }, g);
-                    this.pinHead(g, end, cx, r, "round", cfg.pinStyle,
-                        { fill: hollowPin ? cfg.paper : color, stroke: color, "stroke-width": 1.6 });
+                    this.pinHead(g, end, cx, r, "round", cfg.pinStyle, head2);
                 }
                 if (cfg.showLabels && showRel2At(i)) {
                     const flip = orientation === "columns" && p.var2Rel > 0 && panels.rel2 != null
@@ -22333,8 +22417,10 @@ export class Visual implements IVisual {
             const r = Math.max(2.5, Math.min(4.5, slotW * 0.12));
             const zero = scale(0), end = scale(dr);
             this.el("line", { x1: cx, y1: zero, x2: cx, y2: end, stroke: color, "stroke-width": 1.6, "data-part": "pin" }, g);
-            this.pinHead(g, cx, end, r, "round", cfg.pinStyle,
-                { fill: anyFc || (cfg.hc && !good && dr !== 0) ? cfg.paper : color, stroke: color, "stroke-width": 1.6 });
+            // 1.58 (Welle 1): scenario head (AC&FC hatched) outside high contrast
+            this.pinHead(g, cx, end, r, "round", cfg.pinStyle, cfg.hc
+                ? { fill: anyFc || (!good && dr !== 0) ? cfg.paper : color, stroke: color, "stroke-width": 1.6 }
+                : this.pinHeadScen(cfg, anyFc ? "fc" : "ac"));
             if (cfg.showLabels) {
                 this.drawEndLabelAt(g, cx, dr, dr >= 0, scale, "columns", this.relText(p, second),
                     cfg.labelFont, cfg.ink, r + 3, cfg.paper);
@@ -22497,7 +22583,7 @@ export class Visual implements IVisual {
         if (m.pp) {
             const nf = new Intl.NumberFormat(this.host.locale, { minimumFractionDigits: 1, maximumFractionDigits: 1 });
             const r = Math.round(m.d * 10) / 10;
-            return `${r > 0 ? "+" : r < 0 ? "−" : ""}${nf.format(Math.abs(r))} ${this.locStr("Label_PctPoints", "pp")}`;
+            return `${deltaSign(r, nf.format(Math.abs(r)), this.roundedZeroPlain())}${nf.format(Math.abs(r))} ${this.locStr("Label_PctPoints", "pp")}`;
         }
         // the values' unit and precision, more digits only when Δ would round to zero
         let abs = this.fmtSigned(cfg.fmtDiff, m.d);
@@ -23326,7 +23412,7 @@ export class Visual implements IVisual {
             if (sq) {
                 this.lineSquare(g, x, y, mk, scen, cfg, "line-r12-pt", { "data-v": p.r12 as number });
             } else {
-                this.el("circle", { cx: x, cy: y, r: 2.6, fill: p.isFc ? cfg.paper : cfg.colors.ac,
+                this.el("circle", { cx: x, cy: y, r: 2.6, fill: p.isFc ? this.fcMarkFill(cfg) : cfg.colors.ac,
                     stroke: cfg.colors.ac, "stroke-width": 1.4, "data-icd": "line-r12-pt", "data-shape": "circle",
                     "data-scen": scen, "data-v": p.r12 as number }, g);
             }
@@ -24276,6 +24362,40 @@ export class Visual implements IVisual {
 
     private maxTextWidth(labels: string[], fontSize: number): number {
         return labels.reduce((a, l) => Math.max(a, this.textWidth(l, fontSize)), 0);
+    }
+
+    /** 1.58 (Welle 1): fill of a small FC point marker (line, R12, dumbbell, slope): a
+     *  finer hatch than the bars' (period 2.4 px), because the 5-px period can miss a 5-px
+     *  circle entirely and it then reads as hollow, the plan notation. Created on first
+     *  use only, so charts without FC markers keep their SVG */
+    private fcMarkFill(cfg: ChartConfig): string {
+        if (!this.svg.querySelector(`[id="${cfg.patMark}"]`)) {
+            const defs = this.svg.querySelector("defs") ?? this.el("defs", {}, this.svg);
+            const pm = this.el("pattern", {
+                id: cfg.patMark, patternUnits: "userSpaceOnUse", width: 2.4, height: 2.4,
+                patternTransform: "rotate(45)"
+            }, defs);
+            this.el("rect", { width: 2.4, height: 2.4, fill: cfg.paper }, pm);
+            this.el("line", { x1: 0, y1: 0, x2: 0, y2: 2.4, stroke: cfg.colors.ac, "stroke-width": 1.3 }, pm);
+        }
+        return `url(#${cfg.patMark})`;
+    }
+
+    /** 1.58 (Welle 1): technical panel subtitles that only name the chart type
+     *  (chart.panelTypeTitles, default off) */
+    private panelTypeTitlesOn(): boolean {
+        return this.formattingSettings?.chartCard.panelTypeTitles.value === true;
+    }
+
+    /** 1.58 (Welle 1): scenario notation of a Δ% pin head, as the table and the bridges
+     *  already drew it: AC solid in ink, FC hatched, plan against plan (sheet 13C) hollow.
+     *  The variance colour (good/bad/immaterial) stays on the stem only. Callers keep
+     *  their high-contrast branch (good = filled, bad = hollow) unchanged. `data-pin`
+     *  names the scenario for the tests */
+    private pinHeadScen(cfg: ChartConfig, scen: "ac" | "fc" | "pl"): Record<string, string | number> {
+        return scen === "fc" ? { fill: `url(#${cfg.patId})`, stroke: cfg.ink, "stroke-width": 1, "data-pin": "fc" }
+            : scen === "pl" ? { fill: cfg.paper, stroke: cfg.ink, "stroke-width": 1.2, "data-pin": "pl" }
+                : { fill: cfg.ink, "data-pin": "ac" };
     }
 
     /** Δ%-pin head — draws a circle or a square around (x, y). The pane choice

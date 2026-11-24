@@ -1,5 +1,60 @@
 # Changelog · ChartKitchen byDatenWG
 
+## 1.58.0.0 (in Arbeit, Welle 1 aus dem Template-Prüfstand: Notation)
+
+- **1 · FC-Pinköpfe schraffiert statt hohl.** Vorher: Δ%-Pins an Forecast-Perioden hatten einen hohlen Kopf; hohl ist
+  aber die Plan-Kennung. Nachher trägt der Kopf das FC-Schraffurmuster (wie die FC-Säulen) mit Tintenrand. Gilt für
+  Säulen, Balken, Linie und Wasserfall (erste und zweite Basis, Jahressäule mit AC&FC, Δ%-Stufe des Wasserfalls) und
+  für die Δ%-Pins der Tabelle. FC-Punkte der Linie (Kreise), der R12-Linie, von Dumbbell und Slope sind ebenfalls
+  schraffiert statt hohl, mit einem feineren Muster (Periode 2,4 px, nur angelegt, wenn ein FC-Punkt gezeichnet
+  wird), weil das Säulenmuster einen 5-px-Kreis ganz verfehlen kann. **Bestehende Berichte:** FC-Köpfe und FC-Punkte sehen anders aus (Notationskorrektur).
+- **2 · Pinköpfe szenariocodiert, nur der Stiel in Abweichungsfarbe.** Vorher: Säulen, Balken, Linie und Wasserfall
+  färbten den Kopf grün bzw. rot (bei unwesentlichen Abweichungen grau). Nachher wie schon in Tabelle und Brücken: AC
+  dunkel gefüllt (Tinte), FC schraffiert, Plan gegen Plan (Blatt 13C, `var-plan`) hohl mit Tintenrand; der Stiel
+  bleibt grün, rot oder grau. Neue Methode `pinHeadScen(cfg, "ac" | "fc" | "pl")`, Kopf mit `data-pin` (Testmarker).
+  **Hochkontrast unverändert:** dort trägt der Kopf weiter gut/schlecht (gefüllt/hohl), weil gut und schlecht im
+  Hochkontrast dieselbe Farbe haben; FC-Köpfe bleiben dort hohl. **Bestehende Berichte:** alle Δ%-Pins in Säulen,
+  Balken, Linie, Wasserfall und Jahressäule zeigen dunkle Köpfe (Notationskorrektur).
+- **3 · Abweichungsachse der Tabelle nach Basis (C14 bis C16).** Vorher: die Achsen der Spalten Δ, Δ % und der
+  zweiten Δ-Spalte waren immer eine graue 2-px-Linie. Nachher wie die Δ-Panels der Säulen: Basis PL Doppellinie,
+  Basis FC Vormonat (`fcrev`) gestrichelte Doppellinie, Basis PY grau wie bisher (SVG-gleich), Ø-Basis grau. Die zweite
+  Δ-Spalte folgt der zweiten Basis. Testmarker `table-var-axis` (`data-basis`). **Bestehende Berichte:** Tabellen
+  gegen Plan oder FC zeigen die Doppellinie (Notationskorrektur), gegen PY keine Änderung.
+- **4 · Scatter ohne „Scatter · AC × …“ und ohne „(AC)“.** Neue Properties im Objekt `chart`, Gruppe „Scatter /
+  Bubble“: `scatterTypeTitle` (Charttyp im Paneltitel, Standard aus) und `scatterScenarioTag` (Szenario am Titel der
+  Y-Achse, Standard aus). Vorher stand über jedem Scatter „Scatter · AC × X-Name“ und an der Y-Achse „Name (AC)“; bei
+  einer Abweichungsachse (C18: ΔPL % als Measure) ist „(AC)“ falsch. Übrige Titelteile (○ Blasengröße, Farbe = Δ,
+  Punkte außerhalb) bleiben; ohne Measure-Namen steht das Kürzel weiter allein. Die Titelzeile behält ihre Höhe, die
+  Plotfläche verschiebt sich nicht. Vorlagen C09, C10, C18, C23, C24 setzen beide ausdrücklich aus.
+  **Bestehende Berichte (Entscheidung: Standard aus für alle):** jeder Scatter und jede Bubble ohne gesetzte Property
+  verliert den grauen Typ-Titel und das „(AC)“ an der Y-Achse. Wer beides behalten will, schaltet die zwei Schalter an.
+- **5 · Technische Paneltitel aus.** Neue Property `chart.panelTypeTitles` (Gruppe „Darstellung“, Standard aus,
+  sichtbar bei Säulen, Balken und Integrierter Brücke). Aus heißt: kein „AC · gestapelt“ über gestapelten Säulen,
+  Balken und Flächen (bei gemischten Szenarien bleiben die Kürzel „AC · FC“, bei 100 % bleibt „Anteile in %“), keine
+  Leseanleitung „Werte · Länge = Anteil, Dicke = Summe“ im Marimekko, „PY → AC/FC“ statt „PY → AC/FC · Brücke +
+  Monatssäulen“ in der Integrierten Brücke (Faktor und Achsenschnitt bleiben). Szenario- und Abweichungstitel (ΔPY,
+  ΔPL %) bleiben immer. Der Platz der Titelzeile bleibt (keine Skala verschiebt sich). Vorlagen C01, C02, C05, C07,
+  C25 setzen den Schalter ausdrücklich aus. Pareto, Dumbbell und der Wasserfall („PY → AC“) sind nicht betroffen.
+  **Bestehende Berichte (Entscheidung: Standard aus für alle):** diese Untertitel verschwinden in jedem Bericht ohne
+  gesetzte Property; mit dem Schalter an sieht alles aus wie in 1.57.
+- **10 · Gerundete Null ohne Vorzeichen (Option, für die Vorlagen).** Neue Property `labels.roundedZero` (`signed` |
+  `plain`, Standard `signed`), wie `numbers.roundedZero` im P&L-Visual. `plain`: ein Δ, das nicht null ist, aber auf
+  null rundet, druckt ohne Vorzeichen („0,00M“, „0,0%“, „0,0Pp“ statt „+0,00M“, „+0,0%“); exakte Nullen hatten nie ein
+  Vorzeichen. Wirkt in `fmtSigned` und `fmtPercent` (alle Δ-, Δ %- und Netto-Beschriftungen), in den Pp- und
+  Rundungs-Texten der Tabelle und Matrix und in den Pp-Labels der Differenzmarker. Vorlagen C04, C14 und C20 setzen
+  `plain` (im selben Merge als Objekt `labels`). Für die KPI-Karten exportiert: `deltaSign(v, body, plain)` und
+  `Visual.roundedZeroPlain()`. **Bestehende Berichte:** keine Änderung (Standard `signed`); Berichte, die C04, C14
+  oder C20 schon angewandt haben, bekommen `plain` erst beim erneuten Anwenden und zeigen im Bearbeitungsmodus den Chip
+  „↺ Zum Template zurück“, weil die Vorlage jetzt abweicht.
+- **Tests:** neue Stufen c1000 bis c1033 (Pinköpfe C03, C04, C12, C19, zweite Basis, Hochkontrast, Linie, Tabelle;
+  Δ-Achsen der Tabelle mit PL, PY, fcrev und zweiter Basis; Scatter C18, C09 und mit beiden Schaltern an samt
+  gleicher Achsenlage; Typ-Titel C01, C05, C25, C07, 100-%-Balken mit gleicher Geometrie; gerundete Null C04, C14,
+  direkt gesetzt, `deltaSign`), dazu Prüfungen an c600 (C20 schreibt `plain`) und c701 (Plan-Köpfe hohl).
+  Angepasst: c278c, c829, c976 (prüfen den Typ-Titel und schalten ihn dafür an), c959 (findet den Paneltitel jetzt
+  über „○“, weil „Scatter ·“ im Standard fehlt) und Notation Punkt 7 (B5b findet die Beschriftung über
+  „PY → AC“ statt über „Brücke + Monatssäulen“). Ergebnis: Render 1398 Prüfungen (vorher 1358), Skalierung 71,
+  Notation 40, Export 746, alle grün. 1005 resjson-Keys je Sprache.
+
 ## 1.57.0.0 (2026-11-22, Backlog IBCS-Templates Teil 4)
 
 - **B24 · Feste Spaltenzahl für Small Multiples (nach IBCS-Blatt 10G).** Vorher: Das Raster wählte die Spaltenzahl

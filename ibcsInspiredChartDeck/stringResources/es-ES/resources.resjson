@@ -993,5 +993,15 @@
   "Hint_ScatterPathOrder": "Trayectoria temporal: la categoría no está ordenada por periodo (mantener el objeto visual ordenado por el periodo)",
   "Hint_ScatterShareRatio": "Parte de la burbuja como ratio: se esperan valores de 0 a 1 (0,24, no 24)",
   "Hint_ScatterShareOff": "Parte de la burbuja: sin sectores en el modo de reproducción ni con forma por grupo",
-  "Hint_ScatterTotalOff": "Burbuja total: no en el modo de reproducción ni en la trayectoria temporal"
+  "Hint_ScatterTotalOff": "Burbuja total: no en el modo de reproducción ni en la trayectoria temporal",
+  "Chart_ScatterTypeTitle": "Tipo de gráfico en el título del panel",
+  "Desc_Chart_ScatterTypeTitle": "Dispersión y burbujas: el título gris del panel empieza con «Scatter · AC × nombre X». Las demás partes (○ tamaño de burbuja, color = Δ, puntos fuera de los ejes) se mantienen siempre. Desactivado por defecto.",
+  "Chart_ScatterScenarioTag": "Escenario en el título del eje Y",
+  "Desc_Chart_ScatterScenarioTag": "Dispersión y burbujas: añade la abreviatura del escenario al título del eje Y («Ventas (AC)»). Es incorrecto cuando el eje muestra una desviación (ΔPL % como medida); sin nombre de medida la abreviatura sigue apareciendo sola. Desactivado por defecto.",
+  "Chart_PanelTypeTitles": "Tipo de gráfico en los títulos de panel",
+  "Desc_Chart_PanelTypeTitles": "Títulos grises de panel que solo nombran el tipo de gráfico: «apilado» sobre columnas, barras y áreas apiladas (con solo AC el título desaparece), «puente + columnas mensuales» en el puente integrado y la guía de lectura del Marimekko. Los títulos de escenario y desviación (AC · FC, ΔPY, ΔPL %), «cuotas en %», el factor y el corte del eje se mantienen. Desactivado por defecto.",
+  "Labels_RoundedZero": "Cero redondeado",
+  "Desc_Labels_RoundedZero": "Una desviación que no es cero pero se redondea a cero: mantener el signo («+0,0», la dirección sigue legible junto al alfiler o la barra) o mostrarla sin signo como en las hojas de referencia («0,0»). Se aplica a Δ, Δ % y pp. Los ceros exactos nunca llevan signo. Por defecto se mantiene el signo.",
+  "Enum_RoundedZero_Signed": "Mantener el signo (+0,0)",
+  "Enum_RoundedZero_Plain": "Sin signo (0,0)"
 }
