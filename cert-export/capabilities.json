@@ -481,6 +481,8 @@
                 },
                 "scatterTotalBubble": { "type": { "bool": true } },
                 "scatterTotalColor": { "type": { "fill": { "solid": { "color": true } } } },
+                "scatterTypeTitle": { "type": { "bool": true } },
+                "scatterScenarioTag": { "type": { "bool": true } },
                 "cardSortSel": { "type": { "text": true } },
                 "cardTint": { "type": { "bool": true } },
                 "cardTintStrength": { "type": { "numeric": true } },
@@ -573,6 +575,7 @@
                 "bridgeBreak": { "type": { "bool": true } },
                 "stackLegendDirect": { "type": { "bool": true } },
                 "scenarioLabels": { "type": { "bool": true } },
+                "panelTypeTitles": { "type": { "bool": true } },
                 "sfNet": { "type": { "bool": true } },
                 "sfNetLabel": { "type": { "text": true } },
                 "sfArea": { "type": { "bool": true } },
@@ -768,6 +771,14 @@
                 "sumSafeRounding": { "type": { "bool": true } },
                 "unitSuffix": { "type": { "bool": true } },
                 "financeFormat": { "type": { "bool": true } },
+                "roundedZero": {
+                    "type": {
+                        "enumeration": [
+                            { "value": "signed", "displayName": "Keep the sign (+0.0)" },
+                            { "value": "plain", "displayName": "Without sign (0.0)" }
+                        ]
+                    }
+                },
                 "labelAc": { "type": { "text": true } },
                 "labelPy": { "type": { "text": true } },
                 "labelPl": { "type": { "text": true } },

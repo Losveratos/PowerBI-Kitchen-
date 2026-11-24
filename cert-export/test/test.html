@@ -1919,8 +1919,9 @@ for (const [id, tpl, title, w, h, mk] of tplCases) {
     .map(r => +r.getAttribute("width")));
   check(acW > 300, `c258: AC-Balken ohne Σ-Stauchung (breitester ${acW.toFixed(0)} px)`);
   const m18 = window.__persist.c262[0].merge;
-  check(m18.length === 2 && m18[1].objectName === "scale" && m18[1].properties.refLine === "0" && m18[1].properties.xRefLine === "0"
-    && !("scale.refLine" in m18[0].properties), "c262: C18 schreibt die Referenzlinien in denselben Aufruf (Objekt scale)");
+  // 1.58: a third merge entry carries labels.roundedZero = plain (every template)
+  check(m18.length === 3 && m18[1].objectName === "scale" && m18[1].properties.refLine === "0" && m18[1].properties.xRefLine === "0"
+    && m18[2].objectName === "labels" && !("scale.refLine" in m18[0].properties), "c262: C18 schreibt die Referenzlinien in denselben Aufruf (Objekt scale)");
   // Achsenkreuz: genau eine senkrechte und eine waagerechte gestrichelte Linie über (fast) die ganze Plotfläche
   const dl = [...document.querySelectorAll("#c262 line[stroke-dasharray]")].map(l => ({ x1: +l.getAttribute("x1"), x2: +l.getAttribute("x2"),
     y1: +l.getAttribute("y1"), y2: +l.getAttribute("y2") }));
@@ -1953,12 +1954,14 @@ for (const [id, tpl, title, w, h, mk] of tplCases) {
   check(String(cc().orientation.value.value) === "columns" && window.__persist.c195.length === 1,
     "echo-guard (2): stale Update kippt nicht zurück, kein zweiter Merge");
   const echoed = Object.assign({ template: "C03" }, window.__persist.c195[0].merge[0].properties);
-  r.upd(base({ chart: echoed }));
+  // 1.58: the host echoes every merged object, labels.roundedZero (template default) included
+  const lab195 = window.__persist.c195[0].merge[1].properties;
+  r.upd(base({ chart: echoed, labels: lab195 }));
   check(r.v.templatePending === null, "echo-guard (3): Host-Echo beendet den Guard");
-  r.upd(base({ chart: Object.assign({}, echoed, { orientation: "bars" }) }));
+  r.upd(base({ chart: Object.assign({}, echoed, { orientation: "bars" }), labels: lab195 }));
   check(String(cc().orientation.value.value) === "bars" && window.__persist.c195.length === 1,
     "echo-guard (4): Einstellungen danach frei änderbar, kein Re-Apply");
-  r.upd(base({ chart: Object.assign({}, echoed, { orientation: "bars", template: "off" }) }));
+  r.upd(base({ chart: Object.assign({}, echoed, { orientation: "bars", template: "off" }), labels: lab195 }));
   const last = window.__persist.c195[window.__persist.c195.length - 1].merge[0].properties;
   check(window.__persist.c195.length === 2 && JSON.stringify(last) === '{"templateApplied":"off"}'
     && String(cc().orientation.value.value) === "bars", "echo-guard (5): „Aus“ schreibt nur templateApplied=off");
@@ -2311,9 +2314,11 @@ addStage("c222", "Vorlagen-Galerie ohne Felder · Klick C03 → EIN Merge · Ech
     "c222: EIN persistProperties-Merge mit template + templateApplied + Preset " + JSON.stringify(m && m.properties));
   check(hubQ("c222", "hub-tpl-C03").getAttribute("aria-pressed") === "true" && /C03/.test(hubQ("c222", "hub-tpl-hint").textContent),
     "c222: Kachel ✓ + Hinweis „gespeichert … aktiv, sobald Felder gebunden sind“");
-  r.upd(emptyDv({ chart: Object.assign({}, m.properties) }));
+  // 1.58: the echo carries the labels object of the same merge
+  const lab222 = pp[0].merge[1].properties;
+  r.upd(emptyDv({ chart: Object.assign({}, m.properties), labels: lab222 }));
   check(pp.length === 1 && hubQ("c222", "hub-tpl-C03").getAttribute("aria-pressed") === "true", "c222: Host-Echo → kein zweiter Merge, Galerie bleibt");
-  r.upd(bound({ chart: Object.assign({}, m.properties, { orientation: "bars" }) }));
+  r.upd(bound({ chart: Object.assign({}, m.properties, { orientation: "bars" }), labels: lab222 }));
   // Felder gebunden: die gespeicherte Wahl ist schon angewandt — bars aus dem Pane bleibt frei änderbar
   check(pp.length === 1 && String(r.v.formattingSettings.chartCard.orientation.value.value) === "bars" && !!r.v.lastRender,
     "c222: Binden wendet nicht erneut an (frei änderbar), kein Merge");
@@ -2354,7 +2359,8 @@ addStage("c223", "↺-Chip · C03 gesetzt, Chart-Typ auf Balken umgestellt → K
   r.upd(bound({ chart: Object.assign({}, c03, { orientation: "bars" }) }));
   check(String(r.v.formattingSettings.chartCard.orientation.value.value) === "columns" && pp.length === 1,
     "c223: stale Update kippt nicht zurück (Echo-Guard)");
-  r.upd(bound({ chart: Object.assign({}, c03) }));
+  // 1.58: the echo carries labels.roundedZero = plain like the merge
+  r.upd(bound({ chart: Object.assign({}, c03), labels: { roundedZero: "plain" } }));
   check(r.v.templatePending === null && !hubQ("c223", "tpl-reset") && pp.length === 1, "c223: Echo beendet den Guard");
 }
 addStage("c223b", "↺-Chip-Gegenproben · keine Abweichung (links) · Leser mit Abweichung (rechts)", 960, 300);
@@ -2502,7 +2508,8 @@ addStage("c265", "C14 im Export (allowInteractions=false, templateApplied fehlt)
   }
   addStage("c278c", "Stapel · nur Plan (Titel ohne AC)", 960, 480);
   {
-    const dv = stackDv({ chart: { orientation: "columns" } });
+    // 1.58: the type word "stacked" only with chart.panelTypeTitles (default off)
+    const dv = stackDv({ chart: { orientation: "columns", panelTypeTitles: true } });
     dv.categorical.values = [col("actual", rows.ac.map(() => null), "#,0.0"), col("plan", rows.ac.map((v, k) => v ?? rows.fc[k] ?? rows.pl[k]), "#,0.0")];
     runCap("c278c", dv, 960, 480);
     const title = q("c278c", "text").map(t => t.textContent).find(t => /stacked|gestapelt/.test(t)) || "";
@@ -3211,7 +3218,7 @@ addStage("c229", "Galerie-Wahl C05 · stale Update (template = off) → kein Rü
   const pp = window.__persist.c229;
   check(pp.length === 1 && String(r.v.formattingSettings.chartCard.template.value.value) === "C05"
     && String(r.v.formattingSettings.chartCard.orientation.value.value) === "intwaterfall", "c229: stale Update → C05 bleibt, ein Merge");
-  r.upd(emptyDv({ chart: Object.assign({}, pp[0].merge[0].properties) }));
+  r.upd(emptyDv({ chart: Object.assign({}, pp[0].merge[0].properties), labels: pp[0].merge[1].properties }));
   check(r.v.templatePending === null && pp.length === 1, "c229: Echo beendet den Guard");
 }
 </script>
@@ -7362,7 +7369,8 @@ addStage("c422c", "Review m7 · Blasengröße VJ ohne Vorjahr in der Leseansicht
     const ov = vals.filter(v => tot.some(b => Math.min(b.x + b.width, v.x + v.width) - Math.max(b.x, v.x) > 1
       && Math.min(b.y + b.height * 0.82, v.y + v.height * 0.82) - Math.max(b.y + b.height * 0.18, v.y + v.height * 0.18) > 1)).length;
     const ord = ["Priority 3", "Returns"];
-    runCap("c829", areaDv(c07(), { order: ord, val: (i, sn) => -(sn === "Returns" ? 300 + (i % 5) * 60 : aData["Priority 3"][i]) }), 1100, 480);
+    // 1.58: the title row is checked with the type title on (chart.panelTypeTitles, default off)
+    runCap("c829", areaDv(c07({ panelTypeTitles: true }), { order: ord, val: (i, sn) => -(sn === "Returns" ? 300 + (i % 5) * 60 : aData["Priority 3"][i]) }), 1100, 480);
     const title = [...document.querySelectorAll("#c829 text")].find(t => /stacked|gestapelt/.test(t.textContent));
     const zero = aQ("c829", '[data-icd="stack-area"] line[stroke-width="1.6"]')[0];
     const tb = title ? title.getBBox() : null;
@@ -8609,7 +8617,8 @@ addStage("c422c", "Review m7 · Blasengröße VJ ohne Vorjahr in der Leseansicht
     && !!document.querySelector('#c975 [data-thickness="total"]'), "c975: 260 px ohne Spalten, Dicke nach Summe");
   // c976 / c977: Dunkel und Hochkontrast
   addStage("c976", "B20 · Dark Mode: Zahlen in Tintenfarbe", 1280, 720, "#1E1E1E");
-  runCap("c976", dv20(Object.assign(mk({}), { colors: { appearance: "dark" } })), 1280, 720);
+  // 1.58: the Marimekko reading aid in the title only with chart.panelTypeTitles (default off)
+  runCap("c976", dv20(Object.assign(mk({ panelTypeTitles: true }), { colors: { appearance: "dark" } })), 1280, 720);
   {
     const fills = new Set(qq("c976", '[data-icd="stack-total-num"]').map(t => t.getAttribute("fill")));
     check(fills.size === 1 && ![...fills][0].match(/^#0F|^#25|^#00/i) && rowsOf("c976").length === 13, `c976: Zahlen ${[...fills].join(",")}`);
@@ -9879,7 +9888,8 @@ addStage("c422c", "Review m7 · Blasengröße VJ ohne Vorjahr in der Leseansicht
     runCap("c959", b19Dv(c24(), { noMult: true, data: fr, shares: [6, 5 * 0.99999, 5, 2.5] }), 960, 460);
     const sec = pieByAria("c959", "Cons.,").querySelector('[data-icd="scatter-pie-sector"]');
     const aria = pieByAria("c959", "IT,").closest("g.icd-cat").getAttribute("aria-label");
-    const title = [...document.querySelectorAll("#c959 svg text")].map(t => t.textContent).find(t => /^Scatter/.test(t)) || "";
+    // 1.58: without chart.scatterTypeTitle (default) the panel title starts with the size part
+    const title = [...document.querySelectorAll("#c959 svg text")].map(t => t.textContent).find(t => /^(Scatter|○)/.test(t)) || "";
     check(sec && sec.tagName === "circle", `c959: Segment als ${sec && sec.tagName}`);
     check(/Market volume 25/.test(aria) && /Share 24 %/.test(aria), `c959: aria ${aria}`);
     check(/max 25\)/.test(title), `c959: Titel ${title}`);
@@ -10353,6 +10363,726 @@ addStage("c422c", "Review m7 · Blasengröße VJ ohne Vorjahr in der Leseansicht
   }
 }
 // ---- B24-B25-REVIEW-END
+// ======================================================================
+// 1.58 · Welle 1 (Notation aus dem Template-Prüfstand), Stufen c1000 bis c1033
+// 1/2 Pinköpfe szenariocodiert (AC dunkel, FC schraffiert, PL hohl), Stiel in
+// Abweichungsfarbe; FC-Marken der Linie schraffiert · 3 Δ-Achsen der Tabelle nach
+// Basis · 4 Scatter ohne „Scatter · AC × …“ und ohne „(AC)“ · 5 technische
+// Paneltitel aus · 10 labels.roundedZero
+// ======================================================================
+{
+  const wq = (id, sel) => [...document.querySelectorAll(`#${id} ${sel}`)];
+  const wTexts = id => wq(id, "svg text").map(t => t.textContent);
+  const W1_C1002 = 7;
+  const isHatch = f => /^url\(#icd-hatch-[^)]*\)$/.test(f || "") && !/-(good|bad)-/.test(f || "");
+  const heads = id => wq(id, "[data-pin]");
+  const GOOD = "#1E8F9E", BAD = "#D64541";
+  // a zero at label precision, optionally signed, with unit ("+0,00M", "0,0%")
+  const zeroTxt = s => /^[+−]?0(,0+)?\s*[A-Za-z€]*%?$/.test(s);
+  const signedZero = s => /^[+−]0(,0+)?\s*[A-Za-z€]*%?$/.test(s);
+  window.__w1 = { wq, wTexts, isHatch, heads };
+
+  // ---- 1/2 · Säulen C03: Ist-Monate dunkel, FC-Monate schraffiert, Farbe nur am Stiel
+  addStage("c1000", "Welle 1 · C03 Säulen: Pinköpfe AC dunkel, FC schraffiert (vorher hohl), Stiel grün/rot", 960, 480);
+  runCap("c1000", dataView(months, [col("actual", ac, "#,0 €"), col("previousYear", py, "#,0 €"), col("plan", pl, "#,0 €"),
+    col("forecast", fc, "#,0 €")], { chart: { template: "C03" } }), 960, 480);
+  {
+    const h = heads("c1000");
+    const acH = h.filter(e => e.getAttribute("data-pin") === "ac"), fcH = h.filter(e => e.getAttribute("data-pin") === "fc");
+    check(h.length === 12 && acH.length === 7 && fcH.length === 5, `c1000: 12 Pinköpfe, 7 AC + 5 FC (${acH.length}/${fcH.length})`);
+    check(acH.every(e => e.getAttribute("fill") === "#404040") && fcH.every(e => isHatch(e.getAttribute("fill")) && e.getAttribute("stroke") === "#404040"),
+      `c1000: AC-Kopf in Tinte, FC-Kopf schraffiert (${fcH.map(e => e.getAttribute("fill")).slice(0, 1)})`);
+    check(!h.some(e => [GOOD, BAD, "#FFFFFF"].includes((e.getAttribute("fill") || "").toUpperCase())), "c1000: kein Kopf in Abweichungsfarbe oder hohl");
+    const stems = h.map(e => e.previousElementSibling).filter(l => l && l.tagName === "line");
+    // review B2: stems 2 px like the table pins
+    check(stems.length === 12 && stems.every(l => l.getAttribute("stroke-width") === "2")
+      && stems.some(l => l.getAttribute("stroke") === GOOD) && stems.some(l => l.getAttribute("stroke") === BAD)
+      && !h.some(e => [GOOD, BAD].includes(e.getAttribute("fill")) || [GOOD, BAD].includes(e.getAttribute("stroke"))),
+      "c1000: Stiele tragen die Abweichungsfarbe");
+  }
+  // ---- 2 · Balken C04 (Stiel waagerecht, Kopf dunkel)
+  addStage("c1001", "Welle 1 · C04 Balken: Pinköpfe dunkel, Stiel in Abweichungsfarbe", 960, 420);
+  runCap("c1001", dataView(countries, [col("actual", costAc), col("previousYear", costPy), col("plan", [5000,2000,2300,3200,2600,1450,1800])],
+    { chart: { template: "C04", invert: true } }), 960, 420);
+  {
+    const h = heads("c1001");
+    check(h.length === 7 && h.every(e => e.getAttribute("data-pin") === "ac" && e.getAttribute("fill") === "#404040"), `c1001: 7 dunkle Köpfe (${h.length})`);
+    const stems = h.map(e => e.previousElementSibling);
+    check(stems.every(l => l.tagName === "line" && l.getAttribute("y1") === l.getAttribute("y2"))
+      && new Set(stems.map(l => l.getAttribute("stroke"))).size === 2, "c1001: waagerechte Stiele grün und rot");
+  }
+  // ---- 2 · Wasserfall C12 (Δ%-Stufe)
+  addStage("c1002", "Welle 1 · C12 Wasserfall: ΔPY %-Stufe mit dunklen Köpfen", 960, 520);
+  runCap("c1002", dataView(pnlCats, [col("actual", pnlVals, "#,0 T€"), col("previousYear", pnlPy, "#,0 T€")],
+    { chart: { template: "C12" }, ibcsTitle: { kpi: "GuV", period: "2026" } }, null, pnlTypes), 960, 520);
+  {
+    const h = heads("c1002");
+    check(h.length === W1_C1002 && h.every(e => e.getAttribute("data-pin") === "ac" && e.getAttribute("fill") === "#404040"), `c1002: ${h.length} dunkle Köpfe in der Δ%-Stufe`);
+  }
+  // ---- 1/2 · Jahressäule C19: Monate gegen PL, Jahres-Pin AC&FC schraffiert
+  addStage("c1003", "Welle 1 · C19 Säulen + Jahressäule: Jahres-Pin AC&FC schraffiert, FC-Monate schraffiert", 1100, 560);
+  runCap("c1003", dataView(months, [col("actual", ac, "#,0 €"), col("forecast", fc, "#,0 €"), col("plan", pl, "#,0 €")],
+    { chart: { template: "C19" } }), 1100, 560);
+  {
+    const h = heads("c1003");
+    const yearPin = wq("c1003", '[data-part="pin"]').map(l => l.nextElementSibling).filter(Boolean);
+    check(h.filter(e => e.getAttribute("data-pin") === "fc").length === 6 && h.filter(e => e.getAttribute("data-pin") === "ac").length === 7,
+      `c1003: 5 FC-Monate + Jahr schraffiert, 7 AC dunkel (${h.map(e => e.getAttribute("data-pin")).join(" ")})`);
+    check(yearPin.length === 1 && yearPin[0].getAttribute("data-pin") === "fc" && isHatch(yearPin[0].getAttribute("fill")), "c1003: Jahres-Pin schraffiert");
+  }
+  // ---- 1/2 · zweite Basis (dualVariance): auch rel2-Köpfe szenariocodiert
+  addStage("c1004", "Welle 1 · Säulen ΔPL und ΔPY parallel: beide Pin-Reihen AC dunkel, FC schraffiert", 960, 640);
+  runCap("c1004", dataView(months, [col("actual", ac, "#,0 €"), col("previousYear", py, "#,0 €"), col("plan", pl, "#,0 €"),
+    col("forecast", fc, "#,0 €")], { chart: { orientation: "columns", comparisonMode: "plan", dualVariance: true,
+      showAbsoluteVariance: true, showRelativeVariance: true } }), 960, 640);
+  {
+    const h = heads("c1004");
+    const f = h.filter(e => e.getAttribute("data-pin") === "fc");
+    check(h.length === 24 && f.length === 10 && f.every(e => isHatch(e.getAttribute("fill"))), `c1004: 24 Köpfe, 10 FC schraffiert (${h.length}/${f.length})`);
+  }
+  // ---- 1 · Plan gegen Plan (B13, c701): hohler Kopf mit Tintenrand, Kennung var-plan bleibt
+  {
+    const vp = wq("c701", '[data-icd="var-plan"][data-pin]');
+    check(vp.length > 0 && vp.every(e => e.getAttribute("data-pin") === "pl" && e.getAttribute("fill") === "#FFFFFF" && e.getAttribute("stroke") === "#404040"),
+      `c701 (Welle 1): ${vp.length} Plan-Köpfe hohl mit Tintenrand`);
+  }
+  // ---- 1/2 · Hochkontrast bleibt: gut gefüllt, schlecht und FC hohl, keine Szenario-Köpfe
+  addStage("c1005", "Welle 1 · C03 im Hochkontrast: Köpfe wie bisher (gut gefüllt, schlecht und FC hohl)", 960, 480, "#000");
+  runCap("c1005", dataView(months, [col("actual", ac, "#,0 €"), col("previousYear", py, "#,0 €"), col("forecast", fc, "#,0 €")],
+    { chart: { template: "C03" } }), 960, 480, { hc: true });
+  {
+    const circ = wq("c1005", "circle").filter(c => c.getAttribute("stroke-width") === "1.6");
+    const hollow = circ.filter(c => c.getAttribute("fill") === "#000000").length;
+    // 5 FC heads + 2 unfavourable AC months (Feb, Jun) hollow, 5 favourable AC filled, stems 1.6 px as before
+    check(heads("c1005").length === 0 && circ.length === 12 && hollow === 7
+      && circ.every(c => c.previousElementSibling.getAttribute("stroke-width") === "1.6"), `c1005: Hochkontrast ohne Szenario-Köpfe, ${circ.length} Köpfe, hohl ${hollow}`);
+  }
+  // ---- 1 · Linie: FC-Marken schraffiert
+  addStage("c1006", "Welle 1 · Linie mit FC: FC-Punkte schraffiert statt hohl", 960, 380);
+  runCap("c1006", dataView(months, [col("actual", ac, "#,0 €"), col("previousYear", py, "#,0 €"), col("forecast", fc, "#,0 €")],
+    { chart: { orientation: "line", showAbsoluteVariance: false, showRelativeVariance: false } }), 960, 380);
+  {
+    const pts = wq("c1006", "circle").filter(c => c.getAttribute("r") === "2.6");
+    const fcPts = pts.filter(c => isHatch(c.getAttribute("fill")));
+    check(pts.length === 12 && fcPts.length === 5 && !pts.some(c => c.getAttribute("fill") === "#FFFFFF"), `c1006: ${fcPts.length} von ${pts.length} Punkten schraffiert, keiner hohl`);
+  }
+  // ---- 1 · Tabelle: FC-Zeilen mit schraffiertem Δ%-Kopf (vorher hohl)
+  addStage("c1007", "Welle 1 · Tabelle mit FC-Zeilen: Δ%-Kopf schraffiert", 1100, 460);
+  runCap("c1007", dataView(months, [col("actual", ac.map((v, i) => v ?? fc[i]), "#,0 €"), col("plan", pl, "#,0 €")],
+    { __fcFlags: [0,0,0,0,0,0,0,1,1,1,1,1], chart: { orientation: "table", comparisonMode: "plan" } }), 1100, 460);
+  {
+    const sq = heads("c1007");
+    check(sq.length === 5 && sq.every(r => r.getAttribute("data-pin") === "fc" && isHatch(r.getAttribute("fill"))), `c1007: 5 schraffierte Δ%-Köpfe (${sq.length})`);
+  }
+
+  // ---- 3 · Δ-Achsen der Tabelle nach Basis
+  const axes = id => wq(id, '[data-icd="table-var-axis"]');
+  addStage("c1010", "Welle 1 · C14 Balkentabelle gegen PL: ΔPL- und ΔPL %-Achse als Doppellinie", 1280, 620);
+  runCap("c1010", dataView(usSt, [col("actual", usAc, "#,0"), col("plan", usPl, "#,0")], { chart: { template: "C14" } }), 1280, 620);
+  {
+    const a = axes("c1010");
+    check(a.length === 2 && a.every(g => g.getAttribute("data-basis") === "plan" && g.querySelectorAll("line").length === 2),
+      `c1010: zwei Doppellinien mit Basis PL (${a.length})`);
+    const ls = a.flatMap(g => [...g.querySelectorAll("line")]);
+    check(ls.length === 4 && ls.every(l => l.getAttribute("x1") === l.getAttribute("x2")) && Math.abs(+ls[1].getAttribute("x1") - +ls[0].getAttribute("x1") - 2.4) < 0.01,
+      "c1010: senkrecht, 2,4 px Abstand wie die PL-Achse der Säulen");
+  }
+  addStage("c1011", "Welle 1 · Tabelle gegen PY: Δ-Achsen grau wie bisher (keine Doppellinie)", 1100, 420);
+  runCap("c1011", dataView(countries, [col("actual", costAc), col("previousYear", costPy)], { chart: { orientation: "table", comparisonMode: "py" } }), 1100, 420);
+  check(axes("c1011").length === 0 && wq("c1011", 'rect[width="2"]').filter(r => r.getAttribute("fill") === "#B3B3B3").length === 2,
+    "c1011: Basis PY zeichnet die zwei grauen 2-px-Achsen unverändert");
+  addStage("c1012", "Welle 1 · Tabelle gegen FC Vormonat (fcrev): gestrichelte Doppellinie", 1100, 460);
+  runCap("c1012", { metadata: { columns: [], objects: { chart: { orientation: "table", comparisonMode: "fcrev" } } },
+    categorical: { categories: [{ source: { displayName: "Monat", roles: { category: true } }, values: months },
+      { source: { displayName: "FC", roles: { fcFlag: true } }, values: [0,0,0,0,0,0,0,1,1,1,1,1] }],
+    values: [col("actual", fcNow, "#,0 €"), col("prevForecast", fcPrev, "#,0 €")] } }, 1100, 460);
+  {
+    const a = axes("c1012");
+    check(a.length === 2 && a.every(g => g.getAttribute("data-basis") === "fcrev"
+      && [...g.querySelectorAll("line")].every(l => l.getAttribute("stroke-dasharray") === "5,3")), `c1012: gestrichelte Doppellinien (${a.length})`);
+  }
+  addStage("c1013", "Welle 1 · Tabelle ΔPY und ΔPL: erste Achsen grau, zweite Δ-Achse als Doppellinie", 1340, 420);
+  runCap("c1013", dataView(countries, [col("actual", costAc), col("previousYear", costPy), col("plan", [5000,2000,2300,3200,2600,1450,1800])],
+    { chart: { orientation: "table", comparisonMode: "py", dualVariance: true } }), 1340, 420);
+  {
+    const a = axes("c1013");
+    check(a.length === 1 && a[0].getAttribute("data-basis") === "plan", `c1013: nur die zweite Δ-Achse (PL) doppelt (${a.map(g => g.getAttribute("data-basis"))})`);
+  }
+
+  // ---- 4 · Scatter: ohne Typ-Titel und ohne „(AC)“
+  const vsDv58 = chart => ({ metadata: { columns: [], objects: { chart } }, categorical: {
+    categories: [{ source: { displayName: "Produkt", roles: { category: true } }, values: vsProd },
+      { source: { displayName: "Produktlinie", roles: { series: true } }, values: vsLine }],
+    values: [col("actual", vsPl, "0 %", null, "ΔPL %"), col("xValue", vsPy, "0 %", null, "ΔPY %"),
+      col("bubbleSize", vsSize, "#,0", null, "Nettoumsatz")] } });
+  addStage("c1015", "Welle 1 · C18 Abweichungs-Scatter: kein „Scatter · AC ×“, Y-Achse „ΔPL %“ ohne „(AC)“", 1280, 520);
+  runCap("c1015", vsDv58({ template: "C18" }), 1280, 520);
+  {
+    const t = wTexts("c1015");
+    check(!t.some(s => /^Scatter ·/.test(s)) && !t.some(s => /\(AC\)/.test(s)) && t.some(s => /^ΔPL %/.test(s)) && t.some(s => /^○ Nettoumsatz/.test(s)),
+      `c1015: Titel „${t.find(s => /^○/.test(s))}“, Y „${t.find(s => /^ΔPL %/.test(s))}“`);
+    const mrg = window.__persist.c1015[0].merge[0].properties;
+    check(mrg.scatterTypeTitle === false && mrg.scatterScenarioTag === false, "c1015: C18 schreibt beide Schalter ausdrücklich aus");
+  }
+  addStage("c1016", "Welle 1 · Scatter mit scatterTypeTitle und scatterScenarioTag an (Verhalten bis 1.57)", 960, 440);
+  runCap("c1016", dataView(scatU, scatCols(), { ibcsTitle: { kpi: "Umsatz" },
+    chart: { orientation: "scatter", scatterQuadrant: "mean", scatterTypeTitle: true, scatterScenarioTag: true } }), 960, 440);
+  addStage("c1017", "Welle 1 · Scatter ohne beide (Standard): gleiche Plotfläche, Titelzeile bleibt frei", 960, 440);
+  runCap("c1017", dataView(scatU, scatCols(), { ibcsTitle: { kpi: "Umsatz" }, chart: { orientation: "scatter", scatterQuadrant: "mean" } }), 960, 440);
+  {
+    const t16 = wTexts("c1016"), t17 = wTexts("c1017");
+    check(t16.some(s => /^Scatter · AC × EBIT-Marge/.test(s)) && t16.some(s => /^Umsatz \(AC\)/.test(s)), "c1016: Typ-Titel und „(AC)“ wie bisher");
+    check(!t17.some(s => /^Scatter ·|\(AC\)/.test(s)) && t17.some(s => /^Umsatz( in|$)/.test(s)), `c1017: ohne beide, Y „${t17.find(s => /^Umsatz/.test(s))}“`);
+    const axis = id => wq(id, "line").filter(l => l.getAttribute("stroke-width") === "1").slice(0, 2)
+      .map(l => ["x1", "y1", "x2", "y2"].map(a => l.getAttribute(a)).join(",")).join("|");
+    check(axis("c1016") !== "" && axis("c1016") === axis("c1017"), `c1017: Achsen an derselben Stelle (${axis("c1017")})`);
+  }
+  addStage("c1018", "Welle 1 · C09 Scatter: kein grauer Paneltitel", 960, 440);
+  runCap("c1018", dataView(scatU, scatCols(), { ibcsTitle: { kpi: "Umsatz" }, chart: { template: "C09" } }), 960, 440);
+  check(!wTexts("c1018").some(s => /^Scatter ·|\(AC\)/.test(s)), "c1018: C09 ohne Typ-Titel und ohne „(AC)“");
+
+  // ---- 5 · technische Paneltitel aus
+  addStage("c1020", "Welle 1 · C01 gestapelte Säulen: kein „AC · stacked“", 960, 420);
+  runCap("c1020", tplStack("C01"), 960, 420);
+  addStage("c1021", "Welle 1 · gestapelte Säulen mit panelTypeTitles an: „AC · stacked“ wie bisher", 960, 420);
+  runCap("c1021", tplStack("off", { chart: { template: "off", orientation: "columns", showAbsoluteVariance: false,
+    showRelativeVariance: false, panelTypeTitles: true } }), 960, 420);
+  {
+    check(!wTexts("c1020").some(s => /stacked|gestapelt/.test(s)) && window.__persist.c1020[0].merge[0].properties.panelTypeTitles === false,
+      "c1020: C01 ohne Typ-Titel, Vorlage schreibt panelTypeTitles = false");
+    check(wTexts("c1021").includes("AC · stacked"), "c1021: mit Schalter „AC · stacked“");
+    const bars = id => wq(id, "g.icd-cat rect").slice(0, 6).map(r => r.getAttribute("y") + "/" + r.getAttribute("height")).join(" ");
+    check(bars("c1020") !== "" && bars("c1020") === bars("c1021"), "c1020: Säulen an derselben Stelle wie mit Titel (Platz bleibt)");
+  }
+  addStage("c1022", "Welle 1 · C05 Integrierte Brücke: „PY → AC/FC“ ohne „bridge + monthly columns“", 1120, 620);
+  runCap("c1022", dataView(iwCats, [col("actual", iwAc), col("previousYear", iwPy), col("forecast", iwFc)], { chart: { template: "C05" } }), 1120, 620);
+  addStage("c1023", "Welle 1 · Integrierte Brücke mit panelTypeTitles an", 1120, 620);
+  runCap("c1023", dataView(iwCats, [col("actual", iwAc), col("previousYear", iwPy), col("forecast", iwFc)],
+    { chart: { orientation: "intwaterfall", comparisonMode: "py", panelTypeTitles: true } }), 1120, 620);
+  {
+    const cap = id => wTexts(id).find(s => /^PY → AC/.test(s)) || "";
+    check(/^PY → AC\/FC( ×[\d,]+)?$/.test(cap("c1022")) && /bridge \+ monthly columns/.test(cap("c1023")), `c1022: „${cap("c1022")}“ gegen „${cap("c1023")}“`);
+  }
+  addStage("c1024", "Welle 1 · C25 Marimekko: ohne Leseanleitung im Titel, Zeilen unverändert", 1280, 720);
+  addStage("c1025", "Welle 1 · C25 Marimekko mit panelTypeTitles an (Bezug)", 1280, 720);
+  {
+    const cats = [], ser = [], val = [];
+    [["Europa", [40, 30, 20]], ["Amerika", [25, 35, 10]], ["Asien", [15, 10, 30]], ["Afrika", [5, 4, 6]]].forEach(([c, v]) =>
+      v.forEach((x, i) => { cats.push(c); ser.push(["A", "B", "C"][i]); val.push(x); }));
+    const dv = chart => ({ metadata: { columns: [], objects: { chart } }, categorical: { categories: [
+      { source: { displayName: "Region", roles: { category: true } }, values: cats },
+      { source: { displayName: "Marke", roles: { series: true } }, values: ser }], values: [col("actual", val, "#,0")] } });
+    runCap("c1024", dv({ template: "C25" }), 1280, 720);
+    runCap("c1025", dv({ orientation: "bars", comparisonMode: "auto", showAbsoluteVariance: false, showRelativeVariance: false,
+      stackNormalize: "pct100", stackThickness: "total", stackShareColumn: true, showTotal: true,
+      stackTotalRow: true, sortMode: "ac", stackLegendDirect: true, panelTypeTitles: true }), 1280, 720);
+    const rowsH = id => wq(id, '[data-icd="stack-mekko-row"]').map(g => g.getAttribute("data-h")).join(",");
+    check(!wTexts("c1024").some(s => /thickness = total|stacked/.test(s)) && wTexts("c1025").some(s => /thickness = total/.test(s)),
+      "c1024: Marimekko ohne Leseanleitung, mit Schalter wie bisher");
+    check(rowsH("c1024") !== "" && rowsH("c1024") === rowsH("c1025"), `c1024: Zeilendicken gleich (${rowsH("c1024")})`);
+  }
+  addStage("c1026", "Welle 1 · 100-%-Balken ohne Typ-Titel: „shares in %“ bleibt", 960, 400);
+  runCap("c1026", tplStack("off", { chart: { template: "off", orientation: "bars", stackNormalize: "pct100" } }), 960, 400);
+  check(wTexts("c1026").includes("shares in %") && !wTexts("c1026").some(s => /stacked/.test(s)), "c1026: nur „shares in %“");
+  addStage("c1027", "Welle 1 · C07 Fläche: kein „AC · stacked“", 1280, 620);
+  runCap("c1027", window.__area.areaDv({ chart: { template: "C07" } }), 1280, 620);
+  check(!!document.querySelector('#c1027 [data-icd="stack-area"]') && !wTexts("c1027").some(s => /stacked|gestapelt/.test(s)), "c1027: Fläche ohne Typ-Titel");
+
+  // ---- 10 · gerundete Null
+  // Nord: Δ +300 at a M scale prints at 2 decimals as a rounded zero ("+0,00M", "+0,0%"); Ost: exact zero
+  const tiny = { cats: ["Nord", "Süd", "West", "Ost"], ac: [1000300, 1500000, 800000, 640000], pl: [1000000, 1400000, 840000, 640000] };
+  addStage("c1030", "Welle 1 · C04 mit Δ +0,3 (rundet auf 0): „0“ und „0,0%“ ohne Vorzeichen", 960, 360);
+  runCap("c1030", dataView(tiny.cats, [col("actual", tiny.ac, "#,0"), col("plan", tiny.pl, "#,0")], { chart: { template: "C04" } }), 960, 360);
+  addStage("c1031", "Welle 1 · dieselben Daten ohne Vorlage (Standard signed): „+0“ und „+0,0%“ wie bisher", 960, 360);
+  runCap("c1031", dataView(tiny.cats, [col("actual", tiny.ac, "#,0"), col("plan", tiny.pl, "#,0")],
+    { chart: { orientation: "bars", comparisonMode: "plan", showAbsoluteVariance: true, showRelativeVariance: true } }), 960, 360);
+  {
+    const t30 = wTexts("c1030"), t31 = wTexts("c1031");
+    check(!t30.some(signedZero) && t30.includes("0,0%") && t30.some(s => /^0,00/.test(s)),
+      `c1030: gerundete Null ohne Vorzeichen (${t30.filter(zeroTxt).join(" ")})`);
+    check(t31.some(s => /^\+0,00/.test(s)) && t31.includes("+0,0%"), `c1031: Standard behält „+0,00“ (${t31.filter(zeroTxt).join(" ")})`);
+    const pp = window.__persist.c1030[0].merge;
+    check(pp.length === 2 && pp[1].objectName === "labels" && pp[1].properties.roundedZero === "plain", "c1030: C04 schreibt labels.roundedZero = plain im selben Merge");
+  }
+  addStage("c1032", "Welle 1 · C14 Tabelle mit Δ +0,3: „0“ und „0,0%“ ohne Vorzeichen, exakte Null ohne", 1280, 360);
+  runCap("c1032", dataView(tiny.cats, [col("actual", tiny.ac, "#,0"), col("plan", tiny.pl, "#,0")], { chart: { template: "C14" } }), 1280, 360);
+  check(!wTexts("c1032").some(signedZero) && wTexts("c1032").includes("0,0%"),
+    `c1032: keine „+0“ (${wTexts("c1032").filter(zeroTxt).join(" ")})`);
+  {
+    const p600 = (window.__persist.c600 || [])[0];
+    check(!!p600 && p600.merge.some(m => m.objectName === "labels" && m.properties.roundedZero === "plain"), "c600 (Welle 1): C20 schreibt labels.roundedZero = plain");
+    const ds = ChartKitchen.deltaSign;
+    check(typeof ds === "function" && ds(0.3, "0", true) === "" && ds(0.3, "0", false) === "+" && ds(-0.04, "0,0", false) === "−"
+      && ds(0, "0", false) === "" && ds(-0.3, "0,3", true) === "−", "deltaSign: exportierte Hilfsfunktion für die KPI-Karten");
+    addStage("c1033", "Welle 1 · labels.roundedZero = plain direkt gesetzt (ohne Vorlage)", 960, 360);
+    const r = runCap("c1033", dataView(tiny.cats, [col("actual", tiny.ac, "#,0"), col("plan", tiny.pl, "#,0")],
+      { chart: { orientation: "bars", comparisonMode: "plan" }, labels: { roundedZero: "plain" } }), 960, 360);
+    check(r.v.roundedZeroPlain() === true && !wTexts("c1033").some(signedZero), "c1033: Visual.roundedZeroPlain() und keine „+0“");
+  }
+}
+// ---- WELLE1-END
+// ======================================================================
+// 1.58 · Welle 1 Review (B1 bis B7, Kopfform), Stufen c1040 bis c1069
+// ======================================================================
+{
+  const { wq, wTexts, isHatch, heads } = window.__w1;
+  const GOOD = "#1E8F9E", BAD = "#D64541";
+  const markPat = id => wq(id, "pattern").find(p => /-m$/.test(p.id));
+  const stemOf = h => h.previousElementSibling;
+  // review 2 (B1): the variance colour must be visible — on ≥ 3 px of stem beside the head, or
+  // on the Δ% label (next element) when the pin is short; grey (immaterial / zero) needs none
+  const colourShown = id => heads(id).map(h => {
+    const l = stemOf(h), c = l.getAttribute("stroke");
+    if (c === "#B3B3B3") { return { ok: true, grey: true }; }
+    const len = Math.hypot(+l.getAttribute("x2") - +l.getAttribute("x1"), +l.getAttribute("y2") - +l.getAttribute("y1"));
+    const half = h.tagName === "circle" ? +h.getAttribute("r") : +h.getAttribute("width") / 2;
+    const lb = h.nextElementSibling;
+    const lbOk = !!lb && lb.tagName === "text" && lb.getAttribute("fill") === c && lb.style.display !== "none"
+      && lb.getAttribute("visibility") !== "hidden" && lb.getAttribute("display") !== "none";
+    return { ok: len - half >= 2.99 || lbOk, short: len - half < 2.99, lbOk };
+  });
+  // visible coloured stem of a scenario head: stem length minus the head's half size
+  const stemVis = h => {
+    const l = stemOf(h); const hr = h.tagName === "circle" ? +h.getAttribute("r") : +h.getAttribute("width") / 2;
+    const len = Math.hypot(+l.getAttribute("x2") - +l.getAttribute("x1"), +l.getAttribute("y2") - +l.getAttribute("y1"));
+    return { len, hr, vis: len - hr, sw: +l.getAttribute("stroke-width") };
+  };
+
+  // ---- B1 · 24 Säulen auf 620 px, FC ab M11: Köpfe mit r = 2,5 tragen das feine Muster
+  const cats24 = Array.from({ length: 24 }, (_, i) => "M" + (i + 1));
+  const dv24 = chart => ({ metadata: { columns: [], objects: { chart } }, categorical: { categories: [
+    { source: { displayName: "Monat", roles: { category: true } }, values: cats24 },
+    { source: { displayName: "FC", roles: { fcFlag: true } }, values: cats24.map((_, i) => i >= 10 ? 1 : 0) }],
+    // review 2 (B4): |Δ%| 9 to 10 % so no pin is short and every head keeps r = 2,5 (no pinHeadR cap)
+    values: [col("actual", cats24.map((_, i) => Math.round((100 + i * 3) * (1 + (i % 2 ? 1 : -1) * (0.09 + (i % 3) * 0.005)) * 10) / 10), "#,0"),
+      col("previousYear", cats24.map((_, i) => 100 + i * 3), "#,0")] } });
+  for (const [id, shape] of [["c1040", "auto"], ["c1041", "square"]]) {
+    addStage(id, `Welle 1 Review B1 · 24 Säulen auf 620 px, FC ab M11, Kopf ${shape === "square" ? "eckig" : "rund"} mit r = 2,5: Schraffur sichtbar (Pixelprobe in shot.js)`, 620, 420);
+    runCap(id, dv24({ orientation: "columns", comparisonMode: "py", showAbsoluteVariance: true, showRelativeVariance: true, pinStyle: shape }), 620, 420);
+    const fcH = heads(id).filter(h => h.getAttribute("data-pin") === "fc");
+    const pat = markPat(id);
+    const half = h => h.tagName === "circle" ? +h.getAttribute("r") : +h.getAttribute("width") / 2;
+    check(fcH.length === 14 && fcH.every(h => half(h) === 2.5) && fcH.every(h => h.tagName === (shape === "square" ? "rect" : "circle") && h.getAttribute("fill") === `url(#${pat && pat.id})`)
+      && !!pat && fcH.every(h => +pat.getAttribute("width") < 2 * (half(h) - 0.5)),
+      `${id}: 14 FC-Köpfe (${shape}) mit feinem Muster, Periode ${pat && pat.getAttribute("width")} px < Innendurchmesser (halbe Größe ${[...new Set(fcH.map(half))].join("/")})`);
+  }
+
+  // ---- B2 · kurze Pins: Stiel 2 px, mindestens 3 px Stiel sichtbar, Kopf nie unter 2 px (rund und eckig)
+  const shortDv = chart => dataView(["A", "B", "C", "D", "E"], [col("actual", [100, 103, 98, 101, 120], "#,0"), col("plan", [101, 101, 100, 100, 100], "#,0")],
+    { chart: Object.assign({ orientation: "columns", comparisonMode: "plan", showAbsoluteVariance: true, showRelativeVariance: true, invert: true }, chart) });
+  for (const [id, shape] of [["c1042", "auto"], ["c1043", "square"]]) {
+    addStage(id, `Welle 1 Review B2 · kleine Δ (Kosten): Kopf ${shape === "square" ? "eckig" : "rund"} gekappt, ≥ 3 px Stiel in Abweichungsfarbe`, 700, 420);
+    runCap(id, shortDv({ pinStyle: shape }), 700, 420);
+    const st = heads(id).map(stemVis);
+    check(st.length === 5 && st.every(s => s.sw === 2 && s.hr >= 2) && st.some(s => s.hr < 4),
+      `${id}: Stiel 2 px, Kopf gekappt (${st.map(s => s.len.toFixed(1) + "/" + s.hr.toFixed(1)).join(" ")})`);
+    // review 2 (B1): a head of 2 px alone is no pass any more — short pins carry the colour on their label
+    const cs = colourShown(id);
+    check(cs.length === 5 && cs.every(x => x.ok) && cs.filter(x => x.short).length >= 3 && cs.filter(x => x.short).every(x => x.lbOk),
+      `${id}: Abweichungsfarbe am Pin oder an seiner Beschriftung (${cs.map(x => x.short ? (x.lbOk ? "L" : "-") : "S").join("")})`);
+    check(heads(id).map(stemOf).every(l => [GOOD, BAD].includes(l.getAttribute("stroke"))), `${id}: Stiele grün/rot`);
+  }
+  // Balken, zweite Basis, Jahressäule, Stufe und Tabelle in eckig
+  addStage("c1044", "Welle 1 Review · eckige Köpfe: zweite Basis (Säulen), FC schraffiert, Stiel 2 px", 960, 640);
+  runCap("c1044", dataView(months, [col("actual", ac, "#,0 €"), col("previousYear", py, "#,0 €"), col("plan", pl, "#,0 €"),
+    col("forecast", fc, "#,0 €")], { chart: { orientation: "columns", comparisonMode: "plan", dualVariance: true,
+      showAbsoluteVariance: true, showRelativeVariance: true, pinStyle: "square" } }), 960, 640);
+  {
+    const h = heads("c1044");
+    check(h.length === 24 && h.every(e => e.tagName === "rect") && h.filter(e => e.getAttribute("data-pin") === "fc").every(e => isHatch(e.getAttribute("fill")))
+      && h.map(stemVis).every(s => s.sw === 2), `c1044: 24 eckige Köpfe, FC schraffiert, Stiele 2 px`);
+  }
+  addStage("c1045", "Welle 1 Review · C19 Jahressäule mit eckigem Kopf (Vorlage) und Stufe C12 rund: Stiel 2 px", 1100, 560);
+  runCap("c1045", dataView(months, [col("actual", ac, "#,0 €"), col("forecast", fc, "#,0 €"), col("plan", pl, "#,0 €")],
+    { chart: { template: "C19" } }), 1100, 560);
+  {
+    const yp = wq("c1045", '[data-part="pin"]');
+    check(yp.length === 1 && yp[0].getAttribute("stroke-width") === "2" && yp[0].nextElementSibling.tagName === "rect"
+      && isHatch(yp[0].nextElementSibling.getAttribute("fill")), "c1045: Jahres-Pin eckig, schraffiert, Stiel 2 px");
+    const t = heads("c1002").map(stemVis);
+    check(t.length > 0 && t.every(s => s.sw >= 2), `c1002 (Review): Stufen-Stiele ≥ 2 px (${t.map(s => s.sw).join(",")})`);
+  }
+  addStage("c1046", "Welle 1 Review · Tabelle mit FC-Zeilen, runde Köpfe (pinStyle round): FC schraffiert, kurzer Pin gekappt", 1100, 460);
+  runCap("c1046", dataView(months, [col("actual", ac.map((v, i) => v ?? fc[i]), "#,0 €"), col("plan", pl.map((v, i) => i === 3 ? (ac[3] ?? 0) - 500 : v), "#,0 €")],
+    { __fcFlags: [0,0,0,0,0,0,0,1,1,1,1,1], chart: { orientation: "table", comparisonMode: "plan", pinStyle: "round" } }), 1100, 460);
+  {
+    const h = heads("c1046");
+    check(h.length === 5 && h.every(e => e.tagName === "circle" && isHatch(e.getAttribute("fill"))), `c1046: 5 runde FC-Köpfe schraffiert (${h.length})`);
+    const all = wq("c1046", "circle, rect").filter(e => e.previousElementSibling && e.previousElementSibling.tagName === "line"
+      && e.previousElementSibling.getAttribute("stroke-width") === "2" && (e.getAttribute("fill") === "#404040" || e.hasAttribute("data-pin")));
+    const apr = all.map(stemVis).sort((a, b) => a.len - b.len)[0];
+    check(!!apr && apr.hr >= 2 && apr.hr < 3, `c1046: kürzester Pin (Apr) Kopf ${apr && apr.hr.toFixed(1)} bei Länge ${apr && apr.len.toFixed(1)}`);
+    // review 2 (B1): the short table pin colours its label
+    const aprHead = all.slice().sort((a, b) => stemVis(a).len - stemVis(b).len)[0];
+    const aprLbl = aprHead && aprHead.nextElementSibling;
+    check(!!aprLbl && aprLbl.tagName === "text" && aprLbl.getAttribute("fill") === stemOf(aprHead).getAttribute("stroke"),
+      `c1046: Beschriftung des kurzen Pins in Abweichungsfarbe (${aprLbl && aprLbl.getAttribute("fill")})`);
+  }
+  // PL-Kopf (Plan gegen Plan) eckig
+  addStage("c1047", "Welle 1 Review · Plan gegen Plan (13D) mit eckigem Kopf: hohl mit Tintenrand", 1280, 720);
+  {
+    const { regions, years } = avg18;
+    runCap("c1047", avgDv(regions, vo13({ showAbsoluteVariance: false, showRelativeVariance: true, pinStyle: "square" }),
+      { years, objs: { ibcsTitle: { kpi: "Nettogewinn", unit: "kEUR" } } }), 1280, 720);
+    const vp = wq("c1047", '[data-icd="var-plan"][data-pin]');
+    check(vp.length > 0 && vp.every(e => e.tagName === "rect" && e.getAttribute("data-pin") === "pl" && e.getAttribute("fill") === "#FFFFFF"
+      && e.getAttribute("stroke") === "#404040"), `c1047: ${vp.length} eckige Plan-Köpfe hohl`);
+  }
+
+  // ---- Dunkelmodus, Small Multiples, Re-Render, Export
+  addStage("c1048", "Welle 1 Review · C03 im Dunkelmodus: Köpfe in heller Tinte, FC-Muster auf dunklem Grund", 960, 480, "#1E1E1E");
+  runCap("c1048", dataView(months, [col("actual", ac, "#,0 €"), col("previousYear", py, "#,0 €"), col("forecast", fc, "#,0 €")],
+    { chart: { template: "C03" }, colors: { appearance: "dark" } }), 960, 480);
+  {
+    const h = heads("c1048"), pat = markPat("c1048");
+    const bgFill = pat && pat.querySelector("rect").getAttribute("fill");
+    check(h.length === 12 && h.filter(e => e.getAttribute("data-pin") === "ac").every(e => e.getAttribute("fill") === "#E0E0E0")
+      && !!pat && bgFill !== "#FFFFFF", `c1048: AC-Köpfe #E0E0E0, Musterhintergrund ${bgFill}`);
+  }
+  addStage("c1049", "Welle 1 Review · Small Multiples (3 Kacheln) mit FC: ein feines Muster, alle FC-Köpfe schraffiert", 1340, 520);
+  const mc = [], mv = [], a2 = [], f2 = [], p2 = [];
+  ["Nord", "Süd", "West"].forEach((r, ri) => months.forEach((m, i) => { mc.push(m); mv.push(r);
+    a2.push(ac[i] == null ? null : ac[i] * (1 + ri * 0.2)); f2.push(fc[i] == null ? null : fc[i] * (1 + ri * 0.2)); p2.push(py[i] * (1 + ri * 0.15)); }));
+  const mDv = extra => dataView(mc, [col("actual", a2, "#,0 €"), col("previousYear", p2, "#,0 €"), col("forecast", f2, "#,0 €")],
+    Object.assign({ chart: { orientation: "columns", showAbsoluteVariance: true, showRelativeVariance: true } }, extra || {}), mv);
+  const r49 = runCap("c1049", mDv(), 1340, 520);
+  {
+    const fcH = heads("c1049").filter(h => h.getAttribute("data-pin") === "fc");
+    check(fcH.length === 15 && wq("c1049", "pattern").filter(p => /-m$/.test(p.id)).length === 1 && fcH.every(h => isHatch(h.getAttribute("fill"))),
+      `c1049: 15 FC-Köpfe in 3 Kacheln, Muster einmal (${fcH.length})`);
+    // Re-Render (Dunkelmodus): das Muster wird neu angelegt, nicht verdoppelt, und folgt dem Grund
+    r49.upd(mDv({ colors: { appearance: "dark" } }));
+    const pats = wq("c1049", "pattern").filter(p => /-m$/.test(p.id));
+    check(pats.length === 1 && pats[0].querySelector("rect").getAttribute("fill") !== "#FFFFFF"
+      && heads("c1049").filter(h => h.getAttribute("data-pin") === "fc").length === 15, "c1049: Re-Render dunkel, ein Muster mit dunklem Grund");
+  }
+  addStage("c1050", "Welle 1 Review · Export (allowInteractions=false): Linie mit FC-Punkten und Pins", 960, 380);
+  runCap("c1050", dataView(months, [col("actual", ac, "#,0 €"), col("previousYear", py, "#,0 €"), col("forecast", fc, "#,0 €")],
+    { chart: { orientation: "line", showAbsoluteVariance: true, showRelativeVariance: true } }), 960, 380, { noInteract: true });
+  {
+    const pts = wq("c1050", "circle").filter(c => c.getAttribute("r") === "2.6" && isHatch(c.getAttribute("fill")));
+    const h = heads("c1050");
+    check(pts.length === 5 && !!markPat("c1050") && h.filter(e => e.getAttribute("data-pin") === "fc").length === 5,
+      `c1050: Export mit 5 schraffierten FC-Punkten und 5 FC-Köpfen (${pts.length}/${h.length})`);
+  }
+
+  // ---- B3 · Bestandsbericht (template = templateApplied, Properties aus 1.57): kein ↺-Chip
+  const tc = ["Nord", "Süd", "West", "Ost"], tacN = [1000300, 999700, 800000, 640000], tplN = [1000000, 1000000, 840000, 640000];
+  const old14 = { template: "C14", templateApplied: "C14", orientation: "table", comparisonMode: "plan", showAbsoluteVariance: true,
+    showRelativeVariance: true, dualVariance: false, showTotal: true, totalRowPosition: "bottom", tableTotalLegend: true,
+    tableSort: "dabs_desc", gridLines: "none", cumulative: false, topN: 0 };
+  addStage("c1051", "Welle 1 Review B3 · Bestandsbericht C14 aus 1.57 im Bearbeitungsmodus: kein ↺-Chip, nichts persistiert", 1280, 420);
+  runCap("c1051", dataView(tc, [col("actual", tacN, "#,0"), col("plan", tplN, "#,0")], { chart: old14 }), 1280, 420, { viewMode: 1 });
+  check(!hubQ("c1051", "tpl-reset") && window.__persist.c1051.length === 0, "c1051: kein ↺-Chip, kein Persist");
+  addStage("c1052", "Welle 1 Review B3 · Bestandsbericht C14 mit abweichender 1.57-Property (gridLines): Chip erscheint weiter", 1280, 420);
+  runCap("c1052", dataView(tc, [col("actual", tacN, "#,0"), col("plan", tplN, "#,0")], { chart: Object.assign({}, old14, { gridLines: "both" }) }), 1280, 420, { viewMode: 1 });
+  check(!!hubQ("c1052", "tpl-reset"), "c1052: echte Abweichung zeigt den Chip");
+  addStage("c1053", "Welle 1 Review B3 · Bestandsbericht C01 aus 1.57: kein ↺-Chip", 960, 420);
+  runCap("c1053", tplStack("C01", { chart: { template: "C01", templateApplied: "C01", orientation: "columns", comparisonMode: "auto",
+    showAbsoluteVariance: false, showRelativeVariance: false, dualVariance: false, waterfallStyle: false } }), 960, 420, { viewMode: 1 });
+  check(!hubQ("c1053", "tpl-reset"), "c1053: kein ↺-Chip");
+  // plain in allen Vorlagen
+  {
+    const pp = window.__persist;
+    const ids = ["c1000", "c1001", "c1002", "c1003", "c1015", "c1018", "c1020", "c1022", "c1024", "c1027"];
+    const missing = ids.filter(id => !(pp[id] || []).some(c => c.merge.some(m => m.objectName === "labels" && m.properties.roundedZero === "plain")));
+    check(missing.length === 0, `Vorlagen C03, C04, C12, C19, C18, C09, C01, C05, C25, C07 schreiben labels.roundedZero = plain (fehlt: ${missing.join(",") || "–"})`);
+  }
+
+  // ---- B4 · GuV-Statement (Pp und ganzzahliges Δ %) und negative/Finanz-Null
+  const guvAc2 = guvAc.slice(), guvPy2 = guvPy.slice();
+  guvAc2[0] = 9800; guvPy2[0] = 9780;   // Δ % +0,2 → ganzzahlig 0
+  guvAc2[3] = 57.14; guvPy2[3] = 57.1;  // Δ +0,04 Pp
+  guvAc2[7] = 27.46; guvPy2[7] = 27.5;  // Δ −0,04 Pp
+  for (const [id, rz] of [["c1054", "signed"], ["c1055", "plain"]]) {
+    addStage(id, `Welle 1 Review B4 · GuV-Statement, labels.roundedZero = ${rz}: Pp und ganzzahliges Δ %`, 1280, 480);
+    runCap(id, dataView(guvCats, [col("actual", guvAc2, "#,0 T€"), col("previousYear", guvPy2, "#,0 T€")],
+      { chart: { orientation: "pnl" }, labels: { roundedZero: rz } }, null, guvTypes), 1280, 480);
+  }
+  {
+    const t54 = wTexts("c1054"), t55 = wTexts("c1055");
+    check(t54.includes("+0,0Pp") && t54.includes("−0,0Pp") && t54.includes("+0%"), `c1054: signed wie bisher (${t54.filter(s => /^[+−±]?0(,0)?(Pp|%)$/.test(s)).join(" ")})`);
+    check(t55.filter(s => s === "0,0Pp").length >= 2 && t55.includes("0%") && !t55.some(s => /^[+−±]0(,0)?(Pp|%)$/.test(s)),
+      `c1055: plain ohne Vorzeichen (${t55.filter(s => /^[+−±]?0(,0)?(Pp|%)$/.test(s)).join(" ")})`);
+  }
+  const negDv = labels => dataView(tc, [col("actual", [999700, 1500000, 800000, 640000], "#,0"), col("plan", [1000000, 1400000, 840000, 640000], "#,0")],
+    { chart: { orientation: "bars", comparisonMode: "plan", showAbsoluteVariance: true, showRelativeVariance: true }, labels });
+  addStage("c1056", "Welle 1 Review · negative gerundete Null: signed „−0,00M“, plain „0,00M“", 960, 360);
+  runCap("c1056", negDv({ roundedZero: "signed" }), 960, 360);
+  addStage("c1057", "Welle 1 Review · negative gerundete Null mit plain", 960, 360);
+  runCap("c1057", negDv({ roundedZero: "plain" }), 960, 360);
+  addStage("c1058", "Welle 1 Review · plain mit Finanzformat: keine Klammer um die gerundete Null", 960, 360);
+  runCap("c1058", negDv({ roundedZero: "plain", financeFormat: true }), 960, 360);
+  addStage("c1059", "Welle 1 Review · signed mit Finanzformat: „(0,00M)“ wie bisher", 960, 360);
+  runCap("c1059", negDv({ roundedZero: "signed", financeFormat: true }), 960, 360);
+  {
+    const z = id => wTexts(id).filter(s => /^[(+−]?0,0+\s*[A-Za-z€]*%?\)?$/.test(s));
+    check(z("c1056").some(s => /^−0,00/.test(s)) && z("c1056").includes("−0,0%"), `c1056: ${z("c1056").join(" ")}`);
+    check(z("c1057").some(s => /^0,00/.test(s)) && z("c1057").includes("0,0%") && !z("c1057").some(s => /^[−+(]/.test(s)), `c1057: ${z("c1057").join(" ")}`);
+    check(z("c1058").some(s => /^0,00/.test(s)) && !z("c1058").some(s => /^[−+(]/.test(s)), `c1058: ${z("c1058").join(" ")}`);
+    check(z("c1059").some(s => /^\(0,00/.test(s)), `c1059: ${z("c1059").join(" ")}`);
+  }
+  // Pp in der Tabelle (Margenzeilen) mit plain und Finanzformat
+  for (const [id, labels] of [["c1060", { roundedZero: "plain" }], ["c1061", { roundedZero: "plain", financeFormat: true }], ["c1062", { roundedZero: "signed" }]]) {
+    addStage(id, `Welle 1 Review · Tabelle mit Margenzeilen, ${JSON.stringify(labels)}: Pp der gerundeten Null`, 1200, 420);
+    runCap(id, dataView(["Umsatz", "Materialaufwand", "Bruttoergebnis", "Marge %", "Opex", "EBIT", "EBIT-Marge %"],
+      [col("actual", [9800, -4200, 5600, 57.14, -2900, 2700, 27.46], "#,0 T€"), col("previousYear", [9100, -3900, 5200, 57.1, -2700, 2500, 27.5], "#,0 T€")],
+      { chart: { orientation: "table" }, labels }, null, ["sum", "delta", "sum", "pct", "delta", "sum", "pct"]), 1200, 420);
+  }
+  {
+    const pp = id => wTexts(id).filter(s => /Pp/.test(s));
+    check(pp("c1060").filter(s => s === "0,0Pp").length === 2, `c1060: ${pp("c1060").join(" ")}`);
+    check(pp("c1061").filter(s => s === "0,0Pp").length === 2, `c1061: ${pp("c1061").join(" ")}`);
+    check(pp("c1062").includes("+0,0Pp") && pp("c1062").some(s => /^(−0,0Pp|\(0,0Pp\))$/.test(s)), `c1062: ${pp("c1062").join(" ")}`);
+  }
+
+  // ---- B5 · automatischer Titel des Scatters ohne „AC“
+  {
+    const title = id => (document.querySelector(`#${id} svg > text`) || {}).textContent || "";
+    check(!/\bAC\b/.test(title("c1015")) && !/\bAC\b/.test(title("c1017")) && /: AC$|· AC$/.test(title("c1016")),
+      `B5: Titel C18 „${title("c1015")}“, Standard „${title("c1017")}“, mit Schalter „${title("c1016")}“`);
+  }
+
+  // ---- B6 · Doppellinie liegt über den Δ-Balken (Papierstreifen), Pin-Spalte darunter; PY unverändert
+  {
+    const a = wq("c1010", '[data-icd="table-var-axis"]');
+    const over = a.filter(g => g.getAttribute("data-over") === "1");
+    const strip = over.map(g => g.querySelector("rect")).filter(Boolean);
+    const marksAfter = over.every(g => { const rows = wq("c1010", "g.icd-cat"); return rows.length > 0
+      && (rows[rows.length - 1].compareDocumentPosition(g) & Node.DOCUMENT_POSITION_FOLLOWING); });
+    check(over.length === 1 && strip.length === 1 && +strip[0].getAttribute("width") === 3.4 && marksAfter
+      && a.find(g => g.getAttribute("data-over") !== "1"), "c1010 (B6): Δ-Achse über den Balken mit 3,4-px-Papierstreifen, Δ%-Achse darunter");
+  }
+  // ---- Review 2 · B1: kurze Pins in Small Multiples, GuV-Wasserfall, zweite Basis und Jahressäule
+  addStage("c1063", "Welle 1 Review 2 · Small Multiples 4 × 12 auf 960 × 560: kurze Pins zeigen die Farbe an der Beschriftung", 960, 560);
+  runCap("c1063", dataView(smCats, [col("actual", smAc), col("plan", smPl)],
+    { chart: { comparisonMode: "plan", showAbsoluteVariance: true, showRelativeVariance: true } }, smMult), 960, 560);
+  addStage("c1064", "Welle 1 Review 2 · GuV-Wasserfall 960 × 420 (C12): Δ%-Stufe mit Farbe an Pin oder Beschriftung", 960, 420);
+  runCap("c1064", dataView(pnlCats, [col("actual", pnlVals, "#,0 T€"), col("previousYear", pnlPy, "#,0 T€")],
+    { chart: { template: "C12" } }, null, pnlTypes), 960, 420);
+  addStage("c1065", "Welle 1 Review 2 · zweite Basis und Jahressäule mit kleinen Δ", 1100, 600);
+  runCap("c1065", dataView(months, [col("actual", ac.map(v => v == null ? null : v * 1.004), "#,0 €"), col("forecast", fc, "#,0 €"),
+    col("plan", pl, "#,0 €"), col("previousYear", ac.map((v, i) => (v ?? fc[i]) * (i === 0 ? 0.8 : 0.997)), "#,0 €")],
+    { chart: { orientation: "columns", comparisonMode: "plan", dualVariance: true, yearColumn: true,
+      showAbsoluteVariance: true, showRelativeVariance: true } }), 1100, 600);
+  for (const id of ["c1063", "c1064", "c1065", "c1000", "c1001", "c1003", "c1004", "c1044", "c1048"]) {
+    const cs = colourShown(id);
+    const bad = cs.filter(x => !x.ok).length;
+    check(cs.length > 0 && bad === 0, `${id}: Abweichungsfarbe am Pin oder an seiner Beschriftung (${cs.length} Pins, kurz ${cs.filter(x => x.short).length}, ohne Farbe ${bad})`);
+  }
+  check(colourShown("c1063").filter(x => x.short).length >= 20 && colourShown("c1064").some(x => x.short),
+    "c1063/c1064: die Fälle des Reviews haben kurze Pins (Regel greift)");
+  // Hochkontrast unverändert: keine Beschriftung in Abweichungsfarbe
+  {
+    const hcLbl = wq("c1005", "circle").map(c => c.nextElementSibling).filter(t => t && t.tagName === "text");
+    check(hcLbl.length > 0 && hcLbl.every(t => t.getAttribute("fill") === "#FFFF00"), `c1005: Hochkontrast-Beschriftungen in Vordergrundfarbe (${[...new Set(hcLbl.map(t => t.getAttribute("fill")))]})`);
+  }
+  // ---- Review 2 · B5: FC-Referenzpunkt der KPI-Trendlinie schraffiert
+  addStage("c1066", "Welle 1 Review 2 · KPI-Karten mit Trendlinie, nur FC-Perioden: Referenzpunkt schraffiert statt hohl", 1200, 300);
+  {
+    const k = ["EBIT", "Free Cashflow"];
+    const b = { "EBIT": [42, 38, 12, 55, 61, 8, 47, 52, 66, 58, 63, 71], "Free Cashflow": [20, 15, 33, 41, 28, 36, 5, 44, 39, 12, 25, 30] };
+    const r = trendRows(k, b, { "EBIT": 0.9, "Free Cashflow": 1.1 }, months, 0);
+    runCap("c1066", dataView(r.cats, [col("actual", r.ac), col("previousYear", r.py)],
+      { chart: { orientation: "cards", cardTrendChart: "sparkline" }, __fcFlags: r.flags }, null, null, r.tr), 1200, 300);
+    const refs = wq("c1066", "circle").filter(c => isHatch(c.getAttribute("fill")));
+    check(refs.length === 2 && !wq("c1066", "circle").some(c => c.getAttribute("fill") === "#FFFFFF" && c.getAttribute("stroke") === "#404040"),
+      `c1066: zwei schraffierte FC-Referenzpunkte, keiner hohl (${refs.length})`);
+  }
+}
+// ---- WELLE1-REVIEW-END
+</script>
+<script>
+// ======================================================================
+// 1.58 · KPI-Karten (Welle 1): Δ-Block an fester x-Position, gerundete Null
+// ohne Vorzeichen, typografisches Minus, Zeilenraster und fehlende Basis („PY n.a.“)
+// ======================================================================
+// ---- KPI58-START
+{
+  const kq = (id, sel) => [...document.querySelectorAll(`#${id} ${sel}`)];
+  const kRel = (t, r) => ({ x: +t.getAttribute("x") - +r.getAttribute("x"), y: +t.getAttribute("y") - +r.getAttribute("y") });
+  // per card: frame rect, status stripe, all texts, the Δ row labels ("ΔPY") with x/y,
+  // the value texts of the rows (next text after a row label) and the "n.a." rows
+  const kCards = id => kq(id, "svg g.icd-cat").map(g => {
+    const rs = [...g.querySelectorAll("rect")];
+    const r = rs[0];
+    const ts = [...g.querySelectorAll("text")];
+    const lbl = ts.filter(t => /^Δ/.test(t.textContent));
+    const na = ts.filter((t, i) => i > 0 && t.textContent === "n.a." ).map(t => ts[ts.indexOf(t) - 1]);
+    return {
+      x: +r.getAttribute("x"), y: +r.getAttribute("y"), w: +r.getAttribute("width"), h: +r.getAttribute("height"),
+      stripe: rs.find(q => +q.getAttribute("width") <= 6 && +q.getAttribute("height") > 20)?.getAttribute("fill"),
+      tint: rs.some(q => q.getAttribute("fill-opacity") != null),
+      g, ts, texts: ts.map(t => t.textContent),
+      dx: lbl.map(t => kRel(t, r).x), dy: lbl.map(t => kRel(t, r).y), lbl: lbl.map(t => t.textContent),
+      vx: lbl.map(t => kRel(ts[ts.indexOf(t) + 1], r).x),
+      na: na.map(t => ({ lbl: t.textContent, x: kRel(t, r).x, y: kRel(t, r).y, vx: kRel(ts[ts.indexOf(t) + 1], r).x }))
+    };
+  });
+  const kSame = a => a.length >= 2 && a.every(v => Math.abs(v - a[0]) < 0.5);
+  // a zero that carries a sign: "+0", "−0,0", "-0", "+0,0%", also with a unit ("+0 tCO2")
+  const kSignedZero = t => /[+−-]0(?:[.,]0+)?(?![\d.,])/.test(t);
+  // a zero in brackets (finance format): "(0,0M€)", "(0,0%)"
+  const kBracketZero = t => /\(0(?:[.,]0+)?[^\d)]*\)/.test(t);
+  // ASCII hyphen in front of the first digit = a minus that is not U+2212
+  const kHyphenMinus = t => { const i = t.indexOf("-"), d = t.search(/\d/); return i >= 0 && d > i; };
+  const kBoxHit = (a, b) => a.x < b.x + b.width && b.x < a.x + a.width && a.y < b.y + b.height && b.y < a.y + a.height;
+  const kM = 1e6;
+  const kStrip = (cats, ac, py, pl, extra, fmt, objs) => dataView(cats,
+    [col("actual", ac, fmt || "#,0 €"), col("previousYear", py, fmt || "#,0 €")].concat(pl ? [col("plan", pl, fmt || "#,0 €")] : []),
+    Object.assign({ chart: Object.assign({ orientation: "cards" }, extra || {}) }, objs || {}));
+  const kCats4 = ["Umsatz", "Finanzierungs-Cashflow", "EBIT", "Tilgung und Dividende"];
+  const kAc4 = [18.46 * kM, -4.2 * kM, 1.302 * kM, 0.95 * kM];
+  const kPy4 = [18.44 * kM, -3.9 * kM, 1.25 * kM, 1.01 * kM];
+  const kPl4 = [18.0 * kM, -4.3 * kM, 1.301 * kM, 0.9 * kM];
+  const kMio = { labels: { displayUnits: "m" } };
+  const kChip5 = ["Umsatz", "Finanzierungs-Cashflow", "EBIT", "Tilgung", "Cash"];
+  const kSmall = [1234567, -234567, 345678, 812345], kSmallPy = [1134567, -214567, 395678, 790000], kSmallPl = [1204567, -204567, 305678, 800000];
+
+  const kCases = [
+    ["kpi58a", "Flacher Streifen, Balken aus: Titel und Werte verschieden lang, gerundete Null, negativer Wert, zwei Δ-Zeilen", 1560, 104,
+      kStrip(kCats4, kAc4, kPy4, kPl4, { cardBars: false })],
+    ["kpi58b", "Flacher Streifen mit Mini-Brücke (Balken an)", 1560, 104, kStrip(kCats4, kAc4, kPy4, kPl4)],
+    ["kpi58c", "Jahreskarten wie 11A: erste Karte ohne Vergleich", 1560, 104,
+      kStrip(["2024", "2025", "2026"], [41 * kM, 45.5 * kM, 47.2 * kM], [null, 41 * kM, 45.5 * kM], null, { cardBars: false })],
+    ["kpi58d", "Mittlere Karte ohne Plan: „PL n.a.“ im Zeilenraster der Nachbarn", 1200, 104,
+      kStrip(["Umsatz", "Kosten", "Marge"], [9.8 * kM, 4.2 * kM, 2.1 * kM], [9.1 * kM, 3.9 * kM, 2.3 * kM], [9.5 * kM, null, 2.2 * kM],
+        { cardBars: false, invertList: "Kosten" })],
+    ["kpi58e", "Stapel-Layout 960×260: negativer Wert, gerundete Null, Karte ohne Vergleich", 960, 260,
+      kStrip(["Umsatz", "Ergebnis", "Marge", "Neukunden"], [9.8 * kM, -0.42 * kM, 1.302 * kM, 1200], [9.1 * kM, -0.38 * kM, 1.3016 * kM, null])],
+    ["kpi58f", "Schmal: 2 Karten auf 560 px", 560, 96, kStrip(kCats4.slice(0, 2), kAc4.slice(0, 2), kPy4.slice(0, 2), kPl4.slice(0, 2), { cardBars: false })],
+    ["kpi58g", "Breit: 2 Karten auf 1560 px, Balken aus", 1560, 104, kStrip(kCats4.slice(2), kAc4.slice(2), kPy4.slice(2), kPl4.slice(2), { cardBars: false })],
+    ["kpi58h", "Feste Einheit Mio.: Δ rundet auf 0,0M€, Δ% deutlich (Lizenzen +10 %), Tönung und Pfeile; Wartung liest ganz null", 1560, 104,
+      kStrip(["Umsatz", "Lizenzen", "Wartung", "Schulung"], [18.46 * kM, 0.44 * kM, 0.300001 * kM, 0.34 * kM], [18.0 * kM, 0.40 * kM, 0.3 * kM, 0.30 * kM], null,
+        { cardBars: false, cardTint: true, deltaIcons: true }, null, kMio)],
+    ["kpi58i", "Finanzformat: gerundete Null ohne Klammern", 1560, 104,
+      kStrip(["Umsatz", "EBIT", "Kosten", "Cash"], [18.46 * kM, -1.302 * kM, 4.2 * kM, -0.5 * kM], [18.47 * kM, -1.30 * kM, 4.5 * kM, -0.2 * kM], null,
+        { cardBars: false }, null, { labels: { financeFormat: true } })],
+    ["kpi58j", "Format mit Textpräfix „Non-GAAP“: Bindestrich im Text bleibt, nur das Vorzeichen wird U+2212", 1200, 104,
+      kStrip(["A", "B", "C"], [1200, 5000, -300], [1100, 5100, -340], null, { cardBars: false }, "\"Non-GAAP\" #,0")],
+    ["kpi58k", "Einheit mit Ziffer (tCO2): Null-Erkennung nur am Zahlteil", 1200, 104,
+      kStrip(["Fläche", "Emission", "Delta"], [120000.22, 500000.42, -3.2], [120000.24, 500000.4, -3.4], null, { cardBars: false }, "#,0 \"tCO2\"",
+        { labels: { displayUnits: "none" } })],
+    ["kpi58l", "Sortierknopf: 5 Karten auf 1320×96", 1320, 96,
+      kStrip(kChip5, [18.46 * kM, -1234.5 * kM, 1.3 * kM, 0.95 * kM, 2 * kM], [18.0 * kM, -1100 * kM, 1.25 * kM, 1.0 * kM, 1.9 * kM],
+        [18.1 * kM, -1200 * kM, 1.2 * kM, 0.9 * kM, 2.1 * kM], { cardBars: false })],
+    ["kpi58m", "Sortierknopf: 4 Karten auf 1240×72, Pfeile", 1240, 72,
+      kStrip(["Umsatz", "EBIT", "Cash", "Kosten"], kSmall, kSmallPy, kSmallPl, { cardBars: false, deltaIcons: true }, null, { labels: { displayUnits: "none" } })],
+    ["kpi58n", "Eine Karte auf 1560 px: Δ-Block rückt höchstens 120 px hinter die Wertspalte", 1560, 104,
+      kStrip(["Umsatz"], [18.46 * kM], [18.0 * kM], [18.1 * kM], { cardBars: false })],
+    ["kpi58o", "Referenzwerte „Basiswert“ im Stapel-Layout: fehlender VJ als „PY n.a.“ in der Wertzeile", 960, 260,
+      kStrip(["2024", "2025", "2026"], [41 * kM, 45.5 * kM, 47.2 * kM], [null, 41 * kM, 45.5 * kM], null, { cardRefValues: "basis" })]
+  ];
+  // twins with the mini bridge on: the Δ block then stays behind the value column (base)
+  for (const id of ["kpi58f", "kpi58l", "kpi58m"]) {
+    const c = kCases.find(q => q[0] === id);
+    const dv = JSON.parse(JSON.stringify(c[4]));
+    dv.metadata.objects.chart.cardBars = true;
+    kCases.push([id + "b", c[1] + ", Zwilling mit Mini-Brücke (Basisposition)", c[2], c[3], dv]);
+  }
+  for (const [id, title, w, h, dv] of kCases) { addStage(id, title, w, h); runCap(id, dv, w, h); }
+  const kAll = kCases.map(c => c[0]);
+
+  // 1 · Δ block at one relative x in every flat card row
+  for (const id of ["kpi58a", "kpi58b", "kpi58c", "kpi58d", "kpi58g", "kpi58h", "kpi58l", "kpi58m"]) {
+    const cs = kCards(id).filter(c => c.dx.length);
+    check(kSame(cs.map(c => c.dx[0])) && kSame(cs.map(c => c.vx[0])),
+      `${id}: Δ-Block und Δ-Werte an gleicher x-Position (${cs.map(c => c.dx[0].toFixed(1)).join(" / ")})`);
+  }
+  // the Δ block is drawn and never paints over the big value
+  for (const id of ["kpi58a", "kpi58b", "kpi58c", "kpi58d", "kpi58f", "kpi58g", "kpi58h", "kpi58l", "kpi58m", "kpi58n"]) {
+    const cs = kCards(id);
+    const bad = cs.filter(c => {
+      const val = c.ts.find(t => +t.getAttribute("font-weight") === 700 && +t.getAttribute("font-size") >= 18);
+      const lb = c.ts.find(t => /^Δ/.test(t.textContent)) || c.ts.find(t => t.textContent === "n.a.");
+      if (!val || !lb) { return true; }
+      const b = val.getBBox();
+      return b.x + b.width > +lb.getAttribute("x") - 2;
+    });
+    check(bad.length === 0, `${id}: Δ-Block in allen ${cs.length} Karten gezeichnet, ohne den Wert zu überdecken`);
+  }
+  // 5 · cap: one wide card keeps value and Δ together
+  {
+    const c = kCards("kpi58n")[0];
+    const val = c.ts.find(t => +t.getAttribute("font-weight") === 700 && +t.getAttribute("font-size") >= 18).getBBox();
+    const lb = c.ts.find(t => /^Δ/.test(t.textContent));
+    const gapPx = +lb.getAttribute("x") - (val.x + val.width);
+    check(gapPx <= 170, `kpi58n: Abstand Wert → Δ-Block ${gapPx.toFixed(0)} px (höchstens 20 + 120 px hinter der Spalte)`);
+  }
+  // 4 · the Δ block stays clear of the sort chip
+  // (kpi58f, kpi58l, kpi58m: the block cannot clear the chip even right behind the
+  // widest value; there it must not be moved right, the rest is test bench 2, backlog)
+  const kChipRows = id => kCards(id).flatMap(c => c.ts.filter(t => +t.getAttribute("font-size") < 18 && c.ts.indexOf(t) > 1)).map(t => t.getBBox());
+  for (const id of ["kpi58f", "kpi58l", "kpi58m"]) {
+    const a = kCards(id)[0].dx[0], b = kCards(id + "b")[0].dx[0];
+    check(Math.abs(a - b) < 0.5, `${id}: Δ-Block bleibt hinter der Wertspalte wie mit Mini-Brücke (${a.toFixed(1)} / ${b.toFixed(1)} px)`);
+  }
+  for (const id of ["kpi58a", "kpi58c", "kpi58g", "kpi58h", "kpi58n"]) {
+    const chip = kq(id, 'svg g[role="button"] rect').map(r => r.getBBox());
+    const hits = kChipRows(id).filter(b => chip.some(cb => kBoxHit(b, cb)));
+    check(chip.length > 0 && hits.length === 0, `${id}: Sortierknopf überdeckt keine Δ-Zeile (${hits.length} Treffer)`);
+  }
+  // 3 · no sign on a rounded zero, 7 · also with a digit in the unit, 2 · no bracketed zero
+  const kTexts = kAll.flatMap(id => kCards(id).flatMap(c => c.texts.map(t => [id, t])));
+  const sz = kTexts.filter(([, t]) => kSignedZero(t));
+  check(sz.length === 0, `kpi58: keine gerundete Null mit Vorzeichen (${sz.map(([i, t]) => i + " " + t).join(", ") || "keine"})`);
+  const bz = kTexts.filter(([, t]) => kBracketZero(t));
+  check(bz.length === 0 && kTexts.some(([i, t]) => i === "kpi58i" && /^\(1,3M€\)/.test(t)),
+    `kpi58i: Finanzformat ohne Klammer-Null, negative Werte weiter in Klammern (${bz.map(([i, t]) => i + " " + t).join(", ") || "keine"})`);
+  check(kTexts.some(([i, t]) => i === "kpi58k" && /^0,0 tCO2 · /.test(t)), "kpi58k: „0,0 tCO2“ ohne Vorzeichen trotz Ziffer in der Einheit");
+  // 4 · only U+2212 as minus (the Non-GAAP prefix keeps its text hyphen)
+  const hy = kTexts.filter(([i, t]) => kHyphenMinus(t) && i !== "kpi58j");
+  check(hy.length === 0, `kpi58: Minus nur als U+2212 (${hy.map(([i, t]) => i + " " + t).join(", ") || "keins"})`);
+  check(kTexts.some(([i, t]) => i === "kpi58a" && /^−4,2/.test(t)) && kTexts.some(([i, t]) => i === "kpi58e" && /^−/.test(t)),
+    "kpi58a/e: negativer Kartenwert mit U+2212");
+  {
+    const j = kCards("kpi58j").map(c => c.texts[1]);
+    check(j[0] === "Non-GAAP 1.200" && j[1] === "Non-GAAP 5.000" && /^−Non-GAAP 300$/.test(j[2]),
+      `kpi58j: Textpräfix behält den Bindestrich, nur das Vorzeichen ist U+2212 (${j.join(" | ")})`);
+  }
+  // 1 (review) · colors: a Δ that rounds to zero beside a real Δ% keeps its status
+  // color (text, stripe, tint, ▲); only a row that reads zero as a whole is grey
+  {
+    const cs = kCards("kpi58h");
+    const grey = cs[0].ts.find(t => /^Δ/.test(t.textContent)).getAttribute("fill");
+    const row = c => c.ts[c.ts.findIndex(t => /^Δ/.test(t.textContent)) + 1];
+    const [lz, wa] = [cs[1], cs[2]];
+    check(/^▲ 0,0M€ · \+10,0%$/.test(row(lz).textContent) && row(lz).getAttribute("fill") !== grey
+      && lz.stripe === cs[0].stripe && lz.tint,
+      `kpi58h: Lizenzen „${row(lz).textContent}“ farbig wie Umsatz (Streifen ${lz.stripe}, Tönung ${lz.tint})`);
+    check(/^● 0,0M€ · 0,0%$/.test(row(wa).textContent) && row(wa).getAttribute("fill") === grey
+      && wa.stripe !== cs[0].stripe && !wa.tint,
+      `kpi58h: Wartung „${row(wa).textContent}“ liest ganz null: grau, Streifen neutral (${wa.stripe}), keine Tönung`);
+    const a = kCards("kpi58a")[0];
+    const ra = a.ts.filter(t => /^0,0M€ · \+0,1%$/.test(t.textContent));
+    check(ra.length === 1 && ra[0].getAttribute("fill") !== grey, "kpi58a: „0,0M€ · +0,1%“ ohne Vorzeichen, Farbe aus dem Δ");
+    const e = kCards("kpi58e")[2];
+    const re = e.ts.find(t => /^0,0M€ · 0,0%$/.test(t.textContent));
+    check(re && re.getAttribute("fill") === grey && e.stripe === kCards("kpi58e")[3].stripe,
+      "kpi58e: Marge „0,0M€ · 0,0%“ grau, Streifen neutral wie die Karte ohne Vergleich");
+  }
+  // 6 · a missing basis is named in the row grid of the neighbours ("PL n.a.", no Δ)
+  {
+    const c = kCards("kpi58c");
+    check(c[0].na.length === 1 && c[0].na[0].lbl === "PY" && c[0].dx.length === 0
+      && Math.abs(c[0].na[0].y - c[1].dy[0]) < 0.5 && Math.abs(c[0].na[0].x - c[1].dx[0]) < 0.5,
+      `kpi58c: Karte ohne Vergleich zeigt „PY n.a.“ an der Stelle der ΔPY-Zeile (${c[0].na.map(r => r.lbl).join()})`);
+    const d = kCards("kpi58d");
+    check(d[1].na.length === 1 && d[1].na[0].lbl === "PL" && Math.abs(d[1].na[0].y - d[0].dy[0]) < 0.5
+      && d[1].dy.length === 1 && Math.abs(d[1].dy[0] - d[0].dy[1]) < 0.5,
+      `kpi58d: „PL n.a.“ auf der ersten, ΔPY auf der zweiten Grundlinie der Nachbarn (${d.map(k => k.dy.map(v => v.toFixed(1)).join("+")).join(" / ")})`);
+    const e = kCards("kpi58e");
+    check(e[3].na.length === 1 && e[3].na[0].lbl === "PY" && Math.abs(e[3].na[0].y - e[0].dy[0]) < 0.5
+      && Math.abs(e[3].na[0].vx - e[0].vx[0]) < 0.5,
+      "kpi58e: Stapel-Layout, „PY n.a.“ auf Höhe und in der Wertspalte der ΔPY-Zeile der Nachbarn");
+    const o = kCards("kpi58o");
+    const pyVal = o[1].ts.find(t => t.textContent === "PY");
+    check(o[0].na.length === 1 && o[0].na[0].lbl === "PY" && o[0].dx.length === 0 && pyVal
+      && Math.abs(o[0].na[0].y - kRel(pyVal, o[1].g.querySelector("rect")).y) < 0.5,
+      "kpi58o: mit Referenzwerten steht „PY n.a.“ in der PY-Wertzeile, die ΔPY-Zeile bleibt frei");
+  }
+}
+// ---- KPI58-END
 </script>
 </body>
 </html>
