@@ -3,6 +3,31 @@
 Positionierung (aus dem Review): kein Report-Generator, sondern ein **Anforderungswerkzeug mit deterministischem
 Ausgang**. Der Workshop legt Struktur, Felder und Entscheidungen fest; der Bau ist eine Ableitung.
 
+## Stand und Arbeitszweig (24.11.2026)
+
+Der weitere Ausbau von MockupKitchen geschieht auf dem Branch **`feat/mockup-kitchen`**. Er setzt auf `origin/main`
+(69b3ba1) auf und führt drei Stände zusammen, die vorher verstreut lagen:
+
+- `origin/main` mit der dort veröffentlichten 0.6.0 (ChartKitchen 1.47: Streudiagramm mit Engine ChartKitchen,
+  `chartKitchenProps`, selbst gehostete Schriften, gemeinsame Navigation),
+- das lokale `main` mit 0.6.0 live, 0.6.1 und 0.6.2 (Live-/Agent-Modus, `live.js`, `mockup-live/`, Seitenrolle),
+- `feat/mockup-pixelgrid` (Pixelraster als Modul, Abschnitt unten).
+
+Die Versionsnummer **0.6.0 gibt es deshalb zweimal** mit verschiedenem Inhalt (online: ChartKitchen 1.47, lokal: Live-Modus);
+maßgeblich ist jetzt 0.6.2 mit beidem. Entscheidungen beim Zusammenführen:
+
+- Skizzen-Optionen laufen über `MK.sketchOpts()` (lokal); die ChartKitchen-Optionen (`ckSketchOpt`, online) fließen dort ein,
+  Bildschirm, PNG-Export und Vorschau im Kachel-Reiter zeichnen also dasselbe.
+- KPI-Verlauf: die Skizze beachtet beide Schalter, `o.spark` (kein Zeitfeld gebunden) und `o.trend` (Option `cardTrendChart`).
+- Spec-Hash zählt Seitenrolle (≠ nav) und `chartKitchenProps`.
+- Konverter: `kpi` mit Engine ChartKitchen bleibt `ibcsKpiCard`; `cards` mit Rolle `trend` ist die Rückfallebene im Slot.
+  **Offen:** ob `kpi` ab ChartKitchen 1.47 wieder regulär als `cards` gebaut wird.
+- Nichts davon ist gepusht. Das lokale `main` und `feat/mockup-pixelgrid` bleiben unverändert stehen.
+
+Tests auf diesem Stand: `pixelgrid-test` 49, `gridcheck-test` 8, `a11y-test` 30, `diff-test` 48, `fmtinfo-test` 37,
+Skill `run_tests.py` 620 von 620. Nächster Schritt laut `KONZEPT-PIXELRASTER.md`: Stufe 2 (Einrasten beim Ziehen,
+„Pixelgenau machen“, Skill wertet `canvas.pixel` aus).
+
 ## Pixelraster als gemeinsames Modul (20.10.2026)
 
 - **`pixelgrid.js`** setzt Stufe 1 aus `KONZEPT-PIXELRASTER.md` als reines Rechenmodul um: `zones()` (Raster als
