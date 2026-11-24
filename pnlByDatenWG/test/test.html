@@ -107,6 +107,8 @@
 <div class="case"><h4>m67 · 1.8.3 · 12G mit kleinem Betriebsergebnis: Margenwert auf der Nulllinie mit Papierkasten</h4><div class="stage" id="m67" style="width:1320px;height:760px"></div></div>
 <div class="case"><h4>m68 · 1.8.3 · 12G in Blattnotation: Köpfe YTD / Jahr ohne FY-Titel, Margen ganzzahlig · m69 12H mit FY-Block in Blattnotation: Kopf PL 2025 statt Titel · m70 T03A mit YTD-Block in Blattnotation: kein Jahr im Kopf · m71 12G in Blattnotation mit Δ%-Dezimalen von Hand: Margen mit einer Stelle</h4><div class="stage" id="m68" style="width:1320px;height:760px"></div><div class="stage" id="m69" style="width:1320px;height:800px"></div><div class="stage" id="m70" style="width:1320px;height:800px"></div><div class="stage" id="m71" style="width:1320px;height:760px"></div></div>
 <div class="case"><h4>m65 · 1.8.2 · T04C Ellipse im ΔPY-Wasserfall (Operating result, Gross margin fällt aufs Band zurück) · m66 T03A ohne Diagrammspalte: Band bleibt</h4><div class="stage" id="m65" style="width:1320px;height:700px"></div><div class="stage" id="m66" style="width:1320px;height:600px"></div></div>
+<div class="case"><h4>m72 · 1.8.4 · T03A: Δ% bei Vorzeichenwechsel n.a. (Financial income −15 → 69,6) und gerundete Null ohne Vorzeichen (Investment income 0.0) · m73 T01A Schwelle −35 auf der gedruckten Zahl (USA und China −35 gleich gefärbt, Sweden −10.0 % nicht rot)</h4><div class="stage" id="m72" style="width:1320px;height:620px"></div><div class="stage" id="m73" style="width:1320px;height:640px"></div></div>
+<div class="case"><h4>m74 · 1.8.4 · T04D: gekappter Pin behält den schraffierten FC-Kopf · m75 12H: gekappter Pin behält den hohlen PL-Kopf · m76 T04D mit Kappung aus (columns.capPins = false)</h4><div class="stage" id="m74" style="width:1320px;height:700px"></div><div class="stage" id="m75" style="width:1320px;height:760px"></div><div class="stage" id="m76" style="width:1320px;height:700px"></div></div>
 <div class="case"><h4>m46 · 1.7 · ⚡ Hochkontrast · T02A · Nicht-Ausnahmen gestrichelt ohne Füllung und Muster</h4><div class="stage" id="m46" style="width:1320px;height:800px"></div></div>
 <script src="locales.js"></script>
 <script src="visual.bundle.js"></script>
@@ -622,6 +624,27 @@ runRows("m70", MEGA_DEMO.regions(), { titleBlock: { ...MT, periodLine: "November
 runRows("m71", MEGA_DEMO.statement12G(), { titleBlock: { ...SSG, periodLine: "2025 as of May" }, toolbar: { show: false },
   hierarchy: { defaultLevel: 0 }, columns: { template: "12G", templateApplied: "12G", showPY: true, showMinuend: true, valueCascade: true,
     dPyBar: true, dPyPin: true, blockKind: "fy" }, numbers: { sheetPctDecimals: true, decimals: 0, pctDecimals: 2 } });
+// ---- 1.8.4 wave 1 (notation) --------------------------------------------------
+// m72 — T03A: Financial income, net turns from PY −15 to AC 69.6 (Δ% n.a.), Investment income 43.0 → 43.02 (0.0 without sign)
+const W1_T03 = MEGA_DEMO.statement("T03").map(r => r.account === "fin" ? { ...r, values: { ...r.values, py: -15 } }
+  : r.account === "inv" ? { ...r, values: { ...r.values, ac: 43.02 } } : r);
+runRows("m72", W1_T03, { titleBlock: { ...MT, periodLine: "2026" }, toolbar: { show: false }, hierarchy: { defaultLevel: 0 },
+  columns: { template: "T03A" } });
+// m73 — T01A, threshold −35: USA ΔPY −34.6 and China −35.4 both print −35 (same colour); Sweden ΔPL% −10.02 % prints −10.0 %
+const W1_REG = MEGA_DEMO.regions().map(r => r.month !== "2026-11" ? r
+  : r.account === "Americas:USA" ? { ...r, values: { ...r.values, ac: 311.4 } }
+  : r.account === "Rest of World:China" ? { ...r, values: { ...r.values, ac: 230.6 } }
+  : r.account === "Europe:Sweden" ? { ...r, values: { ...r.values, ac: 72.88 } } : r);
+runRows("m73", W1_REG, { titleBlock: { ...MT, periodLine: "November 2026" }, ...REG, columns: { template: "T01A", thresholdAbs: -35 } });
+// m74 / m75 — capped pins keep their head: T04D (FC hatched), 12H (PL hollow); m76 T04D with the pin cap switched off
+const W1_T04 = MEGA_DEMO.statement("T04").map(r => r.account === "con" ? { ...r, values: { ...r.values, ac: r.values.ac + 100, fc: r.values.fc + 100 } } : r);
+runRows("m74", W1_T04, { titleBlock: { ...MT, periodLine: "2026" }, toolbar: { show: false }, hierarchy: { defaultLevel: 0 },
+  columns: { template: "T04D" } });
+runRows("m75", MEGA_DEMO.statement("12A").map(r => r.account === "orev" ? { ...r, values: { ...r.values, pl: 60 } } : r),
+  { titleBlock: { ...SSG, periodLine: "PL 2026, ΔPY" }, toolbar: { show: false }, hierarchy: { defaultLevel: 0 }, columns: { template: "12H" } });
+runRows("m76", W1_T04, { titleBlock: { ...MT, periodLine: "2026" }, toolbar: { show: false }, hierarchy: { defaultLevel: 0 },
+  columns: { template: "T04D", templateApplied: "T04D", minuend: "fc", showPL: true, showMinuend: true, dPlWaterfall: true, dPlPin: true,
+    capPins: false }, numbers: { decimals: 2, pctDecimals: 1 } });
 runRows("m65", MEGA_DEMO.statement("T04"), { titleBlock: { ...MT, periodLine: "2026" }, toolbar: { show: false },
   hierarchy: { defaultLevel: 0 }, columns: { template: "T04C", highlight: "Operating result, Gross margin", highlightStyle: "ellipse" } });
 runRows("m66", MEGA_DEMO.statement("T03"), { titleBlock: { ...MT, periodLine: "2026" }, toolbar: { show: false }, hierarchy: { defaultLevel: 0 },

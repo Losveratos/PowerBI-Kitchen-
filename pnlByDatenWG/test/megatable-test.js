@@ -1158,4 +1158,69 @@ test("1.5.1 rowK: the table can be set tighter (1.3 .. 1.7 × fs), columns and s
     assert.deepEqual(T.famK, L.famK);
 });
 
+// ---- 1.8.4 · wave 1 (notation) ----------------------------------------------
+test("1.8.4 threshold red reads the printed (rounded) Δ: the same figure, the same colour", () => {
+    assert.equal(M.megaRound(-34.6, 0), -35);
+    assert.equal(M.megaRound(-35.4, 0), -35);
+    assert.equal(M.megaRound(-10.04, 1), -10);
+    assert.equal(M.megaRound(2.25, 1), 2.3, "half away from zero like the formatter");
+    const rows = ["us", "cn", "se", "de"].map(id => ({ id, label: id, kind: "acc", op: "", level: 0, group: "w", other: false }));
+    // impact in display units (abs) and as a fraction (pct): USA −34.6 and China −35.4 both print −35,
+    // Sweden −10.02 % prints −10.0 %, Germany −35.6 / −10.06 % print −36 / −10.1 %
+    const D = { us: [-34.6, -0.05], cn: [-35.4, -0.05], se: [-5, -0.1002], de: [-35.6, -0.1006] };
+    const blk = {
+        name: "", th: { abs: -35, pct: -0.1 }, value: () => 100,
+        delta: (r) => { const [d, p] = D[r.id]; return { d, p, good: false, impact: d, impactPct: p, pp: false }; },
+    };
+    const L = M.layoutMega(regionInput({ rows, blocks: [blk] }));
+    const dAbs = L.cols.find(c => c.type === "delta" && c.ref === "PY");
+    const dPct = L.cols.find(c => c.type === "dpct" && c.ref === "PY");
+    const cell = (c, id) => L.cellText(c, L.rows.find(r => r.id === id));
+    assert.equal(cell(dAbs, "us").t, "−35");
+    assert.equal(cell(dAbs, "cn").t, "−35");
+    assert.equal(cell(dAbs, "us").color, "#1A1A1A", "−35 is not below −35");
+    assert.equal(cell(dAbs, "cn").color, "#1A1A1A", "until 1.8.3 red (raw −35.4 < −35) next to a black −35");
+    assert.equal(cell(dAbs, "de").t, "−36");
+    assert.equal(cell(dAbs, "de").color, "#E02B1D");
+    assert.equal(cell(dPct, "se").t, "−10.0%");
+    assert.equal(cell(dPct, "se").color, "#1A1A1A", "−10.0 % is not below −10 %");
+    assert.equal(cell(dPct, "de").t, "−10.1%");
+    assert.equal(cell(dPct, "de").color, "#E02B1D");
+});
+
+test("1.8.4 pin cap: switch (capPins, default on) and fence factor (capFactor, default 4)", () => {
+    // Q1 7, Q3 11, IQR 4: factor 4 → fence 27 (+40 capped, cap +20), 1 → 15 (cap +11), 8 → 43 (nothing)
+    const v = [5, 6, 7, 8, 9, 10, 11, 20, 40];
+    assert.equal(M.outlierCap(v), 20);
+    assert.equal(M.outlierCap(v, 4), 20);
+    assert.equal(M.outlierCap(v, 1), 11);
+    assert.equal(M.outlierCap(v, 8), Infinity);
+    assert.equal(M.outlierCap(v, 0), 20, "a broken factor falls back to 4");
+    assert.equal(M.outlierCap(v, NaN), 20);
+    const t = toggles(M.MEGA_PRESETS.T02A);
+    const ids = ["a", "b", "c", "d", "e", "f", "g", "h", "i"];
+    const rows = ids.map(id => ({ id, label: id, kind: "acc", op: "", level: 0, group: "w", other: false }));
+    const P = { a: 5, b: 6, c: 7, d: 8, e: 9, f: 10, g: 11, h: 20, i: 40 };
+    const blk = {
+        name: "", th: { abs: -20, pct: -0.1 }, value: () => 100,
+        delta: (r) => { const p = P[r.id] / 100; return { d: p * 100, p, good: true, impact: p * 100, impactPct: p, pp: false }; },
+    };
+    const pinCap = (over) => M.layoutMega(regionInput(Object.assign({ t, rows, blocks: [blk] }, over))).charts.find(c => c.type === "pin").cap;
+    assert.equal(pinCap({}), 20, "default = before 1.8.4");
+    assert.equal(pinCap({ capPins: true, capFactor: 4 }), 20);
+    assert.equal(pinCap({ capFactor: 1 }), 11);
+    assert.equal(pinCap({ capPins: false }), Infinity, "switched off: every pin at full length");
+    // the factor reaches the Δ bars only with capBars, the pin switch never does
+    const barCap = (over) => M.layoutMega(regionInput(Object.assign({ rows, blocks: [blk] }, over))).charts.find(c => c.type === "bar").cap;
+    assert.equal(barCap({ t }), Infinity);
+    assert.equal(barCap({ t: Object.assign({}, t, { capBars: true }), capFactor: 1, capPins: false }), 11);
+});
+
+test("1.8.4 roundedZero = plain in the presets whose sheets print 0.0 (T01A to T01D, T03A, T03B, T04A)", () => {
+    const plain = ["T01A", "T01B", "T01C", "T01D", "T03A", "T03B", "T04A"];
+    for (const k of M.MEGA_PRESET_KEYS) {
+        assert.equal(M.MEGA_PRESETS[k].roundedZero, plain.includes(k) ? "plain" : undefined, k);
+    }
+});
+
 console.log(`\n${n} mega-table layout test blocks passed`);

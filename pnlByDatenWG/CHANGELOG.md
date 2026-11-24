@@ -1,5 +1,61 @@
 # Changelog — P&L Statement byDatenWG
 
+## 1.8.4.0 (in Arbeit): Notationskorrekturen Welle 1
+
+Fünf Korrekturen aus dem Template-Prüfstand vom 24.11.2026 (Welle 1, Punkte 6 bis 10). IBCS dient nur
+als Bezug. Neue Eigenschaften stehen per Standard so, dass ein Bericht wie 1.8.3 rendert; die übrigen
+Punkte sind Notationskorrekturen und ändern das Bild bestehender Berichte gezielt an der fehlerhaften Stelle.
+
+- **Δ% bei Vorzeichenwechsel ist n.a.** (`engine.relDelta`). Regel: Δ% = Δ / |Referenz|. Leer (n.a.)
+  ist Δ%, wenn die Referenz 0 ist (wie bisher) oder Wert und Referenz verschiedene Vorzeichen tragen:
+  Finanzergebnis −15 → +69,6 las +564 %, ein Working-Capital-Fluss −6 → +10 las +267 % (Blätter T05B,
+  T03A zeigten so +352,3 %). Beide negativ bleibt eine Zahl: Kostenzeilen rechnen mit SignConvention −1
+  negativ gegen eine negative Referenz, über den Betrag der Referenz liest Δ% richtig (Kosten 100 → 110
+  ergibt +10 %, ein halbierter Verlust +50 %). Ein Wert von genau 0 ist kein Wechsel (−100 % bzw. +100 %).
+  Die ChartKitchen-Karte setzt n.a. schon bei Basis ≤ 0, weil sie Anzeigewerte liest; hier würde das jede
+  Kostenzeile treffen, deshalb zählt nur der Vorzeichenwechsel. Darstellung wie bei Referenz 0: Δ%-Zelle
+  leer, kein Pin, kein Δ% im Tooltip und auf Baum- und Kachelkarten; Δ selbst und seine Farbe bleiben.
+  ⚡ zählt ein n.a. wie eine Referenz 0 als Ausnahme, sobald die Prozent-Schwelle an ist; die
+  Wesentlichkeit in % greift dort nicht; `sort = pct` stellt die Zeile hinter alle Zahlen. Gilt auch für
+  Margenzeilen (`numbers.marginRel`): die Korrektur aus 1.8.2 (Marge −2 % → +3 % = +250 %) ist jetzt n.a.
+  **Wirkung auf bestehende Berichte:** Zeilen, deren Wert die Null kreuzt (Cashflows, Finanz- und
+  Ergebniszeilen um null), zeigen kein Δ% mehr; alle anderen Zahlen bleiben gleich.
+- **Schwellen-Rot prüft die gedruckte Zahl** (`megatable.ts`, `megaRound`). „Δ rot unter Schwelle“ vergleicht
+  die auf die Dezimalen gerundete Δ bzw. Δ% statt des Rohwerts: USA −34,6 und China −35,4 drucken beide
+  −35 und tragen bei Schwelle −35 dieselbe Farbe (vorher China rot); −10,02 % druckt −10,0 % und ist bei
+  −10 % nicht rot. **Wirkung:** nur Berichte mit `columns.thresholds`; eine Zahl, die gedruckt genau auf der
+  Schwelle steht, ist nicht mehr rot. Hat die Schwelle mehr Stellen als die Anzeige, entscheidet die
+  gedruckte Zahl (Schwelle −20,5 bei 0 Dezimalen: −20,5 druckt −21 und ist rot).
+- **Gekappter Pin behält seine Kopf-Kennung.** Ein Δ%-Pin in der Ausreißerzone endet jetzt mit seinem Kopf
+  (AC voll, FC schraffiert, PL hohl), die Pfeilspitze folgt als Kappungsmarke; bis 1.8.3 ersetzte die
+  Spitze den Kopf und die Plan- bzw. FC-Kennung ging verloren (T04A, T04B, T04D, 12H, T02D). Die Spalte
+  wird dafür nicht breiter. Neue Eigenschaften: `columns.capPins` (Ausreißer-Pfeile für Pins, Standard an)
+  und `columns.capFactor` (Ausreißer-Schwelle Q3 + Faktor × IQR, Standard 4, 1 bis 20; gilt für Pins und
+  mit `capBars` für die Δ-Balken). **Wirkung:** Mega-Tabellen mit gekappten Pins zeigen zusätzlich den Kopf;
+  sonst unverändert. Die Pins der klassischen Tabelle (feste Kappung bei ±40 %) sind nicht betroffen.
+- **Zahlen in der Kultur des Hosts, auch wenn sie spät kommt.** Das Visual las `host.locale` nur im
+  Konstruktor und blieb auf en-US, wenn der Host die Sprache erst danach lieferte (veröffentlichter
+  Bericht, App): deutsche Texte, aber „4.28“ in den Karten des ROI-Baums (11A). Jetzt übernimmt jedes
+  Update die aktuelle Sprache des Hosts; alle Zahlen nutzen weiter denselben Formatierer
+  (`Intl.NumberFormat` mit dieser Sprache), der Formatierer-Speicher der Mega-Tabelle merkt sich die
+  Sprache mit. **Wirkung:** In solchen Hosts stehen unter de-DE überall Dezimalkommas (Baum: Werte, Δ, %,
+  Faktor). Berichte, deren Host die Sprache von Anfang an liefert, rendern wie vorher.
+- **Gerundete Null ohne Vorzeichen in den Templates, deren Blätter 0,0 drucken.** T01A bis T01D, T03A, T03B
+  und T04A schreiben beim Anwenden `numbers.roundedZero = plain` (wie die Dezimalen, in derselben Schreibaktion
+  und unter demselben Echo-Schutz); die übrigen Templates lassen die Einstellung, wie sie ist. Der Standard
+  der Eigenschaft bleibt `signed`. **Wirkung:** nur beim nächsten Anwenden eines dieser Templates (Galerie,
+  Dropdown, „↺ Zum Template zurück“, PBIR mit `template`, aber ohne `templateApplied`); Berichte mit
+  gespeichertem `templateApplied` behalten ihre Einstellung. Wer danach zu T04B wechselt, behält „ohne
+  Vorzeichen“, bis er es umstellt.
+
+**Tests:** engine-test „1.8.4 relDelta“ (neu), Margen-Erwartung −2 % → +3 % von +250 % auf n.a. angepasst;
+megatable-test „Schwellen-Rot auf der gedruckten Zahl“, „Pin-Kappung: Schalter und Faktor“, „roundedZero in den
+Presets“ (neu); hub-test: Template-Zahlen mit `roundedZero` (zwei Erwartungen angepasst, ein Block neu);
+mega-shot m72 bis m76 (neu: Vorzeichenwechsel und gerundete Null T03A, Schwelle T01A, Kopf gekappter Pins T04D
+und 12H, Kappung aus), m47 angepasst (T01C druckt jetzt 0.0%), m50 neu (gespeichertes Template behält
++0.0%); tree-interact „ROI-Baum de-DE mit später Sprache“ (neu), Mikrokarten-Prüfung lässt eine Karte ohne
+Δ% (n.a.) zu.
+
 ## 1.8.3.0 (2026-11-22): Blatt-Notation 11A, 12G und 12H
 
 - **12G: Margenwerte in der Wertkaskade.** Eine Margenzeile zeigt ihren Wert kursiv in jeder

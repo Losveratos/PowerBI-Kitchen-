@@ -104,6 +104,12 @@ Ansicht, sondern ein Template der Tabelle — `viewTable` gilt für beide.
 
 ## Settings-Referenz (aus Settings-Modell + capabilities.json generiert, 1.8.3.0)
 
+**Neu in 1.8.4** (Notationskorrekturen Welle 1, in Arbeit): `columns.capPins` (bool, Standard
+an) und `columns.capFactor` (numeric, Standard 4, 1 bis 20) direkt nach `capBars` in der Gruppe
+Mega-Table. Keine neue Rolle, kein neuer Zustand. Mit den Standards rendert ein Bericht wie 1.8.3,
+bis auf die Korrekturen der Falle 29 (Δ% n.a. über die Null, Schwellen-Rot auf der gedruckten
+Zahl, Kopf gekappter Pins, Sprache des Hosts bei jedem Update, `roundedZero` in sieben Templates).
+
 **Neu in 1.7** (Bestand vs. Fluss, in Arbeit): Objekt **`statement`** mit
 `stockMode` (`auto` · `allStock` · `allFlow`, Standard `auto`, eigene Karte
 „Bestand & Fluss"); `columns.template` += `T05A` (Bilanz) · `T05B` (Cashflow,
@@ -245,7 +251,9 @@ Enums als String-Wert aus der Tabelle. Leere Texte = Automatik.
 | `thresholdYtdPct` | numeric | `-10` | Schwelle Δ% (_YTD-Block): Schwelle des zweiten Blocks, in ganzen Prozent. Standard: −10 |
 | `scenarioMarks` | bool | `true` | Szenario-Unterstreichungen (Kopf + Schluss): AC voll, PY grau, PL doppelt, FC schraffiert unter den Spaltenköpfen. Standard: an |
 | `chartLabels` | bool | `true` | Zahlen an Balken / Pins / Kaskaden: Wertbeschriftung an jedem Diagramm-Element. Standard: an |
-| `capBars` | bool | `false` | Ausreißer-Pfeile auch für Δ-Balken: Pins kappen Ausreißer immer (Q3 + 4 × IQR); dies erweitert es auf die Δ-Balken. Standard: aus |
+| `capBars` | bool | `false` | Ausreißer-Pfeile auch für Δ-Balken: Pins kappen Ausreißer (Q3 + Faktor × IQR, Schalter und Faktor darunter); dies erweitert es auf die Δ-Balken. Standard: aus |
+| `capPins` | bool | `true` | Ausreißer-Pfeile für Pins (1.8.4): Ein Δ%-Pin weit jenseits der übrigen läuft in eine Ausreißerzone, wird von einem Bruchzeichen geschnitten und endet nach seinem Kopf in einem Dreieck; der Kopf behält seine Szenario-Kennung. Aus: jeder Pin in voller Länge auf einer Skala. Standard: an (= Verhalten bis 1.8.3). Sichtbar, sobald eine Pin-Spalte an ist |
+| `capFactor` | numeric | `4` | Ausreißer-Schwelle (× IQR) (1.8.4): Ein Wert gilt als Ausreißer jenseits von Q3 + Faktor × Interquartilsabstand seiner Spaltenfamilie (Pins; mit `capBars` auch die Δ-Balken), ab 8 Werten. Kleiner = mehr Pfeile. Bereich 1 bis 20, Standard: 4 (= bis 1.8.3 fest) |
 | `sort` | enum `cat` · `min` · `delta` · `pct` | `cat` | Sortierung (Strukturdaten): Je Zwischensummen-Block; Zeilen namens Sonstige … bleiben unten. `pct` (1.8) = Δ% der Sortier-Referenz. Standard: Kategoriereihenfolge |
 | `sortBlock` | enum `period` · `ytd` | `ytd` | Sortierender Block: Welcher Perioden-Block die Reihenfolge bestimmt. Standard: YTD-Block |
 | `keepBlockOrder` | bool | `false` | Blockreihenfolge beibehalten (1.8): Zwischensummen-Blöcke (Regionen) bleiben in Kategoriereihenfolge, sortiert werden nur die Zeilen darin, wie in den IBCS-Blättern. Aus: die Blöcke werden zusätzlich nach ihrer Summe sortiert (1.5.2). Zeilen namens Other … und die Gesamtzeile bleiben in beiden Fällen unten. Standard: aus |
@@ -291,7 +299,7 @@ Enums als String-Wert aus der Tabelle. Leere Texte = Automatik.
 | `pctDecimals` | numeric | `1` | Dezimalstellen (Δ%): Nachkommastellen von Δ% und Margen. Standard: 1 |
 | `sheetPctDecimals` | bool | `false` | Δ%-Dezimalen wie im Referenzblatt (1.8): Beim Anwenden eines Templates werden die Δ%-Dezimalen des Referenzblatts geschrieben (T03 und die 12er-Reihe ganzzahlig, T04B bis T04E zwei Stellen) statt einer Stelle für jedes Template. Standard: aus Margen und ihre pp behalten dabei mindestens eine Stelle (T03: `45.3%`, `+8.6%p`). Wirkt erst beim nächsten Anwenden: Template in der Galerie erneut anklicken. Galerie-Vorschauen zeigen die Standard-Notation.. 1.8.3, Anzeigename „Notation wie im Referenzblatt“: gestapelte FY-Kaskade „YTD“/„Jahr“ (12G), ein einzelner FY-Block trägt sein Jahr im Minuend-Kopf statt im Titel („PL 2026“), 12G-Margen ganzzahlig über Preset `sheetMdec`, solange `pctDecimals` = `sheetPdec`; pp behalten eine Stelle |
 | `ppUnit` | enum `pp` · `pctp` | `pp` | Einheit der Margen-Δ (1.8): Prozentpunkte als „pp" oder „%p" (wie in den IBCS-Blättern T03). Standard: pp |
-| `roundedZero` | enum `signed` · `plain` | `signed` | Gerundete Null (1.8): Eine Δ, die nicht null ist, aber auf null rundet: Vorzeichen behalten oder 0,0 wie in den Referenzblättern. Werte tragen bei null nie ein Vorzeichen (in allen Ansichten). Standard: Vorzeichen behalten |
+| `roundedZero` | enum `signed` · `plain` | `signed` | Gerundete Null (1.8): Eine Δ, die nicht null ist, aber auf null rundet: Vorzeichen behalten oder 0,0 wie in den Referenzblättern. Werte tragen bei null nie ein Vorzeichen (in allen Ansichten). Standard: Vorzeichen behalten. 1.8.4: T01A bis T01D, T03A, T03B und T04A schreiben beim Anwenden `plain` (Falle 29) |
 | `marginRel` | bool | `false` | Relative Änderung der Margen (1.8.2): Margenzeilen zeigen im Δ%-Feld ihre relative Änderung (T03: +8,6 %p und +23 %), gerechnet über den Betrag der Referenz |
 | `marginAxisPp` | bool | `true` | Margen-Δ an der Achse (1.8.2): Punktdifferenz der Margen an der Achse von Δ-Balken und Δ-Wasserfall (T04); aus wie in den Blättern |
 | `financeFormat` | bool | `false` | Finance-Format (Klammern): Finanzkonvention: negative Werte in Klammern statt Minuszeichen — (1 234) — und Null als „–“. Gilt für Werte, Δ und Δ %; positive Δ behalten ihr „+“. Standard: aus |
@@ -971,6 +979,32 @@ Anfangsbestand und `stock` am Endbestand (Formel `[Anfangsbestand]+[Operativ]+�
     Äste, nie über eine ⚡ Rest-Karte hinweg und nur, wenn beide Eltern einen
     einheitlichen Operator haben; die Kanten treten getrennt ein (`twinOff`).
     `opGlyph` zeichnet `÷` als „:" in Baum und Mikrokarten.
+
+29. **Notationskorrekturen Welle 1 (1.8.4):**
+    - **Δ% n.a.:** Quelle ist `engine.relDelta(a, rv)`: Δ / |rv|, `null` bei `rv = 0` und bei
+      verschiedenen Vorzeichen von Wert und Referenz (Rohwerte, rechnerisches Vorzeichen). Zwei
+      negative Werte bleiben eine Zahl, sonst wäre jede Kostenzeile (SignConvention −1) n.a.; anders
+      als die ChartKitchen-Karte (Basis ≤ 0), die Anzeigewerte liest. Alle Δ%-Stellen gehen darüber:
+      `varianceOf`, `displayVariance` (auch KPI/`marginRel`), `ytdVariance`/`blockVariance` im Visual,
+      Baumkarten und Kachel. `null` heißt leer (Zelle, Pin, Tooltip), wie bei Referenz 0; ein eigenes
+      „n.a.“-Zeichen gibt es nicht. ⚡ und `sort = pct` behandeln n.a. wie Referenz 0.
+    - **Schwellen-Rot:** `cellText` vergleicht `megaRound(D.impact, dec)` bzw.
+      `megaRound(D.impactPct × 100, pdec)` mit der Schwelle. Gleiche gedruckte Zahl = gleiche Farbe.
+      ⚡ und Wesentlichkeit prüfen weiter den Rohwert.
+    - **Gekappter Pin:** Kopf (`data-pnl="mega-pin-head"`, Notation des Minuenden) sitzt am Ende der
+      Ausreißerzone, die Spitze folgt; die Layoutbreite ist unverändert. `MegaInput.capPins` (Standard
+      an) und `capFactor` (Standard `MEGA_OUTLIER.fence` = 4) kommen aus `columns.capPins`/`capFactor`;
+      `outlierCap(values, factor)` fällt bei 0 oder NaN auf 4 zurück. Die klassische Tabelle hat eine
+      eigene, feste Pin-Kappung (±40 %) und ist nicht betroffen.
+    - **Sprache:** `syncLocale()` übernimmt `host.locale` zu Beginn jedes `update()` (leer = die zuletzt
+      bekannte, im Konstruktor en-US). Zahlformat-Speicher (`treeNf`, `megaNf`) sind nach Sprache und
+      Dezimalen geschlüsselt. Ein Host, der die Sprache erst nach dem Konstruktor setzt, bekam bis
+      1.8.3 englische Zahlen zu deutschen Texten (11A „4.28“).
+    - **Gerundete Null in Templates:** `MegaPreset.roundedZero = "plain"` bei T01A bis T01D, T03A, T03B
+      und T04A; `templateSwitches().nums` trägt dann `roundedZero` neben den Dezimalen (gleicher
+      `persistProperties`-Merge, gleicher Echo-Guard `megaPending.nums`). Andere Templates schreiben die
+      Eigenschaft nicht. Wie die Dezimalen zählt sie nicht in `templateDeviation()`. PBIR: wer ein
+      solches Template mit `templateApplied` vorkonfiguriert, setzt `numbers.roundedZero` selbst.
 
 ## Verwandte Dateien
 

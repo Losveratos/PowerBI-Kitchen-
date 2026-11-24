@@ -1244,9 +1244,11 @@ function tidyChecks(geom, tag) {
     check("micro cards are tall enough to be read (96–108 px)",
         edges.micro.every(m => m.h >= 96 && m.h <= 108),
         edges.micro.map(m => m.h).join(","));
+    // 1.8.4 a card whose Δ% is n.a. (reference 0 or a sign change) carries no Δ% element at all
     check("micro card name and Δ% are set at 11 px",
-        edges.micro.every(m => m.nameFs === "11px" && (m.deltaFs === "11px" || m.deltaFs === "")),
-        edges.micro.map(m => m.nameFs + "/" + m.deltaFs).join(" "));
+        edges.micro.every(m => m.nameFs === "11px" && (m.deltaFs === "11px" || m.deltaFs === "" || m.deltaFs === undefined))
+        && edges.micro.some(m => m.deltaFs === "11px"),
+        edges.micro.map(m => m.name + " " + m.nameFs + "/" + m.deltaFs).join(" | "));
     check("the numbers inside a micro chart are drawn at 8.5 px or more",
         edges.micro.some(m => m.valueFs.length > 0)
         && edges.micro.every(m => m.valueFs.every(v => v >= 8.5)),
@@ -3068,6 +3070,38 @@ function tidyChecks(geom, tag) {
             hl.zoom.tile && hl.zoom.note === "" && hl.zoom.same, JSON.stringify(hl.zoom));
         check("highlight · one visual: Sankey → table switches to the filter picture (row outside gone, no note) and back",
             hl.swTable.note === "" && !hl.swTable.cm && hl.swBack, JSON.stringify(hl.swTable) + " back " + hl.swBack);
+    }
+
+    // ---- 1.8.4 the ROI tree (11A) speaks the host's locale, even when the host hands it over
+    // after the constructor (a published report: German texts, "4.28" in every card until 1.8.3)
+    {
+        const roi = await page.evaluate(() => {
+            const objects = { titleBlock: { measureLine: "ROI-Baum" }, toolbar: { show: false }, hierarchy: { defaultLevel: 0 },
+                numbers: { pctDecimals: 2 }, columns: { treeCard: "months", treeStatus: false, treeLevel: 0, treeAllLabels: true },
+                state: { uiState: JSON.stringify({ view: "tree", treeV: 2 }) } };
+            const mk = (id, late, loc) => {
+                const d = document.createElement("div");
+                d.className = "stage"; d.id = id; d.style.cssText = "width:1300px;height:720px;";
+                document.body.appendChild(d);
+                const host = makeHost(loc);
+                if (late) { host.locale = ""; }
+                const v = new PnlByDatenWG.Visual({ element: d, host });
+                if (late) { host.locale = loc; }
+                v.update({ dataViews: [dvRows(MEGA_DEMO.roi(), objects)], viewport: { width: 1300, height: 720 }, type: 2 });
+                // every number on the cards: values, Δ, %, factor (column labels, head values, tooltips of the triangles)
+                const nums = [...d.querySelectorAll("svg text, svg title")].map(t => t.textContent).filter(t => /\d[.,]\d/.test(t));
+                d.remove();
+                return nums;
+            };
+            return { late: mk("roi-late", true, "de-DE"), now: mk("roi-de", false, "de-DE"), en: mk("roi-en", true, "en-US") };
+        });
+        check("1.8.4 ROI tree de-DE: every card number with a decimal comma (24,88 · 1,30 · 5,0), also when the host's locale arrives after the constructor",
+            roi.late.length > 20 && roi.late.includes("24,88") && roi.late.includes("1,30") && roi.late.includes("5,0")
+            && !roi.late.some(t => /\d\.\d/.test(t)), roi.late.filter(t => /\d\.\d/.test(t)).concat(roi.late.slice(0, 8)).join(" "));
+        check("1.8.4 ROI tree: the late locale renders exactly like a locale known from the start",
+            JSON.stringify(roi.late) === JSON.stringify(roi.now), roi.late.length + " / " + roi.now.length);
+        check("1.8.4 ROI tree en-US keeps the decimal point (24.88 · 1.30)", roi.en.includes("24.88") && roi.en.includes("1.30"),
+            roi.en.slice(0, 8).join(" "));
     }
 
     await page.screenshot({ path: __dirname + "/tree-interact.png", fullPage: false });

@@ -70,6 +70,8 @@ function readMega(id) {
             arrows: g.querySelectorAll('path:not([data-pnl="mega-break"])').length,
             // 1.5: break marks of capped elements (outlier zone, UN 5.3)
             breaks: g.querySelectorAll('path[data-pnl="mega-break"]').length,
+            // 1.8.4 the head a capped pin keeps (its scenario mark) before the triangle
+            pinHeads: [...g.querySelectorAll('rect[data-pnl="mega-pin-head"]')].map(r => ({ fill: r.getAttribute("fill"), stroke: r.getAttribute("stroke") })),
             // 1.8.2 ellipse emphasis (12G / 12H): ellipse box and the label it encloses
             ellipses: [...g.querySelectorAll('ellipse[data-pnl="mega-ellipse"]')].map(e => {
                 const cx = +e.getAttribute("cx"), cy = +e.getAttribute("cy"), rx = +e.getAttribute("rx"), ry = +e.getAttribute("ry");
@@ -118,7 +120,8 @@ function readMega(id) {
 
     const ids = ["m1", "m2", "m3", "m4", "m5", "m6", "m7", "m8", "m9", "m10", "m11", "m12", "m13", "m14", "m15", "m16",
         "m17", "m18", "m19", "m20", "m21", "m22", "m23", "m24", "m25", "m26", "m27", "m28", "m29", "m30", "m31", "m32", "m33",
-        "m34", "m35", "m36", "m37", "m38", "m39", "m40", "m41", "m42", "m43", "m44", "m45", "m46", "m47", "m48", "m49", "m50", "m51", "m52", "m53", "m54", "m55", "m56", "m57", "m58", "m59", "m60", "m61", "m62", "m63", "m64", "m65", "m66", "m67", "m68", "m69", "m70", "m71"];
+        "m34", "m35", "m36", "m37", "m38", "m39", "m40", "m41", "m42", "m43", "m44", "m45", "m46", "m47", "m48", "m49", "m50", "m51", "m52", "m53", "m54", "m55", "m56", "m57", "m58", "m59", "m60", "m61", "m62", "m63", "m64", "m65", "m66", "m67", "m68", "m69", "m70", "m71",
+        "m72", "m73", "m74", "m75", "m76"];
     const S = {};
     for (const id of ids) {
         S[id] = await page.evaluate(readMega, id);
@@ -387,9 +390,50 @@ function readMega(id) {
         check("m58 margin and its Δ keep one decimal as in the sheet (45.3%, +8.6%p)", has("m58", "+8.6%p") && has("m58", "45.3%"),
             S.m58.body.filter(x => /p$|%$/.test(x.t)).map(x => x.t).join(" "));
     }
-    if (S.m47 && S.m59) {
-        check("m47 default: the World ΔPY% that rounds to zero keeps its sign (+0.0%)", has("m47", "+0.0%"));
+    if (S.m47 && S.m59 && S.m34 && S.m10 && S.m11) {
+        // 1.8.4 T01C applied fresh writes numbers.roundedZero = plain (until 1.8.3: "+0.0%"); a report that
+        // applied it before keeps its stored setting, the property default stays "signed" (m34, templateApplied)
+        check("m47 1.8.4 T01C applied fresh: the World ΔPY% that rounds to zero prints 0.0% as the sheet", has("m47", "0.0%") && !has("m47", "+0.0%"));
+        check("m34 T01A applied before 1.8.4 (templateApplied, nothing written): the rounded zero keeps its sign (+0.0%)", has("m34", "+0.0%"));
+        check("m10 T04A applied fresh prints its rounded-zero Δ pins plain, m11 T04B (no sheet rule) keeps +0.0",
+            S.m10.charts.some(c => c.labels.some(l => l.t === "0.0")) && !S.m10.charts.some(c => c.labels.some(l => l.t === "+0.0"))
+            && S.m11.charts.some(c => c.labels.some(l => l.t === "+0.0")));
         check("m59 roundedZero plain: World ΔPY% 0.0% as in the sheet", has("m59", "0.0%") && !has("m59", "+0.0%"));
+    }
+    // ---- 1.8.4 wave 1 (notation) --------------------------------------------------------------
+    if (S.m72 && S.m73) {
+        // the row of a label: every body text on the same baseline
+        const rowOf = (id, label) => { const l = S[id].body.find(x => x.t === label); return l ? S[id].body.filter(x => Math.abs(x.y - l.y) < 0.5).map(x => x.t) : []; };
+        const fin = rowOf("m72", "Financial income, net");
+        check("m72 T03A Δ% n.a. on a sign change: Financial income −15.0 → 69.6 keeps ΔPY +84.6, no ΔPY% (was +564.0%); ΔPL% +5.5% stays",
+            fin.includes(nb("-15.0")) && fin.includes("+84.6") && !fin.some(t => /564/.test(t)) && fin.filter(t => /%$/.test(t)).join() === "+5.5%", fin.join("|"));
+        const opex = rowOf("m72", "Operating expenses");
+        check("m72 cost rows (both negative in the calculation) keep their Δ% (+6.6%, +3.0%)", opex.includes("+6.6%") && opex.includes("+3.0%"), opex.join("|"));
+        const inv = rowOf("m72", "Investment income");
+        check("m72 T03A writes roundedZero = plain: Investment income 43.0 → 43.02 prints ΔPY 0.0 / 0.0% (was +0.0 / +0.0%)",
+            inv.includes("0.0") && inv.includes("0.0%") && !inv.some(t => /^[+\u2212]0\.0/.test(t)), inv.join("|"));
+        const red = (id, label, t) => { const l = S[id].body.find(x => x.t === label); const c = l && S[id].body.find(x => Math.abs(x.y - l.y) < 0.5 && x.t === nb(t) && x.x < l.x);
+            return c ? c.fill : null; };
+        const us = red("m73", "USA", "-35"); const cn = red("m73", "China", "-35");
+        check("m73 T01A threshold −35 reads the printed Δ: USA (−34.6) and China (−35.4) both print −35 in the same ink, not red",
+            us != null && us === cn && us !== "#E02B1D", `${us} / ${cn}`);
+        const se = red("m73", "Sweden", "-10.0%");
+        check("m73 Sweden ΔPL% −10.02 % prints −10.0 %: not below −10 %, not red (was red)", se != null && se !== "#E02B1D", String(se));
+        const ge = red("m73", "Germany", "-85");
+        check("m73 Germany ΔPY −85 stays red", ge === "#E02B1D", String(ge));
+    }
+    if (S.m74 && S.m75 && S.m76) {
+        const p74 = S.m74.charts.find(c => c.pinHeads.length > 0);
+        check("m74 T04D: the capped FC pins keep a hatched head before their triangle (+141.2, +145.4, +452.8)",
+            p74 != null && p74.pinHeads.length === 3 && p74.pinHeads.every(h => /^url\(/.test(h.fill || "")) && p74.breaks === 3,
+            JSON.stringify(p74 && p74.pinHeads));
+        const p75 = S.m75.charts.find(c => c.pinHeads.length > 0);
+        check("m75 12H: the capped PL pin keeps its hollow head (+900.0)",
+            p75 != null && p75.pinHeads.length === 1 && p75.pinHeads[0].fill === "#FFFFFF" && p75.pinHeads[0].stroke != null && p75.breaks === 1,
+            JSON.stringify(p75 && p75.pinHeads));
+        const p76 = S.m76.charts.filter(c => c.labels.some(l => l.t === "+452.8"));
+        check("m76 columns.capPins = false: no break mark, no triangle, no outlier head in the pin column; +452.8 at full length",
+            p76.length === 1 && p76[0].breaks === 0 && p76[0].arrows === 0 && p76[0].pinHeads.length === 0, JSON.stringify(p76.map(c => [c.breaks, c.arrows])));
     }
     // ---- 1.8 (B07) ROI tree over years (sheet 11A) -------------------------------------
     {

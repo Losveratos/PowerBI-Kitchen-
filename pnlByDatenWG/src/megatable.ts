@@ -333,6 +333,16 @@ export interface MegaInput {
      * fall below the visible area
      */
     rowK?: number;
+    /**
+     * 1.8.4 columns.capPins: Δ% pins cap their outliers (break mark + triangle, the
+     * head keeps its scenario mark). Default (undefined) on, as before 1.8.4
+     */
+    capPins?: boolean;
+    /**
+     * 1.8.4 columns.capFactor: the Tukey factor k of the outlier fence
+     * Q3 + k × (Q3 − Q1) for pins and (capBars) Δ bars. Default MEGA_OUTLIER.fence (4)
+     */
+    capFactor?: number;
 }
 
 // ============================================================================
@@ -360,6 +370,12 @@ export interface MegaPreset {
     sheetPdec: number;
     /** 1.8.3 decimals of the margins in the reference sheet (12G "36%"); default one (T03 "45.3%") */
     sheetMdec?: number;
+    /**
+     * 1.8.4 numbers.roundedZero the template writes: "plain" prints a Δ that rounds to
+     * zero as 0.0 like its reference sheet (T01A to T01D, T03A, T03B, T04A); absent =
+     * the template leaves the setting alone (its default stays "signed")
+     */
+    roundedZero?: "plain";
 }
 
 const P_OFF: MegaPreset = {
@@ -382,6 +398,8 @@ const T01A = preset(P_OFF, {
     showPY: true, showPL: true, showMin: true, dPyAbs: true, dPyPct: true, dPlAbs: true, dPlPct: true,
     secondBlock: true, structureSubtotals: false, thresholds: true, decimals: 0, pctDecimals: 1,
     structureTotal: true,
+    // 1.8.4 the sheets print a rounded zero without sign (World ΔPY% 0.0%); T01B to T01D inherit it
+    roundedZero: "plain",
 });
 const T02A = preset(P_OFF, {
     showPL: true, showMin: true, dPlBar: true, dPlPin: true, secondBlock: true, decimals: 0, pctDecimals: 1,
@@ -390,6 +408,8 @@ const T02A = preset(P_OFF, {
 const T03A = preset(P_OFF, {
     showPY: true, showPL: true, showMin: true, dPyAbs: true, dPyPct: true, dPlAbs: true, dPlPct: true,
     decimals: 1, pctDecimals: 1, sheetPdec: 0,
+    // 1.8.4 a rounded zero without sign, as the sheet (T03B inherits it)
+    roundedZero: "plain",
 });
 const T04A = preset(P_OFF, { showPL: true, showMin: true, dPlBar: true, dPlPin: true, decimals: 1, pctDecimals: 1 });
 const T04B = preset(T04A, { dPlBar: false, dPlWf: true, decimals: 2, pctDecimals: 1, sheetPdec: 2 });
@@ -416,7 +436,8 @@ export const MEGA_PRESETS: Record<string, MegaPreset> = {
     T02F: preset(T02A, { min: "FC", sort: "delta", sortBlock: "ytd", keepBlockOrder: true }),
     T03A,
     T03B: preset(T03A, { min: "FC" }),
-    T04A,
+    // 1.8.4 a rounded zero without sign (only T04A: T04B to T04E keep their two-decimal steps signed)
+    T04A: preset(T04A, { roundedZero: "plain" }),
     T04B,
     T04C,
     T04D: preset(T04B, { min: "FC" }),
@@ -581,6 +602,16 @@ export interface MegaFmt {
     fac: (v: number, plus: boolean) => string;
 }
 
+/**
+ * 1.8.4 a number as printed with `dec` decimals (half away from zero, like the
+ * formatter): the "Δ in red if" test compares this value, so two Δ that print
+ * the same figure always share their colour (−34.6 and −35.4 both read −35)
+ */
+export function megaRound(v: number, dec: number): number {
+    const f = Math.pow(10, Math.max(0, dec));
+    return (v < 0 ? -1 : 1) * Math.round(Math.abs(v) * f) / f;
+}
+
 /** decimals a number really carries (−20.5 → 1, −10 → 0), at most `max` — threshold footer */
 export function megaDecimals(x: number, max = 4): number {
     for (let d = 0; d < max; d++) {
@@ -686,14 +717,16 @@ export function niceFactor(x: number): number {
     const m = x / p;
     return (m >= 5 - 1e-9 ? 5 : m >= 2 - 1e-9 ? 2 : 1) * p;
 }
-export function outlierCap(values: number[]): number {
+export function outlierCap(values: number[], factor: number = MEGA_OUTLIER.fence): number {
     const a = values.map(Math.abs).filter(x => x > 0).sort((x, y) => x - y);
     if (a.length < MEGA_OUTLIER.minN) { return Infinity; }
     const q = (p: number): number => {
         const i = (a.length - 1) * p; const lo = Math.floor(i);
         return a[lo] + (a[Math.ceil(i)] - a[lo]) * (i - lo);
     };
-    const fence = q(0.75) + MEGA_OUTLIER.fence * (q(0.75) - q(0.25));
+    // 1.8.4 the factor is columns.capFactor (default 4); a broken value falls back to 4
+    const k = isFinite(factor) && factor > 0 ? factor : MEGA_OUTLIER.fence;
+    const fence = q(0.75) + k * (q(0.75) - q(0.25));
     const inside = a.filter(x => x <= fence);
     return inside.length === a.length ? Infinity : inside[inside.length - 1];
 }
@@ -1076,7 +1109,8 @@ export function layoutMega(input: MegaInput): MegaLayout {
         const redText = (red: boolean): Partial<MegaCellText> =>
             ({ color: red ? input.pal.bad : D.immaterial ? MEGA_C.soft : MEGA_C.text, underline: red && input.hc ? true : undefined });
         if (c.type === "delta") {
-            const red = t.thresholds && !pct && D.impact < blk.th.abs - 1e-9;
+            // 1.8.4 the test reads the printed Δ (rounded to the value decimals), not the raw one
+            const red = t.thresholds && !pct && megaRound(D.impact, input.dec) < blk.th.abs - 1e-9;
             return { ...base, t: pct ? kpiPp(r, D.d) : fmt.delta(D.d), ...redText(red) };
         }
         if (c.type === "dpct") {
@@ -1085,8 +1119,9 @@ export function layoutMega(input: MegaInput): MegaLayout {
             // 1.8.2 numbers.marginRel: the relative change of the margin (45.3 % on 36.7 % = +23 %)
             if (pct && input.marginRel && D.p != null && isFinite(D.p) && !r.kfmt) { return { ...base, t: fmt.pct(D.p), ...redText(false) }; }
             if (D.p == null || pct) { return null; }
+            // 1.8.4 the printed Δ% (rounded to the Δ% decimals, in percent) against the threshold
             const imp = D.impactPct;
-            const red = t.thresholds && !pct && imp != null && imp < blk.th.pct - 1e-9;
+            const red = t.thresholds && !pct && imp != null && megaRound(imp * 100, input.pdec) < blk.th.pct * 100 - 1e-7;
             return { ...base, t: fmt.pct(D.p), ...redText(red) };
         }
         return null;
@@ -1260,7 +1295,9 @@ export function layoutMega(input: MegaInput): MegaLayout {
         for (let b = 0; b < nb; b++) {
             const allV = ([] as number[]).concat(...cs.filter(c => c.block === b).map(c => c.vals!.map(o => Math.abs(o.v))));
             if (!allV.length) { continue; }
-            const capB = fam === "pin" || t.capBars ? outlierCap(allV) : Infinity;
+            // 1.8.4 pins cap unless columns.capPins is off; the fence factor is columns.capFactor
+            const on = fam === "pin" ? input.capPins !== false : t.capBars;
+            const capB = on ? outlierCap(allV, input.capFactor ?? MEGA_OUTLIER.fence) : Infinity;
             if (capB !== Infinity) { any = true; }
             cap = Math.max(cap, capB === Infinity ? Math.max(...allV) : capB);
         }
@@ -1925,13 +1962,17 @@ function paintChartColumn(
             const xr = X(vv); const xh = xr + dir * zone;
             svgEl("line", { x1: c.x0!, x2: xh, y1: cy, y2: cy, stroke: color, "stroke-width": G.pinStem,
                 "stroke-dasharray": quiet ? "2,2" : null }, gBars);
+            const hs = G.pinHead;
+            const head: MegaPaint = quiet ? dashed : bad ? { fill: MEGA_C.white, stroke: MEGA_C.ink, sw: 1 } : N.head(hatch);
             if (capped) {
                 breakMark(xr + dir * Math.min(5, zone / 3), cy, dir, G.pinHead);
+                // 1.8.4 the head keeps its scenario mark (AC filled, FC hatched, PL hollow):
+                // it ends the stem inside the outlier zone, the triangle follows it as the cap mark
+                rect(dir > 0 ? xh - hs : xh, cy - hs / 2, hs, hs, head, gBars).setAttribute("data-pnl", "mega-pin-head");
                 arrow(xh + dir * G.arrowW, cy, dir, G.pinHead + 2, color, bad || quiet);
                 label(xh + dir * (G.arrowW + G.lblGap), ty, fmt.pin(ov.D.p!), dir > 0 ? "start" : "end", bold);
             } else {
-                const hs = G.pinHead;
-                rect(xh - hs / 2, cy - hs / 2, hs, hs, quiet ? dashed : bad ? { fill: MEGA_C.white, stroke: MEGA_C.ink, sw: 1 } : N.head(hatch), gBars);
+                rect(xh - hs / 2, cy - hs / 2, hs, hs, head, gBars);
                 const lx = dir > 0 ? Math.max(xh, c.x0!) + hs / 2 + G.lblGap : Math.min(xh, c.x0!) - hs / 2 - G.lblGap;
                 label(lx, ty, fmt.pin(ov.D.p!), dir > 0 ? "start" : "end", bold);
             }

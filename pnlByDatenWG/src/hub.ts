@@ -10,7 +10,8 @@ import { MEGA_PRESETS, MEGA_PRESET_KEYS } from "./megatable";
 /** everything a template writes: the columns switches, the number format and the title-block switch */
 export interface TemplateSwitches {
     cols: Record<string, boolean | string>;
-    nums: Record<string, number>;
+    /** decimals / pctDecimals (numbers), 1.8.4 roundedZero ("plain") where the template sets it */
+    nums: Record<string, number | string>;
     title: Record<string, boolean>;
     /** 1.7 statement.stockMode — empty = the template leaves it alone */
     stmt: Record<string, string>;
@@ -65,7 +66,10 @@ export function templateSwitches(tpl: string, tokens = false, curStockMode = "au
         blockKind: p.blockKind, leftBlockKind: "month",
     };
     // 1.8 (B14) numbers.sheetPctDecimals: the Δ% decimals of the reference sheet instead of the one-decimal rule
-    const nums: Record<string, number> = tpl === "off" ? {} : { decimals: p.decimals, pctDecimals: sheetDec ? p.sheetPdec : p.pctDecimals };
+    const nums: Record<string, number | string> = tpl === "off" ? {} : { decimals: p.decimals, pctDecimals: sheetDec ? p.sheetPdec : p.pctDecimals };
+    // 1.8.4 numbers.roundedZero = plain where the reference sheet prints 0.0 (T01A to T01D, T03A, T03B,
+    // T04A); the other templates leave the setting as it is
+    if (tpl !== "off" && p.roundedZero) { nums.roundedZero = p.roundedZero; }
     // 12G / 12H switch the headline slot on; the other templates leave it alone
     const title: Record<string, boolean> = p.headline ? { headline: true } : {};
     const sm = templateStockMode(tpl, tokens, curStockMode);

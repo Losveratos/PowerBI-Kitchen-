@@ -35,7 +35,7 @@ import {
     parseRowTypeInfo, parseBool, parseSign, rowsFromLevels, aggregateMonthly,
     windowValue, stockish, modelHasStock, BuildOptions, StockMode,
     isZeroRow, revenueBase, formulaOperands, nodeResolver, Variance,
-    syntheticTotal, TOTAL_ID, parsePeriod, displayVariance, sumSafeRound, varianceOf, sortMonths,
+    syntheticTotal, TOTAL_ID, parsePeriod, displayVariance, sumSafeRound, varianceOf, relDelta, sortMonths,
     FormulaOp, InputRow, LevelInputRow, PeriodSort, PnlModel, PnlNode, Scenario,
     isExceptionVariance, ExceptionRule, markedShare, stackPairs, sameShape, mergeNodes,
     unpostedActualMonths, dropActuals,
@@ -851,7 +851,7 @@ export class Visual implements IVisual {
     private megaPending: {
         applied: string;
         cols: Record<string, boolean | string>;
-        nums: Record<string, number>;
+        nums: Record<string, number | string>;
         /** titleBlock switches a template sets (12G / 12H: headline) */
         title: Record<string, boolean>;
         /** 1.7 statement.stockMode a template sets (T05A / T05B; others take back "allStock") */
@@ -995,6 +995,15 @@ export class Visual implements IVisual {
         options.element.appendChild(this.root);
     }
 
+    /**
+     * 1.8.4 the locale of every number (Intl.NumberFormat), month name and docs link:
+     * the host's current one, the last known one while the host has none
+     */
+    private syncLocale(): void {
+        const loc = this.host?.locale;
+        if (typeof loc === "string" && loc !== "") { this.locale = loc; }
+    }
+
     public update(options: VisualUpdateOptions): void {
         this.events.renderingStarted(options);
         try {
@@ -1002,6 +1011,10 @@ export class Visual implements IVisual {
             if (options.viewport && options.viewport.width > 0) { this.vpW = options.viewport.width; }
             // Smart Start is an edit-mode aid — remember the raw view mode every update
             this.viewMode = options.viewMode ?? null;
+            // 1.8.4 the number culture follows the host's locale on every update: a host that
+            // hands it over only after the constructor (a published report, an app host) left
+            // the visual on en-US for good, its ROI tree printed "4.28" next to German texts
+            this.syncLocale();
             const dataView = options.dataViews && options.dataViews[0];
             this.lastDv = dataView;
             this.settings = this.formattingSettingsService.populateFormattingSettingsModel(
@@ -2520,7 +2533,7 @@ export class Visual implements IVisual {
         const delta = a - r;
         let good = delta >= 0;
         if (node.row.varianceInvert) { good = !good; }
-        return { delta, deltaPct: r !== 0 ? delta / Math.abs(r) : null, good };
+        return { delta, deltaPct: relDelta(a, r), good };
     }
 
     /** the "_Aug"-style YTD status month for header labels (IBCS UN 2.2) */
@@ -4996,7 +5009,7 @@ export class Visual implements IVisual {
         const delta = a - r;
         let good = delta >= 0;
         if (node.row.varianceInvert) { good = !good; }
-        return { delta, deltaPct: r !== 0 ? delta / Math.abs(r) : null, good };
+        return { delta, deltaPct: relDelta(a, r), good };
     }
 
     /** which Δ combinations the current view shows (drives the uniform scale) */
@@ -5256,6 +5269,13 @@ export class Visual implements IVisual {
         const sm = templateStockMode(tpl, this.stockTokens(), this.stockMode());
         if (sm != null && sm !== this.stockMode()) { return tpl; }
         return null;
+    }
+
+    /** 1.8.4 the numbers.roundedZero dropdown set locally (a template writes "plain") */
+    private setRoundedZero(v: string): void {
+        const sl = this.settings.numbersCard.roundedZero;
+        const it = sl.items.find(x => String(x.value) === v);
+        if (it) { sl.value = it; }
     }
 
     /** toolbar template pick: the pane dropdown, its switches and templateApplied in one write */
@@ -9200,6 +9220,8 @@ export class Visual implements IVisual {
             const t = tris ? tris[i] : null;
             if (raw == null && r == null) { continue; }
             const dRaw = raw != null && r != null ? raw - r : null;
+            // 1.8.4 n.a. across zero like every Δ% (engine.relDelta)
+            const rel = raw != null && r != null ? relDelta(raw, r) : null;
             pts.push({
                 tag: this.monthLabel(months[i]),
                 v: raw == null ? null : raw * inv,
@@ -9207,7 +9229,7 @@ export class Visual implements IVisual {
                 tri: t == null ? null : t * inv,
                 isFc: a == null && f != null,
                 d: dRaw == null ? null : dRaw * inv,
-                pct: dRaw == null || r == null || r === 0 ? null : (dRaw / Math.abs(r)) * inv,
+                pct: rel == null ? null : rel * inv,
                 good: dRaw == null ? true : (node.row.varianceInvert ? dRaw < 0 : dRaw >= 0),
             });
         }
@@ -9293,7 +9315,7 @@ export class Visual implements IVisual {
         const dTotRaw = dTot * inv;
         const totGood = node.row.varianceInvert ? dTotRaw < 0 : dTotRaw >= 0;
         const totColor = totGood ? this.goodColor() : this.badColor();
-        const pctTot = refSum !== 0 ? (dTot / Math.abs(refSum)) : null;
+        const pctTot = relDelta(vTot, refSum);
         const anyFc = stock ? endFc : fcSum !== 0;
 
         // ---------------- horizontal layout
@@ -10803,8 +10825,13 @@ export class Visual implements IVisual {
                 if (!this.megaSliceIs(k, v)) { synced = false; this.megaSliceSet(k, v); }
             }
             for (const [k, v] of Object.entries(pend.nums)) {
+                // 1.8.4 numbers.roundedZero is a dropdown, the decimals are numbers
+                if (k === "roundedZero") {
+                    if (String(nc.roundedZero.value?.value) !== String(v)) { synced = false; this.setRoundedZero(String(v)); }
+                    continue;
+                }
                 const sl = k === "decimals" ? nc.decimals : nc.pctDecimals;
-                if (sl.value !== v) { synced = false; sl.value = v; }
+                if (sl.value !== v) { synced = false; sl.value = Number(v); }
             }
             for (const [k, v] of Object.entries(pend.title)) {
                 const sl = k === "headline" ? this.settings.titleCard.headline : null;
@@ -10841,8 +10868,9 @@ export class Visual implements IVisual {
         const title = sw.title;
         for (const [k, v] of Object.entries(cols)) { this.megaSliceSet(k, v); }
         const nc = this.settings.numbersCard;
-        if (nums.decimals != null) { nc.decimals.value = nums.decimals; }
-        if (nums.pctDecimals != null) { nc.pctDecimals.value = nums.pctDecimals; }
+        if (nums.decimals != null) { nc.decimals.value = Number(nums.decimals); }
+        if (nums.pctDecimals != null) { nc.pctDecimals.value = Number(nums.pctDecimals); }
+        if (nums.roundedZero != null) { this.setRoundedZero(String(nums.roundedZero)); }
         if (title.headline != null) { this.settings.titleCard.headline.value = title.headline; }
         // 1.7 statement.stockMode (T05A: every row a stock without tokens; T05B: auto; the
         // P&L templates take back an "every row a stock") — a changed mode rebuilds the model now
@@ -11190,7 +11218,8 @@ export class Visual implements IVisual {
 
     /** locale number text of a non-negative value, narrow space as grouping */
     private megaNum(abs: number, dec: number): string {
-        const key = String(dec);
+        // 1.8.4 keyed by locale too: the locale may change between updates (syncLocale)
+        const key = this.locale + "|" + dec;
         let nf = this.megaNf.get(key);
         if (!nf) {
             nf = new Intl.NumberFormat(this.locale, { minimumFractionDigits: dec, maximumFractionDigits: dec });
@@ -11365,6 +11394,9 @@ export class Visual implements IVisual {
             fixedMax: this.fixedMax() != null ? this.fixedMax()! / div : undefined,
             fixedVarMax: this.fixedVarMax() != null ? this.fixedVarMax()! / div : undefined,
             rowK,
+            // 1.8.4 the outlier cap of the pins (columns.capPins) and its fence factor (columns.capFactor)
+            capPins: this.settings.columnsCard.capPins.value !== false,
+            capFactor: Number(this.settings.columnsCard.capFactor.value) || undefined,
         });
         this.megaLast = L;
         const ns = "http://www.w3.org/2000/svg";

@@ -188,7 +188,9 @@ FC schraffiert · PL umrandet), Referenz bestimmt die Achse
   Richtung neben Balken und Pins lesbar bleibt. 1.8: **Zahlen → Gerundete Null →
   Ohne Vorzeichen** druckt `0.0%` wie das Blatt. Werte tragen bei null nie ein
   Vorzeichen, jetzt in jeder Ansicht gleich (die klassische Tabelle und der Baum
-  druckten bis 1.7 `−0,00`).
+  druckten bis 1.7 `−0,00`). 1.8.4: T01A bis T01D, T03A, T03B und T04A schreiben
+  beim Anwenden **Ohne Vorzeichen** wie ihre Blätter; die übrigen Templates lassen
+  die Einstellung, wie sie ist. Der Standard der Eigenschaft bleibt „mit Vorzeichen“.
 
 ### 5.2 · Fehler in den Referenzblättern (Stand Abgleich 19.11.2026)
 

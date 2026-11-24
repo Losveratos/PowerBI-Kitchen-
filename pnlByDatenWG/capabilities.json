@@ -886,6 +886,16 @@
                         "bool": true
                     }
                 },
+                "capPins": {
+                    "type": {
+                        "bool": true
+                    }
+                },
+                "capFactor": {
+                    "type": {
+                        "numeric": true
+                    }
+                },
                 "sort": {
                     "type": {
                         "enumeration": [

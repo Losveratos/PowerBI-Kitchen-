@@ -1326,6 +1326,28 @@ export function windowValue(model: PnlModel, node: PnlNode, s: Scenario, lo: num
 
 // ---- variances
 
+/**
+ * 1.8.4 the relative Δ (Δ%) of a minuend `a` against a reference `rv`, both
+ * raw (calculation-signed) or both in the same display orientation:
+ * (a − rv) / |rv|. Null = "n.a." (the visual leaves the Δ% cell and the pin
+ * empty, as it always did for a reference of 0) when
+ *  - the reference is 0, or
+ *  - minuend and reference carry opposite signs (−15 → +69.6 read +564 %, a
+ *    cash flow −6 → +10 read +267 %: no percentage describes a change across
+ *    zero).
+ * Both negative stays a number: a cost row runs calculation-signed negative
+ * against a negative reference (SignConvention −1), and over |rv| its Δ% reads
+ * right (−110 against −100 = −10 %, shown as +10 % cost growth). A minuend of
+ * exactly 0 is no sign change (−100 % / +100 %). The rule of the ChartKitchen
+ * KPI card (basis ≤ 0 ⇒ n.a.) reads display values; here the calculation sign
+ * would make every cost row n.a., so only the sign change counts.
+ */
+export function relDelta(a: number, rv: number): number | null {
+    if (rv === 0 || !isFinite(a) || !isFinite(rv)) { return null; }
+    if ((a < 0 && rv > 0) || (a > 0 && rv < 0)) { return null; }
+    return (a - rv) / Math.abs(rv);
+}
+
 export function variance(node: PnlNode, ref: Scenario, minuend: Scenario = "ac"): Variance {
     return varianceOf(node.computed[minuend], node.computed[ref], node.row.varianceInvert);
 }
@@ -1338,7 +1360,7 @@ export function variance(node: PnlNode, ref: Scenario, minuend: Scenario = "ac")
 export function varianceOf(a: number | null, rv: number | null, varianceInvert: boolean): Variance {
     if (a == null || rv == null) { return { delta: null, deltaPct: null, good: true }; }
     const delta = a - rv;
-    const deltaPct = rv !== 0 ? delta / Math.abs(rv) : null;
+    const deltaPct = relDelta(a, rv);
     let good = delta >= 0;
     if (varianceInvert) { good = !good; }
     return { delta, deltaPct, good };
@@ -1362,7 +1384,8 @@ export interface ExceptionRule {
  * varianceOf() or a period block of the visual) of `row` is an exception:
  * |Δ%| ≥ pct OR |Δ| ≥ abs (one of them is enough), in the direction asked.
  * A reference of 0 with a non-zero Δ is an infinite Δ% (an exception as soon
- * as the percent threshold is on). Margin / KPI rows read the percent
+ * as the percent threshold is on); 1.8.4 the same for a Δ% that is n.a. over a
+ * sign change (relDelta), as before when it printed several hundred percent. Margin / KPI rows read the percent
  * threshold in percentage points (Δ pp, ×100); the absolute threshold does
  * not apply to them. With both thresholds at 0 every non-zero Δ counts.
  */
@@ -1415,7 +1438,8 @@ export function displayVariance(row: InputRow, a: number | null, rv: number | nu
         const d = v.delta * 100;
         // 1.8.2 like every value row: Δ over |reference| (a / rv − 1 flipped the sign
         // for a negative reference margin: −2 % → +3 % read −250 % next to +5.0 pp)
-        const p = rv !== 0 ? (a - rv) / Math.abs(rv) : null;
+        // 1.8.4 and like every value row n.a. across zero (relDelta)
+        const p = relDelta(a, rv);
         const flip = row.varianceInvert ? -1 : 1;
         return { d, p, good: v.good, impact: d * flip, impactPct: p == null ? null : p * flip, pp: true };
     }
