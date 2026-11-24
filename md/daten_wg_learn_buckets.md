@@ -2,7 +2,7 @@
 
 > Markdown-Fassung von [daten_wg_learn_buckets.html](../daten_wg_learn_buckets.html) · https://datenwgknowledgekitchen.com/daten_wg_learn_buckets.html · generiert mit scripts/build_learn_md.py aus den Episodendaten — bei Abweichungen gilt die HTML-Fassung.
 
-Kanal: [@Daten-WG](https://www.youtube.com/@Daten-WG) · **180 Folgen** insgesamt · Sprachverteilung: 158 DE / 22 EN.
+Kanal: [@Daten-WG](https://www.youtube.com/@Daten-WG) · **181 Folgen** insgesamt · Sprachverteilung: 159 DE / 22 EN.
 
 ## Übersicht
 
@@ -13,7 +13,7 @@ Kanal: [@Daten-WG](https://www.youtube.com/@Daten-WG) · **180 Folgen** insgesam
 | 03 · Datenmodellierung & Architektur | 36 |
 | 04 · Self-Service & Governance | 5 |
 | 05 · Visualisierung & IBCS | 12 |
-| 06 · Power BI · Deep Dive & Vergleiche | 32 |
+| 06 · Power BI · Deep Dive & Vergleiche | 33 |
 | 07 · Karriere & Community | 7 |
 | 08 · Digitalisierung & Strategie | 8 |
 | 09 · Daten-WG Konferenz | 10 |
@@ -1710,6 +1710,31 @@ I will explain how and why behind my Power BI Sparkassen Dashboard.
 ## 06 · Power BI · Deep Dive & Vergleiche
 
 _Zehn Jahre Power BI sind durch — was hat sich wirklich verändert? Wie steht Power BI gegenüber Qlik, Tableau & Co.? Und wie skaliert man jenseits des PBIX-Files in echte Enterprise-Lösungen?_
+
+### Copilot - Besser als sein Ruf? | Daten-WG Podcast mit Enea Licaj
+
+Gast: Enea Licaj · November 2026 · 41 min · DE · Tags: Copilot, KI, Power Platform, Podcast, DE
+
+YouTube: https://www.youtube.com/watch?v=Xd-qWYqV91k
+
+Ist Copilot der neue Clippy? Artur König und Enea Licaj (Microsoft MVP, MCT, frisch selbstständig) sortieren das Copilot-Universum: Copilot Chat, Microsoft 365 Copilot in den Office-Apps, Copilot Studio und Copilot Cowork mit den IQ-Layern. Dazu: die Zukunft von Power Apps, warum Dashboards trotz Agenten bleiben und warum KI-Kompetenz wichtiger ist als jedes einzelne Tool.
+
+Kapitel:
+- [00:00](https://www.youtube.com/watch?v=Xd-qWYqV91k&t=0s) Intro: Ist Copilot der neue Clippy?
+- [01:17](https://www.youtube.com/watch?v=Xd-qWYqV91k&t=77s) Enea Licaj: Frisch selbstständig, MVP und MCT
+- [03:42](https://www.youtube.com/watch?v=Xd-qWYqV91k&t=222s) Copilot Chat und einfache Agents
+- [04:35](https://www.youtube.com/watch?v=Xd-qWYqV91k&t=275s) Microsoft 365 Copilot direkt in Word, Excel und Outlook
+- [06:07](https://www.youtube.com/watch?v=Xd-qWYqV91k&t=367s) Copilot Studio: Mensch, Agent und Automatisierung
+- [09:19](https://www.youtube.com/watch?v=Xd-qWYqV91k&t=559s) Copilot ist besser als sein Ruf
+- [12:18](https://www.youtube.com/watch?v=Xd-qWYqV91k&t=738s) Copilot Cowork und die IQ-Layer
+- [15:25](https://www.youtube.com/watch?v=Xd-qWYqV91k&t=925s) Cowork in der Praxis: Routinen und Abrechnung
+- [17:55](https://www.youtube.com/watch?v=Xd-qWYqV91k&t=1075s) Copilot Code, Code Apps und die Zukunft von Power Apps
+- [21:10](https://www.youtube.com/watch?v=Xd-qWYqV91k&t=1270s) Vom App-Bauen zu Copilot Studio
+- [26:37](https://www.youtube.com/watch?v=Xd-qWYqV91k&t=1597s) Warum Dashboards bleiben: Der Lagerfeuereffekt
+- [30:01](https://www.youtube.com/watch?v=Xd-qWYqV91k&t=1801s) Kann KI Storytelling in Power BI?
+- [34:11](https://www.youtube.com/watch?v=Xd-qWYqV91k&t=2051s) Ausblick: Autonome Agenten
+- [35:56](https://www.youtube.com/watch?v=Xd-qWYqV91k&t=2156s) KI-Kompetenz statt Tool-Wissen
+- [40:08](https://www.youtube.com/watch?v=Xd-qWYqV91k&t=2408s) Fazit
 
 ### GxP Talk - Intelligent automatisierte Prozesse (ohne LLMs!)
 
