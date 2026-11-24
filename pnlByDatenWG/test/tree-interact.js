@@ -1230,6 +1230,7 @@ function tidyChecks(geom, tag) {
             name: (e.querySelector('[data-pnl="micro-name"]') || {}).textContent || "",
             nameFs: (e.querySelector('[data-pnl="micro-name"]') || { style: {} }).style.fontSize,
             deltaFs: (e.querySelector('[data-pnl="micro-delta"]') || { style: {} }).style.fontSize,
+            deltaT: (e.querySelector('[data-pnl="micro-delta"]') || {}).textContent || "",
             valueFs: [...e.querySelectorAll("svg text")]
                 .filter(t => t.getAttribute("fill") === "#1A1A1A")
                 .map(t => parseFloat(t.getAttribute("font-size"))),
@@ -1244,11 +1245,13 @@ function tidyChecks(geom, tag) {
     check("micro cards are tall enough to be read (96–108 px)",
         edges.micro.every(m => m.h >= 96 && m.h <= 108),
         edges.micro.map(m => m.h).join(","));
-    // 1.8.4 a card whose Δ% is n.a. (reference 0 or a sign change) carries no Δ% element at all
     check("micro card name and Δ% are set at 11 px",
-        edges.micro.every(m => m.nameFs === "11px" && (m.deltaFs === "11px" || m.deltaFs === "" || m.deltaFs === undefined))
-        && edges.micro.some(m => m.deltaFs === "11px"),
+        edges.micro.every(m => m.nameFs === "11px" && (m.deltaFs === "11px" || m.deltaFs === "")),
         edges.micro.map(m => m.name + " " + m.nameFs + "/" + m.deltaFs).join(" | "));
+    // 1.8.4 a card whose Δ% has no meaning (reference 0 or a sign change) reads "n.a." in its place
+    check("1.8.4 a micro card with a Δ% across zero reads \"n.a.\" (pharma demo), every other one a percentage",
+        edges.micro.some(m => m.deltaT === "n.a.") && edges.micro.every(m => m.deltaT === "" || m.deltaT === "n.a." || /%$/.test(m.deltaT)),
+        edges.micro.map(m => m.name + " " + m.deltaT).join(" | "));
     check("the numbers inside a micro chart are drawn at 8.5 px or more",
         edges.micro.some(m => m.valueFs.length > 0)
         && edges.micro.every(m => m.valueFs.every(v => v >= 8.5)),

@@ -5271,6 +5271,20 @@ export class Visual implements IVisual {
         return null;
     }
 
+    /** 1.8.4 the "n.a." of a Δ% without meaning (reference 0 or a sign change, engine.relDelta) */
+    private relNa(): string {
+        return this.tr("UI_RelNa");
+    }
+
+    /** 1.8.4 "n.a." as a soft italic label in a card / tile head (the place of the Δ%) */
+    private relNaEl(px: number, tag: "div" | "span" = "div"): HTMLElement {
+        const e = document.createElement(tag);
+        e.setAttribute("data-pnl-na", "1");
+        e.style.cssText = `font-size:${this.kpx(px)};font-style:italic;color:${C.soft};white-space:nowrap;`;
+        e.textContent = this.relNa();
+        return e;
+    }
+
     /** 1.8.4 the numbers.roundedZero dropdown set locally (a template writes "plain") */
     private setRoundedZero(v: string): void {
         const sl = this.settings.numbersCard.roundedZero;
@@ -6664,12 +6678,30 @@ export class Visual implements IVisual {
         return cell;
     }
 
-    private deltaPinCell(v: { deltaPct: number | null; good: boolean }, c: ColSpec,
+    private deltaPinCell(v: { delta?: number | null; deltaPct: number | null; good: boolean }, c: ColSpec,
         geo: { rowH: number; fs: number; barLabelFs: number; PIN_HALF: number; pinW: number; pinZone: boolean }, fmt: Fmt,
         soft = false): HTMLElement {
         const cell = this.cell(geo.pinW, "left", geo.fs);
-        if (v.deltaPct == null) { return cell; }
         const w = geo.pinW - 8; const h = geo.rowH - 4; const mid = w / 2;
+        const ns = "http://www.w3.org/2000/svg";
+        if (v.deltaPct == null) {
+            // 1.8.4 a Δ with a Δ% without meaning (reference 0, sign change): "n.a." beside the axis, no pin
+            if (v.delta == null) { return cell; }
+            const svg = document.createElementNS(ns, "svg") as SVGSVGElement;
+            svg.setAttribute("width", String(w)); svg.setAttribute("height", String(h));
+            svg.style.cssText = "display:block;";
+            this.drawAxis(svg, ns, mid, h, c.ref!);
+            const na = document.createElementNS(ns, "text");
+            na.setAttribute("x", String(mid + 4)); na.setAttribute("y", String(h / 2 + geo.fs * 0.32));
+            na.setAttribute("text-anchor", "start");
+            na.setAttribute("font-size", String(geo.barLabelFs)); na.setAttribute("font-family", FONT);
+            na.setAttribute("font-style", "italic"); na.setAttribute("fill", C.soft);
+            na.setAttribute("data-pnl", "pin-na");
+            na.textContent = this.relNa();
+            svg.appendChild(na);
+            cell.appendChild(svg);
+            return cell;
+        }
         const cap = 0.4;
         const clamped = this.capPct(v.deltaPct);
         const overflow = Math.abs(v.deltaPct) > cap;
@@ -6681,11 +6713,21 @@ export class Visual implements IVisual {
         const dir = v.deltaPct >= 0 ? 1 : -1;
         const px = overflow && geo.pinZone ? mid + dir * geo.PIN_HALF : mid + (clamped / cap) * reg;
         const color = soft ? C.soft : v.good ? this.goodColor() : this.badColor();
-        const ns = "http://www.w3.org/2000/svg";
         const svg = document.createElementNS(ns, "svg") as SVGSVGElement;
         svg.setAttribute("width", String(w)); svg.setAttribute("height", String(h));
         svg.style.cssText = "display:block;";
         this.drawAxis(svg, ns, mid, h, c.ref!);
+        // pin head carries the minuend's scenario fill (IBCS): FC → outlined
+        const pinHead = (cx: number, r: string): SVGCircleElement => {
+            const head = document.createElementNS(ns, "circle");
+            head.setAttribute("cx", String(cx)); head.setAttribute("cy", String(h / 2));
+            head.setAttribute("r", r);
+            if (c.minuend === "fcfy") {
+                head.setAttribute("fill", C.paper); head.setAttribute("stroke", color); head.setAttribute("stroke-width", "1.4");
+            } else { head.setAttribute("fill", color); }
+            svg.appendChild(head);
+            return head;
+        };
         const needle = document.createElementNS(ns, "line");
         needle.setAttribute("x1", String(mid)); needle.setAttribute("x2", String(px));
         needle.setAttribute("y1", String(h / 2)); needle.setAttribute("y2", String(h / 2));
@@ -6700,6 +6742,8 @@ export class Visual implements IVisual {
             brk.setAttribute("stroke", C.paper); brk.setAttribute("stroke-width", "1.4"); brk.setAttribute("fill", "none");
             brk.setAttribute("data-pnl", "pin-break");
             svg.appendChild(brk);
+            // 1.8.4 the capped pin keeps its head (scenario mark) right before the triangle
+            pinHead(px - dir * 2.8, "2.8").setAttribute("data-pnl", "pin-head");
             const tw = 4.5;
             const tri = document.createElementNS(ns, "path");
             tri.setAttribute("d", `M${px + dir * tw},${h / 2} L${px},${h / 2 - 3.2} L${px},${h / 2 + 3.2} Z`);
@@ -6708,14 +6752,7 @@ export class Visual implements IVisual {
             svg.appendChild(tri);
             tip = px + dir * tw;
         } else {
-            const head = document.createElementNS(ns, "circle");
-            head.setAttribute("cx", String(px)); head.setAttribute("cy", String(h / 2));
-            head.setAttribute("r", overflow ? "2" : "2.8");
-            // pin head carries the minuend's scenario fill (IBCS): FC → outlined
-            if (c.minuend === "fcfy") {
-                head.setAttribute("fill", C.paper); head.setAttribute("stroke", color); head.setAttribute("stroke-width", "1.4");
-            } else { head.setAttribute("fill", color); }
-            svg.appendChild(head);
+            pinHead(px, overflow ? "2" : "2.8");
         }
         const txt = document.createElementNS(ns, "text");
         const anchor = v.deltaPct >= 0 ? "start" : "end";
@@ -8147,6 +8184,8 @@ export class Visual implements IVisual {
             dp.style.cssText = `font-size:${this.kpx(11)};font-weight:700;color:${vColor};white-space:nowrap;`;
             dp.textContent = fmt.pct(va.deltaPct, true);
             head.appendChild(dp);
+        } else if (va) {
+            head.appendChild(this.relNaEl(11));
         }
         box.appendChild(head);
         const sub = document.createElement("div");
@@ -8267,7 +8306,7 @@ export class Visual implements IVisual {
             const col = v.delta == null ? null : (v.good ? this.goodColor() : this.badColor());
             row([sc.toUpperCase(), num(this.ytdDisplay(node, sc)),
                 dNum(v.delta == null ? null : v.delta * inv),
-                v.deltaPct == null ? "·" : fmt.pct(v.deltaPct * inv, true)],
+                v.deltaPct == null ? (v.delta == null ? "·" : this.relNa()) : fmt.pct(v.deltaPct * inv, true)],
             { color: [null, null, col, col] });
         }
         if (this.has.fcfy) {
@@ -8276,7 +8315,7 @@ export class Visual implements IVisual {
             row(["FY FC" + (this.has.plfy ? " · PL" : ""),
                 num(displayValue(node, "fcfy")),
                 this.has.plfy ? dNum(fy.delta == null ? null : fy.delta * inv) : "",
-                this.has.plfy && fy.deltaPct != null ? fmt.pct(fy.deltaPct * inv, true) : ""],
+                !this.has.plfy || fy.delta == null ? "" : fy.deltaPct != null ? fmt.pct(fy.deltaPct * inv, true) : this.relNa()],
             { color: [null, null, col, col] });
         }
         return grid;
@@ -8869,6 +8908,8 @@ export class Visual implements IVisual {
                 "font-variant-numeric:tabular-nums;";
             dp.textContent = fmt.pct(va.deltaPct, true);
             head.appendChild(dp);
+        } else if (va) {
+            head.appendChild(this.relNaEl(14));
         }
         tile.appendChild(head);
         const sub = document.createElement("div");
@@ -9145,6 +9186,10 @@ export class Visual implements IVisual {
                 `color:${vColor};`;
             dp.textContent = fmt.pct(va.deltaPct, true);
             head.appendChild(dp);
+        } else if (va) {
+            const na = this.relNaEl(11, "span");
+            na.setAttribute("data-pnl", "micro-delta");
+            head.appendChild(na);
         }
         card.appendChild(head);
 
@@ -10637,7 +10682,7 @@ export class Visual implements IVisual {
             if (!zero && baseV > 0) { tipParts.push(fmt.pct(Math.abs(n.v) / baseV)); }
             if (va && va.delta != null) {
                 tipParts.push(`Δ${refUp} ${this.treeNum(va.delta, fmt)}`
-                    + (va.deltaPct != null ? ` (${fmt.pct(va.deltaPct, true)})` : ""));
+                    + ` (${va.deltaPct != null ? fmt.pct(va.deltaPct, true) : this.relNa()})`);
             }
             const tip = tipParts.join(" · ") + this.selCapNote(n.node);
             const bt = document.createElementNS(ns, "title");
@@ -11397,6 +11442,8 @@ export class Visual implements IVisual {
             // 1.8.4 the outlier cap of the pins (columns.capPins) and its fence factor (columns.capFactor)
             capPins: this.settings.columnsCard.capPins.value !== false,
             capFactor: Number(this.settings.columnsCard.capFactor.value) || undefined,
+            // 1.8.4 a Δ% without meaning reads "n.a." in the Δ% cell and at the axis of a pin column
+            naText: this.relNa(),
         });
         this.megaLast = L;
         const ns = "http://www.w3.org/2000/svg";
@@ -12179,7 +12226,8 @@ export class Visual implements IVisual {
                 const sa = this.ssRaw(node, block, min, fmt); const sb = this.ssRaw(node, block, ref, fmt);
                 const d = sa != null && sb != null ? (sa - sb) * (node.row.displayInvert ? -1 : 1) : D.d;
                 out.push({ displayName: name, value: u(fmt.val(d, true)) });
-                if (D.p != null) { out.push({ displayName: name + " %", value: fmt.pct(D.p, true) }); }
+                // 1.8.4 a Δ% without meaning (reference 0, sign change) reads "n.a."
+                out.push({ displayName: name + " %", value: D.p != null ? fmt.pct(D.p, true) : this.relNa() });
                 soft = soft || mat(D.d, D.p);
             } else {
                 const v = varianceOf(a, r, node.row.varianceInvert);
@@ -12189,7 +12237,7 @@ export class Visual implements IVisual {
                     continue;
                 }
                 out.push({ displayName: name, value: u(fmt.val(this.ssDelta(node, block, ref, min, fmt) ?? v.delta, true)) });
-                if (v.deltaPct != null) { out.push({ displayName: name + " %", value: fmt.pct(v.deltaPct, true) }); }
+                out.push({ displayName: name + " %", value: v.deltaPct != null ? fmt.pct(v.deltaPct, true) : this.relNa() });
                 soft = soft || mat(v.delta, v.deltaPct);
             }
         }

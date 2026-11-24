@@ -136,19 +136,19 @@ const locs = ["de-DE", "en-US", "es-ES", "ja-JP"].map(l => JSON.parse(fs.readFil
 test("1.8 (B14) numbers.sheetPctDecimals: a template writes its sheet's Δ% decimals", () => {
     assert.deepStrictEqual(M.templateSwitches("T03A").nums, { decimals: 1, pctDecimals: 1, roundedZero: "plain" });
     assert.deepStrictEqual(M.templateSwitches("T03A", false, "auto", true).nums, { decimals: 1, pctDecimals: 0, roundedZero: "plain" });
-    assert.deepStrictEqual(M.templateSwitches("T04C", false, "auto", true).nums, { decimals: 2, pctDecimals: 2 });
-    assert.deepStrictEqual(M.templateSwitches("T02A", false, "auto", true).nums, { decimals: 0, pctDecimals: 1 });
+    assert.deepStrictEqual(M.templateSwitches("T04C", false, "auto", true).nums, { decimals: 2, pctDecimals: 2, roundedZero: "plain" });
+    assert.deepStrictEqual(M.templateSwitches("T02A", false, "auto", true).nums, { decimals: 0, pctDecimals: 1, roundedZero: "plain" });
     assert.deepStrictEqual(M.templateSwitches("off", false, "auto", true).nums, {});
 });
 
-test("1.8.4 numbers.roundedZero = plain: T01A to T01D, T03A, T03B, T04A write it, every other template leaves it alone", () => {
-    const plain = ["T01A", "T01B", "T01C", "T01D", "T03A", "T03B", "T04A"];
+test("1.8.4 numbers.roundedZero = plain: every template writes it, \"off\" writes no number format", () => {
     for (const t of Object.keys(M.MEGA_PRESETS)) {
-        assert.strictEqual(M.templateSwitches(t).nums.roundedZero, plain.includes(t) ? "plain" : undefined, t);
+        assert.strictEqual(M.templateSwitches(t).nums.roundedZero, t === "off" ? undefined : "plain", t);
     }
     // the gallery preview carries it like the decimals
     assert.strictEqual(M.miniObjects({ tpl: "T03A" }, false).numbers.roundedZero, "plain");
-    assert.strictEqual(M.miniObjects({ tpl: "T04B" }, false).numbers.roundedZero, undefined);
+    assert.strictEqual(M.miniObjects({ tpl: "T04B" }, false).numbers.roundedZero, "plain");
+    assert.strictEqual(M.miniObjects({ tpl: "off" }, false).numbers.roundedZero, undefined);
     // the property default stays "signed" (reports without a template unchanged)
     const nc = new M.VisualFormattingSettingsModel().numbersCard;
     assert.strictEqual(String(nc.roundedZero.value.value), "signed");

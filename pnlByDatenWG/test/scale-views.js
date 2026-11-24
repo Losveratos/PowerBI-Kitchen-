@@ -58,6 +58,9 @@ function classic(id) {
         heads, cols, note: note ? note.textContent : "",
         pinOut: st.querySelectorAll('[data-pnl="pin-outlier"]').length,
         pinBreak: st.querySelectorAll('[data-pnl="pin-break"]').length,
+        // 1.8.4 a capped pin keeps its head; a Δ% without meaning reads "n.a." (no pin)
+        pinHead: [...st.querySelectorAll('[data-pnl="pin-head"]')].map(c => c.getAttribute("fill")),
+        pinNa: [...st.querySelectorAll('[data-pnl="pin-na"]')].map(t => t.textContent),
         arrows: [...st.querySelectorAll("text")].filter(t => /▸$/.test(t.textContent)).length,
     };
 }
@@ -130,6 +133,12 @@ function tree(id) {
         check("p1 table: Δ% outliers run into the zone — break mark + triangle, no ▸",
             r.pinOut > 0 && r.pinBreak === r.pinOut && r.arrows === 0, JSON.stringify({ o: r.pinOut, b: r.pinBreak, a: r.arrows }));
         check("p1 table: the note keeps the uniform Δ scale", /uniform Δ scale/.test(r.note), r.note);
+        check("p1 1.8.4 every capped pin keeps its head before the triangle, in the notation of the uncapped heads",
+            r.pinOut > 0 && r.pinHead.length === r.pinOut && r.pinHead.every(f => f === r.pinHead[0] && f && f !== "none"), JSON.stringify(r.pinHead));
+        const q = await page.evaluate(classic, "p30");
+        check("p30 1.8.4 classic Δ% pins: Financial income crosses zero, \"n.a.\" instead of a pin; Other revenue +62.7 % capped with its head",
+            q.pinNa.length >= 1 && q.pinNa.every(t => t === "n.a.") && q.pinOut >= 1 && q.pinHead.length === q.pinOut,
+            JSON.stringify({ na: q.pinNa, out: q.pinOut, head: q.pinHead }));
     }
 
     // ---- driver tree: one px per unit across the cards, ×n exact

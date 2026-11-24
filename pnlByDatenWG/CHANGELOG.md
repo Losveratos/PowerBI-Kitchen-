@@ -13,13 +13,18 @@ Punkte sind Notationskorrekturen und ändern das Bild bestehender Berichte gezie
   negativ gegen eine negative Referenz, über den Betrag der Referenz liest Δ% richtig (Kosten 100 → 110
   ergibt +10 %, ein halbierter Verlust +50 %). Ein Wert von genau 0 ist kein Wechsel (−100 % bzw. +100 %).
   Die ChartKitchen-Karte setzt n.a. schon bei Basis ≤ 0, weil sie Anzeigewerte liest; hier würde das jede
-  Kostenzeile treffen, deshalb zählt nur der Vorzeichenwechsel. Darstellung wie bei Referenz 0: Δ%-Zelle
-  leer, kein Pin, kein Δ% im Tooltip und auf Baum- und Kachelkarten; Δ selbst und seine Farbe bleiben.
+  Kostenzeile treffen, deshalb zählt nur der Vorzeichenwechsel. **Darstellung „n.a.“** (wie die
+  ChartKitchen-Karte), für Vorzeichenwechsel und Referenz 0 gleich: dezent kursiv in Grau in der Δ%-Zelle
+  der Mega-Tabelle, an der Achse einer Pin-Spalte (Mega-Tabelle und klassische Tabelle, ohne Pin), im
+  Tooltip, im Szenario-Raster, im Kopf von Baumkarte, Hover-Panel, Kachel und Mikrokarte; bis 1.8.3 blieb
+  die Stelle bei Referenz 0 leer. Δ selbst und seine Farbe bleiben. Neuer Text `UI_RelNa` (de-DE und en-US
+  „n.a.“, es-ES „n.d.“, ja-JP „N/A“).
   ⚡ zählt ein n.a. wie eine Referenz 0 als Ausnahme, sobald die Prozent-Schwelle an ist; die
   Wesentlichkeit in % greift dort nicht; `sort = pct` stellt die Zeile hinter alle Zahlen. Gilt auch für
   Margenzeilen (`numbers.marginRel`): die Korrektur aus 1.8.2 (Marge −2 % → +3 % = +250 %) ist jetzt n.a.
   **Wirkung auf bestehende Berichte:** Zeilen, deren Wert die Null kreuzt (Cashflows, Finanz- und
-  Ergebniszeilen um null), zeigen kein Δ% mehr; alle anderen Zahlen bleiben gleich.
+  Ergebniszeilen um null), zeigen „n.a.“ statt einer Prozentzahl; Zeilen mit Referenz 0 zeigen „n.a.“
+  statt einer Leerstelle (auch 0 gegen 0); alle anderen Zahlen bleiben gleich.
 - **Schwellen-Rot prüft die gedruckte Zahl** (`megatable.ts`, `megaRound`). „Δ rot unter Schwelle“ vergleicht
   die auf die Dezimalen gerundete Δ bzw. Δ% statt des Rohwerts: USA −34,6 und China −35,4 drucken beide
   −35 und tragen bei Schwelle −35 dieselbe Farbe (vorher China rot); −10,02 % druckt −10,0 % und ist bei
@@ -32,7 +37,9 @@ Punkte sind Notationskorrekturen und ändern das Bild bestehender Berichte gezie
   wird dafür nicht breiter. Neue Eigenschaften: `columns.capPins` (Ausreißer-Pfeile für Pins, Standard an)
   und `columns.capFactor` (Ausreißer-Schwelle Q3 + Faktor × IQR, Standard 4, 1 bis 20; gilt für Pins und
   mit `capBars` für die Δ-Balken). **Wirkung:** Mega-Tabellen mit gekappten Pins zeigen zusätzlich den Kopf;
-  sonst unverändert. Die Pins der klassischen Tabelle (feste Kappung bei ±40 %) sind nicht betroffen.
+  sonst unverändert. Auch die klassische Tabelle (feste Kappung bei ±40 %) behält am gekappten Pin den
+  Kopf (gefüllt bzw. bei AC&FC FY umrandet wie der ungekappte Pin) direkt vor dem Dreieck; ihre Geometrie
+  bleibt gleich.
 - **Zahlen in der Kultur des Hosts, auch wenn sie spät kommt.** Das Visual las `host.locale` nur im
   Konstruktor und blieb auf en-US, wenn der Host die Sprache erst danach lieferte (veröffentlichter
   Bericht, App): deutsche Texte, aber „4.28“ in den Karten des ROI-Baums (11A). Jetzt übernimmt jedes
@@ -40,21 +47,24 @@ Punkte sind Notationskorrekturen und ändern das Bild bestehender Berichte gezie
   (`Intl.NumberFormat` mit dieser Sprache), der Formatierer-Speicher der Mega-Tabelle merkt sich die
   Sprache mit. **Wirkung:** In solchen Hosts stehen unter de-DE überall Dezimalkommas (Baum: Werte, Δ, %,
   Faktor). Berichte, deren Host die Sprache von Anfang an liefert, rendern wie vorher.
-- **Gerundete Null ohne Vorzeichen in den Templates, deren Blätter 0,0 drucken.** T01A bis T01D, T03A, T03B
-  und T04A schreiben beim Anwenden `numbers.roundedZero = plain` (wie die Dezimalen, in derselben Schreibaktion
-  und unter demselben Echo-Schutz); die übrigen Templates lassen die Einstellung, wie sie ist. Der Standard
-  der Eigenschaft bleibt `signed`. **Wirkung:** nur beim nächsten Anwenden eines dieser Templates (Galerie,
-  Dropdown, „↺ Zum Template zurück“, PBIR mit `template`, aber ohne `templateApplied`); Berichte mit
-  gespeichertem `templateApplied` behalten ihre Einstellung. Wer danach zu T04B wechselt, behält „ohne
-  Vorzeichen“, bis er es umstellt.
+- **Gerundete Null ohne Vorzeichen in allen Templates** (wie ChartKitchen). Jedes Template schreibt beim
+  Anwenden `numbers.roundedZero = plain` (wie die Dezimalen, in derselben Schreibaktion und unter demselben
+  Echo-Schutz); damit hängt das Ergebnis nicht mehr vom vorher angewandten Template ab. „Aus“ (klassische
+  Tabelle) schreibt kein Zahlenformat. Der Standard der Eigenschaft bleibt `signed`. Die Einstellung zählt
+  nicht als Abweichung vom Template: ein vor 1.8.4 angewendetes Template (nichts gespeichert, also
+  `signed`) oder ein von Hand gesetztes `signed` zeigt kein „↺ Zum Template zurück“. **Wirkung:** nur beim
+  nächsten Anwenden eines Templates (Galerie, Dropdown, „↺ Zum Template zurück“, PBIR mit `template`, aber
+  ohne `templateApplied`); Berichte mit gespeichertem `templateApplied` behalten ihre Einstellung.
 
 **Tests:** engine-test „1.8.4 relDelta“ (neu), Margen-Erwartung −2 % → +3 % von +250 % auf n.a. angepasst;
-megatable-test „Schwellen-Rot auf der gedruckten Zahl“, „Pin-Kappung: Schalter und Faktor“, „roundedZero in den
-Presets“ (neu); hub-test: Template-Zahlen mit `roundedZero` (zwei Erwartungen angepasst, ein Block neu);
-mega-shot m72 bis m76 (neu: Vorzeichenwechsel und gerundete Null T03A, Schwelle T01A, Kopf gekappter Pins T04D
-und 12H, Kappung aus), m47 angepasst (T01C druckt jetzt 0.0%), m50 neu (gespeichertes Template behält
-+0.0%); tree-interact „ROI-Baum de-DE mit später Sprache“ (neu), Mikrokarten-Prüfung lässt eine Karte ohne
-Δ% (n.a.) zu.
+megatable-test „Schwellen-Rot auf der gedruckten Zahl“, „Pin-Kappung: Schalter und Faktor“, „n.a. in Zelle und
+Pin-Spalte“, „roundedZero in allen Presets“ (neu); hub-test: Template-Zahlen mit `roundedZero` (vier Erwartungen
+angepasst, ein Block neu); hub-interact: kein ↺ wegen `roundedZero`, ↺ schreibt `plain` (neu); mega-shot m72
+bis m77 (neu: Vorzeichenwechsel mit n.a. und gerundete Null T03A, Schwelle T01A, Kopf gekappter Pins T04D und
+12H, Kappung aus, n.a. in der Pin-Spalte T04A), m47 angepasst (T01C druckt jetzt 0.0%), m34 (gespeichertes
+Template behält +0.0%) und m8/m10/m11 (Templates plain, ohne Template mit Vorzeichen) neu; scale-views p1 (Kopf
+gekappter Pins der klassischen Tabelle) und p30 (n.a. statt Pin) neu; tree-interact „ROI-Baum de-DE mit
+später Sprache“ und „Mikrokarte n.a.“ (neu).
 
 ## 1.8.3.0 (2026-11-22): Blatt-Notation 11A, 12G und 12H
 

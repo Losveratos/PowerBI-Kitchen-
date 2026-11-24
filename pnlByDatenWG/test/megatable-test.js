@@ -1216,11 +1216,37 @@ test("1.8.4 pin cap: switch (capPins, default on) and fence factor (capFactor, d
     assert.equal(barCap({ t: Object.assign({}, t, { capBars: true }), capFactor: 1, capPins: false }), 11);
 });
 
-test("1.8.4 roundedZero = plain in the presets whose sheets print 0.0 (T01A to T01D, T03A, T03B, T04A)", () => {
-    const plain = ["T01A", "T01B", "T01C", "T01D", "T03A", "T03B", "T04A"];
-    for (const k of M.MEGA_PRESET_KEYS) {
-        assert.equal(M.MEGA_PRESETS[k].roundedZero, plain.includes(k) ? "plain" : undefined, k);
-    }
+test("1.8.4 Δ% n.a.: \"n.a.\" in the Δ% cell (soft, italic) and at the axis of a pin column, no pin", () => {
+    const rows = ["a", "b", "c", "d", "e", "f", "g", "h"].map(id => ({ id, label: id, kind: "acc", op: "", level: 0, group: "w", other: false }));
+    // b: Δ% n.a. (reference 0 or a sign change), the rest regular
+    const blk = {
+        name: "", th: { abs: -20, pct: -0.1 }, value: () => 100,
+        delta: (r) => r.id === "b" ? { d: 12, p: null, good: true, impact: 12, impactPct: null, pp: false }
+            : { d: 5, p: 0.05, good: true, impact: 5, impactPct: 0.05, pp: false },
+    };
+    const t = Object.assign({}, toggles(M.MEGA_PRESETS.T01A), { thresholds: true });
+    const L = M.layoutMega(regionInput({ t, rows, blocks: [blk], naText: "n.a." }));
+    const dPct = L.cols.find(c => c.type === "dpct" && c.ref === "PY");
+    const b = L.cellText(dPct, L.rows.find(r => r.id === "b"));
+    assert.equal(b.t, "n.a.");
+    assert.equal(b.italic, true);
+    assert.equal(b.bold, false);
+    assert.notEqual(b.color, "#E02B1D", "never threshold red");
+    assert.equal(L.cellText(dPct, L.rows.find(r => r.id === "a")).t, "+5.0%");
+    // without the text (old callers) the cell stays empty as until 1.8.3
+    const L0 = M.layoutMega(regionInput({ t, rows, blocks: [blk] }));
+    assert.equal(L0.cellText(L0.cols.find(c => c.type === "dpct" && c.ref === "PY"), L0.rows.find(r => r.id === "b")), null);
+    // a pin column: the row is no pin, it is an "n.a." row with room right of the axis
+    const tp = toggles(M.MEGA_PRESETS.T02A);
+    const LP = M.layoutMega(regionInput({ t: tp, rows, blocks: [blk], naText: "n.a." }));
+    const pin = LP.charts.find(c => c.type === "pin");
+    assert.equal(pin.vals.some(o => o.r.id === "b"), false);
+    assert.deepEqual([...pin.na].map(r => r.id), ["b"]);
+    assert.ok(pin.els.some(e => e.p === 0 && e.q === 0 && e.c > 0), "room for the label");
+});
+
+test("1.8.4 roundedZero = plain in every preset (a rounded zero without sign, as the sheets)", () => {
+    for (const k of M.MEGA_PRESET_KEYS) { assert.equal(M.MEGA_PRESETS[k].roundedZero, "plain", k); }
 });
 
 console.log(`\n${n} mega-table layout test blocks passed`);

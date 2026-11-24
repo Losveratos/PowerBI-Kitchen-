@@ -343,6 +343,12 @@ export interface MegaInput {
      * Q3 + k × (Q3 − Q1) for pins and (capBars) Δ bars. Default MEGA_OUTLIER.fence (4)
      */
     capFactor?: number;
+    /**
+     * 1.8.4 the "n.a." of a Δ% that has no meaning (reference 0, or a sign change between
+     * value and reference, engine.relDelta) — printed in the Δ% cell and at the axis of a
+     * pin column (no pin). Empty / absent = the cell stays empty as until 1.8.3
+     */
+    naText?: string;
 }
 
 // ============================================================================
@@ -371,11 +377,11 @@ export interface MegaPreset {
     /** 1.8.3 decimals of the margins in the reference sheet (12G "36%"); default one (T03 "45.3%") */
     sheetMdec?: number;
     /**
-     * 1.8.4 numbers.roundedZero the template writes: "plain" prints a Δ that rounds to
-     * zero as 0.0 like its reference sheet (T01A to T01D, T03A, T03B, T04A); absent =
-     * the template leaves the setting alone (its default stays "signed")
+     * 1.8.4 numbers.roundedZero every template writes: "plain" prints a Δ that rounds to
+     * zero as 0.0 like the reference sheets (the property default stays "signed"; "off"
+     * writes no number format at all)
      */
-    roundedZero?: "plain";
+    roundedZero: "plain";
 }
 
 const P_OFF: MegaPreset = {
@@ -385,6 +391,8 @@ const P_OFF: MegaPreset = {
     secondBlock: false, structureSubtotals: true, structureTotal: false, keepBlockOrder: false, showPctRows: true,
     thresholds: false, scenarioMarks: true, chartLabels: true, capBars: false,
     sort: "cat", sortBlock: "ytd", decimals: 1, pctDecimals: 1, blockKind: "ytd", headline: false, sheetPdec: 1,
+    // 1.8.4 every template prints a rounded zero without sign, as the sheets do
+    roundedZero: "plain",
 };
 const preset = (base: MegaPreset, o: Partial<MegaPreset>): MegaPreset => ({ ...base, ...o });
 
@@ -398,8 +406,6 @@ const T01A = preset(P_OFF, {
     showPY: true, showPL: true, showMin: true, dPyAbs: true, dPyPct: true, dPlAbs: true, dPlPct: true,
     secondBlock: true, structureSubtotals: false, thresholds: true, decimals: 0, pctDecimals: 1,
     structureTotal: true,
-    // 1.8.4 the sheets print a rounded zero without sign (World ΔPY% 0.0%); T01B to T01D inherit it
-    roundedZero: "plain",
 });
 const T02A = preset(P_OFF, {
     showPL: true, showMin: true, dPlBar: true, dPlPin: true, secondBlock: true, decimals: 0, pctDecimals: 1,
@@ -408,8 +414,6 @@ const T02A = preset(P_OFF, {
 const T03A = preset(P_OFF, {
     showPY: true, showPL: true, showMin: true, dPyAbs: true, dPyPct: true, dPlAbs: true, dPlPct: true,
     decimals: 1, pctDecimals: 1, sheetPdec: 0,
-    // 1.8.4 a rounded zero without sign, as the sheet (T03B inherits it)
-    roundedZero: "plain",
 });
 const T04A = preset(P_OFF, { showPL: true, showMin: true, dPlBar: true, dPlPin: true, decimals: 1, pctDecimals: 1 });
 const T04B = preset(T04A, { dPlBar: false, dPlWf: true, decimals: 2, pctDecimals: 1, sheetPdec: 2 });
@@ -436,8 +440,7 @@ export const MEGA_PRESETS: Record<string, MegaPreset> = {
     T02F: preset(T02A, { min: "FC", sort: "delta", sortBlock: "ytd", keepBlockOrder: true }),
     T03A,
     T03B: preset(T03A, { min: "FC" }),
-    // 1.8.4 a rounded zero without sign (only T04A: T04B to T04E keep their two-decimal steps signed)
-    T04A: preset(T04A, { roundedZero: "plain" }),
+    T04A,
     T04B,
     T04C,
     T04D: preset(T04B, { min: "FC" }),
@@ -770,6 +773,8 @@ export interface MegaCol {
     w: number;
     // chart columns
     vals?: { r: MegaRow; v: number; D: MegaDelta }[];
+    /** 1.8.4 pin column: rows with a Δ but a Δ% that is n.a. — "n.a." at the axis, no pin */
+    na?: Set<MegaRow>;
     els?: MegaEl[];
     cap?: number;
     inner?: number;
@@ -1118,7 +1123,11 @@ export function layoutMega(input: MegaInput): MegaLayout {
             // percentage) — its Δ is the point difference in the Δ column
             // 1.8.2 numbers.marginRel: the relative change of the margin (45.3 % on 36.7 % = +23 %)
             if (pct && input.marginRel && D.p != null && isFinite(D.p) && !r.kfmt) { return { ...base, t: fmt.pct(D.p), ...redText(false) }; }
-            if (D.p == null || pct) { return null; }
+            // 1.8.4 a Δ% without meaning (reference 0, sign change) reads "n.a.", soft and italic
+            const na = { ...base, t: input.naText ?? "", bold: false, italic: true, color: MEGA_C.soft };
+            if (pct && input.marginRel && D.p == null && !r.kfmt && input.naText) { return na; }
+            if (pct) { return null; }
+            if (D.p == null) { return input.naText ? na : null; }
             // 1.8.4 the printed Δ% (rounded to the Δ% decimals, in percent) against the threshold
             const imp = D.impactPct;
             const red = t.thresholds && !pct && imp != null && megaRound(imp * 100, input.pdec) < blk.th.pct * 100 - 1e-7;
@@ -1282,6 +1291,8 @@ export function layoutMega(input: MegaInput): MegaLayout {
             if (!D) { continue; }
             const v = c.type === "bar" ? D.d : D.p == null ? null : D.p * 100;
             if (v != null && isFinite(v)) { c.vals.push({ r, v, D }); }
+            // 1.8.4 a pin column prints "n.a." at the axis for a Δ% without meaning
+            else if (c.type === "pin" && D.p == null && input.naText) { (c.na ??= new Set()).add(r); }
         }
     }
     // outlier cap: ONE limit per family over all blocks (all pin columns of the
@@ -1348,6 +1359,8 @@ export function layoutMega(input: MegaInput): MegaLayout {
             if (vv >= 0) { c.els!.push({ p: 0, q: vv, a: 0, c: extra }); }
             else { c.els!.push({ p: vv, q: 0, a: extra, c: 0 }); }
         }
+        // 1.8.4 room for "n.a." right of the axis (italic, small)
+        if (c.na?.size) { c.els!.push({ p: 0, q: 0, a: 0, c: G.lblGap + tw(input.naText!, G.fsSmall, false, true) }); }
         phantom(c);
     }
     // groups: per block, Δ bars + Δ waterfall share "delta", pins "pct", value
@@ -1926,7 +1939,14 @@ function paintChartColumn(
         if (win && (i < win.from || i >= win.to)) { continue; }
         const { r, y, h: rh } = R[i];
         const ov = byRow.get(r);
-        if (!ov) { continue; }
+        if (!ov) {
+            // 1.8.4 a Δ% without meaning: "n.a." right of the axis, soft and italic, no pin
+            if (c.na?.has(r) && input.t.labels) {
+                text(B, c.x0! + axisHalf + G.lblGap, base(y, rh), input.naText!, { anchor: "start", italic: true,
+                    fs: G.fsSmall, color: MEGA_C.soft, parent: g }).setAttribute("data-pnl", "mega-na");
+            }
+            continue;
+        }
         const cy = y + rh / 2; const ty = base(y, rh);
         const v = ov.v; const dir = v >= 0 ? 1 : -1;
         const capped = Math.abs(v) > c.cap!;

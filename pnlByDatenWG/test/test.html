@@ -109,6 +109,7 @@
 <div class="case"><h4>m65 · 1.8.2 · T04C Ellipse im ΔPY-Wasserfall (Operating result, Gross margin fällt aufs Band zurück) · m66 T03A ohne Diagrammspalte: Band bleibt</h4><div class="stage" id="m65" style="width:1320px;height:700px"></div><div class="stage" id="m66" style="width:1320px;height:600px"></div></div>
 <div class="case"><h4>m72 · 1.8.4 · T03A: Δ% bei Vorzeichenwechsel n.a. (Financial income −15 → 69,6) und gerundete Null ohne Vorzeichen (Investment income 0.0) · m73 T01A Schwelle −35 auf der gedruckten Zahl (USA und China −35 gleich gefärbt, Sweden −10.0 % nicht rot)</h4><div class="stage" id="m72" style="width:1320px;height:620px"></div><div class="stage" id="m73" style="width:1320px;height:640px"></div></div>
 <div class="case"><h4>m74 · 1.8.4 · T04D: gekappter Pin behält den schraffierten FC-Kopf · m75 12H: gekappter Pin behält den hohlen PL-Kopf · m76 T04D mit Kappung aus (columns.capPins = false)</h4><div class="stage" id="m74" style="width:1320px;height:700px"></div><div class="stage" id="m75" style="width:1320px;height:760px"></div><div class="stage" id="m76" style="width:1320px;height:700px"></div></div>
+<div class="case"><h4>m77 · 1.8.4 · T04A: ΔPL% n.a. an der Achse der Pin-Spalte (Financial income PL −15 → AC 66) · p30 klassische Tabelle Δ%-Pins: n.a. und gekappter Pin mit Kopf</h4><div class="stage" id="m77" style="width:1320px;height:700px"></div><div class="stage" id="p30" style="width:1100px;height:640px"></div></div>
 <div class="case"><h4>m46 · 1.7 · ⚡ Hochkontrast · T02A · Nicht-Ausnahmen gestrichelt ohne Füllung und Muster</h4><div class="stage" id="m46" style="width:1320px;height:800px"></div></div>
 <script src="locales.js"></script>
 <script src="visual.bundle.js"></script>
@@ -645,6 +646,11 @@ runRows("m75", MEGA_DEMO.statement("12A").map(r => r.account === "orev" ? { ...r
 runRows("m76", W1_T04, { titleBlock: { ...MT, periodLine: "2026" }, toolbar: { show: false }, hierarchy: { defaultLevel: 0 },
   columns: { template: "T04D", templateApplied: "T04D", minuend: "fc", showPL: true, showMinuend: true, dPlWaterfall: true, dPlPin: true,
     capPins: false }, numbers: { decimals: 2, pctDecimals: 1 } });
+// m77 — T04A: Financial income, net PL −15 → AC 66.0 crosses zero: "n.a." at the axis of the ΔPL% pin column, no pin
+runRows("m77", MEGA_DEMO.statement("T04").map(r => r.account === "fin" ? { ...r, values: { ...r.values, pl: -15 } } : r),
+  { titleBlock: { ...MT, periodLine: "2026" }, toolbar: { show: false }, hierarchy: { defaultLevel: 0 }, columns: { template: "T04A" } });
+// p30 — 1.8.4 classic table, Δ% pins: Financial income crosses zero ("n.a.", no pin), Other revenue +62.7 % capped with its head
+runRows("p30", W1_T03, { titleBlock: { ...MT, periodLine: "2026" }, hierarchy: { defaultLevel: 0 }, columns: { preset: "dpct" } });
 runRows("m65", MEGA_DEMO.statement("T04"), { titleBlock: { ...MT, periodLine: "2026" }, toolbar: { show: false },
   hierarchy: { defaultLevel: 0 }, columns: { template: "T04C", highlight: "Operating result, Gross margin", highlightStyle: "ellipse" } });
 runRows("m66", MEGA_DEMO.statement("T03"), { titleBlock: { ...MT, periodLine: "2026" }, toolbar: { show: false }, hierarchy: { defaultLevel: 0 },

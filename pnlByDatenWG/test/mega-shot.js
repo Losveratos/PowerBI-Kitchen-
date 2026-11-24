@@ -121,7 +121,7 @@ function readMega(id) {
     const ids = ["m1", "m2", "m3", "m4", "m5", "m6", "m7", "m8", "m9", "m10", "m11", "m12", "m13", "m14", "m15", "m16",
         "m17", "m18", "m19", "m20", "m21", "m22", "m23", "m24", "m25", "m26", "m27", "m28", "m29", "m30", "m31", "m32", "m33",
         "m34", "m35", "m36", "m37", "m38", "m39", "m40", "m41", "m42", "m43", "m44", "m45", "m46", "m47", "m48", "m49", "m50", "m51", "m52", "m53", "m54", "m55", "m56", "m57", "m58", "m59", "m60", "m61", "m62", "m63", "m64", "m65", "m66", "m67", "m68", "m69", "m70", "m71",
-        "m72", "m73", "m74", "m75", "m76"];
+        "m72", "m73", "m74", "m75", "m76", "m77"];
     const S = {};
     for (const id of ids) {
         S[id] = await page.evaluate(readMega, id);
@@ -390,14 +390,15 @@ function readMega(id) {
         check("m58 margin and its Δ keep one decimal as in the sheet (45.3%, +8.6%p)", has("m58", "+8.6%p") && has("m58", "45.3%"),
             S.m58.body.filter(x => /p$|%$/.test(x.t)).map(x => x.t).join(" "));
     }
-    if (S.m47 && S.m59 && S.m34 && S.m10 && S.m11) {
+    if (S.m47 && S.m59 && S.m34 && S.m10 && S.m11 && S.m8) {
         // 1.8.4 T01C applied fresh writes numbers.roundedZero = plain (until 1.8.3: "+0.0%"); a report that
         // applied it before keeps its stored setting, the property default stays "signed" (m34, templateApplied)
         check("m47 1.8.4 T01C applied fresh: the World ΔPY% that rounds to zero prints 0.0% as the sheet", has("m47", "0.0%") && !has("m47", "+0.0%"));
         check("m34 T01A applied before 1.8.4 (templateApplied, nothing written): the rounded zero keeps its sign (+0.0%)", has("m34", "+0.0%"));
-        check("m10 T04A applied fresh prints its rounded-zero Δ pins plain, m11 T04B (no sheet rule) keeps +0.0",
-            S.m10.charts.some(c => c.labels.some(l => l.t === "0.0")) && !S.m10.charts.some(c => c.labels.some(l => l.t === "+0.0"))
-            && S.m11.charts.some(c => c.labels.some(l => l.t === "+0.0")));
+        // 1.8.4 every template writes plain (T04A m10, T04B m11); without a template the default "signed" stays (m8)
+        const lbl = (id, t) => S[id].charts.some(c => c.labels.some(l => l.t === t));
+        check("m10 T04A / m11 T04B applied fresh print their rounded-zero Δ plain (0.0, 0.00), m8 without a template keeps +0.0",
+            lbl("m10", "0.0") && !lbl("m10", "+0.0") && !has("m11", "+0.0") && !lbl("m11", "+0.0") && has("m8", "+0.0"));
         check("m59 roundedZero plain: World ΔPY% 0.0% as in the sheet", has("m59", "0.0%") && !has("m59", "+0.0%"));
     }
     // ---- 1.8.4 wave 1 (notation) --------------------------------------------------------------
@@ -405,8 +406,11 @@ function readMega(id) {
         // the row of a label: every body text on the same baseline
         const rowOf = (id, label) => { const l = S[id].body.find(x => x.t === label); return l ? S[id].body.filter(x => Math.abs(x.y - l.y) < 0.5).map(x => x.t) : []; };
         const fin = rowOf("m72", "Financial income, net");
-        check("m72 T03A Δ% n.a. on a sign change: Financial income −15.0 → 69.6 keeps ΔPY +84.6, no ΔPY% (was +564.0%); ΔPL% +5.5% stays",
-            fin.includes(nb("-15.0")) && fin.includes("+84.6") && !fin.some(t => /564/.test(t)) && fin.filter(t => /%$/.test(t)).join() === "+5.5%", fin.join("|"));
+        check("m72 T03A Δ% n.a. on a sign change: Financial income −15.0 → 69.6 keeps ΔPY +84.6, ΔPY% reads \"n.a.\" (was +564.0%); ΔPL% +5.5% stays",
+            fin.includes(nb("-15.0")) && fin.includes("+84.6") && !fin.some(t => /564/.test(t)) && fin.filter(t => /%$/.test(t)).join() === "+5.5%"
+            && fin.includes("n.a."), fin.join("|"));
+        const naCell = S.m72.body.find(x => x.t === "n.a.");
+        check("m72 \"n.a.\" is soft and italic, not bold", naCell && naCell.italic && !naCell.bold && naCell.fill !== "#1A1A1A", JSON.stringify(naCell));
         const opex = rowOf("m72", "Operating expenses");
         check("m72 cost rows (both negative in the calculation) keep their Δ% (+6.6%, +3.0%)", opex.includes("+6.6%") && opex.includes("+3.0%"), opex.join("|"));
         const inv = rowOf("m72", "Investment income");
@@ -421,6 +425,16 @@ function readMega(id) {
         check("m73 Sweden ΔPL% −10.02 % prints −10.0 %: not below −10 %, not red (was red)", se != null && se !== "#E02B1D", String(se));
         const ge = red("m73", "Germany", "-85");
         check("m73 Germany ΔPY −85 stays red", ge === "#E02B1D", String(ge));
+    }
+    if (S.m77) {
+        const na77 = await page.evaluate(() => [...document.querySelectorAll('#m77 text[data-pnl="mega-na"]')].map(t => ({ t: t.textContent,
+            y: +t.getAttribute("y"), italic: t.getAttribute("font-style") === "italic" })));
+        const fin77 = S.m77.body.find(x => x.t === "Financial income, net");
+        const pinCol = S.m77.charts.find(c => c.labels.some(l => l.t === "n.a."));
+        check("m77 T04A: the ΔPL% pin column prints \"n.a.\" for Financial income (PL −15 → AC 66.0) and the result rows that cross zero with it, no pin there",
+            // the result rows below cross zero too (PL turns negative through the −15): n.a. there as well
+            na77.length === 3 && na77.every(x => x.t === "n.a." && x.italic) && fin77 && Math.abs(na77[0].y - fin77.y) < 0.5 && pinCol != null,
+            JSON.stringify({ na77, y: fin77 && fin77.y }));
     }
     if (S.m74 && S.m75 && S.m76) {
         const p74 = S.m74.charts.find(c => c.pinHeads.length > 0);
