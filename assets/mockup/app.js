@@ -1,6 +1,6 @@
 /* MockupKitchen · App-Kern v0.2: Zustand (mehrere Seiten), Container-Layout, Rendering, Interaktion, Datenmodell (TMDL/Demo) */
 // Einzige Quelle der Tool-Version: Kopfzeile, meta.version der Spec, AGENT-BRIEF und WORKSHOP-DOKU lesen diesen Wert.
-window.MK_VERSION = '0.6.2';
+window.MK_VERSION = '0.7.0';
 (function () {
   'use strict';
   const CAT = window.MK_CATALOG;
@@ -36,6 +36,7 @@ window.MK_VERSION = '0.6.2';
   }
 
   // ------------------------------------------------------------------ Zustand
+  const TARGETS = ['pbi', 'app', 'wire'];
   function defaultState() {
     // Achtung: S ist hier noch null; die Feldreferenzen der Vorlage löst load() nach dem Zuweisen auf.
     const tpl = CAT.templates.find(t => t.id === 'kpi4-main-detail');
@@ -46,6 +47,8 @@ window.MK_VERSION = '0.6.2';
       canvas: { w: 1920, h: 1080, preset: '1920x1080' },   // Full HD als Vorgabe; HD/UHD/… über die Auswahl
       spacing: { margin: 16, gutter: 12, pad: 8 },
       defScenario: 'AC/PL',
+      // Ziel des Entwurfs (pbi = Power BI, app = Fabric App, wire = Wireframe allgemein) und gespeicherte Filter (Chips über den Kacheln)
+      target: 'pbi', views: [],
       chrome: {
         header: { on: true, h: 56, logoPos: 'left', title: t('state.headerTitle'), sub: t('state.headerSub'), navAuto: true, navOn: true, nav: [], dflt: { title: 'state.headerTitle', sub: 'state.headerSub' } },
         nav: { on: false, w: 64 },
@@ -64,6 +67,8 @@ window.MK_VERSION = '0.6.2';
   function migrate(s) {
     s.report = Object.assign({ audience: '', purpose: '', decision: '', participants: '', version: '0.1', dataDate: '' }, s.report || {});
     s.lang = (s.lang === 'en' || s.lang === 'de') ? s.lang : I18N.lang; s.fieldMeta = s.fieldMeta || {};
+    s.target = TARGETS.includes(s.target) ? s.target : 'pbi'; s.views = Array.isArray(s.views) ? s.views.filter(v => v && typeof v === 'object') : [];
+    s.views.forEach(v => { if (!v.id) v.id = uid(); v.name = String(v.name || ''); v.filters = String(v.filters || ''); });
     if (!s.version || s.version < 2) {
       const p = { id: uid(), name: s.pageName || t('state.firstPage'), notes: s.notes || '', layout: s.layout || ensureIds(CAT.templates[0].tree()) };
       s.pages = [p]; s.cur = p.id; delete s.layout; delete s.pageName; delete s.notes;
@@ -260,7 +265,7 @@ window.MK_VERSION = '0.6.2';
     const an = analysisOf(v); const e = effScen(v); const ti = tileInk(S.design); const ty = typo();
     const o = {
       scenarios: e.scenarios, scenario: e.scenarios.join('/'), deltaBasis: e.basis || undefined, noRef: e.source === 'none',
-      seed: seedOf(nodeId || ''), label: v.sub || '', scale: ui(), polarity: an.polarity,
+      seed: (seedOf(nodeId || '') + (window.MK_STAGE && window.MK_STAGE.on ? window.MK_STAGE.shift(v, nodeId) : 0)) % 1000, label: v.sub || '', scale: ui(), polarity: an.polarity,
       variance: { abs: an.deltaKind.includes('abs'), rel: an.deltaKind.includes('rel') }, unit: an.unit, lang: S.lang, content: v.content || '',
       antiPattern: !!ANTI[v.kind], palette: S.design.palette || 'teal', ink: ti.ink, dark: ti.dark, paper: S.design.tileBg || '#FFFFFF',
       fontScale: ty.scale * tileScale(v), fonts: { label: ty.chart }, nativePalette: S.design.nativePalette || 'neutral',
@@ -714,9 +719,22 @@ window.MK_VERSION = '0.6.2';
   // mit S.pixel = { mode: 'lattice', n: 12 } lösen sich die Ränder automatisch (KONZEPT-PIXELRASTER.md).
   const PG = window.MK_PIXELGRID;
   const latticeOn = () => !!(S.pixel && S.pixel.mode === 'lattice');
-  function zonesFull() { return PG.zones(S.canvas, S.chrome, latticeOn() ? { n: S.pixel.n || 12, margin: S.pixel.margin == null ? 18 : S.pixel.margin, gutter: S.spacing.gutter } : { legacy: true, margin: S.spacing.margin }); }
+  // Chip-Zeile (gespeicherte Filter): eigener Streifen unter dem Kopfband. pixelgrid.js bleibt unberührt, die Zeile wird dem
+  // Kopfband zugeschlagen und danach wieder abgetrennt (z.chips). Ohne gespeicherte Filter ist alles wie bisher.
+  const CHIP_H = 30;                                             // Basis-px bei 1280
+  const chipsOn = () => !!(S.views && S.views.length);
+  function chromeEff() { if (!chipsOn()) return S.chrome; const h = S.chrome.header; return Object.assign({}, S.chrome, { header: Object.assign({}, h, { on: true, h: (h.on ? h.h : 0) + CHIP_H }) }); }
+  function zonesFull() {
+    const z = PG.zones(S.canvas, chromeEff(), latticeOn() ? { n: S.pixel.n || 12, margin: S.pixel.margin == null ? 18 : S.pixel.margin, gutter: S.spacing.gutter } : { legacy: true, margin: S.spacing.margin });
+    if (chipsOn() && z.header) {
+      const full = z.header, hh = S.chrome.header.on ? Math.round(S.chrome.header.h * ui()) : 0;
+      z.chips = { x: full.x, y: full.y + hh, w: full.w, h: full.h - hh };
+      if (hh) z.header = { x: full.x, y: full.y, w: full.w, h: hh }; else delete z.header;
+    }
+    return z;
+  }
   // Nur die Zonen, in der Reihenfolge wie bis 0.6.2 (Export und specHash bleiben gleich); Rasterwerte über lattice()
-  function zones() { const z = zonesFull(), out = {}; ['nav', 'header', 'footer', 'filter', 'content'].forEach(k => { if (z[k]) out[k] = z[k]; }); return out; }
+  function zones() { const z = zonesFull(), out = {}; ['nav', 'header', 'chips', 'footer', 'filter', 'content'].forEach(k => { if (z[k]) out[k] = z[k]; }); return out; }
   function lattice() { return latticeOn() ? zonesFull() : null; }
   // Rechtecke eines Layouts: im Rastermodus Brüche im Pitch-Raum (pixelgrid.layout), sonst wie bisher layoutRects()
   function rectsOf(layout, content, out) {
@@ -771,7 +789,7 @@ window.MK_VERSION = '0.6.2';
     pageEl.style.width = w + 'px'; pageEl.style.height = h + 'px'; pageEl.style.transform = 'scale(' + zoom + ')';
     // Kacheltitel und Eyebrow folgen derselben Kontrast-Regel wie die Skizze (tileInk: tileHtml, render-png), sonst 1:1 auf dunklem Kachelgrund (B5)
     pageEl.style.setProperty('--ui', k); pageEl.style.setProperty('--zoom', zoom); pageEl.style.setProperty('--tile-r', Math.round(d.radius * k) + 'px'); pageEl.style.setProperty('--page-bg', pageBgOf(d)); pageEl.style.setProperty('--accent', d.accent || '#C25A2D'); pageEl.style.setProperty('--tile-bg', d.tileBg || '#FFFFFF'); pageEl.style.setProperty('--ink-page', tileInk(d).ink); pageEl.style.setProperty('--hdr-bg', d.headerBg || '#0F1E2E'); pageEl.style.setProperty('--hdr-ink', d.headerInk || '#FFFFFF'); const ty = typo(); pageEl.style.setProperty('--fs-title', (ty.title * ty.scale) + 'px'); pageEl.style.setProperty('--fs-sub', (ty.sub * ty.scale) + 'px');
-    pageEl.className = 'page tile-' + (d.tile || 'border');
+    pageEl.className = 'page tile-' + (d.tile || 'border') + ' target-' + (S.target || 'pbi'); document.body.dataset.target = S.target || 'pbi';
     $('#stageInner').style.minWidth = `max(100%, ${Math.round(w * zoom + 56)}px)`; $('#stageInner').style.minHeight = `max(100%, ${Math.round(h * zoom + 56)}px)`;
     pageEl.style.marginRight = (w * zoom - w) + 'px'; pageEl.style.marginBottom = (h * zoom - h) + 'px';
     const all = computeAll(); const z = all.zones;
@@ -780,12 +798,13 @@ window.MK_VERSION = '0.6.2';
     if (z.header) {
       const names = navPosOf(c) === 'header' ? navNames(c) : [];
       const cur = c.header.navAuto ? page().name : names[0];
-      const nav = names.map(n => `<span class="${n === cur ? 'act' : ''}">${esc(n)}</span>`).join('');
+      const nav = names.map(n => `<span class="${n === cur ? 'act' : ''}" data-goto="${esc(n)}">${esc(n)}</span>`).join('');
       const logo = pos => c.header.logoPos === pos ? `<div class="logo${pos === 'right' ? ' right' : ''}">LOGO</div>` : '';
-      const burger = c.filter.on && c.filter.side === 'burger' ? `<div class="burger" title="${esc(t('tip.filterMenu'))}"><i></i><i></i><i></i>${c.filter.fields.length ? `<b>${c.filter.fields.length}</b>` : ''}</div>` : '';
+      const burger = burgerOn(c) ? `<div class="burger" data-burger="1" title="${esc(t('tip.filterMenu'))}"><i></i><i></i><i></i>${c.filter.on && c.filter.side === 'burger' && c.filter.fields.length ? `<b>${c.filter.fields.length}</b>` : ''}</div>` : '';
       html += `<div class="zone header ${d.header || 'light'}" style="${css(z.header)}">${burger}${logo('left')}<div style="min-width:0"><div class="ttl">${esc(c.header.title || t('canvas.pageTitle'))}</div>${c.header.sub ? `<div class="sub">${esc(c.header.sub)}</div>` : ''}</div>${nav ? `<div class="nav${c.header.logoPos === 'right' ? ' noauto' : ''}" style="${c.header.logoPos === 'right' ? 'margin-left:auto' : ''}">${nav}</div>` : ''}${logo('right')}</div>`;
     }
-    if (z.footer) { const fnames = navPosOf(c) === 'footer' ? navNames(c) : []; const fnav = fnames.length ? `<div class="nav">${fnames.map(n => `<span class="${n === page().name ? 'act' : ''}">${esc(n)}</span>`).join('')}</div>` : ''; html += `<div class="zone footer" style="${css(z.footer)}"><span class="ft">${esc(c.footer.text || '')}</span>${fnav}</div>`; }
+    if (z.footer) { const fnames = navPosOf(c) === 'footer' ? navNames(c) : []; const fnav = fnames.length ? `<div class="nav">${fnames.map(n => `<span class="${n === page().name ? 'act' : ''}" data-goto="${esc(n)}">${esc(n)}</span>`).join('')}</div>` : ''; html += `<div class="zone footer" style="${css(z.footer)}"><span class="ft">${esc(c.footer.text || '')}</span>${fnav}</div>`; }
+    if (z.chips) html += `<div class="zone chips" data-chipzone="1" style="${css(z.chips)}">${chipsHtml()}</div>`;
     // Zahnrad je Zone: oeffnet den passenden Abschnitt im Reiter Rahmen (Doppelklick auf die Zone tut dasselbe)
     ['header', 'nav', 'filter', 'footer'].forEach(key => { const r = z[key]; if (!r) return; const gx = r.x + r.w - 26 * k, gy = key === 'footer' ? r.y + (r.h - 22 * k) / 2 : r.y + 4 * k; html += `<div class="zcfg" data-zcfg="${key}" title="${esc(t('tip.zoneCfg'))}" style="left:${gx}px;top:${gy}px">⚙</div>`; });
     if (z.filter) {
@@ -807,6 +826,17 @@ window.MK_VERSION = '0.6.2';
     try { window.dispatchEvent(new Event('mk:rendered')); } catch (e) { /* Listener-Fehler nicht weitertragen */ }
   }
   function css(r) { return `left:${r.x}px;top:${r.y}px;width:${r.w}px;height:${r.h}px`; }
+  // Burger-Menü im Kopfband: für das Filter-Panel (wie bisher) und für die Seitennavigation (navPos 'burger', Vorgabe im Ziel Fabric App)
+  function burgerOn(c) { c = c || S.chrome; return (c.filter.on && c.filter.side === 'burger') || navPosOf(c) === 'burger'; }
+  // Chips der gespeicherten Filter. In der Präsentation liefert die Bühne (stage.js) den laufenden Zustand: aktive Ansichten, Slicer- und Kachel-Auswahl.
+  function chipsHtml() {
+    const st = window.MK_STAGE && window.MK_STAGE.on ? window.MK_STAGE : null;
+    const list = st ? st.chips() : S.views.map(v => ({ id: v.id, kind: 'view', label: v.name || t('app.viewUnnamed'), tip: v.filters || '', on: true }));
+    return `<span class="chip-cap">${esc(t('app.chipCap'))}</span>` + list.map(ch => `<span class="chip ${ch.kind}${ch.on ? ' on' : ''}" data-chip="${esc(ch.id)}" data-chipkind="${ch.kind}"${ch.tip ? ` title="${esc(ch.tip)}"` : ''}><i class="dot"></i><span class="tx">${esc(ch.label)}</span><b class="x" data-chipx="${esc(ch.id)}" aria-hidden="true">✕</b></span>`).join('')
+      + (st && st.hasFilter() ? `<span class="chip reset" data-chipreset="1">${esc(t('app.chipReset'))}</span>` : '');
+  }
+  // Seite wechseln (Bühne, Burger-Menü): Name oder ID; kein Rückgängig-Schritt
+  function gotoPage(ref) { const p = S.pages.find(x => x.id === ref) || S.pages.find(x => x.name === ref); if (!p || p.id === S.cur) return !!p; S.cur = p.id; sel = null; commit({ noUndo: true }); return true; }
   // Klick nicht verschlucken (B12): Verlässt man ein Feld per Mausklick auf eine andere Kachel, feuert dessen change-Ereignis
   // mitten in diesem Klick. Ein sofortiges render() ersetzt das Klickziel zwischen mousedown und mouseup, der Klick ginge verloren
   // (und N öffnete die alte Kachel). Solange eine Maustaste gedrückt ist, wird deshalb erst nach dem Loslassen neu gezeichnet.
@@ -1863,6 +1893,8 @@ window.MK_VERSION = '0.6.2';
     page, visuals, leaves, zones, computeAll, lattice, ui, ckSketchOpt, toast, findNode, insertEdge, mergeGutter, fmtOf, FORMAT_WISH, rebuildGrid, splitLeaf, removeLeaf, gridCheck, samplesOf, samplesOpt, catalog: CAT, persist, pageBg: PAGE_BG, pageBgOf, isDark, analysisOf, navPosOf, navNames, roleOf, PAGE_ROLES, typo, tileScale, a11yFindings, primaryMeasure, fieldInfo, seedOf, anti: ANTI,
     fieldStatus, refMismatch, sketchScenario, basisOfName, syncFieldFlags,
     effScen, sketchOpts, sketchInfo, tileGeom, placeholderChips, hasChips: hasChipsOf,
+    // Zielmodus, gespeicherte Filter und Bühne (appmode.js, stage.js)
+    TARGETS, commit, render, gotoPage, burgerOn, chipsOn, togglePresent, fitZoom, showTab, uid,
     setLang, get lang() { return I18N.lang; }, copyText, tileInk,
     ingestTmdlFiles, setPages, setKind,
     markClean() { cleanPrint = fingerprint(S); }, isUnchanged() { return (cleanPrint !== null && cleanPrint === fingerprint(S)) || isPristine(); },

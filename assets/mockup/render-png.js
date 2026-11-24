@@ -216,6 +216,7 @@
     /* Zonen */
     if (z.nav) body += navRail(ctx, z.nav);
     if (z.header) body += headerZone(ctx, z);
+    if (z.chips) body += chipsZone(ctx, z.chips);
     if (z.footer) body += footerZone(ctx, z.footer);
     if (z.filter) body += filterZone(ctx, z.filter);
 
@@ -262,6 +263,22 @@
         fill: light ? 'rgba(15,30,46,.6)' : 'rgba(255,255,255,.75)'
       });
   }
+  /* Chip-Zeile der gespeicherten Filter (ab 0.7.0), wie auf der Zeichenfläche: Beschriftung, dann je Filter eine Pille */
+  function chipsZone(ctx, z) {
+    var k = ctx.k, S = ctx.S, out = '', x = z.x + 16 * k, cy = z.y + z.h / 2, fs = 10.5 * k, h = 20 * k;
+    var cap = (window.MK_I18N ? window.MK_I18N.tl(S.lang, 'app.chipCap') : 'Filter').toUpperCase();
+    out += tx(x, cy + 9.5 * k * MID, cap, { size: 9.5 * k, fill: '#6B7280' }); x += textW(cap, 9.5 * k) + 10 * k;
+    (S.views || []).forEach(function (v) {
+      var label = v.name || (window.MK_I18N ? window.MK_I18N.tl(S.lang, 'app.viewUnnamed') : '');
+      var w = textW(label, fs) + 34 * k; if (x + w > z.x + z.w - 16 * k) return;
+      out += rc(x, cy - h / 2, w, h, { r: h / 2, fill: '#FFFFFF', stroke: ctx.accent, sw: 1 });
+      out += '<circle cx="' + nm(x + 11 * k) + '" cy="' + nm(cy) + '" r="' + nm(3 * k) + '" fill="' + ctx.accent + '"/>';
+      out += tx(x + 18 * k, cy + fs * MID, label, { size: fs, fill: '#0F1E2E' });
+      out += tx(x + w - 10 * k, cy + 9 * k * MID, '✕', { size: 9 * k, anchor: 'middle', fill: '#8A8F98' });
+      x += w + 6 * k;
+    });
+    return out;
+  }
   function headerZone(ctx, zones) {
     var z = zones.header, k = ctx.k, c = ctx.c.header, d = ctx.d, S = ctx.S;
     var style = d.header || 'light', light = style === 'light';
@@ -274,11 +291,12 @@
     var x = z.x + padX;
 
     /* Burger, wenn das Filter-Panel als Bookmark-Menue gedacht ist */
-    if (ctx.c.filter && ctx.c.filter.on && ctx.c.filter.side === 'burger') {
+    var navBurger = ctx.S.chrome && ctx.S.chrome.navPos === 'burger';
+    if ((ctx.c.filter && ctx.c.filter.on && ctx.c.filter.side === 'burger') || navBurger) {
       var bs = 32 * k;
       out += rc(x, cy - bs / 2, bs, bs, { r: 4 * k, stroke: light ? 'rgba(15,30,46,.3)' : 'rgba(255,255,255,.4)', sw: 1 });
       for (var i = -1; i <= 1; i++) out += ln(x + 7 * k, cy + i * 6 * k, x + bs - 7 * k, cy + i * 6 * k, fg, 2 * k);
-      var n = (ctx.c.filter.fields || []).length;
+      var n = ctx.c.filter && ctx.c.filter.on && ctx.c.filter.side === 'burger' ? (ctx.c.filter.fields || []).length : 0;
       if (n) {
         var bw = textW(String(n), 9 * k, null, true) + 10 * k, bh = 13 * k;
         out += rc(x + bs - bw + 6 * k, cy - bs / 2 - 6 * k, bw, bh, { r: bh / 2, fill: ctx.accent }) +

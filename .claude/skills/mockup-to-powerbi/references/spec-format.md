@@ -108,6 +108,20 @@ Wieder abwärtskompatibel: fehlt ein Schlüssel, baut der Skill genau wie vorher
 | `design.sourceReport` | 0.6 | nur ohne Live-Helfer: Gestaltung stammt aus dem eingelesenen Bericht, kein Seitenhintergrund und kein Kachelstil für Seiten und Kacheln aus dem Bericht, siehe [`design.sourceReport`](#designsourcereport-gestaltung-aus-dem-bericht) |
 | Issue-Codes `A11Y_*` | 0.4.4 | Befunde der Barrierefreiheits-Prüfung |
 
+### Tool 0.7.0: Zielmodus, gespeicherte Filter (specVersion bleibt 3)
+
+Abwärtskompatibel: fehlt `meta.target`, gilt `pbi`. Der Skill baut weiter nur Power BI; die neuen Angaben sind
+Hinweise für den Bau bzw. für `dwg mockup import`.
+
+| Neu | Wo |
+|---|---|
+| `meta.target` | `pbi` (Vorgabe) · `app` (Fabric App, Rayfin, dwg cli) · `wire` (Wireframe ohne Zielsystem). Zählt nicht zum specHash. Bei `app` und `wire` vor einem Power-BI-Bau nachfragen, ob das gewollt ist |
+| `zones.chips` | Chip-Zeile unter dem Kopfband, nur wenn es gespeicherte Filter gibt: `{x, y, w, h, views[], bookmarks[]}`. `views[]` = `{id, name, filters, parsed[{field, values[]}]}`; `filters` ist Freitext aus dem Workshop (`Region = Nord, West; Year = 2026`), `parsed` die mechanische Zerlegung. Feldnamen sind **nicht** gegen das Modell geprüft. Zählt über `zones` zum specHash |
+| `zones.chips.bookmarks` | nur bei `target: pbi`: je gespeichertem Filter ein Lesezeichen (nur Daten, alle Visuals) plus Schaltfläche in der Chip-Zeile. Der Konverter legt sie **nicht** an; Issue `BOOKMARKS_SAVED_FILTERS` weist darauf hin. Vor dem Bau klären, ob Lesezeichen wirklich gewollt sind (Pflegeaufwand nach jeder Berichtsänderung) |
+| `zones.header.navPosition: "burger"`, `burgerNav`, `burgerPages` | Seitennavigation im Burger-Menü. `nav_position()` liest das als `off` (keine Navigation im Kopfband). Für Power BI: Panel mit Seitennavigator und zwei Lesezeichen, Issue `BOOKMARKS_BURGER_NAV`. `zones.header.burger` bleibt wie bisher das Filter-Panel per Burger |
+| `app` | nur bei `target: app`: `shell{navigation, filterPanel, savedFilters[], crossFilter, resolution}` als Vorgabe an die App-Shell und `notBuildable[{page, id, kind}]` (Kacheln ohne ChartKitchen-Modus und ohne P&L-Visual). Zählt nicht zum specHash |
+| Issue-Codes `BOOKMARKS_*`, `APP_SHELL_*`, `APP_NOT_BUILDABLE` | Hinweise zu Lesezeichen (Power BI) bzw. zu dem, was die dwg-Shell heute nicht kann |
+
 ### Tool 0.6.0: ChartKitchen 1.47 (specVersion bleibt 3)
 
 Wieder abwärtskompatibel: kein Feld wird umbenannt, die Rollen-Schlüssel bleiben

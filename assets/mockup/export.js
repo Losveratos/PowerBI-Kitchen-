@@ -142,7 +142,7 @@
     const zonesOut = {};
     Object.keys(z).forEach(key => { zonesOut[key] = Object.assign({}, z[key]); });
     const navPos = MK.navPosOf(c), navList = MK.navNames(c); const navNames = navPos === 'header' ? navList : [];
-    if (z.header) Object.assign(zonesOut.header, { style: d.header, logoPos: c.header.logoPos, title: c.header.title, subtitle: c.header.sub, nav: navNames, navOn: navPos === 'header', navPosition: navPos, navAuto: !!c.header.navAuto, burger: c.filter.on && c.filter.side === 'burger' });
+    if (z.header) Object.assign(zonesOut.header, { style: d.header, logoPos: c.header.logoPos, title: c.header.title, subtitle: c.header.sub, nav: navNames, navOn: navPos === 'header', navPosition: navPos, navAuto: !!c.header.navAuto, burger: c.filter.on && c.filter.side === 'burger' }, navPos === 'burger' ? { burgerNav: true, burgerPages: navList } : {});
     if (z.nav) zonesOut.nav.pages = S.pages.map(p => p.name);
     if (z.footer) { zonesOut.footer.text = c.footer.text; zonesOut.footer.nav = navPos === 'footer' ? navList : []; zonesOut.footer.navPosition = navPos; }
     const slicers = (c.filter.fields || []).map(f => Object.assign(fieldOut(f), { default: f.default || null, type: f.type || 'dropdown' }));
@@ -155,6 +155,24 @@
       if (mode === 'burger' || c.filter.collapsible) fl.bookmarks = [{ name: T('exp.bm.open'), showsPanel: true }, { name: T('exp.bm.close'), showsPanel: false }];
       zonesOut.filter = fl;
       if (navNames.length > 5 && z.header) issue('warn', 'NAV_OVERFLOW', T('exp.issue.navOverflow', { n: navNames.length }));
+    }
+    // Gespeicherte Filter (Chip-Zeile unter dem Kopfband): Name plus „Feld = Wert, Wert" je Filter, soweit lesbar zerlegt
+    const target = (MK.TARGETS || []).includes(S.target) ? S.target : 'pbi';
+    const views = (S.views || []).map(v => ({ id: v.id, name: v.name || '', filters: v.filters || '', parsed: String(v.filters || '').split(/;|\n/).map(x => x.trim()).filter(Boolean).map(x => { const i = x.indexOf('='); return i < 0 ? { field: x, values: [] } : { field: x.slice(0, i).trim(), values: x.slice(i + 1).split(',').map(y => y.trim()).filter(Boolean) }; }) }));
+    if (zonesOut.chips) { zonesOut.chips.views = views; if (target === 'pbi') zonesOut.chips.bookmarks = views.map(v => ({ name: v.name, filters: v.filters })); }
+    if (target === 'pbi') {
+      if (views.length) issue('warn', 'BOOKMARKS_SAVED_FILTERS', T('exp.issue.bookmarksViews', { n: views.length }));
+      if (navPos === 'burger') issue('warn', 'BOOKMARKS_BURGER_NAV', T('exp.issue.bookmarksBurger'));
+    }
+    // Ziel Fabric App: was die dwg-Shell heute noch nicht kann, steht als Vorgabe (Wunsch) im Block app und als Hinweis in issues
+    let appOut = null;
+    if (target === 'app') {
+      const fits = def => def && (def.targets ? def.targets.includes('app') : (!!def.ckMode || !!(def.customVisual && def.customVisual.name === 'pnlByDatenWG')));
+      const notBuildable = [];
+      pages.forEach(p => p.visuals.forEach(v => { if (!fits(CAT.byId[v.kind])) { notBuildable.push({ page: p.name, id: v.id, kind: v.kind }); issue('warn', 'APP_NOT_BUILDABLE', T('exp.issue.appNotBuildable', { t: v.displayName || v.title || v.label, k: v.kind }), p.name, v.id); } }));
+      if (views.length) issue('info', 'APP_SHELL_SAVED_FILTERS', T('exp.issue.appShellViews', { n: views.length }));
+      if (MK.burgerOn && MK.burgerOn(c)) issue('info', 'APP_SHELL_BURGER', T('exp.issue.appShellBurger'));
+      appOut = { shell: { navigation: navPos, filterPanel: c.filter.on ? c.filter.side : 'off', savedFilters: views, crossFilter: true, resolution: S.canvas.w === 1920 && S.canvas.h === 1080 ? 'fullhd' : S.canvas.w === 1280 && S.canvas.h === 720 ? 'hd' : 'custom' }, notBuildable };
     }
     // Felder: alle gebundenen Felder mit Modell-Definition und Steckbrief
     const used = new Map();
@@ -184,13 +202,14 @@
     pages.filter(p => p.role === 'drill' && !pages.some(q => q.visuals.some(v => v.link && v.link.pageId === p.id))).forEach(p => issue('info', 'DRILL_NO_SOURCE', T('exp.issue.drillNoSource', { p: p.name }), p.name));
     // specHash wird unten aus der fertigen Spec gerechnet; der Platzhalter hält die Schlüsselreihenfolge in meta
     const spec = {
-      meta: { tool: TOOL, version: VER, specVersion: SPEC_VERSION, specHash: '', name: S.name, lang: L, exportedAt: new Date().toISOString(), skill: 'mockup-to-powerbi' },
+      meta: { tool: TOOL, version: VER, specVersion: SPEC_VERSION, specHash: '', name: S.name, lang: L, exportedAt: new Date().toISOString(), skill: 'mockup-to-powerbi', target },
       report: Object.assign({ name: S.name }, S.report),
       // Rastermodus (pixelgrid.js): Schritt, Zwischenraum und Ränder; cell je Kachel = Brüche im Pitch-Raum. Zählt nicht zum specHash.
       canvas: Object.assign({ width: S.canvas.w, height: S.canvas.h, preset: S.canvas.preset, uiScale: +k.toFixed(3) }, MK.lattice && MK.lattice() ? { pixel: window.MK_PIXELGRID.pixelBlock(MK.lattice()) } : {}),
       spacing: { margin: Math.round(S.spacing.margin * k), gutter: Math.round(S.spacing.gutter * k), tilePadding: Math.round(S.spacing.pad * k), base: { margin: S.spacing.margin, gutter: S.spacing.gutter, tilePadding: S.spacing.pad } },
       design: { nativePalette: d.nativePalette || 'neutral', cornerRadius: Math.round(d.radius * k), tileStyle: d.tile, pageBackground: MK.pageBgOf(d), tileBackground: d.tileBg || '#FFFFFF', headerStyle: d.header, accent: d.accent, variancePalette: d.palette || 'teal', varianceColors: (d.palette || 'teal') === 'ibcs' ? { good: '#3A9A5B', bad: '#C8412F' } : { good: '#1E8F9E', bad: '#D64541' }, colors: { pageBackground: MK.pageBgOf(d), tileBackground: d.tileBg || '#FFFFFF', ink: d.ink || '#0F1E2E', headerBackground: d.header === 'custom' ? d.headerBg : (d.header === 'dark' ? '#0F1E2E' : d.header === 'accent' ? d.accent : '#FFFFFF'), headerInk: d.header === 'custom' ? d.headerInk : (d.header === 'light' ? '#0F1E2E' : '#FFFFFF') }, darkMode: MK.isDark(d.tileBg), fontScale: +k.toFixed(3), typography: Object.assign({ basis: '1280px' }, MK.typo()) },
       zones: zonesOut, pages, links,
+      ...(appOut ? { app: appOut } : {}),
       model: { source: S.model.source || null, tables: S.model.tables.map(t => t.name), usedFields: fields },
       fields, newFields, issues,
       warnings: issues.filter(i => i.level !== 'info').map(i => (i.page ? TL(L, 'exp.brief.openPage', { p: i.page }) + ': ' : '') + i.text),
@@ -320,6 +339,11 @@
     const OPEN = T('exp.open');
     out.push(`# AGENT-BRIEF · ${spec.meta.name}`, '', B('head', { tool: spec.meta.tool, ver: spec.meta.version, date: spec.meta.exportedAt.slice(0, 10), sv: spec.meta.specVersion, hash: spec.meta.specHash, lang: spec.meta.lang }), '');
     out.push(B('hReport'), '', `- **${B('audience')}:** ${rp.audience || OPEN}`, `- **${B('purpose')}:** ${rp.purpose || OPEN}`, `- **${B('decision')}:** ${rp.decision || OPEN}`, `- **${B('version')}:** ${rp.version || '0.1'} · **${B('dataDate')}:** ${rp.dataDate || OPEN}`, '');
+    // Ziel des Entwurfs und gespeicherte Filter (ab 0.7.0)
+    { const tg = spec.meta.target || 'pbi'; out.push(T('exp.brief.target', { t: T('target.' + tg) }) + ' ' + T('exp.brief.target_' + tg), '');
+      const vws = (z.chips && z.chips.views) || [];
+      if (vws.length) { out.push(T('exp.brief.hViews'), '', ...vws.map(v => `- **${v.name || T('app.viewUnnamed')}**${v.filters ? ': `' + v.filters + '`' : ''}`), '', T('exp.brief.views_' + tg), ''); }
+      if (z.header && z.header.burgerNav) out.push(T('exp.brief.burgerNav_' + tg), ''); }
     out.push(B('hCanvas'), '',
       B('cPages', { n: spec.pages.length, w: spec.canvas.width, h: spec.canvas.height, s: spec.canvas.uiScale }),
       B('cSpacing', { m: spec.spacing.margin, g: spec.spacing.gutter, p: spec.spacing.tilePadding }),

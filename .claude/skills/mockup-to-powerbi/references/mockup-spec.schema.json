@@ -54,6 +54,15 @@
         },
         "skill": {
           "type": "string"
+        },
+        "target": {
+          "type": "string",
+          "enum": [
+            "pbi",
+            "app",
+            "wire"
+          ],
+          "description": "Ziel des Entwurfs (ab Tool 0.7.0): pbi = Power BI (Vorgabe, wenn das Feld fehlt), app = Fabric App (Rayfin, dwg cli), wire = Wireframe ohne Zielsystem. Zählt nicht zum specHash."
         }
       }
     },
@@ -320,6 +329,159 @@
         },
         "footer": {
           "$ref": "#/$defs/footerZone"
+        },
+        "chips": {
+          "type": "object",
+          "description": "Chip-Zeile unter dem Kopfband (ab Tool 0.7.0): gespeicherte Filter als Chips. Nur vorhanden, wenn es gespeicherte Filter gibt. In Power BI je Filter ein Lesezeichen plus Schaltfläche (Issue BOOKMARKS_SAVED_FILTERS).",
+          "properties": {
+            "x": {
+              "type": "number"
+            },
+            "y": {
+              "type": "number"
+            },
+            "w": {
+              "type": "number"
+            },
+            "h": {
+              "type": "number"
+            },
+            "views": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  },
+                  "name": {
+                    "type": "string"
+                  },
+                  "filters": {
+                    "type": "string",
+                    "description": "Freitext aus dem Workshop: „Feld = Wert, Wert; Feld = Wert“"
+                  },
+                  "parsed": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "field": {
+                          "type": "string"
+                        },
+                        "values": {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "bookmarks": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "filters": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "app": {
+      "type": "object",
+      "description": "Nur bei meta.target = app (ab Tool 0.7.0): Vorgaben für die App-Shell und Kacheln, die die dwg cli heute nicht aus der Spec erzeugen kann. Zählt nicht zum specHash.",
+      "properties": {
+        "shell": {
+          "type": "object",
+          "properties": {
+            "navigation": {
+              "type": "string",
+              "enum": [
+                "header",
+                "footer",
+                "off",
+                "burger"
+              ]
+            },
+            "filterPanel": {
+              "type": "string"
+            },
+            "savedFilters": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  },
+                  "name": {
+                    "type": "string"
+                  },
+                  "filters": {
+                    "type": "string",
+                    "description": "Freitext aus dem Workshop: „Feld = Wert, Wert; Feld = Wert“"
+                  },
+                  "parsed": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "field": {
+                          "type": "string"
+                        },
+                        "values": {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "crossFilter": {
+              "type": "boolean"
+            },
+            "resolution": {
+              "type": "string",
+              "enum": [
+                "fullhd",
+                "hd",
+                "custom"
+              ]
+            }
+          }
+        },
+        "notBuildable": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "page": {
+                "type": "string"
+              },
+              "id": {
+                "type": "string"
+              },
+              "kind": {
+                "type": "string"
+              }
+            }
+          }
         }
       }
     },
