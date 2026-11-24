@@ -126,6 +126,12 @@ sys.path.insert(0, str(HERE))
 import model_ops as MO  # noqa: E402
 import tile_compare as TC  # noqa: E402
 import visuals_install as VI  # noqa: E402
+# KPI-Kacheln (Engine ChartKitchen): der Konverter baut sie seit Tool 0.7.0 als ChartKitchen
+# `cards` mit Trend. Der Runner bleibt vorerst beim Custom Visual ibcsKpiCard, weil Karten-
+# geometrie und Bildvergleich am Desktop damit abgestimmt wurden (Lauf 02.10.2026). Der
+# Schalter gilt auch fuer den Konverter, den der Runner als Unterprozess startet. Wer den
+# Runner mit ChartKitchen-Karten pruefen will, setzt MK_KPI_CARD=ck vor dem Start.
+os.environ.setdefault("MK_KPI_CARD", "ibcs")
 sys.path.pop(0)
 
 # Dateien, die bei offenem Desktop extern nicht geändert werden duerfen

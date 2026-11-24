@@ -242,6 +242,45 @@
           }
         },
         {
+          "name": "mk_5z33e3b",
+          "type": "chartKitchen|shape",
+          "rect": {
+            "x": 16,
+            "y": 72,
+            "w": 317,
+            "h": 119
+          },
+          "role": "chartkitchen",
+          "optional": true,
+          "fields": {}
+        },
+        {
+          "name": "mk_7ixiebk",
+          "type": "chartKitchen|shape",
+          "rect": {
+            "x": 669,
+            "y": 72,
+            "w": 330,
+            "h": 119
+          },
+          "role": "chartkitchen",
+          "optional": true,
+          "fields": {}
+        },
+        {
+          "name": "mk_ldc3xxy",
+          "type": "chartKitchen|shape",
+          "rect": {
+            "x": 1011,
+            "y": 72,
+            "w": 253,
+            "h": 119
+          },
+          "role": "chartkitchen",
+          "optional": true,
+          "fields": {}
+        },
+        {
           "name": "mk_7rbkjp5",
           "type": "chartKitchen|shape",
           "rect": {
@@ -266,63 +305,6 @@
           "role": "chartkitchen",
           "optional": true,
           "fields": {}
-        },
-        {
-          "name": "mk_5z33e3b",
-          "type": "ibcsKpiCard2771CF65D0C343A19EAB34E43D7B8682|shape",
-          "rect": {
-            "x": 16,
-            "y": 72,
-            "w": 317,
-            "h": 119
-          },
-          "role": "custom",
-          "optional": true,
-          "fields": {
-            "ac": [
-              "_Measures.Kosten"
-            ],
-            "pl": [
-              "_Measures.PL"
-            ]
-          }
-        },
-        {
-          "name": "mk_7ixiebk",
-          "type": "ibcsKpiCard2771CF65D0C343A19EAB34E43D7B8682|shape",
-          "rect": {
-            "x": 669,
-            "y": 72,
-            "w": 330,
-            "h": 119
-          },
-          "role": "custom",
-          "optional": true,
-          "fields": {
-            "pl": [
-              "_Measures.PL"
-            ]
-          }
-        },
-        {
-          "name": "mk_ldc3xxy",
-          "type": "ibcsKpiCard2771CF65D0C343A19EAB34E43D7B8682|shape",
-          "rect": {
-            "x": 1011,
-            "y": 72,
-            "w": 253,
-            "h": 119
-          },
-          "role": "custom",
-          "optional": true,
-          "fields": {
-            "ac": [
-              "_Measures.Marge"
-            ],
-            "pl": [
-              "_Measures.PL"
-            ]
-          }
         }
       ]
     },
@@ -547,6 +529,32 @@
           }
         },
         {
+          "name": "mk_nav2msq",
+          "type": "chartKitchen|shape",
+          "rect": {
+            "x": 640,
+            "y": 72,
+            "w": 306,
+            "h": 149
+          },
+          "role": "chartkitchen",
+          "optional": true,
+          "fields": {}
+        },
+        {
+          "name": "mk_ap1p6su",
+          "type": "chartKitchen|shape",
+          "rect": {
+            "x": 958,
+            "y": 72,
+            "w": 306,
+            "h": 149
+          },
+          "role": "chartkitchen",
+          "optional": true,
+          "fields": {}
+        },
+        {
           "name": "mk_hw8ifcv",
           "type": "chartKitchen|shape",
           "rect": {
@@ -571,46 +579,6 @@
           "role": "chartkitchen",
           "optional": true,
           "fields": {}
-        },
-        {
-          "name": "mk_nav2msq",
-          "type": "ibcsKpiCard2771CF65D0C343A19EAB34E43D7B8682|shape",
-          "rect": {
-            "x": 640,
-            "y": 72,
-            "w": 306,
-            "h": 149
-          },
-          "role": "custom",
-          "optional": true,
-          "fields": {
-            "ac": [
-              "_Measures.Umsatz"
-            ],
-            "pl": [
-              "_Measures.PL"
-            ]
-          }
-        },
-        {
-          "name": "mk_ap1p6su",
-          "type": "ibcsKpiCard2771CF65D0C343A19EAB34E43D7B8682|shape",
-          "rect": {
-            "x": 958,
-            "y": 72,
-            "w": 306,
-            "h": 149
-          },
-          "role": "custom",
-          "optional": true,
-          "fields": {
-            "ac": [
-              "_Measures.Marge%"
-            ],
-            "pl": [
-              "_Measures.PL"
-            ]
-          }
         }
       ]
     }

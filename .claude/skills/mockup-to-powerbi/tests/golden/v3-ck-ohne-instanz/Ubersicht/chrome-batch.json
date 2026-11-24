@@ -255,6 +255,42 @@
     {
       "id": "format-14",
       "op": "set",
+      "select": "Übersicht.Page/mk_5z33e3b.Visual",
+      "set": {
+        "background.show": true,
+        "background.color": "#FFFFFF",
+        "background.transparency": 0,
+        "border.show": false,
+        "dropShadow.show": true,
+        "dropShadow.preset": "BottomRight",
+        "dropShadow.color": "#0F1E2E",
+        "dropShadow.transparency": 85,
+        "border.radius": 12,
+        "position.z": 10
+      },
+      "continue_on_error": true
+    },
+    {
+      "id": "format-15",
+      "op": "set",
+      "select": "Übersicht.Page/mk_ldc3xxy.Visual",
+      "set": {
+        "background.show": true,
+        "background.color": "#FFFFFF",
+        "background.transparency": 0,
+        "border.show": false,
+        "dropShadow.show": true,
+        "dropShadow.preset": "BottomRight",
+        "dropShadow.color": "#0F1E2E",
+        "dropShadow.transparency": 85,
+        "border.radius": 12,
+        "position.z": 10
+      },
+      "continue_on_error": true
+    },
+    {
+      "id": "format-16",
+      "op": "set",
       "select": "Übersicht.Page/mk_slicer_Region_p1.Visual",
       "set": {
         "title.show": false,
@@ -277,7 +313,7 @@
       "continue_on_error": true
     },
     {
-      "id": "format-15",
+      "id": "format-17",
       "op": "set",
       "select": "Übersicht.Page/mk_slicer_Year_p1.Visual",
       "set": {

@@ -28,6 +28,9 @@ dwg cli und Vorschläge für weitere Funktionen: [`KONZEPT-APPMODUS.md`](KONZEPT
 - **Export:** `meta.target`, `zones.chips { views, bookmarks }`, `zones.header.burgerNav`, Block `app { shell,
   notBuildable }`, Issues `APP_SHELL_*`, `APP_NOT_BUILDABLE`. `meta.target` und `app` zählen nicht zum specHash, die
   Chip-Zeile über `zones` schon. Texte der neuen Teile in `i18n-app.js` (flache Schlüssel, nach `i18n.js` geladen).
+- **KPI als ChartKitchen-Karte:** Der Konverter baut `kpi` mit Engine ChartKitchen als `cards` mit Trend statt als
+  `ibcsKpiCard` (Schalter `--kpi-card ibcs` für den alten Weg). Das passt zur dwg cli, die KPI-Kacheln ebenfalls
+  als ChartKitchen `cards` anlegt.
 - **Für später:** Die dwg-Shell kennt weder Burger-Menü noch gespeicherte Ansichten; der Export nennt beides als
   Vorgabe. `dwg mockup import` liest `meta.target`, `app` und `zones.chips` noch nicht.
 
@@ -48,8 +51,10 @@ maßgeblich ist jetzt 0.6.2 mit beidem. Entscheidungen beim Zusammenführen:
   Bildschirm, PNG-Export und Vorschau im Kachel-Reiter zeichnen also dasselbe.
 - KPI-Verlauf: die Skizze beachtet beide Schalter, `o.spark` (kein Zeitfeld gebunden) und `o.trend` (Option `cardTrendChart`).
 - Spec-Hash zählt Seitenrolle (≠ nav) und `chartKitchenProps`.
-- Konverter: `kpi` mit Engine ChartKitchen bleibt `ibcsKpiCard`; `cards` mit Rolle `trend` ist die Rückfallebene im Slot.
-  **Offen:** ob `kpi` ab ChartKitchen 1.47 wieder regulär als `cards` gebaut wird.
+- Konverter: beim Zusammenführen blieb `kpi` mit Engine ChartKitchen zunächst `ibcsKpiCard`. **Entschieden am
+  24.11.2026:** `kpi` wird als ChartKitchen `cards` mit Rolle `trend` gebaut (ab ChartKitchen 1.47). `ibcsKpiCard`
+  bleibt als Schalter (`--kpi-card ibcs`, `MK_KPI_CARD=ibcs`); der Live-Runner setzt ihn vorerst selbst, bis ein
+  Desktop-Lauf die ChartKitchen-Karte dort bestätigt hat.
 - Nichts davon ist gepusht. Das lokale `main` und `feat/mockup-pixelgrid` bleiben unverändert stehen.
 
 Tests auf diesem Stand: `pixelgrid-test` 49, `gridcheck-test` 8, `a11y-test` 30, `diff-test` 48, `fmtinfo-test` 37,

@@ -128,10 +128,10 @@ CK_ORIENTATION = {
     # zeichnet senkrecht; die Δ-Ebene entfaellt dort (isVarBridge), Δ% nur mit
     # showRelativeVariance. wfint bleibt catbridge (S.wfint: waagrechte Zeilen).
     "bridge": "waterfall",
-    # kpi: der Konverter baut `kpi` mit engine ck als eigenes Visual ibcsKpiCard (siehe
-    # kpi_custom_visual, Umstellung nach dem Hash). `cards` bleibt die Rueckfallebene fuer
-    # Slots, die trotzdem bei ChartKitchen landen: ab 1.47 traegt das Zeitfeld die Rolle
-    # `trend` (CK_ROLE_BY_KIND), vorher zeichnete `cards` je Periode eine eigene Karte.
+    # kpi: ab Tool 0.7.0 baut der Konverter `kpi` mit engine ck als ChartKitchen `cards`.
+    # Ab ChartKitchen 1.47 traegt das Zeitfeld die Rolle `trend` (CK_ROLE_BY_KIND), eine
+    # Karte wird damit zur Zeitreihe; vorher zeichnete `cards` je Periode eine eigene Karte.
+    # Der fruehere Weg ueber das Visual ibcsKpiCard bleibt als Schalter (kpi_card_target).
     "kpi": "cards",
     "table": "table", "sparktable": "table", "heatmap": "table",
     # ab ChartKitchen 1.47 / Tool 0.6.0
@@ -420,6 +420,20 @@ def tile_numbers(visual: dict):
     except (TypeError, ValueError):
         dec = None
     return du, dec, unit
+# Ziel einer `kpi`-Kachel mit engine ck: "ck" = ChartKitchen `cards` mit Rolle `trend`
+# (Vorgabe ab Tool 0.7.0, braucht ChartKitchen 1.47 oder neuer), "ibcs" = Custom Visual
+# ibcsKpiCard 2.3 (Stand 0.6.x). Umschalten ueber die Umgebungsvariable MK_KPI_CARD oder
+# `mockup_to_pbir.py --kpi-card ibcs`. Der Live-Runner setzt vorerst "ibcs", weil seine
+# Kartengeometrie am Desktop mit ibcsKpiCard abgestimmt wurde.
+KPI_CARD_TARGETS = ("ck", "ibcs")
+KPI_CARD_DEFAULT = "ck"
+
+
+def kpi_card_target() -> str:
+    val = (os.environ.get("MK_KPI_CARD") or "").strip().lower()
+    return val if val in KPI_CARD_TARGETS else KPI_CARD_DEFAULT
+
+
 def kpi_custom_visual(visual: dict):
     """`kpi` (engine ck) -> customVisual-Block fuer ibcsKpiCard 2.3.
 
@@ -1328,13 +1342,15 @@ def upgrade(raw: dict, page_name_override=None) -> dict:
     out["specHashComputed"] = raw_hash or spec_hash(out)
     if not meta.get("specHash"):
         meta["specHash"] = out["specHashComputed"]
-    # Erst NACH dem Hash: `kpi` mit engine ck wird zum Custom Visual ibcsKpiCard.
-    # Der Hash bleibt so derselbe wie vor dieser Umstellung (er kennt `engine`).
+    # Nur beim Ziel "ibcs" (kpi_card_target) und erst NACH dem Hash: `kpi` mit engine ck
+    # wird zum Custom Visual ibcsKpiCard. Der Hash bleibt derselbe (er kennt `engine`).
     # Weil der Live-Runner dieselbe upgrade()-Funktion nutzt, sieht er die Kachel
     # ebenfalls als `custom` und spielt die erzeugte visual.json ein.
+    # Vorgabe ab Tool 0.7.0 ist "ck": die Kachel bleibt ein ChartKitchen-Slot (`cards`).
+    to_ibcs = kpi_card_target() == "ibcs"
     for page in pages:
         for v in page["visuals"]:
-            if v.get("kind") == "kpi" and v.get("engine") == "ck":
+            if to_ibcs and v.get("kind") == "kpi" and v.get("engine") == "ck":
                 cv, warn = kpi_custom_visual(v)
                 v["engineSource"] = "ck"
                 v["engine"] = "custom"

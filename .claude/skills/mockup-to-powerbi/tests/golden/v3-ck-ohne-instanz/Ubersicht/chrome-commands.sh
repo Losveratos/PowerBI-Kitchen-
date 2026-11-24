@@ -177,6 +177,26 @@ pbir set "Test.Report/Übersicht.Page/chrome_footer_text.Visual.text.default.top
 pbir set "Test.Report/Übersicht.Page/chrome_footer_text.Visual.text.default.bottomMargin" --value 0
 pbir visuals position "Test.Report/Übersicht.Page/chrome_footer_text.Visual" --z 4
 
+# Kachel-Container aus design: tileStyle 'shadow', Ecken 12 px, Hintergrund #FFFFFF — dasselbe steht als Theme-Fragment in theme-fragment.json (Theme schlaegt Overrides)
+pbir set "Test.Report/Übersicht.Page/mk_5z33e3b.Visual.background.show" --value true
+pbir set "Test.Report/Übersicht.Page/mk_5z33e3b.Visual.background.color" --value "#FFFFFF"
+pbir set "Test.Report/Übersicht.Page/mk_5z33e3b.Visual.background.transparency" --value 0
+pbir set "Test.Report/Übersicht.Page/mk_5z33e3b.Visual.border.show" --value false
+pbir set "Test.Report/Übersicht.Page/mk_5z33e3b.Visual.dropShadow.show" --value true
+pbir set "Test.Report/Übersicht.Page/mk_5z33e3b.Visual.dropShadow.preset" --value BottomRight
+pbir set "Test.Report/Übersicht.Page/mk_5z33e3b.Visual.dropShadow.color" --value "#0F1E2E"
+pbir set "Test.Report/Übersicht.Page/mk_5z33e3b.Visual.dropShadow.transparency" --value 85
+pbir set "Test.Report/Übersicht.Page/mk_5z33e3b.Visual.border.radius" --value 12
+pbir set "Test.Report/Übersicht.Page/mk_ldc3xxy.Visual.background.show" --value true
+pbir set "Test.Report/Übersicht.Page/mk_ldc3xxy.Visual.background.color" --value "#FFFFFF"
+pbir set "Test.Report/Übersicht.Page/mk_ldc3xxy.Visual.background.transparency" --value 0
+pbir set "Test.Report/Übersicht.Page/mk_ldc3xxy.Visual.border.show" --value false
+pbir set "Test.Report/Übersicht.Page/mk_ldc3xxy.Visual.dropShadow.show" --value true
+pbir set "Test.Report/Übersicht.Page/mk_ldc3xxy.Visual.dropShadow.preset" --value BottomRight
+pbir set "Test.Report/Übersicht.Page/mk_ldc3xxy.Visual.dropShadow.color" --value "#0F1E2E"
+pbir set "Test.Report/Übersicht.Page/mk_ldc3xxy.Visual.dropShadow.transparency" --value 85
+pbir set "Test.Report/Übersicht.Page/mk_ldc3xxy.Visual.border.radius" --value 12
+
 # Slicer im Kitchen-Kasten: Rahmen #D9D6CC, Kopf an, Container-Titel aus
 pbir set "Test.Report/Übersicht.Page/mk_slicer_Year_p1.Visual.title.show" --value false
 pbir set "Test.Report/Übersicht.Page/mk_slicer_Year_p1.Visual.background.show" --value true
@@ -208,6 +228,10 @@ pbir set "Test.Report/Übersicht.Page/mk_slicer_Region_p1.Visual.header.fontColo
 pbir set "Test.Report/Übersicht.Page/mk_slicer_Region_p1.Visual.header.bold" --value false
 pbir set "Test.Report/Übersicht.Page/mk_slicer_Region_p1.Visual.items.textSize" --value 8
 pbir set "Test.Report/Übersicht.Page/mk_slicer_Region_p1.Visual.items.fontColor" --value "#374151"
+
+# Inhalt ueber die Chrome-Flaechen legen (--from-json vergibt immer z=0)
+pbir visuals position "Test.Report/Übersicht.Page/mk_5z33e3b.Visual" --z 10
+pbir visuals position "Test.Report/Übersicht.Page/mk_ldc3xxy.Visual" --z 10
 
 # Slicer (Overlay-Panel)
 pbir visuals position "Test.Report/Übersicht.Page/mk_slicer_Year_p1.Visual" --z 24

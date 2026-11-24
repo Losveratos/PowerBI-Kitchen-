@@ -14,8 +14,9 @@ description: >
   Top-N, Einheiten) umsetzen, Nav-Buttons, Drill-through und Filter-Lesezeichen
   einrichten, ChartKitchen- und Deneb-Slots mit fertigen Einstellungen
   (`objects`) vorbereiten, **Custom Visuals** (`dataKitchenGantt` für
-  Gantt-Kacheln, `pnlByDatenWG` für GuV-Kacheln, `ibcsKpiCard` für
-  KPI-Kacheln) als fertige `visual.json` einspielen, dann `pbir validate
+  Gantt-Kacheln, `pnlByDatenWG` für GuV-Kacheln und ihre Varianten; `ibcsKpiCard`
+  für KPI-Kacheln nur noch mit dem Schalter `--kpi-card ibcs`, sonst sind KPI-Kacheln
+  ChartKitchen-Slots im Modus `cards`) als fertige `visual.json` einspielen, dann `pbir validate
   --fields`, `te validate --errors-only`, Abnahme-Check, Design-Linter und
   Wireframe. Erzeugt auf Wunsch auch die **Workshop-Doku als Markdown und
   PowerPoint** (deutsch oder englisch, mit den PNG-Seitenbildern) aus demselben
@@ -156,9 +157,10 @@ geht auch allein, ohne PBIP.
        ein Platzhalter mit To-do `CK_NO_NATIVE`). Gut für eine lauffähige erste
        Fassung, aber es ist nicht IBCS und muss später ersetzt werden.
 6. **Custom Visuals in der Spec?** Wenn `engine == "custom"` vorkommt (Kachel-Typ
-   `gantt` → `dataKitchenGantt`, `pnl` → `pnlByDatenWG`, `kpi` → `ibcsKpiCard`;
-   eine `kpi`-Kachel mit `engine: "ck"` stellt `mockup_spec.upgrade()` selbst auf
-   `custom` um): Die `.pbiviz` muss **vor** dem Bauen im Bericht registriert sein,
+   `gantt` → `dataKitchenGantt`, `pnl` und die Varianten `pnlmega`, `pnlbs`, `pnltree`,
+   `pnlsankey` → `pnlByDatenWG`; eine `kpi`-Kachel mit `engine: "ck"` ist seit Tool 0.7.0
+   ein ChartKitchen-Slot im Modus `cards` und wird nur mit `--kpi-card ibcs` von
+   `mockup_spec.upgrade()` auf `custom` mit `ibcsKpiCard` umgestellt): Die `.pbiviz` muss **vor** dem Bauen im Bericht registriert sein,
    sonst bleibt die Kachel leer. Builds im Repo: `dataKitchenGantt/dist/`,
    `pnlByDatenWG/dist/`, `ibcsKpiCard/dist/` (2.3) — fehlt einer, im Visual-Ordner
    `pbiviz package` laufen lassen. Statt Import in Desktop geht bei
@@ -623,7 +625,7 @@ Eintrag die **ganze Datei** mit. Deshalb stehen sie **nicht** in
 `<Seitenslug>/custom-visuals/` — mit `visual.visualType` = GUID und
 `visual.query.queryState` je Bucket aus `customVisual.buckets`.
 
-**KPI-Karte (`ibcsKpiCard`):** Rollen `indicator` → `ac`, `goal`/`ref` → `py`/`pl`/`fc`
+**KPI-Karte (`ibcsKpiCard`, nur mit dem Schalter `--kpi-card ibcs`):** Rollen `indicator` → `ac`, `goal`/`ref` → `py`/`pl`/`fc`
 nach dem Szenario im Feldnamen (sonst `pl`), die Zeitrolle des Kitchens →
 `trend` (Sparkline), **nicht** `category` (das wäre eine Karte je Monat). Die
 Datei trägt fertige `objects`: `display.title`, `display.periodLabel`,
@@ -832,7 +834,7 @@ Die Tests des Live-Runners liegen getrennt unter `mockup-live/tests/run_tests.py
 | Umlaute über `--from-json` | `pbir add visual --from-json` liest die Datei unter Windows als cp1252: aus „Fußleiste" wird „FuÃŸleiste" im Auswahlbereich; eine BOM lehnt pbir ab | Der Konverter schreibt `pbir-visuals.json`, `text-visuals.json`, `chrome-visuals.json` als ASCII mit `\u`-Escapes. Eigene Dateien genauso (`ensure_ascii=True`) |
 | Text-Shape ohne Text | Kopfband-Titel, Untertitel und Fußleistentext sind unsichtbar, obwohl `text.text` gesetzt ist | `text.show` ist bei `shape` standardmäßig aus, und Desktop wertet Text-Eigenschaften nur mit Selektor `default` aus. Der Konverter setzt `text.show = true` ohne Selektor und alle übrigen Text-Eigenschaften als `text.default.<prop>` (seit 02.10.2026, in Desktop geprüft) |
 | Chrome-Schrift zu groß | Kopfband und Filter-Überschrift rund ein Drittel größer als im Kitchen | Alte Regel „Basis × k" in pt. Seit 01.10.2026 pt = px × k × 0,75; ältere `mockup-out/` neu erzeugen |
-| `kpi` als ChartKitchen `cards` | mit Monat als Kategorie zwölf Karten statt einer | `kpi` geht seit 01.10.2026 auf `ibcsKpiCard` (Zeitrolle → `trend`); alte Ausgaben neu erzeugen |
+| `kpi` als ChartKitchen `cards` | mit Monat als Kategorie zwölf Karten statt einer | Seit Tool 0.7.0 geht das Zeitfeld in die Rolle `trend` (ChartKitchen 1.47 oder neuer), eine Karte bleibt eine Karte. Ältere `.pbiviz` im Bericht aktualisieren und alte Ausgaben neu erzeugen; wer `ibcsKpiCard` behalten will, baut mit `--kpi-card ibcs` |
 | Python-Skripte des Design-Frameworks | `UnicodeEncodeError: 'charmap'` auf Windows-Konsolen | `export PYTHONIOENCODING=utf-8` (bzw. `$env:PYTHONIOENCODING='utf-8'`) |
 | `--pages` bei `bulk_restyle.py` / `render_wireframe.py` | erwartet **eine** kommagetrennte Zeichenkette; mehrere Argumente werden nicht als Seitenliste gelesen | `--pages "Seite A,Seite B"` |
 | Überlappende Visuals | `pbir add visual` kennt `--force` gegen Überlappung/Canvas-Rand; bei `--from-json` schlug das Anlegen überlappender Chrome-Elemente **nicht** fehl | Erst ohne `--force` versuchen |

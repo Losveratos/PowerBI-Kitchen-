@@ -1,5 +1,29 @@
 [
   {
+    "visual_type": "card",
+    "name": "mk_5z33e3b",
+    "title": "Umsatz",
+    "x": 16,
+    "y": 72,
+    "width": 317,
+    "height": 119,
+    "fields": {
+      "Values": "_Measures.Kosten"
+    }
+  },
+  {
+    "visual_type": "card",
+    "name": "mk_ldc3xxy",
+    "title": "Marge",
+    "x": 1011,
+    "y": 72,
+    "width": 253,
+    "height": 119,
+    "fields": {
+      "Values": "_Measures.Marge"
+    }
+  },
+  {
     "visual_type": "slicer",
     "name": "mk_slicer_Year_p1",
     "title": "Year",

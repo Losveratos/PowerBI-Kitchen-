@@ -73,9 +73,10 @@ CASES = [
     {"name": "v3-typo-filter", "spec": "v3-typo-filter.json", "docs": True,
      "docs_lang": "en"},
     # Paket B1: Chrome-Text, Filterbereich, IBCS-Optik nativ, ChartKitchen-objects,
-    # kpi -> ibcsKpiCard, Titel nur wenn sichtbar, Burger ausgeblendet, Kitchen 0.5.5
-    {"name": "v3-fidelity", "spec": "v3-fidelity.json", "extra": ["--ck-fallback"],
-     "docs": False},
+    # kpi -> ibcsKpiCard (seit 0.7.0 nur noch mit --kpi-card ibcs), Titel nur wenn
+    # sichtbar, Burger ausgeblendet, Kitchen 0.5.5
+    {"name": "v3-fidelity", "spec": "v3-fidelity.json",
+     "extra": ["--ck-fallback", "--kpi-card", "ibcs"], "docs": False},
 ]
 
 DATE_RX = re.compile(r"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z")
@@ -914,6 +915,69 @@ def _check_against_caps(settings: dict, caps: dict):
 
 
 def fidelity_tests(res: Results, tmp: Path):
+    """Paket B1/B2 prueft den Weg ueber ibcsKpiCard (Stand 0.6.x, heute der Schalter
+    MK_KPI_CARD=ibcs bzw. --kpi-card ibcs). Die Vorgabe ChartKitchen prueft kpi_ck_tests."""
+    old = os.environ.get("MK_KPI_CARD")
+    os.environ["MK_KPI_CARD"] = "ibcs"
+    try:
+        _fidelity_tests(res, tmp)
+    finally:
+        if old is None:
+            os.environ.pop("MK_KPI_CARD", None)
+        else:
+            os.environ["MK_KPI_CARD"] = old
+
+
+def kpi_ck_tests(res: Results, tmp: Path):
+    """Tool 0.7.0: `kpi` mit engine ck ist ohne Schalter ein ChartKitchen-Slot (`cards`)."""
+    import mockup_spec as M
+    import mockup_to_pbir as P
+    old = os.environ.pop("MK_KPI_CARD", None)
+    try:
+        res.check("0.7 · KPI-Ziel: Vorgabe ck, Schalter ibcs, Unsinn faellt auf die Vorgabe",
+                  M.kpi_card_target() == "ck")
+        nspec = M.upgrade(M.load(FIXTURES / "v3-fidelity.json"))
+        tiles = {v["id"]: v for pg in nspec["pages"] for v in pg["visuals"]}
+        kp = tiles["mk_kpi1"]
+        res.check("0.7 · kpi bleibt engine ck (kein customVisual, kein engineSource)",
+                  kp.get("engine") == "ck" and not kp.get("customVisual")
+                  and not kp.get("engineSource"), repr({k: kp.get(k) for k in ("engine", "engineSource")}))
+        res.check("0.7 · kpi hat den ChartKitchen-Modus cards", M.ck_mode_for(kp) == "cards")
+        roles, _ = P.ck_roles_for(kp)
+        res.check("0.7 · kpi-Rollen: Kennzahl -> actual, Zeitfeld -> trend, keine category",
+                  roles.get("actual") == ["_Measures.AC"] and roles.get("trend") == ["DimDate.MonthName"]
+                  and "category" not in roles, repr(roles))
+        res.check("0.7 · kpi-Referenz landet nach ihrem Szenario (PY -> previousYear)",
+                  roles.get("previousYear") == ["_Measures.PY"], repr(roles))
+        out = tmp / "kpi-ck"
+        code, _, err = run([str(SCRIPTS / "mockup_to_pbir.py"), str(FIXTURES / "v3-fidelity.json"),
+                            "--out", str(out), "--report", REPORT, "--plan", "--ck-fallback"])
+        res.check("0.7 · Konverter laeuft mit der Vorgabe ck", code == 0, err[-200:])
+        if code == 0:
+            page = next(d for d in out.iterdir() if d.is_dir() and (d / "chartkitchen-slots.json").exists())
+            slots = {s["id"]: s for s in json.loads((page / "chartkitchen-slots.json").read_text(encoding="utf-8"))}
+            res.check("0.7 · Slot fuer die KPI-Kachel: orientation cards, Rolle trend",
+                      slots.get("mk_kpi1", {}).get("orientation") == "cards"
+                      and slots["mk_kpi1"]["chartKitchenRoles"].get("trend") == ["DimDate.MonthName"],
+                      repr(slots.get("mk_kpi1", {}).get("chartKitchenRoles")))
+            res.check("0.7 · keine ibcsKpiCard-Datei mehr fuer die KPI-Kachel",
+                      not (page / "custom-visuals" / "mk_kpi1.visual.json").exists())
+        os.environ["MK_KPI_CARD"] = "ibcs"
+        ib = {v["id"]: v for pg in M.upgrade(M.load(FIXTURES / "v3-fidelity.json"))["pages"]
+              for v in pg["visuals"]}["mk_kpi1"]
+        res.check("0.7 · Schalter ibcs: kpi wird wie bisher ibcsKpiCard",
+                  ib.get("engine") == "custom" and ib.get("engineSource") == "ck"
+                  and (ib.get("customVisual") or {}).get("name") == "ibcsKpiCard")
+        os.environ["MK_KPI_CARD"] = "quatsch"
+        res.check("0.7 · unbekannter Schalterwert = Vorgabe", M.kpi_card_target() == "ck")
+    finally:
+        if old is None:
+            os.environ.pop("MK_KPI_CARD", None)
+        else:
+            os.environ["MK_KPI_CARD"] = old
+
+
+def _fidelity_tests(res: Results, tmp: Path):
     import mockup_spec as M
     import mockup_to_pbir as P
 
@@ -1732,6 +1796,7 @@ def main() -> int:
             unit_tests(res)
             print("Treue Kitchen -> Power BI (B1)")
             fidelity_tests(res, tmp)
+            kpi_ck_tests(res, tmp)
             print("specHash")
             hash_tests(tmp, res, opt.exports)
             print("Review 09.10.")

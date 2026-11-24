@@ -39,10 +39,6 @@ pbir batch run "<out>/Ubersicht/chrome-batch.json" --root "Test.Report"
 
 # Analyse: Sortierung, Top-N, Slicer-Vorauswahl, Annotationen
 bash "<out>/Ubersicht/analysis-commands.sh"
-
-# Custom Visuals ZULETZT (Platzhalter + visual.json kopieren);
-# die .pbiviz muss vorher im Bericht importiert sein
-bash "<out>/Ubersicht/custom-commands.sh"
 ```
 
 ## Zweiter Lauf (Delta)
@@ -63,40 +59,23 @@ Das aktualisiert Position, Größe und Feldbindung der vorhandenen Visuals. Was 
 
 Erst wenn **alle** Seiten stehen — Ziele müssen existieren. Befehle in [`navigation.md`](navigation.md).
 
-## Custom Visuals (dataKitchenGantt, pnlByDatenWG …)
-
-`pbir add visual` kennt die GUIDs dieser Visuals **nicht** (`Unknown visual type '<GUID>'`), und in `--from-json` würde ein solcher Eintrag die **ganze Datei** ablehnen. Deshalb stehen die Kacheln nicht in `pbir-visuals.json`, sondern als fertige `visual.json` unter `<Seitenslug>/custom-visuals/`.
-
-**Schritt 1 — `.pbiviz` in den Bericht importieren** (Power BI Desktop: Visualisierungen → … → *Visual aus Datei importieren*). Ohne Import bleibt die Kachel leer, auch wenn die JSON stimmt:
-
-- `ibcsKpiCard/dist/ibcsKpiCard*.2.3.0.0.pbiviz`
-
-**Schritt 2 — Platzhalter anlegen und Datei ersetzen** (erledigt `custom-commands.sh` je Seite):
-
-```bash
-# Übersicht · Umsatz — ibcsKpiCard
-pbir add visual shape "Test.Report/Übersicht.Page" -n "v01_Umsatz" -x 16 -y 72 -w 253 -h 119 -t "Umsatz"
-D=$(find "Test.Report/definition/pages" -type d -name "v01_Umsatz" | head -1)
-cp "<out>/Ubersicht/custom-visuals/v01_Umsatz.visual.json" "$D/visual.json"
-# Übersicht · Marge — ibcsKpiCard
-pbir add visual shape "Test.Report/Übersicht.Page" -n "v02_Marge" -x 281 -y 72 -w 253 -h 119 -t "Marge"
-D=$(find "Test.Report/definition/pages" -type d -name "v02_Marge" | head -1)
-cp "<out>/Ubersicht/custom-visuals/v02_Marge.visual.json" "$D/visual.json"
-# Übersicht · Deckungsbeitrag — ibcsKpiCard
-pbir add visual shape "Test.Report/Übersicht.Page" -n "v04_Deckungsbeitrag" -x 811 -y 72 -w 253 -h 119 -t "Deckungsbeitrag"
-D=$(find "Test.Report/definition/pages" -type d -name "v04_Deckungsbeitrag" | head -1)
-cp "<out>/Ubersicht/custom-visuals/v04_Deckungsbeitrag.visual.json" "$D/visual.json"
-```
-
-Danach `pbir validate "Test.Report" --fields` — die erzeugte `visual.json` ist in der Form geschrieben, die `pbir add visual` selbst verwendet (Schema 2.9.0, `visualContainerObjects` als Arrays) und wird angenommen. **Reihenfolge:** erst `chrome-batch.json`, dann kopieren — die Kopie überschreibt sonst die Formatierung (sie steckt bereits in der Datei).
-
-Im **zweiten Lauf** entfällt der Platzhalter-Schritt: nur die neu erzeugte `visual.json` erneut kopieren. `delta-batch.json` fasst Custom Visuals bewusst nicht an.
-
 ## ChartKitchen-Slots (nicht per from-json)
 
 Nur über eine vorhandene Referenz-Instanz replizieren — Vorgehen in `.claude/skills/chartkitchen-report/references/pbir-insertion.md`. Solange keine Instanz im Report liegt: Platzhalter setzen.
 
 ```bash
+# Übersicht · Umsatz (kpi → orientation cards)
+pbir add visual shape "Test.Report/Übersicht.Page" -n "v01_Umsatz_slot" -x 16 -y 72 -w 253 -h 119 -t "ChartKitchen: kpi"
+pbir set "Test.Report/Übersicht.Page/v01_Umsatz_slot.Visual.text.show" --value true
+pbir set "Test.Report/Übersicht.Page/v01_Umsatz_slot.Visual.text.default.text" --value "ChartKitchen: kpi · Umsatz"
+# Übersicht · Marge (kpi → orientation cards)
+pbir add visual shape "Test.Report/Übersicht.Page" -n "v02_Marge_slot" -x 281 -y 72 -w 253 -h 119 -t "ChartKitchen: kpi"
+pbir set "Test.Report/Übersicht.Page/v02_Marge_slot.Visual.text.show" --value true
+pbir set "Test.Report/Übersicht.Page/v02_Marge_slot.Visual.text.default.text" --value "ChartKitchen: kpi · Marge"
+# Übersicht · Deckungsbeitrag (kpi → orientation cards)
+pbir add visual shape "Test.Report/Übersicht.Page" -n "v04_Deckungsbeitrag_slot" -x 811 -y 72 -w 253 -h 119 -t "ChartKitchen: kpi"
+pbir set "Test.Report/Übersicht.Page/v04_Deckungsbeitrag_slot.Visual.text.show" --value true
+pbir set "Test.Report/Übersicht.Page/v04_Deckungsbeitrag_slot.Visual.text.default.text" --value "ChartKitchen: kpi · Deckungsbeitrag"
 # Übersicht · Umsatz AC/FC vs PL je Monat (varint → orientation intwaterfall)
 pbir add visual shape "Test.Report/Übersicht.Page" -n "v05_Umsatz_AC_FC_vs_PL_je_Monat_slot" -x 16 -y 203 -w 691 -h 477 -t "ChartKitchen: varint"
 pbir set "Test.Report/Übersicht.Page/v05_Umsatz_AC_FC_vs_PL_je_Monat_slot.Visual.text.show" --value true

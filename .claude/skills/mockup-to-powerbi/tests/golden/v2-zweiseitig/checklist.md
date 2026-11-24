@@ -21,14 +21,14 @@ Mockup: **Management Report · Beispiel** · specVersion 2 (gelesen als v3) · H
 
 ## Umfang
 
-- Visuals gesamt: 12 (ChartKitchen 1 · nativ 6 · Deneb 0)
+- Visuals gesamt: 12 (ChartKitchen 6 · nativ 6 · Deneb 0)
 - Slicer je Seite: 2 (Filter-Modus `burger`)
 - Verknüpfungen: 1 (1 Drill-through, 0 Seitenwechsel)
 
 | Seite | Ordner | Fragestellung | native Visuals + Slicer | Text/Button | Chrome | CK | Deneb | Custom |
 |---|---|---|---|---|---|---|---|---|
-| Übersicht | `Ubersicht/` | – | 4 | 1 | 14 | 1 | 0 | 3 |
-| Detail Produktlinie | `Detail_Produktlinie/` | – | 4 | 1 | 14 | 0 | 0 | 2 |
+| Übersicht | `Ubersicht/` | – | 4 | 1 | 14 | 4 | 0 | 0 |
+| Detail Produktlinie | `Detail_Produktlinie/` | – | 4 | 1 | 14 | 2 | 0 | 0 |
 
 ## Offene Punkte aus der Spec (`issues`)
 
@@ -46,20 +46,6 @@ Mockup: **Management Report · Beispiel** · specVersion 2 (gelesen als v3) · H
 ## ChartKitchen-Rollen-Mapping
 
 - [ ] [Übersicht / p1_v06_Umsatz_AC_FC_vs_PL_je_Monat] `fcFlag` muss die **Zahl** 1/0 liefern, kein Boolean (DimDate.IsForecast pruefen).
-
-## Custom Visuals (`engine: "custom"`)
-
-`pbir add visual` kennt diese GUIDs nicht — die Kacheln stehen deshalb **nicht** in `pbir-visuals.json`, sondern als fertige `visual.json` in `<Seitenslug>/custom-visuals/`. Die `.pbiviz` muss **vorher** im Bericht importiert sein, sonst lädt das Visual nicht.
-
-| Seite | Kachel | Visual | GUID | .pbiviz | Rollen |
-|---|---|---|---|---|---|
-| Übersicht | Umsatz (`p1_v01_Umsatz`) | ibcsKpiCard | `ibcsKpiCard2771CF65D0C343A19EAB34E43D7B8682` | `ibcsKpiCard/dist/ibcsKpiCard*.2.3.0.0.pbiviz` | `ac`: _Measures.Umsatz, `pl`: _Measures.PL |
-| Übersicht | Deckungsbeitrag (`p1_v03_Deckungsbeitrag`) | ibcsKpiCard | `ibcsKpiCard2771CF65D0C343A19EAB34E43D7B8682` | `ibcsKpiCard/dist/ibcsKpiCard*.2.3.0.0.pbiviz` | `ac`: _Measures.Deckungsbeitrag, `pl`: _Measures.PL |
-| Übersicht | Marge (`p1_v04_Marge`) | ibcsKpiCard | `ibcsKpiCard2771CF65D0C343A19EAB34E43D7B8682` | `ibcsKpiCard/dist/ibcsKpiCard*.2.3.0.0.pbiviz` | `ac`: _Measures.Marge, `pl`: _Measures.PL |
-| Detail Produktlinie | Umsatz (`p2_v02_Umsatz`) | ibcsKpiCard | `ibcsKpiCard2771CF65D0C343A19EAB34E43D7B8682` | `ibcsKpiCard/dist/ibcsKpiCard*.2.3.0.0.pbiviz` | `ac`: _Measures.Umsatz, `pl`: _Measures.PL |
-| Detail Produktlinie | Marge % (`p2_v03_Marge`) | ibcsKpiCard | `ibcsKpiCard2771CF65D0C343A19EAB34E43D7B8682` | `ibcsKpiCard/dist/ibcsKpiCard*.2.3.0.0.pbiviz` | `ac`: _Measures.Marge%, `pl`: _Measures.PL |
-
-- Pflichtrollen aller Custom Visuals belegt.
 
 ## Analyse-Angaben ohne direkten pbir-Befehl
 

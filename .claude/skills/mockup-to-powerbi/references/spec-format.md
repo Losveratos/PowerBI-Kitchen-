@@ -703,10 +703,13 @@ kennt `trend`, `xValue` und `bubbleSize` noch nicht; maßgeblich sind
 `ibcsInspiredChartDeck/capabilities.json` und der Block „Neu in 1.47" im
 `AGENT-GUIDE.md` des Visuals.
 
-**Stand nach der Zusammenführung (11/2026):** `kpi` mit Engine `ck` baut der Konverter als
-Custom Visual `ibcsKpiCard` (siehe unten). `cards` mit `trend` bleibt die Rückfallebene für Slots,
-die trotzdem bei ChartKitchen landen; die Optionen `cardTrendChart`/`cardTrendValue` wirken nur dort.
-Ob `kpi` ab ChartKitchen 1.47 wieder regulär als `cards` gebaut wird, ist offen.
+**KPI-Kachel ab Tool 0.7.0 (Entscheidung 24.11.2026):** `kpi` mit Engine `ck` baut der Konverter
+als ChartKitchen `cards`: Kennzahl → `actual`, Referenz nach ihrem Szenario → `plan` bzw.
+`previousYear`, Zeitfeld → `trend`; die Optionen `cardTrendChart` und `cardTrendValue` stehen im Slot.
+Voraussetzung ist ChartKitchen 1.47 oder neuer im Bericht. Der frühere Weg über das Custom Visual
+`ibcsKpiCard` bleibt als Schalter: `mockup_to_pbir.py --kpi-card ibcs` oder die Umgebungsvariable
+`MK_KPI_CARD=ibcs` (`mockup_spec.kpi_card_target()`). Der Live-Runner setzt den Schalter vorerst
+selbst auf `ibcs`, weil Kartengeometrie und Bildvergleich am Desktop damit abgestimmt wurden.
 
 ### Kachel-Typ → `chart.orientation`
 
@@ -741,7 +744,7 @@ Maßstab ist die Kitchen-Skizze (`assets/mockup/sketches.js`), geprüft gegen
 | `wfint` | `catbridge` (Struktur-Brücke) |
 | `waterfall`, `wfkombi` | `waterfall` |
 | `bridge` | `waterfall` (Varianz-Brücke, senkrecht) |
-| `kpi` | – (kein CK-Modus: `cards` zeichnet eine Karte je Kategorie, mit Monat zwölf Karten) → Custom Visual `ibcsKpiCard`, siehe unten |
+| `kpi` | `cards` (ab Tool 0.7.0; das Zeitfeld geht in die Rolle `trend`, nicht in `category`, sonst entstünde je Periode eine Karte). Mit dem Schalter `--kpi-card ibcs` stattdessen das Custom Visual `ibcsKpiCard`, siehe unten |
 | `table`, `sparktable`, `heatmap` | `table` |
 | `scatter` | `scatter` (ab ChartKitchen 1.47, Tool 0.6.0; vorher kein Modus) |
 | `marimekko`, `tree`, `boxplot`, `gantt` | kein Modus → Deneb oder natives Visual |
@@ -851,7 +854,8 @@ tragen den Block:
 | `pnl` | `pnlByDatenWG` | `pnlByDatenWG3F9A7D2C51E64B08A1C4E7F0B92D6358` | `account`, `accountName`, `levels`, `parent`, `sortOrder`, `rowType`, `formulaDef`, `signConvention`, `displayInvert`, `varianceInvert`, `period`, `comment`, `ac`, `py`, `pl`, `fc`, `fcFy`, `plFy` |
 | `kpi` (engine `ck`) | `ibcsKpiCard` | `ibcsKpiCard2771CF65D0C343A19EAB34E43D7B8682` | `category`, `ac`, `py`, `pl`, `fc`, `trend` |
 
-**`kpi` → `ibcsKpiCard` 2.3.** Eine `kpi`-Kachel mit `engine: "ck"` stellt
+**`kpi` → `ibcsKpiCard` 2.3 (nur noch mit dem Schalter `--kpi-card ibcs` bzw. `MK_KPI_CARD=ibcs`,
+Vorgabe seit Tool 0.7.0 ist ChartKitchen `cards`).** Eine `kpi`-Kachel mit `engine: "ck"` stellt
 `mockup_spec.upgrade()` auf `engine: "custom"` um (`engineSource: "ck"`),
 **nach** dem Spec-Hash, damit der Hash gleich bleibt. Der Live-Runner nutzt
 dieselbe Funktion und sieht die Kachel deshalb ebenfalls als Custom Visual.

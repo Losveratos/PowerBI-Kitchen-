@@ -27,23 +27,12 @@ Stand: <datum> · Version 0.1 · Spec-Hash `7e7618d2` · erstellt mit MockupKitc
 
 | # | Kachel | Darstellung | Felder | Analyse | Prio | Status | Notizen |
 |---|---|---|---|---|---|---|---|
-| 1.1 | Umsatz | KPI-Kachel (IBCS), ibcsKpiCard | Kennzahl: Umsatz; Ziel / Referenz: PL | – | – | offen | – |
-| 1.2 | Marge | KPI-Kachel (IBCS), ibcsKpiCard | Kennzahl: Marge; Ziel / Referenz: PL | – | – | offen | – |
+| 1.1 | Umsatz | KPI-Kachel (IBCS), ChartKitchen | Kennzahl: Umsatz; Ziel / Referenz: PL | – | – | offen | – |
+| 1.2 | Marge | KPI-Kachel (IBCS), ChartKitchen | Kennzahl: Marge; Ziel / Referenz: PL | – | – | offen | – |
 | 1.3 | Kosten | Karte (nativ) | Kennzahl: Kosten | kleiner = besser | – | offen | – |
-| 1.4 | Deckungsbeitrag (in T€) | KPI-Kachel (IBCS), ibcsKpiCard | Kennzahl: Deckungsbeitrag (neu); Ziel / Referenz: PL | – | – | offen | Neue Kennzahl, siehe newFields. |
+| 1.4 | Deckungsbeitrag (in T€) | KPI-Kachel (IBCS), ChartKitchen | Kennzahl: Deckungsbeitrag (neu); Ziel / Referenz: PL | – | – | offen | Neue Kennzahl, siehe newFields. |
 | 1.5 | Umsatz AC/FC vs PL je Monat (in T€) | Integrierte Varianzanalyse, AC/PL/FC, ChartKitchen | Kategorie / Zeit: Month; AC · Ist-Wert: AC; Referenz (PL / PY / BU): PL; FC-Flag (1/0): IsForecast | – | – | offen | Monate chronologisch sortieren (DimDate.MonthKey). |
 | 1.6 | Δ PL je Produktlinie | Balken (Kategorien, sortiert), AC/PL | Kategorie / Zeit: Category; AC · Ist-Wert: AC; Referenz (PL / PY / BU): PL | – | – | offen | Absteigend nach AC sortieren. |
-
-## Custom Visuals
-
-Diese Kacheln sind Custom Visuals aus dem Repository. Die passende `.pbiviz` muss im Bericht importiert sein, sonst bleibt die Kachel leer.
-
-- Seite 1 · **Umsatz** — `ibcsKpiCard` (ibcsKpiCard2771CF65D0C343A19EAB34E43D7B8682)
-  - `ac`: _Measures.Umsatz, `pl`: _Measures.PL
-- Seite 1 · **Marge** — `ibcsKpiCard` (ibcsKpiCard2771CF65D0C343A19EAB34E43D7B8682)
-  - `ac`: _Measures.Marge, `pl`: _Measures.PL
-- Seite 1 · **Deckungsbeitrag** — `ibcsKpiCard` (ibcsKpiCard2771CF65D0C343A19EAB34E43D7B8682)
-  - `ac`: _Measures.Deckungsbeitrag, `pl`: _Measures.PL
 
 ## Kennzahlen-Steckbrief
 

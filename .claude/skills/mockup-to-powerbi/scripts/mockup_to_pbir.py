@@ -87,6 +87,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import re
 import sys
 from datetime import datetime, timezone
@@ -4238,6 +4239,9 @@ def main() -> int:
     p.add_argument("--rule", default=None,
                    help="Linienfarbe (Kopfband hell, Filterbereich, Fußleiste; "
                         "Vorgabe: design.colors.rule, sonst Kitchen #E3E1D8)")
+    p.add_argument("--kpi-card", dest="kpi_card", choices=("ck", "ibcs"), default=None,
+                   help="KPI-Kachel mit Engine ChartKitchen: ck = ChartKitchen `cards` mit Trend "
+                        "(Vorgabe, ab ChartKitchen 1.47), ibcs = Custom Visual ibcsKpiCard")
     p.add_argument("--ck-fallback", action="store_true",
                    help="ChartKitchen-Slots zusätzlich als natives Ersatzvisual in "
                         "pbir-visuals.json aufnehmen (nur wenn die Spec ein natives "
@@ -4255,6 +4259,8 @@ def main() -> int:
 
     try:
         raw = load(opt.spec)
+        if getattr(opt, "kpi_card", None):
+            os.environ["MK_KPI_CARD"] = opt.kpi_card     # mockup_spec.kpi_card_target()
         nspec = upgrade(raw, opt.page_name)
     except SpecError as e:
         print("Fehler: %s" % e, file=sys.stderr)

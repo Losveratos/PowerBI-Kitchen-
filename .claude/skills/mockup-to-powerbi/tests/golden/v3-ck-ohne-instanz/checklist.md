@@ -21,13 +21,13 @@ Mockup: **Nur ChartKitchen** · specVersion 3 (gelesen als v3) · Hash `ckhash` 
 
 ## Umfang
 
-- Visuals gesamt: 5 (ChartKitchen 2 · nativ 0 · Deneb 0)
+- Visuals gesamt: 5 (ChartKitchen 5 · nativ 0 · Deneb 0)
 - Slicer je Seite: 2 (Filter-Modus `burger`)
 - Verknüpfungen: 0 (0 Drill-through, 0 Seitenwechsel)
 
 | Seite | Ordner | Fragestellung | native Visuals + Slicer | Text/Button | Chrome | CK | Deneb | Custom |
 |---|---|---|---|---|---|---|---|---|
-| Übersicht | `Ubersicht/` | Liegen wir im Plan? | 2 | 0 | 13 | 2 | 0 | 3 |
+| Übersicht | `Ubersicht/` | Liegen wir im Plan? | 4 | 0 | 13 | 5 | 0 | 0 |
 
 ## Offene Punkte aus der Spec (`issues`)
 
@@ -38,6 +38,10 @@ Mockup: **Nur ChartKitchen** · specVersion 3 (gelesen als v3) · Hash `ckhash` 
 | warn | `ROLE_EMPTY` | Detail Produktlinie | mk_6g7nfw6 | Pflichtrolle „Zeit / Periode" leer |
 | info | `PAGE_NO_QUESTION` | Detail Produktlinie | – | Seite ohne Fragestellung / Kernbotschaft |
 
+## Nicht gebaute Kacheln (leere Pflichtrolle)
+
+- [ ] `mk_7ixiebk` — Deckungsbeitrag (kpi): Pflichtrolle „Kennzahl" ist leer
+
 ## Hinweise aus dem Chrome-Aufbau
 
 - [ ] Filter-Overlay: Panel, Ueberschrift, Schliessen-Button und Slicer liegen ueber dem Inhalt und werden ausgeblendet angelegt (`pbir visuals hide` in analysis-commands.sh). Lesezeichen und Button-Aktionen stehen in navigation.md.
@@ -45,18 +49,6 @@ Mockup: **Nur ChartKitchen** · specVersion 3 (gelesen als v3) · Hash `ckhash` 
 ## ChartKitchen-Rollen-Mapping
 
 - [ ] [Übersicht / mk_kv12rex] `fcFlag` muss die **Zahl** 1/0 liefern, kein Boolean (DimDate.IsForecast pruefen).
-
-## Custom Visuals (`engine: "custom"`)
-
-`pbir add visual` kennt diese GUIDs nicht — die Kacheln stehen deshalb **nicht** in `pbir-visuals.json`, sondern als fertige `visual.json` in `<Seitenslug>/custom-visuals/`. Die `.pbiviz` muss **vorher** im Bericht importiert sein, sonst lädt das Visual nicht.
-
-| Seite | Kachel | Visual | GUID | .pbiviz | Rollen |
-|---|---|---|---|---|---|
-| Übersicht | Umsatz (`mk_5z33e3b`) | ibcsKpiCard | `ibcsKpiCard2771CF65D0C343A19EAB34E43D7B8682` | `ibcsKpiCard/dist/ibcsKpiCard*.2.3.0.0.pbiviz` | `ac`: _Measures.Kosten, `pl`: _Measures.PL |
-| Übersicht | Deckungsbeitrag (`mk_7ixiebk`) | ibcsKpiCard | `ibcsKpiCard2771CF65D0C343A19EAB34E43D7B8682` | `ibcsKpiCard/dist/ibcsKpiCard*.2.3.0.0.pbiviz` | `pl`: _Measures.PL |
-| Übersicht | Marge (`mk_ldc3xxy`) | ibcsKpiCard | `ibcsKpiCard2771CF65D0C343A19EAB34E43D7B8682` | `ibcsKpiCard/dist/ibcsKpiCard*.2.3.0.0.pbiviz` | `ac`: _Measures.Marge, `pl`: _Measures.PL |
-
-- [ ] [Übersicht / mk_7ixiebk] Pflichtrolle `ac` ist leer — IBCS KPI Card 2.3 zeichnet ohne sie nichts. Feld im Mockup nachtragen oder im Bericht nachbinden.
 
 ## Analyse-Angaben ohne direkten pbir-Befehl
 
