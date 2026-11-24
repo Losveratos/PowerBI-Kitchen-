@@ -523,8 +523,10 @@
       var reserve = (hasBadge || hasNote) ? 58 * k : 12 * k;
       var availW = Math.max(10, r.x + r.w - 1 - ip - reserve - tx0);
       var base = r.y + 1 + ip + 6 * k + tfs * ASC;
-      var title = fit(v.title || def.label || v.kind, availW, tfs, 600);
-      out += tx(tx0, base, title, { size: tfs, weight: 600, fill: ctx.ink });
+      // KPI-Kachel: der Titel ist die Beschriftung der Karte (kleiner, ruhiger), wie auf der Zeichenfläche
+      var kpiHead = v.kind === 'kpi' || v.kind === 'card', tW = kpiHead ? 500 : 600, tS = kpiHead ? tfs * 0.86 : tfs;
+      var title = fit(v.title || def.label || v.kind, availW, tS, tW);
+      out += tx(tx0, base, title, { size: tS, weight: tW, fill: kpiHead ? '#5B6472' : ctx.ink });
       if (v.sub && !tiny) {
         var used = textW(title, tfs, 600) + 6 * k;
         // Untertitel wie im Canvas (.t-sub): Schriftfarbe der Kachel mit 70 % Deckkraft

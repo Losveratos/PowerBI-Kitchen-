@@ -277,6 +277,8 @@ window.MK_VERSION = '0.7.1';
     const def = CAT.byId[v.kind];
     // Leere Pflichtrolle Kennzahl (KPI, Karte, Tacho): „?" statt einer erfundenen Zahl (Review R16)
     o.noMeasure = !!def && CAT.rolesFor(def, v).some(x => x.key === 'indicator' && x.req) && !(r.indicator || []).length;
+    // KPI-Kachel: die Kachel ist schon die Karte und trägt den Titel, die Skizze zeichnet deshalb ohne eigenen Rahmen (mehr Inhalt)
+    if (v.kind === 'kpi') o.bare = true;
     const tRole = def ? CAT.rolesFor(def, v).find(x => x.labelKey === 'timeSpark' || (x.labelKey === 'time' && !x.req)) : null;
     if (tRole) o.spark = (r[tRole.key] || []).length ? true : (primaryMeasure(v) ? false : undefined);
     if (v.kind === 'multiples' && numericField((r.series || [])[0])) o.catNames = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12'];
@@ -950,7 +952,7 @@ window.MK_VERSION = '0.7.1';
     const req = reqTip ? `<span class="reqdot" title="${esc(reqTip)}"></span>` : '';
     const pri = v.priority ? `<span class="pri ${v.priority}" title="${esc(t('tip.badge.' + v.priority))}">${{ must: 'M', should: 'S', could: 'C' }[v.priority] || ''}</span>` : '';
     const st = v.status && v.status !== 'open' ? `<span class="st ${v.status}" title="${esc(t('canvas.status', { s: t('opt.status.' + v.status) }))}"></span>` : '';
-    return `<div class="tile${selc}${tiny ? ' tiny' : ''}" data-leaf="${node.id}" draggable="true" tabindex="0" aria-label="${esc(v.title || def.label)}" title="${esc(t('smp.tileDrag'))}" style="${css(rect)};padding:${Math.max(0, pad - 6)}px">
+    return `<div class="tile${selc}${tiny ? ' tiny' : ''} k-${v.kind}" data-leaf="${node.id}" draggable="true" tabindex="0" aria-label="${esc(v.title || def.label)}" title="${esc(t('smp.tileDrag'))}" style="${css(rect)};padding:${Math.max(0, pad - 6)}px">
       ${headH ? `<div class="t-head" style="--tf:${tileScale(v)}"><span class="t-title">${esc(v.title || def.label)}</span>${v.sub ? `<span class="t-sub">${esc(v.sub)}</span>` : ''}</div>` : ''}
       ${msgH ? `<div class="t-msg" title="${esc(msg)}" style="--tf:${tileScale(v)};flex:none;height:${msgH}px;line-height:${msgH}px;padding:0 calc(9px * var(--ui));font-size:calc(var(--fs-sub,9.5px) * var(--ui) * var(--tf,1));font-weight:500;color:var(--ink-page,#0F1E2E);opacity:.9;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(msg)}</div>` : ''}
       <div class="t-body">${svg}${ANTI[v.kind] ? '<div class="ap"></div>' : ''}</div>

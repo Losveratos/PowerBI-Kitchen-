@@ -3247,10 +3247,17 @@
     return wrap(c, b);
   };
 
-  /* ---- 30 · KPI-Karte im Zuschnitt der ChartKitchen-Monitoring-Karte -----
-     Karte mit feinem Rand, Status-Akzent links in Abweichungsfarbe, grauer
-     Titel, große fette Zahl mit Einheit, Δ-Zeile „ΔPL +2,4 · +5%" farbig,
-     darunter bei Platz eine Sparkline mit hellem Band.                     */
+  /* ---- 30 · KPI-Karte im Zuschnitt der ChartKitchen-Karte (cards) -------
+     Inhalt vor Rahmen: große Zahl mit Einheit, Δ-Zeile „ΔPL +2,4 · +5%" in
+     Abweichungsfarbe, Vergleichsbalken AC gegen Bezug in Szenario-Notation
+     und der Verlauf (Sparkline oder Säulen).
+     Zwei Aufbauten, je nach Fläche:
+       flach (breit und niedrig, die übliche KPI-Kachel): Zahl links, daneben
+             Vergleichsbalken, rechts der Verlauf über die volle Höhe
+       hoch: Zahl, Δ-Zeile, Bezugswert, Vergleichsbalken, Verlauf unten
+     o.bare = true: ohne eigenen Kartenrahmen und ohne Titelzeile (die Kachel
+     im Tool ist schon die Karte und trägt den Titel), nur der Status-Akzent
+     links bleibt.                                                          */
   S.kpi = function (w, h, o) {
     var c = ctx(w, h, o), b = '';
     var P = area(c, {});
@@ -3268,71 +3275,137 @@
       else dAbs = n(vv * d / 100);
     }
     var col = kind ? dcol(c, d) : c.C.ac;
-    var card = P.w >= 40 && P.h >= 26;
-    var accW = clamp(P.w * 0.018, 2, 4);
+    var bare = !!(o && o.bare);
+    var card = !bare && P.w >= 40 && P.h >= 26;
+    var accW = clamp(P.w * 0.014, 2, 3.5);
     if (o && o.noMeasure) return wrap(c, kpiEmpty(c, P, card, accW));
-    if (card) {
-      b += rrect(P.x + 0.5, P.y + 0.5, P.w - 1, P.h - 1, 3, c.C.paper, c.C.edge, 1);
-      b += rrect(P.x + 0.5, P.y + 0.5, accW, P.h - 1, Math.min(2, accW / 2), col);
-    }
-    var padX = card ? Math.min(10, P.w * 0.06) : 0;
-    var L = P.x + (card ? accW + padX : 0), R = P.x + P.w - (card ? padX * 0.7 : 0);
+    if (card) b += rrect(P.x + 0.5, P.y + 0.5, P.w - 1, P.h - 1, 3, c.C.paper, c.C.edge, 1);
+    if (card || bare) b += rrect(P.x + 0.5, P.y + 0.5, accW, P.h - 1, Math.min(2, accW / 2), col);
+    var padX = card ? Math.min(10, P.w * 0.06) : (bare ? Math.min(7, P.w * 0.04) : 0);
+    var L = P.x + ((card || bare) ? accW + padX : 0), R = P.x + P.w - (card ? padX * 0.7 : (bare ? 1 : 0));
     var iw = Math.max(6, R - L);
-    var kpiLabel = (o && o.label !== undefined) ? String(o.label) : c.t.revenue;
-    var tFs = c.fsT;
-    var titleH = (!c.small && kpiLabel && P.h >= 34) ? tFs + 4 : 0;
+    var kpiLabel = bare ? '' : ((o && o.label !== undefined) ? String(o.label) : c.t.revenue);
     var uStr = c.unit || 'M';
     var num = lbl(c, vv);
     if (c.real) { var fpk = fmtParts(c, vv); num = fpk.num; uStr = fpk.suf + (c.unit ? ' ' + c.unit : ''); }
     var full = num + uStr;
-    var bigCap = c.fsV || clamp(P.h * 0.27, 10, 40 * c.fk);
-    var big = Math.min(bigCap, iw / (full.length * 0.6));
-    if (!(big > 4)) big = 4;
     var dFs = c.fs;
-    var dParts = [['Δ' + kind + ' ', c.C.sub, null]];
-    var dTxt = c.vAbs && c.vRel ? dvlbl(c, dAbs) + ' · ' + plbl(c, d) : (c.vRel ? plbl(c, d) : dvlbl(c, dAbs));
-    dParts.push([dTxt, col, '700']);
     var dOn = c.vAbs || c.vRel;
-    var dRowH = dOn ? dFs + 5 : 0;
-    var padY = card ? Math.min(10, P.h * 0.08) : 0;
+    var refV = n(vv - dAbs);
+    // o.trend (ChartKitchen chart.cardTrendChart): 'off' = kein Verlauf, 'columns' = Säulen; ohne Angabe Sparkline.
+    // Ehrlich zur Bindung (B3): ohne gebundenes Zeitfeld kein Verlauf (o.spark false); undefined = Platzhalter ohne Bindung.
+    var trend = (o && o.trend != null) ? String(o.trend) : '';
+    var trendWanted = c.spark !== false && trend !== 'off';
+
+    // Δ-Zeile; kürzt sich selbst, bis sie in die Breite passt
+    function deltaRow(x, y, maxW) {
+      var parts = [['Δ' + kind + ' ', c.C.sub, null]];
+      var t0 = c.vAbs && c.vRel ? dvlbl(c, dAbs) + ' · ' + plbl(c, d) : (c.vRel ? plbl(c, d) : dvlbl(c, dAbs));
+      parts.push([t0, col, '700']);
+      if (tw('x'.repeat(richLen(parts)), dFs) > maxW) parts[1][0] = c.vRel ? plbl(c, d) : dvlbl(c, dAbs);
+      if (tw('x'.repeat(richLen(parts)), dFs) > maxW) parts.shift();
+      if (tw('x'.repeat(richLen(parts)), dFs) > maxW) return '';
+      drew(c, 'basis', kind);
+      if (c.vAbs && (c.vRel ? parts[parts.length - 1][0].indexOf('·') >= 0 : true)) drew(c, 'delta', 'abs');
+      if (c.vRel) drew(c, 'delta', 'rel');
+      return rich(x, y, parts, dFs, 'start');
+    }
+    // Große Zahl mit kleinerer Einheit
+    function bigNum(x, yBase, size) {
+      drew(c, 'unit', String(uStr).trim()); drew(c, 'labels', true);
+      return '<text x="' + n(x) + '" y="' + n(yBase) + '" font-size="' + n(size) + '" font-weight="700" fill="' + c.C.ink + '">' +
+             esc(num) + '<tspan font-size="' + n(size * 0.66) + '" font-weight="600" fill="' + c.C.sub + '">' + esc(uStr) + '</tspan></text>';
+    }
+    // Vergleichsbalken: AC gefüllt, Bezug in seiner Notation (PL/BU Kontur, PY grau, FC schraffiert), Wert am Balkenende
+    function bullet(x, y, wB, hB) {
+      var out = '', lf = Math.max(6, c.fsA * 0.92), labW = tw('AC', lf) + 3;
+      var valW = Math.max(tw(vlbl(c, vv), lf), tw(vlbl(c, refV), lf)) + 3;
+      var showVal = wB - labW - valW >= 26;
+      var bx = x + labW, bw = wB - labW - (showVal ? valW : 0); if (bw < 10) return '';
+      var mx = Math.max(Math.abs(vv), Math.abs(refV), 1e-9);
+      var rowH = Math.min(hB / 2 - 1, 9 * c.fk), gap = Math.max(1.5, Math.min(3, hB - rowH * 2));
+      var y1 = y + Math.max(0, (hB - rowH * 2 - gap) / 2), y2 = y1 + rowH + gap;
+      var wA = Math.max(1, bw * Math.abs(vv) / mx), wR = Math.max(1, bw * Math.abs(refV) / mx);
+      out += txt(x, y1 + rowH * 0.5 + lf * 0.35, 'AC', lf, c.C.sub, 'start');
+      out += rect(bx, y1, wA, rowH, c.C.ac);
+      out += txt(x, y2 + rowH * 0.5 + lf * 0.35, kind, lf, c.C.sub, 'start');
+      if (kind === 'PY') out += rect(bx, y2, wR, rowH, c.C.py);
+      else if (kind === 'FC') { var hh = hatch(c); out += hh.defs; out += rect(bx, y2, wR, rowH, (hh && rowH >= 4) ? 'url(#' + hh.id + ')' : c.C.fcc, c.C.ac, 0.8); }
+      else out += rect(bx + 0.5, y2 + 0.5, Math.max(1, wR - 1), Math.max(1, rowH - 1), c.C.plf, c.C.pls, 1);
+      if (showVal) {
+        out += txt(bx + wA + 3, y1 + rowH * 0.5 + lf * 0.35, vlbl(c, vv), lf, c.C.ink, 'start', '600');
+        out += txt(bx + wR + 3, y2 + rowH * 0.5 + lf * 0.35, vlbl(c, refV), lf, c.C.sub, 'start');
+      }
+      // Achse der beiden Balken
+      out += ln(bx, y1 - 1, bx, y2 + rowH + 1, c.C.axis, 0.8);
+      return out;
+    }
+    // Verlauf: Sparkline mit Fläche und Endpunkt oder Säulen je Periode
+    function trendChart(x, y, wT, hT) {
+      var out = '';
+      if (trend === 'columns') {
+        var sv = series(c, 12, 60, 24), cs = sc(0, maxOf(sv) * 1.05, y + hT, y), csl = slots(x, wT, 12, 0.3), ci;
+        for (ci = 0; ci < 12; ci++) out += rect(csl[ci].x, cs(sv[ci]), csl[ci].w, Math.max(0.8, y + hT - cs(sv[ci])), ci === 11 ? c.C.ac : c.C.py);
+        out += ln(x, y + hT, x + wT, y + hT, c.C.axis, 0.8);
+      } else {
+        var pts = sparkPts(c, 12, x, y + 1, wT - 3, hT - 2);
+        out += polygonEl(pts.concat([[x + wT - 3, y + hT], [x, y + hT]]), c.C.wash);
+        out += polyline(pts, mix(c.C.py, c.C.ink, 0.35), 1.3);
+        out += circ(pts[11][0], pts[11][1], 2.2, c.C.ac);
+        out += ln(x, y + hT, x + wT - 3, y + hT, c.C.grid, 0.8);
+      }
+      drew(c, 'spark', true);
+      return out;
+    }
+
+    var flat = P.w >= P.h * 2.2 && P.h < 84 * c.fk;
+    if (flat) {
+      // ---------- flach: Zahl links · Vergleichsbalken · Verlauf rechts
+      var gapX = Math.max(6, iw * 0.035);
+      var tOn = trendWanted && !c.tiny && iw >= 105 && P.h >= 20;
+      var mOn = !!kind && !c.tiny && P.h >= 22 && iw >= (tOn ? 250 : 130);
+      var wVal = (tOn && mOn) ? iw * 0.3 : ((tOn || mOn) ? iw * (iw < 180 ? 0.48 : 0.42) : iw);
+      var bigF = c.fsV || clamp(P.h * 0.52, 8, 30 * c.fk);
+      bigF = Math.min(bigF, wVal / (full.length * 0.56)); if (!(bigF > 4)) bigF = 4;
+      var rowOn = dOn && !!kind && P.h >= bigF * 0.9 + dFs + 4;
+      var blk = bigF * 0.88 + (rowOn ? dFs + 4 : 0);
+      var T0 = P.y + Math.max(0, (P.h - blk) / 2);
+      var yB = T0 + bigF * 0.8;
+      b += bigNum(L, yB, bigF);
+      if (rowOn) b += deltaRow(L, yB + dFs + 4, wVal + (tOn || mOn ? gapX * 0.6 : 0));
+      var xN = L + wVal + gapX;
+      if (mOn) {
+        var wMid = tOn ? iw * 0.27 : iw - wVal - gapX;
+        b += bullet(xN, P.y + P.h * 0.14, wMid, P.h * 0.72);
+        xN += wMid + gapX;
+      }
+      if (tOn) b += trendChart(xN, P.y + P.h * 0.1, Math.max(20, R - xN), P.h * 0.8);
+      return wrap(c, b);
+    }
+
+    // ---------- hoch: Titel (nur mit Rahmen) · Zahl · Δ-Zeile · Bezugswert · Vergleichsbalken · Verlauf
+    var tFs = c.fsT;
+    var titleH = (!c.small && kpiLabel && P.h >= 34) ? tFs + 4 : 0;
+    var bigCap = c.fsV || clamp(P.h * 0.3, 10, 44 * c.fk);
+    var big = Math.min(bigCap, iw / (full.length * 0.58));
+    if (!(big > 4)) big = 4;
+    var dRowH = dOn && kind ? dFs + 5 : 0;
+    var padY = (card || bare) ? Math.min(10, P.h * 0.08) : 0;
     var blockH = titleH + big * 0.95 + dRowH;
     var spare = P.h - padY * 2 - blockH;
-    // Ehrlich zur Bindung (B3): ohne gebundenes Zeitfeld keine Verlaufslinie (o.spark false), Desktop zeigt dann auch keine.
-    // o.spark undefined = Platzhalter-Skizze ohne jede Bindung, dort bleibt die Linie als Beispiel.
-    // o.trend (ChartKitchen chart.cardTrendChart): 'off' = kein Verlauf, 'columns' = Säulen; ohne Angabe Sparkline wie bisher
-    var trend = (o && o.trend != null) ? String(o.trend) : '';
-    var sparkOn = c.spark !== false && spare >= 18 && iw >= 50 && !c.small && trend !== 'off';
-    var T = P.y + padY + (sparkOn ? 0 : Math.max(0, spare / 2));
-    if (titleH) b += txt(L, T + tFs * 0.85, fit(c, kpiLabel, iw, tFs), tFs, c.C.sub, 'start');
-    var yBig = T + titleH + big * 0.8;
-    b += '<text x="' + n(L) + '" y="' + n(yBig) + '" font-size="' + n(big) + '" font-weight="700" fill="' + c.C.ink + '">' +
-         esc(num) + '<tspan font-size="' + n(big * 0.72) + '" font-weight="600">' + esc(uStr) + '</tspan></text>';
-    drew(c, 'unit', String(uStr).trim()); drew(c, 'labels', true);
-    if (dOn) {
-      var yD = yBig + big * 0.15 + dFs + 3;
-      if (yD <= P.y + P.h - 1) {
-        if (tw('x'.repeat(richLen(dParts)), dFs) > iw) dParts[1][0] = c.vRel ? plbl(c, d) : dvlbl(c, dAbs);
-        if (tw('x'.repeat(richLen(dParts)), dFs) > iw) dParts.shift();
-        if (tw('x'.repeat(richLen(dParts)), dFs) <= iw) {
-          b += rich(L, yD, dParts, dFs, 'start'); drew(c, 'basis', kind);
-          if (c.vAbs && (c.vRel ? dParts[dParts.length - 1][0].indexOf('·') >= 0 : true)) drew(c, 'delta', 'abs');
-          if (c.vRel) drew(c, 'delta', 'rel');
-        }
-      }
-    }
-    if (sparkOn && trend === 'columns') {
-      // Säulen je Periode, nullbasiert; die letzte (aktuelle) Periode in AC-Farbe
-      var ch = Math.min(spare - 10, P.h * 0.42), cy = P.y + P.h - padY - ch;
-      var sv = series(c, 12, 60, 24), cs = sc(0, maxOf(sv) * 1.05, cy + ch, cy), csl = slots(L, iw - 3, 12, 0.3), ci;
-      for (ci = 0; ci < 12; ci++) b += rect(csl[ci].x, cs(sv[ci]), csl[ci].w, Math.max(0.8, cy + ch - cs(sv[ci])), ci === 11 ? c.C.ac : c.C.py);
-      b += ln(L, cy + ch, L + iw - 3, cy + ch, c.C.axis, 0.8);
-    } else if (sparkOn) {
-      var sh = Math.min(spare - 10, P.h * 0.42), sy = P.y + P.h - padY - sh;
-      var pts = sparkPts(c, 12, L, sy, iw - 3, sh);
-      b += polygonEl(pts.concat([[L + iw - 3, sy + sh], [L, sy + sh]]), c.C.wash);
-      b += polyline(pts, c.C.py, 1.3);
-      b += circ(pts[11][0], pts[11][1], 2, c.C.ac);
-      drew(c, 'spark', true);
+    var bulOn = !!kind && !c.tiny && spare >= 20 * c.fk + (trendWanted ? 22 : 0) && iw >= 80;
+    var bulH = bulOn ? clamp(spare * 0.28, 14, 24 * c.fk) : 0;
+    var sparkOn = trendWanted && spare - bulH >= 18 && iw >= 50 && !c.tiny;
+    var Tt = P.y + padY + ((sparkOn || bulOn) ? 0 : Math.max(0, spare / 2));
+    if (titleH) b += txt(L, Tt + tFs * 0.85, fit(c, kpiLabel, iw, tFs), tFs, c.C.sub, 'start');
+    var yBig = Tt + titleH + big * 0.8;
+    b += bigNum(L, yBig, big);
+    var yCur = yBig + big * 0.15;
+    if (dRowH && yCur + dFs + 3 <= P.y + P.h - 1) { b += deltaRow(L, yCur + dFs + 3, iw); yCur += dFs + 5; }
+    if (bulOn) { b += bullet(L, yCur + 5, Math.min(iw, 260 * c.fk), bulH); yCur += bulH + 7; }
+    if (sparkOn) {
+      var sh = Math.min(P.y + P.h - padY - yCur - 6, P.h * 0.46);
+      if (sh >= 10) b += trendChart(L, P.y + P.h - padY - sh, iw, sh);
     }
     return wrap(c, b);
   };

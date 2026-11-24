@@ -80,6 +80,9 @@
   .tpl .tplb i.tb-phone{background:#EAF5F3;color:#16453E}
   .tpl .tplb i.cur{border-color:currentColor;font-weight:600}
   .tpl.phone .pv{background:linear-gradient(180deg,#fff,#F4F7F6)}
+  /* KPI-Kachel: der Titel ist die Beschriftung der Karte (klein und ruhig), die Zahl trägt das Gewicht */
+  .page .tile.k-kpi .t-title,.page .tile.k-card .t-title{font-weight:500;font-size:calc(var(--fs-title,12px) * var(--ui) * var(--tf,1) * .86);opacity:.72;letter-spacing:.01em}
+  .page .tile.k-kpi .t-sub,.page .tile.k-card .t-sub{opacity:.6}
   /* Typauswahl */
   dialog#dlgCatalog{width:min(96vw,1180px);max-width:min(96vw,1180px)}
   .cat-filter{display:flex;flex-wrap:wrap;gap:6px;align-items:center;padding:10px 18px 0}
