@@ -1078,6 +1078,19 @@ def kpi_card_settings(v: dict, nspec: dict):
     return out, warn
 
 
+def native_palette(name, brand=None):
+    """Datenfarben der nativen Visuals: {"light": [...], "dark": [...]} oder None.
+
+    `neutral`/`kitchen` aus NATIVE_PALETTES; `brand` (Tool 0.7.2) = Firmenfarben aus
+    `design.colors.brand.palette`, fuer hell und dunkel dieselbe Liste. `pbi` und
+    Unbekanntes -> None (Power-BI-Standard, der Skill schreibt dann nichts)."""
+    if (name or "") == "brand":
+        cols = [c.upper() for c in (brand or [])
+                if isinstance(c, str) and re.match(r"^#[0-9a-fA-F]{6}$", c)]
+        return {"light": cols, "dark": cols} if cols else None
+    return NATIVE_PALETTES.get(name or "")
+
+
 def custom_visual_props(v: dict) -> dict:
     """`visuals[].customVisualProps` (Tool 0.7.0) -> {"objekt.eigenschaft": Wert}.
 
@@ -1297,6 +1310,8 @@ class Style:
         self.dark_mode = bool(d["darkMode"])
         self.scen = SCENARIO_COLORS["dark" if self.dark_mode else "light"]
         self.native_palette = d.get("nativePalette")
+        # Tool 0.7.2: Firmenfarben (design.colors.brand.palette) fuer nativePalette "brand"
+        self.brand_palette = ((d.get("colors") or {}).get("brand") or {}).get("palette")
 
         style = (d["headerStyle"] or "dark").lower()
         self.header_style = style
@@ -2054,7 +2069,7 @@ def native_look(v: dict, item: dict, st: Style, nspec: dict):
     if classic:
         if "axis" in caps:
             props.append(("valueAxis.gridlineStyle", "dotted"))
-        pal = NATIVE_PALETTES.get(st.native_palette or "")
+        pal = native_palette(st.native_palette, getattr(st, "brand_palette", None))
         if pal and "fill" in caps and "Series" not in (item.get("fields") or {}):
             colors = pal["dark" if st.dark_mode else "light"]
             measures = [r for r in bound if measure_kind.get(r) == "measure"]
@@ -3790,7 +3805,7 @@ def build_theme_fragment(nspec: dict, st: Style) -> dict:
                      "chrome-batch.json."
                      % (ts["scale"], ts["k"], ts["titlePx"], ts["titlePt"],
                         ts["subPx"], ts["subPt"], ts["chartPx"], ts["chartPt"]))
-    pal = NATIVE_PALETTES.get(d.get("nativePalette") or "")
+    pal = native_palette(d.get("nativePalette"), ((d.get("colors") or {}).get("brand") or {}).get("palette"))
     if pal:
         # Datenfarben der nativen Skizzen (design.nativePalette); `pbi` = Power-BI-
         # Standard, dafuer schreibt der Skill nichts

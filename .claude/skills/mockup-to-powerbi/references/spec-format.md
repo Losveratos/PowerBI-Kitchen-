@@ -124,6 +124,13 @@ Hinweise für den Bau bzw. für `dwg mockup import`.
 | `visuals[].customVisualProps` | Format-Einstellungen eines Custom Visuals byDatenWG als `{"objekt.eigenschaft": Wert}`: `columns.template` und `columns.templateApplied` (beide gleich, sonst wendet das Visual das Template beim ersten Rendern erneut an), `columns.treeCard`, `state.uiState` (JSON-Text mit der Ansicht `tree` bzw. `sankey`), bei der Bilanz ohne Zeilentyp `statement.stockMode: allStock`. Der Konverter schreibt sie nach `visual.objects` (`custom_visual_props`). Zählt zum specHash, fehlt der Schlüssel, bleibt der Hash wie bisher |
 | Issue-Codes `BOOKMARKS_*`, `APP_SHELL_*`, `APP_NOT_BUILDABLE` | Hinweise zu Lesezeichen (Power BI) bzw. zu dem, was die dwg-Shell heute nicht kann |
 
+### Tool 0.7.2: Firmenfarben (specVersion bleibt 3)
+
+| Neu | Wo |
+|---|---|
+| `design.colors.brand` | `{name, palette[], source, active}`: im Kitchen geladene Firmenfarben (aus einem Power-BI-Theme oder einer Hex-Liste), höchstens acht. `active` sagt, ob das Schema gerade gilt. Kopfband und Akzent stehen wie immer aufgelöst in `design.colors.headerBackground` und `design.accent` |
+| `design.nativePalette: "brand"` | Datenfarben der nativen Visuals = `design.colors.brand.palette`. Der Konverter schreibt sie als `dataColors` ins Theme-Fragment und färbt Reihen nativer Visuals damit (`native_palette()`); ohne Liste bleibt es beim Power-BI-Standard |
+
 ### Tool 0.7.1: Handy-Format und Tab-Leiste (specVersion bleibt 3)
 
 | Neu | Wo |

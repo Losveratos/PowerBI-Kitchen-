@@ -58,6 +58,17 @@
     'tplb.landscapeHint': 'Diese Vorlage ist für das Querformat gedacht',
     'opt.navPos.tabs': 'als Tab-Leiste unten', 'opt.canvas.phone': 'Handy · 1080 × 1920',
 
+    // Farbschema
+    'scheme.sec': 'Farbschema', 'scheme.hint': 'Grundton für Kopfband, Akzent und native Visuals. Die Szenario-Notation der ChartKitchen-Skizzen bleibt unverändert.',
+    'scheme.kitchen': 'Kitchen Basis', 'scheme.kitchenSub': 'Ink, Terrakotta, Teal',
+    'scheme.brand': 'Firmenfarben', 'scheme.brandSub': '{n} Farben geladen', 'scheme.brandEmpty': 'noch nicht geladen',
+    'scheme.load': 'Firmenfarben laden …', 'scheme.loadTip': 'Power-BI-Theme (JSON) oder eine Datei mit Hex-Werten (CSS, Text)',
+    'scheme.hexPh': 'oder Hex-Werte: #003366, #E2001A …', 'scheme.apply': 'Übernehmen', 'scheme.namePh': 'Name, z. B. Firma',
+    'scheme.head': 'Kopfband', 'scheme.accent': 'Akzent', 'scheme.native': 'Firmenfarben',
+    'scheme.loaded': '{n} Farben übernommen · {name}', 'scheme.none': 'Keine Hex-Farben gefunden (erwartet: #RRGGBB)',
+    'scheme.note': 'Kopfband und Akzent per Klick auf eine Farbe ändern. „Kitchen Basis“ stellt die Vorgabe wieder her, die Firmenfarben bleiben gemerkt.',
+    'scheme.lowContrast': 'Akzent {c} hat auf Weiß wenig Kontrast (unter 3:1). Für Text und aktive Elemente besser eine dunklere Farbe wählen.',
+
     // Gespeicherte Filter
     'views.sec': 'Gespeicherte Filter',
     'views.hint': 'Erscheinen als Chips über den Kacheln. In der Präsentation lassen sie sich wegklicken und wieder einschalten.',
@@ -172,6 +183,16 @@
     'tplb.linked': '{n} tiles linked to pages', 'tplb.linkHint': 'Add more pages, then link the tiles via "Jump target"',
     'tplb.landscapeHint': 'This template is meant for landscape format',
     'opt.navPos.tabs': 'as a tab bar at the bottom', 'opt.canvas.phone': 'Phone · 1080 × 1920',
+
+    'scheme.sec': 'Colour scheme', 'scheme.hint': 'Base tone for header, accent and native visuals. The scenario notation of the ChartKitchen sketches stays unchanged.',
+    'scheme.kitchen': 'Kitchen basic', 'scheme.kitchenSub': 'Ink, terracotta, teal',
+    'scheme.brand': 'Company colours', 'scheme.brandSub': '{n} colours loaded', 'scheme.brandEmpty': 'not loaded yet',
+    'scheme.load': 'Load company colours …', 'scheme.loadTip': 'Power BI theme (JSON) or a file with hex values (CSS, text)',
+    'scheme.hexPh': 'or hex values: #003366, #E2001A …', 'scheme.apply': 'Apply', 'scheme.namePh': 'Name, e.g. company',
+    'scheme.head': 'Header', 'scheme.accent': 'Accent', 'scheme.native': 'Company colours',
+    'scheme.loaded': '{n} colours applied · {name}', 'scheme.none': 'No hex colours found (expected: #RRGGBB)',
+    'scheme.note': 'Click a colour to change header and accent. "Kitchen basic" restores the default, the company colours stay remembered.',
+    'scheme.lowContrast': 'Accent {c} has little contrast on white (below 3:1). Pick a darker colour for text and active elements.',
 
     'views.sec': 'Saved filters',
     'views.hint': 'Shown as chips above the tiles. In presentation mode they can be dismissed and switched back on.',

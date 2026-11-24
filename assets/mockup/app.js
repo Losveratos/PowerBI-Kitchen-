@@ -1,6 +1,6 @@
 /* MockupKitchen · App-Kern v0.2: Zustand (mehrere Seiten), Container-Layout, Rendering, Interaktion, Datenmodell (TMDL/Demo) */
 // Einzige Quelle der Tool-Version: Kopfzeile, meta.version der Spec, AGENT-BRIEF und WORKSHOP-DOKU lesen diesen Wert.
-window.MK_VERSION = '0.7.1';
+window.MK_VERSION = '0.7.2';
 (function () {
   'use strict';
   const CAT = window.MK_CATALOG;
@@ -268,7 +268,7 @@ window.MK_VERSION = '0.7.1';
       seed: (seedOf(nodeId || '') + (window.MK_STAGE && window.MK_STAGE.on ? window.MK_STAGE.shift(v, nodeId) : 0)) % 1000, label: v.sub || '', scale: ui(), polarity: an.polarity,
       variance: { abs: an.deltaKind.includes('abs'), rel: an.deltaKind.includes('rel') }, unit: an.unit, lang: S.lang, content: v.content || '',
       antiPattern: !!ANTI[v.kind], palette: S.design.palette || 'teal', ink: ti.ink, dark: ti.dark, paper: S.design.tileBg || '#FFFFFF',
-      fontScale: ty.scale * tileScale(v), fonts: { label: ty.chart }, nativePalette: S.design.nativePalette || 'neutral',
+      fontScale: ty.scale * tileScale(v), fonts: { label: ty.chart }, nativePalette: S.design.nativePalette || 'neutral', nativeColors: S.design.brand ? S.design.brand.colors : undefined,
       sort: an.sort, topN: an.topN,
     };
     const r = v.roles || {};

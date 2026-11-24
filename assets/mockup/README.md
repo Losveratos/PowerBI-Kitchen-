@@ -3,6 +3,25 @@
 Positionierung (aus dem Review): kein Report-Generator, sondern ein **Anforderungswerkzeug mit deterministischem
 Ausgang**. Der Workshop legt Struktur, Felder und Entscheidungen fest; der Bau ist eine Ableitung.
 
+## Neu in v0.7.2 (24.11.2026, lokal auf `feat/mockup-kitchen`)
+
+Zwei Punkte aus dem ersten Test.
+
+- **KPI-Karte mit mehr Inhalt** (`S.kpi` in `sketches.js`): KPI-Kacheln sind breit und flach, die Skizze fiel dort in
+  den Klein-Modus (Zahl 16 px, kein Verlauf, halbe Fläche leer). Neu sind zwei Aufbauten: *flach* (große Zahl mit
+  Einheit, Δ-Zeile, Vergleichsbalken AC gegen Bezug in Szenario-Notation mit Werten, Verlauf rechts) und *hoch* (Zahl,
+  Δ-Zeile, Vergleichsbalken, Verlauf unten). In der Kachel zeichnet die Skizze ohne eigenen Rahmen (`o.bare`), nur der
+  Status-Akzent links bleibt. Der Kacheltitel von `kpi` und `card` ist kleiner und ruhiger (Klasse `k-<kind>` an der
+  Kachel), auch im PNG.
+- **Farbschema** (Reiter Design, `appmode.js`): „Kitchen Basis“ oder „Firmenfarben“. Firmenfarben kommen aus einer
+  Power-BI-Theme-Datei (`dataColors`, `background`, `foreground`, `tableAccent`), aus einer beliebigen Textdatei mit
+  Hex-Werten (CSS, Text) oder aus einer eingefügten Liste. Zustand `design.scheme` und `design.brand { name, colors[],
+  source, head?, accent? }`. Wirkung: Kopfband (erste Farbe, Schrift nach Kontrast), Akzent (erste kräftige Farbe mit
+  mindestens 3:1 auf Weiß), native Visuals (`nativePalette: 'brand'`, Skizzen-Option `nativeColors`). Kopfband und
+  Akzent lassen sich per Klick auf eine Farbe umstellen. Die Szenario-Notation der ChartKitchen-Skizzen bleibt
+  unverändert. Export: `design.colors.brand { name, palette[], source, active }`; der Konverter nimmt die Palette als
+  `dataColors` des Themes und für native Visuals (`native_palette()` in `mockup_to_pbir.py`).
+
 ## Neu in v0.7.1 (24.11.2026, lokal auf `feat/mockup-kitchen`)
 
 Vorlagen für das Ziel Fabric App, darunter eine Handy-Vorlage im Hochformat.

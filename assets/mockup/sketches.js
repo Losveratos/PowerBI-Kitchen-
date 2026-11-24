@@ -177,6 +177,16 @@
        hair Verbinder      g2/g3 Stapelgrau       paper Kachelgrund (Halo)
        wash/pane/edge  Flächen, Kopfzeilen, Kartenrand
        nTxt/nTitle/nGrid  Power-BI-Nativlook      pbi   Datenfarben nativ   */
+  // Firmenfarben zu einer Achterpalette: gültige Hex-Werte, im dunklen Modus aufgehellt, Rest als hellere Töne derselben Farben
+  function brandPal(list, dark) {
+    var src = [], i;
+    for (i = 0; i < list.length; i++) if (/^#[0-9a-fA-F]{6}$/.test(String(list[i]))) src.push(String(list[i]).toUpperCase());
+    if (!src.length) return null;
+    var out = src.slice(0, 8), j = 0;
+    while (out.length < 8) { out.push(mix(src[j % src.length], '#FFFFFF', 0.35 + 0.2 * Math.floor(j / src.length))); j++; }
+    if (dark) for (i = 0; i < out.length; i++) out[i] = mix(out[i], '#FFFFFF', 0.28);
+    return out;
+  }
   function theme(o) {
     var pal = PAL[o.palette === 'ibcs' ? 'ibcs' : 'teal'];
     var ink = /^#[0-9a-fA-F]{6}$/.test(String(o.ink || '')) ? String(o.ink).toUpperCase() : null;
@@ -217,7 +227,9 @@
     }
     C.good = dark ? pal.goodD : pal.good;
     C.bad  = dark ? pal.badD : pal.bad;
-    C.pbi = NPAL.hasOwnProperty(o.nativePalette) ? NPAL[o.nativePalette][dark ? 'dark' : 'light'] : PBI;
+    // 'brand' = Firmenfarben aus o.nativeColors (Hex-Liste); zu wenige Farben werden mit aufgehellten Tönen aufgefüllt
+    var bcol = (o.nativePalette === 'brand' && o.nativeColors && o.nativeColors.length) ? brandPal(o.nativeColors, dark) : null;
+    C.pbi = bcol || (NPAL.hasOwnProperty(o.nativePalette) ? NPAL[o.nativePalette][dark ? 'dark' : 'light'] : PBI);
     C.npal = C.pbi !== PBI;              // eigene Nativpalette aktiv
     C.dark = dark;
     return C;

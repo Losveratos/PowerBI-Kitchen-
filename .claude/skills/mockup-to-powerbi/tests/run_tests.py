@@ -1759,6 +1759,10 @@ def ck157_tests(res: Results):
     objs = P.desktop_objects(cs)
     res.check("0.7 · P&L-Template steht in visual.objects.columns",
               "template" in objs.get("columns", [{}])[0].get("properties", {}), repr(objs)[:200])
+    res.check("0.7.2 · nativePalette brand nimmt die Firmenfarben, ohne Liste nichts",
+              P.native_palette("brand", ["#112233", "kaputt", "#aabbcc"]) == {"light": ["#112233", "#AABBCC"], "dark": ["#112233", "#AABBCC"]}
+              and P.native_palette("brand", []) is None and P.native_palette("pbi") is None
+              and P.native_palette("neutral") == M.NATIVE_PALETTES["neutral"])
     res.check("0.7 · Custom Visual ohne customVisualProps bleibt ohne Einstellungen",
               P.custom_settings({"kind": "pnl", "customVisual": pv["customVisual"]}, None) == ({}, []))
 

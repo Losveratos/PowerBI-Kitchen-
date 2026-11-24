@@ -83,6 +83,22 @@
   /* KPI-Kachel: der Titel ist die Beschriftung der Karte (klein und ruhig), die Zahl trägt das Gewicht */
   .page .tile.k-kpi .t-title,.page .tile.k-card .t-title{font-weight:500;font-size:calc(var(--fs-title,12px) * var(--ui) * var(--tf,1) * .86);opacity:.72;letter-spacing:.01em}
   .page .tile.k-kpi .t-sub,.page .tile.k-card .t-sub{opacity:.6}
+  /* Farbschema (Reiter Design): Kitchen Basis oder Firmenfarben */
+  .sch-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+  .sch-card{border:1.5px solid var(--line);border-radius:10px;background:var(--bg-card);padding:7px 8px;text-align:left;display:flex;flex-direction:column;gap:5px;min-width:0}
+  .sch-card:hover{border-color:var(--line-strong)}
+  .sch-card[aria-pressed="true"]{border-color:var(--ink);box-shadow:0 0 0 2px var(--bg-soft)}
+  .sch-card b{font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .sch-card small{font-size:10.5px;color:var(--ink-mute);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .sch-sw{display:flex;height:16px;border-radius:4px;overflow:hidden;border:1px solid var(--line)}
+  .sch-sw i{flex:1;min-width:0}
+  .sch-sw.empty{background:repeating-linear-gradient(135deg,#fff 0 6px,#F1F0EA 6px 12px)}
+  .sch-row{display:flex;gap:6px;margin-top:8px;align-items:center}
+  .sch-row .ctl{flex:1;min-width:0;padding:4px 6px;font-size:12px}
+  .sch-pick{display:flex;flex-wrap:wrap;gap:4px;margin-top:4px}
+  .sch-pick button{width:22px;height:22px;border-radius:6px;border:1px solid rgba(15,30,46,.25);padding:0}
+  .sch-pick button[aria-pressed="true"]{outline:2px solid var(--ink);outline-offset:1px}
+  .sch-lbl{font-size:10.5px;color:var(--ink-mute);margin:8px 0 0;text-transform:uppercase;letter-spacing:.05em;font-weight:600}
   /* Typauswahl */
   dialog#dlgCatalog{width:min(96vw,1180px);max-width:min(96vw,1180px)}
   .cat-filter{display:flex;flex-wrap:wrap;gap:6px;align-items:center;padding:10px 18px 0}
@@ -282,21 +298,120 @@
     catBody.addEventListener('click', e => { if (e.target.closest('#catClear')) { pick.tags.clear(); pick.onlyTarget = false; const q = $('#catSearch'); if (q && q.value) { q.value = ''; q.dispatchEvent(new Event('input', { bubbles: true })); } buildBar(); applyPick(); } });
   }
 
+
+  // ------------------------------------------------------------------ Farbschema: Kitchen Basis oder Firmenfarben
+  // S.design.scheme = 'kitchen' | 'brand'; S.design.brand = { name, colors[], source, background?, foreground? }.
+  // Firmenfarben prägen Kopfband, Akzent und die Farben nativer Visuals (nativePalette 'brand'). Die Szenario-Notation
+  // der ChartKitchen-Skizzen (AC dunkel, PY grau, PL Kontur, Abweichung Teal/Rot oder Grün/Rot) bleibt davon unberührt.
+  const KITCHEN = { accent: '#C25A2D', header: 'light', headerBg: '#0F1E2E', headerInk: '#FFFFFF', pageBg: 'light', pageBgHex: '#F4F4F1', tileBg: '#FFFFFF', ink: '#0F1E2E', nativePalette: 'neutral' };
+  const KITCHEN_SW = ['#0F1E2E', '#C25A2D', '#1E8F9E', '#F4F4F1', '#8C8C8C'];
+  const HEX = /^#[0-9a-fA-F]{6}$/;
+  const normHex = v => { let s = String(v == null ? '' : v).trim(); if (/^#[0-9a-fA-F]{3}$/.test(s)) s = '#' + s[1] + s[1] + s[2] + s[2] + s[3] + s[3]; if (/^#[0-9a-fA-F]{8}$/.test(s)) s = s.slice(0, 7); return HEX.test(s) ? s.toUpperCase() : null; };
+  const lumOf = h => { const c = [1, 3, 5].map(i => parseInt(h.slice(i, i + 2), 16) / 255).map(x => x <= 0.03928 ? x / 12.92 : Math.pow((x + 0.055) / 1.055, 2.4)); return 0.2126 * c[0] + 0.7152 * c[1] + 0.0722 * c[2]; };
+  const contrast = (a, b) => { const x = lumOf(a), y = lumOf(b); return (Math.max(x, y) + 0.05) / (Math.min(x, y) + 0.05); };
+  const satOf = h => { const c = [1, 3, 5].map(i => parseInt(h.slice(i, i + 2), 16) / 255); const mx = Math.max.apply(null, c), mn = Math.min.apply(null, c); return mx ? (mx - mn) / mx : 0; };
+  const uniq = a => a.filter((x, i) => x && a.indexOf(x) === i);
+  // Farben aus einer Datei oder einem eingefügten Text: Power-BI-Theme (dataColors, background, foreground, tableAccent) oder eine Liste von Hex-Werten
+  function parseColors(text, fileName) {
+    const hexes = s => uniq((String(s).match(/#[0-9a-fA-F]{8}\b|#[0-9a-fA-F]{6}\b|#[0-9a-fA-F]{3}\b/g) || []).map(normHex));
+    let j = null; try { j = JSON.parse(text); } catch (e) { j = null; }
+    const base = String(fileName || '').replace(/\.[^.]+$/, '');
+    if (j && typeof j === 'object' && !Array.isArray(j)) {
+      const dc = uniq((Array.isArray(j.dataColors) ? j.dataColors : []).map(normHex));
+      const acc = normHex(j.tableAccent);
+      const cols = dc.length ? dc : hexes(text);
+      return { name: String(j.name || base || ''), colors: cols.slice(0, 8), source: dc.length ? 'pbi-theme' : 'list', background: normHex(j.background), foreground: normHex(j.foreground || j.firstLevelElements), accent: acc };
+    }
+    return { name: base, colors: hexes(text).slice(0, 8), source: 'list' };
+  }
+  // Zuordnung der Firmenfarben: Kopfband = erste Farbe, Akzent = erste kräftige Farbe mit genug Kontrast auf Weiß, die nicht das Kopfband ist
+  function brandMapping(b) {
+    const cols = b.colors || []; const head = b.head && cols.includes(b.head) ? b.head : cols[0];
+    const cand = cols.filter(x => x !== head && satOf(x) >= 0.25 && contrast(x, '#FFFFFF') >= 3);
+    const accent = (b.accent && HEX.test(b.accent)) ? b.accent : (cand[0] || cols.find(x => x !== head && contrast(x, '#FFFFFF') >= 3) || head);
+    return { head, accent, headInk: contrast(head, '#FFFFFF') >= contrast(head, '#0F1E2E') ? '#FFFFFF' : '#0F1E2E' };
+  }
+  function applyScheme(which) {
+    const d = S().design;
+    if (which === 'brand' && d.brand && d.brand.colors && d.brand.colors.length) {
+      const m = brandMapping(d.brand);
+      d.scheme = 'brand'; d.accent = m.accent; d.header = 'custom'; d.headerBg = m.head; d.headerInk = m.headInk; d.nativePalette = 'brand';
+      if (d.brand.background) { d.tileBg = d.brand.background; }
+      if (d.brand.foreground && contrast(d.brand.foreground, d.tileBg || '#FFFFFF') >= 4.5) d.ink = d.brand.foreground;
+    } else {
+      d.scheme = 'kitchen'; Object.assign(d, KITCHEN);
+    }
+  }
+  const sch = el(`<details class="sub" id="dsScheme" open><summary data-i18n="scheme.sec"></summary>
+    <p class="hint" style="margin:0 0 6px" data-i18n="scheme.hint"></p>
+    <div class="sch-grid" role="group">
+      <button type="button" class="sch-card" data-scheme="kitchen"><span class="sch-sw">${KITCHEN_SW.map(c => `<i style="background:${c}"></i>`).join('')}</span><b data-i18n="scheme.kitchen"></b><small data-i18n="scheme.kitchenSub"></small></button>
+      <button type="button" class="sch-card" data-scheme="brand"><span class="sch-sw" id="schBrandSw"></span><b id="schBrandName"></b><small id="schBrandSub"></small></button>
+    </div>
+    <div class="sch-row"><button type="button" class="btn sm" id="schLoad" data-i18n="scheme.load" data-i18n-title="scheme.loadTip"></button><input type="file" id="schFile" accept=".json,.txt,.css,.scss,.xml,application/json,text/plain" hidden></div>
+    <div class="sch-row"><input class="ctl" id="schHex" data-i18n-ph="scheme.hexPh" spellcheck="false"><button type="button" class="btn sm" id="schHexGo" data-i18n="scheme.apply"></button></div>
+    <div id="schDetail" hidden>
+      <div class="sch-row"><input class="ctl" id="schName" data-i18n-ph="scheme.namePh"></div>
+      <p class="sch-lbl" data-i18n="scheme.head"></p><div class="sch-pick" id="schHead"></div>
+      <p class="sch-lbl" data-i18n="scheme.accent"></p><div class="sch-pick" id="schAccent"></div>
+    </div>
+    <p class="hint" id="schNote" style="margin-top:8px"></p>
+  </details>`);
+  { const first = $('#dsFormat'); if (first) first.insertAdjacentElement('beforebegin', sch); else { const idn = $('#insDesign'); if (idn) idn.appendChild(sch); } }
+  { const dn = $('#dsNative'); if (dn && !dn.querySelector('option[value="brand"]')) dn.insertAdjacentHTML('beforeend', `<option value="brand" data-i18n="scheme.native"></option>`); }
+  function setBrand(parsed) {
+    if (!parsed || !parsed.colors || !parsed.colors.length) { MK.toast(t('scheme.none')); return false; }
+    const d = S().design; d.brand = { name: parsed.name || (d.brand && d.brand.name) || '', colors: parsed.colors, source: parsed.source || 'list' };
+    if (parsed.background) d.brand.background = parsed.background; if (parsed.foreground) d.brand.foreground = parsed.foreground; if (parsed.accent) d.brand.accent = parsed.accent;
+    applyScheme('brand'); MK.commit(); MK.toast(t('scheme.loaded', { n: parsed.colors.length, name: d.brand.name || t('scheme.brand') })); return true;
+  }
+  sch.addEventListener('click', e => {
+    const card = e.target.closest('[data-scheme]');
+    if (card) { const w = card.dataset.scheme; if (w === 'brand' && !(S().design.brand && S().design.brand.colors && S().design.brand.colors.length)) { $('#schFile').click(); return; } applyScheme(w); MK.commit(); return; }
+    if (e.target.closest('#schLoad')) { $('#schFile').click(); return; }
+    if (e.target.closest('#schHexGo')) { if (setBrand(parseColors($('#schHex').value, ''))) $('#schHex').value = ''; return; }
+    const h = e.target.closest('[data-schhead]'); if (h) { S().design.brand.head = h.dataset.schhead; delete S().design.brand.accent; applyScheme('brand'); MK.commit(); return; }
+    const a = e.target.closest('[data-schacc]'); if (a) { S().design.brand.accent = a.dataset.schacc; applyScheme('brand'); MK.commit(); }
+  });
+  $('#schHex').addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); $('#schHexGo').click(); } });
+  $('#schName').addEventListener('input', e => { const b = S().design.brand; if (b) { b.name = e.target.value; MK.persist(); $('#schBrandName').textContent = b.name || t('scheme.brand'); } });
+  $('#schName').addEventListener('change', () => MK.commit({ keep: true }));
+  $('#schFile').addEventListener('change', e => {
+    const f = e.target.files && e.target.files[0]; if (!f) return;
+    const rd = new FileReader(); rd.onload = () => { setBrand(parseColors(String(rd.result || ''), f.name)); e.target.value = ''; }; rd.readAsText(f);
+  });
+  function renderScheme() {
+    const d = S().design, b = d.brand, has = !!(b && b.colors && b.colors.length), cur = d.scheme === 'brand' && has ? 'brand' : 'kitchen';
+    $$('[data-scheme]', sch).forEach(x => x.setAttribute('aria-pressed', x.dataset.scheme === cur ? 'true' : 'false'));
+    const sw = $('#schBrandSw'); sw.className = 'sch-sw' + (has ? '' : ' empty'); sw.innerHTML = has ? b.colors.map(c => `<i style="background:${c}"></i>`).join('') : '';
+    $('#schBrandName').textContent = has ? (b.name || t('scheme.brand')) : t('scheme.brand');
+    $('#schBrandSub').textContent = has ? t('scheme.brandSub', { n: b.colors.length }) : t('scheme.brandEmpty');
+    const det = $('#schDetail'); det.hidden = !(has && cur === 'brand');
+    if (!det.hidden) {
+      const m = brandMapping(b);
+      if (document.activeElement !== $('#schName')) $('#schName').value = b.name || '';
+      $('#schHead').innerHTML = b.colors.map(c => `<button type="button" data-schhead="${c}" style="background:${c}" title="${c}" aria-label="${c}" aria-pressed="${c === d.headerBg ? 'true' : 'false'}"></button>`).join('');
+      $('#schAccent').innerHTML = b.colors.map(c => `<button type="button" data-schacc="${c}" style="background:${c}" title="${c}" aria-label="${c}" aria-pressed="${c === d.accent ? 'true' : 'false'}"></button>`).join('');
+      const low = contrast(m.accent, '#FFFFFF') < 3;
+      $('#schNote').textContent = low ? t('scheme.lowContrast', { c: d.accent }) : t('scheme.note');
+    } else $('#schNote').textContent = '';
+  }
+
   // ------------------------------------------------------------------ Abgleich nach jedem Zeichnen
   function sync() {
     const s = S(), tg = s.target || 'pbi';
     pill.querySelector('.ic').textContent = TG_LETTER[tg]; pill.querySelector('.nm').textContent = t('target.' + tg);
     const sel = $('#rpTarget'); if (sel && document.activeElement !== sel) sel.value = tg;
     const hint = $('#rpTargetHint'); if (hint) hint.textContent = t('target.' + tg + '.hint');
-    renderViews(false);
+    renderViews(false); renderScheme();
     if (bar && dlgCat && dlgCat.open) buildBar();
   }
   window.addEventListener('mk:rendered', sync);
-  I.onChange(() => { I.apply(dlg); I.apply(sec); I.apply(rpField); buildBar(); renderViews(true); sync(); });
-  I.apply(dlg); I.apply(sec); I.apply(rpField); I.apply(pill.parentElement || document);
+  I.onChange(() => { I.apply(dlg); I.apply(sec); I.apply(rpField); I.apply(sch); buildBar(); renderViews(true); sync(); });
+  I.apply(dlg); I.apply(sec); I.apply(rpField); I.apply(sch); I.apply(pill.parentElement || document); { const dn = $('#dsNative'); if (dn) I.apply(dn.parentElement); }
   { const np = $('#hdNavPos'); if (np) I.apply(np.parentElement); }
   buildBar();
   sync();
 
-  window.MK_APPMODE = { applyTarget, openTargetDialog, fitsApp, tagsOf, pick };
+  window.MK_APPMODE = { applyTarget, openTargetDialog, fitsApp, tagsOf, pick, applyScheme, parseColors, setBrand, brandMapping };
 })();
