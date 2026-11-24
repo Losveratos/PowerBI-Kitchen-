@@ -1620,6 +1620,19 @@ PAGES: list[dict] = [
     },
     {
         **POST_COMMON,
+        "basename": "newsletter-lupe-post",
+        "lang": "de",
+        "title": "Was man in 657 Mails findet",
+        "append_md": (
+            "---\n\n"
+            "## Weiterlesen\n\n"
+            "- HTML (maßgeblich): https://datenwgknowledgekitchen.com/newsletter-lupe-post.html\n"
+            "- Story: [newsletter-lupe-story.html](../newsletter-lupe-story.html) · "
+            "[newsletter-lupe-story.md](newsletter-lupe-story.md)\n"
+        ),
+    },
+    {
+        **POST_COMMON,
         "basename": "sankey-wasserfall-post",
         "lang": "de",
         "title": "Sankey trifft IBCS-Wasserfall",
