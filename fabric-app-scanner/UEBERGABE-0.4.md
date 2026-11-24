@@ -3,6 +3,58 @@
 Für den Agenten, der fabscan weiterbaut. Stand 19.11.2026, Branch `feat/fabscan-nonadmin-fallback`, PR #56.
 Neueste Version zuerst: 0.6.x, dann 0.5.x, darunter unverändert die Übergabe zu 0.4.0.
 
+## 0.6.2 · fabscan.json je App, sichtbare feste Filter, UTF-8-Ausgabe
+
+Aus dem Lauf über die dwg-Apps (Befunde aus dwg-cli, Branch `feat/fabscan-befunde`). Stand 24.11.2026.
+
+**1 · fabscan.json je App** (`fabscan/config.py`, `cli._app_config`)
+- Neben `<root>/fabscan.json` (oder `--config`, unverändert) liest fabscan je gefundener App `<App-Ordner>/fabscan.json`.
+  Pfade darin relativ zum App-Ordner. Ist die App selbst der Scan-Ordner, ist es dieselbe Datei und wird einmal gelesen.
+- App-Werte gelten nur für diese App und gehen vor: `connectors` überschreiben die Wurzel, Modelle aus der App-Datei
+  stehen für diese App vorn in der Liste (Zuordnung per Name und per Abdeckung nimmt den ersten Treffer),
+  `visibleFilters` der App vor denen der Wurzel. Gleiche Modellordner zählen einmal (`Model.folder`, `_unique_models`).
+- Kaputte Datei: Exit-Code 2 mit Dateiname. Nicht lesbare Einträge (`models`, `visibleFilters`) sind Hinweise auf stderr.
+
+**2 · Modellordner direkt** (`tmdl.find_models`)
+- Zeigt ein Pfad aus `models` oder `--models` direkt auf `X.SemanticModel`, liest fabscan dieses Modell. Elternordner
+  wie bisher. dwg kann also künftig den Modellordner selbst eintragen, der Elternordner bleibt gültig.
+
+**3 · Sichtbare feste Filter** (`visibleFilters`, `dax.filter_conditions`, `config.visible_match`)
+- Feld `visibleFilters` in fabscan.json: Liste, je Eintrag `{"column": "'Tabelle'[Spalte]", "values": [...]}` (Form
+  wie `pages[].filters` in der dwg-Spec), optional `file` (Dateimuster relativ zur App, Text oder Liste) und `table`
+  statt Tabelle in `column`; ohne `values` gilt jeder feste Wert der Spalte. Oder ein DAX-Ausdruck als Text
+  (`"'Kalender'[Ist] = TRUE"`, `"'T'[S] IN {1, 2}"`, `"TREATAS({2026}, 'T'[Jahr])"`).
+- Jede QRY-HARDCODED-Fundstelle wird in (Tabelle, Spalte, Operator, Wertemenge) zerlegt: `TREATAS({…}, 'T'[S])` mit
+  genau einer Spalte, `'T'[S] = Wert`, `IN {…}`, `KEEPFILTERS(…)`, mehrere Bedingungen mit `&&`/`AND`. Vergleich klein,
+  ohne Leerzeichen und Anführungszeichen, `TRUE()` = `true`, `2026` = `"2026"` = `2026.0`. Die Wertemenge muss gleich
+  sein (Monat 1 bis 3 passt nicht zu gemeldet 1 bis 8). Jede Bedingung braucht einen Eintrag. `||`/`OR`, Tupel,
+  Spalte gegen Spalte und Ausdrücke wie `SUM(…) > 3` sind nicht lesbar und bleiben ⚠.
+- Treffer: Befund `QRY-HARDCODED` mit Stufe ℹ und Titel „Fester Filter, für Nutzer sichtbar“
+  (`checks.VISIBLE_TITLE`, Klartext in `report._plain`). Zählt nicht für Ampel, Gesamtbild und `--fail-on`, hat eine
+  eigene Befund-ID (anderer Titel). Nicht gelistete feste Filter bleiben ⚠ wie bisher.
+- Prüfung an den echten Fundstellen: alle TREATAS in den `.dax`-Dateien der dwg-Apps haben die Form
+  `TREATAS({Werte}, 'Tabelle'[Spalte])` mit Zahlen, Texten oder `TRUE()`; die Form `column`/`values` der dwg-Spec passt
+  direkt. `TREATAS({TRUE()}, …)` meldet fabscan ohnehin nicht als fest (nur Zahlen und Texte in der Liste).
+
+**4 · UTF-8-Ausgabe** (`cli.utf8_output`)
+- `main()` stellt stdout und stderr per `reconfigure(encoding="utf-8", errors="replace")` um, wenn sie nicht schon
+  UTF-8 sind. Vorher brach fabscan unter Git Bash/Windows (cp1252, Ausgabe in eine Pipe) an ✓/⚠ mit
+  `UnicodeEncodeError` ab; geprüft mit dem Stand 0.6.1 gegen die Testdaten.
+
+**Gegenprobe** an einer Kopie von `Fabric-Apps-Demo\apps` mit den Modellen daneben (Scratchpad, die echten Apps
+unverändert), fabscan.json je App von Hand wie dwg sie schreiben würde (Modell direkt, Konnektor, sichtbare Filter):
+
+| App | 0.6.1 (mit und ohne App-Dateien gleich) | 0.6.2 mit App-Dateien |
+| --- | --- | --- |
+| budapest-demo | LIN-NO-MODEL ⚠, QRY-HARDCODED ⚠ 6×, SEC-CDN ⚠ | Modell gebunden (Abdeckung), QRY-HARDCODED ℹ 6×, SEC-NO-RLS ℹ, SEC-CDN ⚠ |
+| dwg-guv | LIN-NO-MODEL ⚠, QRY-HARDCODED ⚠ 4×, SEC-CDN ⚠ | Modell gebunden, QRY-HARDCODED ℹ 4×, SEC-NO-RLS ℹ, SEC-CDN ⚠ |
+| dwg-spike | LIN-NO-MODEL ⚠ 2×, QRY-HARDCODED ⚠ 14×, SEC-CDN ⚠ | guv gebunden, auslastung weiter LIN-NO-MODEL (Modell nicht lokal); QRY-HARDCODED ℹ 4× (Jahr in dwg-spike.dax), ⚠ 10× (Szenario-CALCULATE in auslastung.dax, nicht gemeldet), SEC-NO-RLS ℹ, SEC-CDN ⚠ |
+| showcase | LIN-NO-MODEL ⚠, SEC-CDN ⚠ | Modell gebunden (Elternordner), SEC-NO-RLS ℹ, SEC-CDN ⚠ |
+
+SEC-CDN bleibt, weil die Apps in Fabric-Apps-Demo noch vor der Schriften-Änderung in dwg erzeugt sind.
+
+Tests: 104 (neu `tests/test_config.py`, 18 Tests, darunter ein Lauf als Unterprozess ohne `PYTHONIOENCODING`).
+
 ## 0.6.1 · Fehlalarme aus dem Lauf über die dwg-Apps
 
 Lauf über die vier von dwg erzeugten Apps in `Desktop\PnL Demo\Fabric-Apps-Demo\apps` (19.11.2026):

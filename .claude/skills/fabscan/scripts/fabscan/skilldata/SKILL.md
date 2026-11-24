@@ -27,7 +27,9 @@ python3 <SKILL_DIR>/run.py <repo-ordner> -o fabscan-bericht
 ```
 
 - Gefunden wird jede App mit `rayfin/rayfin.yml`, dazu die Semantikmodelle als TMDL (`*.SemanticModel`) im selben Repo.
-  Liegt ein Modell woanders: `--models <ordner>`.
+  Liegt ein Modell woanders: `--models <ordner>` (Ordner mit Modellen oder direkt ein `X.SemanticModel`-Ordner).
+- `fabscan.json` im Scan-Ordner und je App im App-Ordner (Pfade relativ zur Datei, App-Werte gehen vor): `models`,
+  `connectors` und `visibleFilters` (feste Filter, die die App den Nutzern sichtbar anzeigt; sie werden zu ℹ).
 - Ergebnis im Ausgabeordner: `bericht.html` (Klartext, Datenweg, Fundstellen), `zusammenfassung.md`,
   `befunde.json`, `befunde.csv`.
 - Gibt es einen Ordner für Ausgabedateien (z. B. `/mnt/user-data/outputs` in claude.ai), dorthin schreiben, damit der
@@ -51,7 +53,7 @@ Je Befund im App-Code. Danach immer erneut prüfen und sagen, was sich geändert
 | `CALC-PROJ`, `CALC-DEFINE` | Ausdruck als Measure vorschlagen; in der Abfrage das Measure verwenden. |
 | `DEV-NAME` | Das gleichnamige Measure abfragen statt nachrechnen. |
 | `DEV-TRANSFORM` | `ROUND`/`FORMAT` aus der Abfrage entfernen und in der Anzeige formatieren; `TRIM` als Hinweis für die Datenaufbereitung. |
-| `QRY-HARDCODED` | Feste Werte (Jahr, Szenario, Stichtag) als sichtbare Auswahl oder Parameter der App. |
+| `QRY-HARDCODED` | Feste Werte (Jahr, Szenario, Stichtag) als sichtbare Auswahl oder Parameter der App. Zeigt die App den Filter schon an (z. B. als Chip), ihn in `fabscan.json` unter `visibleFilters` eintragen. |
 | `QRY-SHADOW` | `DEFINE MEASURE` mit Modell-Namen entfernen und das Modell-Measure nutzen. |
 | `QRY-OVERRIDE` | Prüfen, ob gewollt; sonst `ALL`/`REMOVEFILTERS` entfernen oder in der App kennzeichnen. |
 | `SEC-CDN` | Schriften lokal ausliefern (woff2 ins Bundle, `@font-face`), `<link>` zu fonts.googleapis.com entfernen. |
