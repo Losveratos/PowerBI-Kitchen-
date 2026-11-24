@@ -4,39 +4,57 @@
 
 ### KPI-Karten
 
-Befund des Template-Prüfstands (Kartenband aller 47 Showcase-Seiten), Punkte 1, 3, 4, 5 und 6. Keine neue Property.
+Befund des Template-Prüfstands (Kartenband aller 47 Showcase-Seiten), Punkte 1, 3, 4, 5 und 6, mit den Korrekturen
+aus dem unabhängigen Review. Keine neue Property.
 
 - **Δ-Block an fester x-Position (Prüfstand 1).** Vorher hing der Δ-Block im flachen Layout an Titel- und Wertbreite
   der einzelnen Karte, jede Karte begann ΔPL/ΔPY an anderer Stelle, die Reihe wirkte ausgefranst. Nachher rechnet
   `renderCards` die Texte aller Karten vorab (`cardModel`) und setzt den Δ-Block aller Karten an dieselbe relative x:
   hinter die breiteste Titel- oder Wertspalte des Kartenbands (Titel höchstens 170 px·k, gekürzt), aber nicht weiter,
-  als der Δ-Block jeder Karte noch passt, und nie enger als der breiteste Wert (der Wert wird nicht gekürzt). Die
-  Label-Spalte („ΔPY“) hat eine Breite für alle Karten, die Δ-Werte stehen untereinander. Passt der Block einer
-  Karte nicht, entfällt er wie bisher. Ein Bullet beginnt einheitlich hinter dem breitesten Δ-Block, Brücke und Trend bleiben rechtsbündig.
+  als der Δ-Block jeder Karte noch passt (mit 5 px·k Reserve, die Wertbreite ist geschätzt), und nie enger als der
+  breiteste Wert (der Wert wird nicht gekürzt). Die Label-Spalte („ΔPY“) hat eine Breite für alle Karten, die
+  Δ-Werte stehen untereinander. Passt der Block einer Karte nicht, entfällt er wie bisher. Ein Bullet beginnt
+  einheitlich hinter dem breitesten Δ-Block, Brücke und Trend bleiben rechtsbündig.
 - **Inhalt über die Kartenbreite (Prüfstand 6).** Ist rechts nichts zu zeichnen (Balken aus oder ohne Basis, kein
-  Trend, kein Bullet), beginnt der Δ-Block in der Kartenmitte statt direkt hinter dem Wert; ist er breiter als die
-  halbe Karte, steht er rechtsbündig. Mit Brücke, Trend oder Bullet bleibt er hinter der Wertspalte.
-- **Keine gerundete Null mit Vorzeichen (Prüfstand 3).** Vorher „+0,0M€ · +0,1%“, „−0 · −0,6%“. Nachher druckt ein
-  Δ, der ungleich 0 ist, aber auf 0 rundet, in den Karten immer ohne Vorzeichen („0“, „0,0M€“), ebenso ein Δ%, das
-  auf 0,0 rundet; eine exakte Null wie bisher. Die Zeile ist dann grau wie bei einer echten Null (Pfeil ● mit
-  `deltaIcons`), und liest der Status-Δ der Karte (ΔPL bzw. ΔPY, mit Status-Basis Benchmark ΔBM) null, sind auch
-  Streifen und Hintergrund-Tönung neutral, auch wenn das Δ% daneben noch eine Zahl zeigt („0,0M€ · +0,1%“).
-  Nur die Karten: Δ-Beschriftungen in Diagrammen und Tabelle behalten ihr Vorzeichen (Konvention 1.52.2).
+  Trend, kein Bullet), rückt der Δ-Block Richtung Kartenmitte statt direkt hinter dem Wert zu stehen. Gedeckelt:
+  höchstens bis zur Kartenmitte, höchstens 120 px·k hinter die Wertspalte (eine breite Karte reißt Wert und Δ nicht
+  auseinander), nie über den rechten Rand und nie unter den Sortierknopf bzw. Ausnahmeknopf, wenn diese auf Höhe der
+  ersten Δ-Zeile liegen. Mit Brücke, Trend oder Bullet bleibt er hinter der Wertspalte.
+- **Keine gerundete Null mit Vorzeichen (Prüfstand 3).** Vorher „+0,0M€ · +0,1%“, „−0 · −0,6%“. Nachher druckt eine
+  Zahl, die ungleich 0 ist, aber auf 0 rundet, in den Karten immer ohne Vorzeichen (Entscheidung des Autors, keine
+  Option): „0,0M€ · +0,1%“, „0 tCO2“, im Finanzformat „0,0M€“ statt „(0,0M€)“. Geprüft wird nur der Zahlteil, Ziffern
+  in Einheiten („tCO2“, „m2“) zählen nicht. Eine exakte Null wie bisher. Nur die Karten: Δ-Beschriftungen in
+  Diagrammen und Tabelle behalten ihr Vorzeichen (Konvention 1.52.2).
+- **Farbe bleibt am echten Δ.** Farbe, Pfeil (`deltaIcons`), Statusstreifen und Hintergrund-Tönung folgen wie bisher
+  dem ungerundeten Δ (Wesentlichkeit, Hervorhebungsfilter). Neutral grau mit ● wird eine Zeile zusätzlich nur, wenn
+  alles Sichtbare null liest: der Δ und sein Δ% (fehlt, n.a. oder ebenfalls 0,0 %). „0,0M€ · +10,0%“ bei fester
+  Einheit Mio. bleibt also grün bzw. rot, „0,0M€ · 0,0%“ wird grau.
 - **Einheitliches Minuszeichen (Prüfstand 4).** Der große Kartenwert, Referenzwert-Zeilen („PY 45.200“) und die
-  Trend-Beschriftung nutzen das typografische Minus U+2212 wie die Δ-Zeilen („−4,2M€“ statt „-4,2M€“). Ersetzt wird
-  nur ein Bindestrich vor der ersten Ziffer, Bindestriche in Einheiten und Texten bleiben.
-- **Einzelne Δ-Zeile und Karte ohne Vergleich (Prüfstand 5).** Zeigt im flachen Layout eine Karte des Bands zwei
-  Δ-Zeilen, sitzt eine einzelne Zeile auf der Grundlinie der ersten von zweien (vorher mittig, einige px tiefer); ohne
-  Karte mit zwei Zeilen bleibt sie mittig. Eine Karte ohne Vergleichswert in einem Band, dessen andere Karten Δ-Zeilen
-  zeigen (Showcase 11A, Jahr 2024), bekommt eine graue Zeile „ΔPY n.a.“ an derselben Stelle (vorher nur Titel und Wert).
+  Trend-Beschriftung nutzen bei negativen Werten das typografische Minus U+2212 wie die Δ-Zeilen („−4,2M€“ statt
+  „-4,2M€“). Ersetzt wird nur das Vorzeichen: ein Bindestrich am Anfang oder direkt vor der Ziffer hinter einem
+  Währungszeichen. Textpräfixe und Einheiten bleiben („Non-GAAP 1.200“, „−Non-GAAP 300“).
+- **Zeilenraster und fehlende Basis (Prüfstand 5).** Alle Karten eines Bands teilen ein Zeilenraster aus den Zeilen,
+  die irgendeine Karte zeigt (Referenzwerte zuerst, dann ΔPL/ΔPY/ΔBM in fester Reihenfolge, mit Status-Basis Benchmark
+  ΔBM vorn). Fehlt einer Karte eine Basis, nennt sie sie an ihrem Platz grau: „PY n.a.“ bzw. „PL n.a.“ ohne Δ (Showcase
+  11A, Jahr 2024: vorher nur Titel und Wert). Mit Referenzwerten steht „PY n.a.“ in der PY-Wertzeile, die ΔPY-Zeile
+  bleibt frei. Zeigt im flachen Layout eine Karte zwei Zeilen, liegen die Zeilen aller Karten auf denselben zwei
+  Grundlinien; sonst bleibt die eine Zeile mittig wie bisher.
 - **Wirkung auf bestehende Berichte:** Alle KPI-Karten im flachen Layout zeigen den Δ-Block an neuer Position, bei
-  ausgeschalteten Balken ab Kartenmitte. Gerundete Nullen verlieren Vorzeichen und Farbe, negative Kartenwerte zeigen
-  „−“. Karten ohne Vergleich neben Karten mit Vergleich zeigen „ΔPY n.a.“. Im Stapel-Layout ändert sich nur die
-  Breite der Label-Spalte, wenn Karten verschiedene Zeilen tragen (z. B. eine Karte mit ΔBM).
-- Tests: neue Stufen kpi58a bis kpi58g (flacher Streifen mit und ohne Brücke, Jahreskarten wie 11A, eine und zwei
-  Δ-Zeilen gemischt, Stapel-Layout, schmal, breit) mit Prüfungen auf gleiche x-Position des Δ-Blocks, keine
-  Überlappung mit dem Wert, kein „+0“/„−0“, nur U+2212, Grundlinie der Einzelzeile und die n.a.-Zeile.
-- Offen (Backlog): Sortierknopf über der letzten Karte (Prüfstand 2), stiller Wegfall von Δ-Zeilen (7), Kleinteile (8).
+  ausgeschalteten Balken weiter rechts (gedeckelt). Gerundete Nullen verlieren das Vorzeichen (Klammern im
+  Finanzformat), werden aber nur grau, wenn auch das Δ% null liest. Negative Kartenwerte zeigen „−“. Karten ohne eine
+  Basis zeigen „PY n.a.“ bzw. „PL n.a.“ im Zeilenraster der Nachbarn. Im Stapel-Layout ändern sich nur die Breite der
+  Label-Spalte und die n.a.-Zeilen.
+- Tests: neue Stufen kpi58a bis kpi58o (flacher Streifen mit und ohne Brücke, Jahreskarten wie 11A, fehlender Plan,
+  Stapel-Layout, schmal, breit, feste Einheit Mio. mit Tönung und Pfeilen, Finanzformat, Textpräfix „Non-GAAP“,
+  Einheit „tCO2“, Sortierknopf bei 5 Karten auf 1320×96 und 4 Karten auf 1240×72, eine Karte auf 1560 px,
+  Referenzwerte „Basiswert“). Geprüft: gleiche x-Position von Δ-Block und Δ-Werten, Block gezeichnet und ohne
+  Überlappung mit dem Wert, kein Überdecken durch den Sortierknopf (wo es nicht vermeidbar ist, bleibt der Block
+  direkt hinter der Wertspalte), Abstand höchstens 170 px bei einer Karte, keine
+  Null mit Vorzeichen oder in Klammern, nur U+2212 außer im Textpräfix, Farbe von Zeile, Streifen und Tönung bei
+  „Δ rundet auf null, Δ% deutlich“ und bei „alles null“, Position der n.a.-Zeilen.
+- Offen (Backlog): Sortierknopf über der letzten Karte in den übrigen Lagen (Prüfstand 2), stiller Wegfall von
+  Δ-Zeilen (7), Kleinteile (8); `fmtSigned` erkennt eine Null mit Ziffer in der Einheit nicht („+0 tCO2“ in Diagrammen,
+  Altbestand).
 
 ## 1.57.0.0 (2026-11-22, Backlog IBCS-Templates Teil 4)
 

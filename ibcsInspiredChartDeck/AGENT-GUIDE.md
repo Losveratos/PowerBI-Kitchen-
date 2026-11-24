@@ -16,17 +16,22 @@ Bei Versionssprüngen: CHANGELOG.md zuerst lesen.
 **Neu in 1.58 (in Arbeit):**
 
 *KPI-Karten (1.58).* Keine neue Property. `renderCards` rechnet Texte und Zeilen aller Karten vorab (`cardModel`:
-`fmtV`, `refText`, `zeroAbs`, `deltaRows`, `refRows`; Zeilen als `CardRow` = Label, Wert, Δ% oder `"na"`, `plain`,
-`missing`). Flaches Layout (`flatLay`): eine Δ-Spalte für das ganze Band, `refDx = pad + colW + 20k` mit `colW` =
-breitester Titel (≤ 170k) oder Wert, gedeckelt auf die Breite, bei der jeder Δ-Block passt, mindestens der breiteste
-Wert; ohne Brücke, Trend und Bullet (`rightFree`) startet der Block bei `max(refDx, min(w/2, w − pad − blockMax))`.
-`refLabelW` gilt für alle Karten. Zeigt eine Karte zwei Δ-Zeilen (`twoRows`), sitzt eine Einzelzeile auf der ersten
-Grundlinie (`yMid − 2k`), sonst mittig. Karte ohne Δ-Zeile in einem Band mit Δ-Zeilen: graue Zeile „Δ<Label> n.a.“
-(`missing`). Gerundete Null: `cardSigned`/`cardPercent` (über `Visual.unsignZero`) drucken sie immer ohne Vorzeichen
-(Entscheidung des Autors, keine Option); `zeroAbs` macht Zeile, Streifen, Tönung und ●-Pfeil neutral. Diagramm- und
-Tabellenlabels behalten das Vorzeichen (`fmtSigned`, 1.52.2). Kartenwert, Referenzwerte und Trend-Beschriftung über
-`cardMinus` mit U+2212 (nur ein Bindestrich vor der ersten Ziffer). Tests kpi58a bis kpi58g. Offen: Sortierknopf über
-der letzten Karte (Prüfstand 2), stiller Wegfall von Δ-Zeilen (7).
+`fmtV`, `refText`, `readsZero`, `deltas`/`vals` je Label). Zeilenraster: `valKeys`/`deltaKeys` = Zeilen, die irgendeine
+Karte hat (Werte zuerst; Δ in der Folge Basis, Basis 2, BM, mit Status-Basis Benchmark BM vorn); je Karte `rows` als
+`CardRow` (`kind` `delta` · `plain` · `na` = „PY n.a.“ ohne Δ für eine fehlende Basis · `blank` = freier Platz, wenn
+die Basis schon in der Wertzeile als n.a. steht). Flaches Layout (`flatLay`): eine Δ-Spalte für das ganze Band,
+`refDx = pad + colW + 20k`, `colW` = breitester Titel (≤ 170k) oder Wert, gedeckelt auf die Breite, bei der jeder
+Δ-Block passt und der Block der Karten unter dem Chip-Cluster (`chipLeft`, vorab gemessen) davor endet, mindestens der
+breiteste Wert (`blockW` mit 5k Reserve). Ohne Brücke, Trend und Bullet (`rightFree`) rückt der Block auf
+`min(w/2, w − pad − blockMax, base + 120k, chipEnd − blockMax)`, nie links von `base`. `refLabelW` gilt für alle
+Karten; zwei Zeilen (`twoRows`) liegen in allen Karten auf `yMid − 2k` und `yMid + refF + 4k`. Gerundete Null:
+`cardSigned`/`cardPercent` über `Visual.unsignZero` immer ohne Vorzeichen und ohne Finanz-Klammer (Entscheidung des
+Autors, keine Option); `Visual.zeroText` prüft nur die erste Ziffernfolge (Einheiten wie „tCO2“). Farbe, Pfeil,
+Streifen und Tönung vom ungerundeten Δ wie bisher; `readsZero` macht eine Zeile nur neutral, wenn Δ und Δ% (fehlt,
+n.a. oder 0,0 %) null lesen. Diagramm- und Tabellenlabels unverändert (`fmtSigned`, 1.52.2). `cardMinus(t, v)`: nur
+bei v < 0 ein Bindestrich am Anfang oder hinter einem Währungszeichen vor der Ziffer wird U+2212 (Kartenwert,
+Referenzwerte, Trend-Beschriftung). Tests kpi58a bis kpi58o. Offen: Sortierknopf, wo der Block ihn auch direkt hinter
+dem Wert berührt (Prüfstand 2), stiller Wegfall von Δ-Zeilen (7), `fmtSigned` mit Ziffer in der Einheit (Altbestand).
 
 **Neu in 1.57 (Backlog IBCS-Templates Teil 4, 22.11.2026):**
 

@@ -10357,100 +10357,191 @@ addStage("c422c", "Review m7 · Blasengröße VJ ohne Vorjahr in der Leseansicht
 <script>
 // ======================================================================
 // 1.58 · KPI-Karten (Welle 1): Δ-Block an fester x-Position, gerundete Null
-// ohne Vorzeichen, typografisches Minus, einzelne Δ-Zeile und Karte ohne Vergleich
+// ohne Vorzeichen, typografisches Minus, Zeilenraster und fehlende Basis („PY n.a.“)
 // ======================================================================
 // ---- KPI58-START
 {
   const kq = (id, sel) => [...document.querySelectorAll(`#${id} ${sel}`)];
-  // per card: frame rect, all texts, the Δ row labels ("ΔPY") with x/y
+  const kRel = (t, r) => ({ x: +t.getAttribute("x") - +r.getAttribute("x"), y: +t.getAttribute("y") - +r.getAttribute("y") });
+  // per card: frame rect, status stripe, all texts, the Δ row labels ("ΔPY") with x/y,
+  // the value texts of the rows (next text after a row label) and the "n.a." rows
   const kCards = id => kq(id, "svg g.icd-cat").map(g => {
-    const r = g.querySelector("rect");
+    const rs = [...g.querySelectorAll("rect")];
+    const r = rs[0];
     const ts = [...g.querySelectorAll("text")];
     const lbl = ts.filter(t => /^Δ/.test(t.textContent));
+    const na = ts.filter((t, i) => i > 0 && t.textContent === "n.a." ).map(t => ts[ts.indexOf(t) - 1]);
     return {
       x: +r.getAttribute("x"), y: +r.getAttribute("y"), w: +r.getAttribute("width"), h: +r.getAttribute("height"),
-      texts: ts.map(t => t.textContent),
-      dx: lbl.map(t => +t.getAttribute("x") - +r.getAttribute("x")),
-      dy: lbl.map(t => +t.getAttribute("y") - +r.getAttribute("y")),
-      lbl: lbl.map(t => t.textContent)
+      stripe: rs.find(q => +q.getAttribute("width") <= 6 && +q.getAttribute("height") > 20)?.getAttribute("fill"),
+      tint: rs.some(q => q.getAttribute("fill-opacity") != null),
+      g, ts, texts: ts.map(t => t.textContent),
+      dx: lbl.map(t => kRel(t, r).x), dy: lbl.map(t => kRel(t, r).y), lbl: lbl.map(t => t.textContent),
+      vx: lbl.map(t => kRel(ts[ts.indexOf(t) + 1], r).x),
+      na: na.map(t => ({ lbl: t.textContent, x: kRel(t, r).x, y: kRel(t, r).y, vx: kRel(ts[ts.indexOf(t) + 1], r).x }))
     };
   });
-  const kSame = a => a.length < 2 || a.every(v => Math.abs(v - a[0]) < 0.5);
-  // a zero that carries a sign: "+0", "−0,0", "-0", "+0,0%"
+  const kSame = a => a.length >= 2 && a.every(v => Math.abs(v - a[0]) < 0.5);
+  // a zero that carries a sign: "+0", "−0,0", "-0", "+0,0%", also with a unit ("+0 tCO2")
   const kSignedZero = t => /[+−-]0(?:[.,]0+)?(?![\d.,])/.test(t);
+  // a zero in brackets (finance format): "(0,0M€)", "(0,0%)"
+  const kBracketZero = t => /\(0(?:[.,]0+)?[^\d)]*\)/.test(t);
   // ASCII hyphen in front of the first digit = a minus that is not U+2212
   const kHyphenMinus = t => { const i = t.indexOf("-"), d = t.search(/\d/); return i >= 0 && d > i; };
+  const kBoxHit = (a, b) => a.x < b.x + b.width && b.x < a.x + a.width && a.y < b.y + b.height && b.y < a.y + a.height;
   const kM = 1e6;
-  const kStrip = (cats, ac, py, pl, extra) => dataView(cats,
-    [col("actual", ac, "#,0 €"), col("previousYear", py, "#,0 €")].concat(pl ? [col("plan", pl, "#,0 €")] : []),
-    { chart: Object.assign({ orientation: "cards" }, extra || {}) });
+  const kStrip = (cats, ac, py, pl, extra, fmt, objs) => dataView(cats,
+    [col("actual", ac, fmt || "#,0 €"), col("previousYear", py, fmt || "#,0 €")].concat(pl ? [col("plan", pl, fmt || "#,0 €")] : []),
+    Object.assign({ chart: Object.assign({ orientation: "cards" }, extra || {}) }, objs || {}));
   const kCats4 = ["Umsatz", "Finanzierungs-Cashflow", "EBIT", "Tilgung und Dividende"];
   const kAc4 = [18.46 * kM, -4.2 * kM, 1.302 * kM, 0.95 * kM];
   const kPy4 = [18.44 * kM, -3.9 * kM, 1.25 * kM, 1.01 * kM];
   const kPl4 = [18.0 * kM, -4.3 * kM, 1.301 * kM, 0.9 * kM];
+  const kMio = { labels: { displayUnits: "m" } };
+  const kChip5 = ["Umsatz", "Finanzierungs-Cashflow", "EBIT", "Tilgung", "Cash"];
+  const kSmall = [1234567, -234567, 345678, 812345], kSmallPy = [1134567, -214567, 395678, 790000], kSmallPl = [1204567, -204567, 305678, 800000];
 
   const kCases = [
     ["kpi58a", "Flacher Streifen, Balken aus: Titel und Werte verschieden lang, gerundete Null, negativer Wert, zwei Δ-Zeilen", 1560, 104,
       kStrip(kCats4, kAc4, kPy4, kPl4, { cardBars: false })],
     ["kpi58b", "Flacher Streifen mit Mini-Brücke (Balken an)", 1560, 104, kStrip(kCats4, kAc4, kPy4, kPl4)],
-    ["kpi58c", "Jahreskarten wie 11A: erste Karte ohne Vergleich, eine Δ-Zeile", 1560, 104,
+    ["kpi58c", "Jahreskarten wie 11A: erste Karte ohne Vergleich", 1560, 104,
       kStrip(["2024", "2025", "2026"], [41 * kM, 45.5 * kM, 47.2 * kM], [null, 41 * kM, 45.5 * kM], null, { cardBars: false })],
-    ["kpi58d", "Eine und zwei Δ-Zeilen gemischt (mittlere Karte ohne Plan)", 1200, 104,
+    ["kpi58d", "Mittlere Karte ohne Plan: „PL n.a.“ im Zeilenraster der Nachbarn", 1200, 104,
       kStrip(["Umsatz", "Kosten", "Marge"], [9.8 * kM, 4.2 * kM, 2.1 * kM], [9.1 * kM, 3.9 * kM, 2.3 * kM], [9.5 * kM, null, 2.2 * kM],
         { cardBars: false, invertList: "Kosten" })],
     ["kpi58e", "Stapel-Layout 960×260: negativer Wert, gerundete Null, Karte ohne Vergleich", 960, 260,
       kStrip(["Umsatz", "Ergebnis", "Marge", "Neukunden"], [9.8 * kM, -0.42 * kM, 1.302 * kM, 1200], [9.1 * kM, -0.38 * kM, 1.3016 * kM, null])],
     ["kpi58f", "Schmal: 2 Karten auf 560 px", 560, 96, kStrip(kCats4.slice(0, 2), kAc4.slice(0, 2), kPy4.slice(0, 2), kPl4.slice(0, 2), { cardBars: false })],
-    ["kpi58g", "Breit: 2 Karten auf 1560 px, Balken aus", 1560, 104, kStrip(kCats4.slice(2), kAc4.slice(2), kPy4.slice(2), kPl4.slice(2), { cardBars: false })]
+    ["kpi58g", "Breit: 2 Karten auf 1560 px, Balken aus", 1560, 104, kStrip(kCats4.slice(2), kAc4.slice(2), kPy4.slice(2), kPl4.slice(2), { cardBars: false })],
+    ["kpi58h", "Feste Einheit Mio.: Δ rundet auf 0,0M€, Δ% deutlich (Lizenzen +10 %), Tönung und Pfeile; Wartung liest ganz null", 1560, 104,
+      kStrip(["Umsatz", "Lizenzen", "Wartung", "Schulung"], [18.46 * kM, 0.44 * kM, 0.300001 * kM, 0.34 * kM], [18.0 * kM, 0.40 * kM, 0.3 * kM, 0.30 * kM], null,
+        { cardBars: false, cardTint: true, deltaIcons: true }, null, kMio)],
+    ["kpi58i", "Finanzformat: gerundete Null ohne Klammern", 1560, 104,
+      kStrip(["Umsatz", "EBIT", "Kosten", "Cash"], [18.46 * kM, -1.302 * kM, 4.2 * kM, -0.5 * kM], [18.47 * kM, -1.30 * kM, 4.5 * kM, -0.2 * kM], null,
+        { cardBars: false }, null, { labels: { financeFormat: true } })],
+    ["kpi58j", "Format mit Textpräfix „Non-GAAP“: Bindestrich im Text bleibt, nur das Vorzeichen wird U+2212", 1200, 104,
+      kStrip(["A", "B", "C"], [1200, 5000, -300], [1100, 5100, -340], null, { cardBars: false }, "\"Non-GAAP\" #,0")],
+    ["kpi58k", "Einheit mit Ziffer (tCO2): Null-Erkennung nur am Zahlteil", 1200, 104,
+      kStrip(["Fläche", "Emission", "Delta"], [120000.22, 500000.42, -3.2], [120000.24, 500000.4, -3.4], null, { cardBars: false }, "#,0 \"tCO2\"",
+        { labels: { displayUnits: "none" } })],
+    ["kpi58l", "Sortierknopf: 5 Karten auf 1320×96", 1320, 96,
+      kStrip(kChip5, [18.46 * kM, -1234.5 * kM, 1.3 * kM, 0.95 * kM, 2 * kM], [18.0 * kM, -1100 * kM, 1.25 * kM, 1.0 * kM, 1.9 * kM],
+        [18.1 * kM, -1200 * kM, 1.2 * kM, 0.9 * kM, 2.1 * kM], { cardBars: false })],
+    ["kpi58m", "Sortierknopf: 4 Karten auf 1240×72, Pfeile", 1240, 72,
+      kStrip(["Umsatz", "EBIT", "Cash", "Kosten"], kSmall, kSmallPy, kSmallPl, { cardBars: false, deltaIcons: true }, null, { labels: { displayUnits: "none" } })],
+    ["kpi58n", "Eine Karte auf 1560 px: Δ-Block rückt höchstens 120 px hinter die Wertspalte", 1560, 104,
+      kStrip(["Umsatz"], [18.46 * kM], [18.0 * kM], [18.1 * kM], { cardBars: false })],
+    ["kpi58o", "Referenzwerte „Basiswert“ im Stapel-Layout: fehlender VJ als „PY n.a.“ in der Wertzeile", 960, 260,
+      kStrip(["2024", "2025", "2026"], [41 * kM, 45.5 * kM, 47.2 * kM], [null, 41 * kM, 45.5 * kM], null, { cardRefValues: "basis" })]
   ];
+  // twins with the mini bridge on: the Δ block then stays behind the value column (base)
+  for (const id of ["kpi58f", "kpi58l", "kpi58m"]) {
+    const c = kCases.find(q => q[0] === id);
+    const dv = JSON.parse(JSON.stringify(c[4]));
+    dv.metadata.objects.chart.cardBars = true;
+    kCases.push([id + "b", c[1] + ", Zwilling mit Mini-Brücke (Basisposition)", c[2], c[3], dv]);
+  }
   for (const [id, title, w, h, dv] of kCases) { addStage(id, title, w, h); runCap(id, dv, w, h); }
+  const kAll = kCases.map(c => c[0]);
 
   // 1 · Δ block at one relative x in every flat card row
-  for (const id of ["kpi58a", "kpi58b", "kpi58c", "kpi58d", "kpi58g"]) {
+  for (const id of ["kpi58a", "kpi58b", "kpi58c", "kpi58d", "kpi58g", "kpi58h", "kpi58l", "kpi58m"]) {
     const cs = kCards(id).filter(c => c.dx.length);
-    check(cs.length >= 2 && kSame(cs.map(c => c.dx[0])), `${id}: Δ-Block an gleicher x-Position (${cs.map(c => c.dx[0].toFixed(1)).join(" / ")})`);
+    check(kSame(cs.map(c => c.dx[0])) && kSame(cs.map(c => c.vx[0])),
+      `${id}: Δ-Block und Δ-Werte an gleicher x-Position (${cs.map(c => c.dx[0].toFixed(1)).join(" / ")})`);
   }
-  // the Δ block never paints over the big value (value right edge < Δ label x)
-  for (const id of ["kpi58a", "kpi58b", "kpi58c", "kpi58d", "kpi58f", "kpi58g"]) {
-    const bad = kq(id, "svg g.icd-cat").filter(g => {
-      const ts = [...g.querySelectorAll("text")];
-      const val = ts.find(t => +t.getAttribute("font-weight") === 700 && !/^Δ/.test(t.textContent) && /\d/.test(t.textContent)
-        && +t.getAttribute("font-size") >= 18);
-      const lb = ts.find(t => /^Δ/.test(t.textContent));
-      if (!val || !lb) { return false; }
+  // the Δ block is drawn and never paints over the big value
+  for (const id of ["kpi58a", "kpi58b", "kpi58c", "kpi58d", "kpi58f", "kpi58g", "kpi58h", "kpi58l", "kpi58m", "kpi58n"]) {
+    const cs = kCards(id);
+    const bad = cs.filter(c => {
+      const val = c.ts.find(t => +t.getAttribute("font-weight") === 700 && +t.getAttribute("font-size") >= 18);
+      const lb = c.ts.find(t => /^Δ/.test(t.textContent)) || c.ts.find(t => t.textContent === "n.a.");
+      if (!val || !lb) { return true; }
       const b = val.getBBox();
       return b.x + b.width > +lb.getAttribute("x") - 2;
     });
-    check(bad.length === 0, `${id}: Wert und Δ-Block überlappen nicht`);
+    check(bad.length === 0, `${id}: Δ-Block in allen ${cs.length} Karten gezeichnet, ohne den Wert zu überdecken`);
   }
-  // 3 · no sign on a rounded zero, 4 · only U+2212 as minus
-  const kAll = kCases.map(c => c[0]);
+  // 5 · cap: one wide card keeps value and Δ together
+  {
+    const c = kCards("kpi58n")[0];
+    const val = c.ts.find(t => +t.getAttribute("font-weight") === 700 && +t.getAttribute("font-size") >= 18).getBBox();
+    const lb = c.ts.find(t => /^Δ/.test(t.textContent));
+    const gapPx = +lb.getAttribute("x") - (val.x + val.width);
+    check(gapPx <= 170, `kpi58n: Abstand Wert → Δ-Block ${gapPx.toFixed(0)} px (höchstens 20 + 120 px hinter der Spalte)`);
+  }
+  // 4 · the Δ block stays clear of the sort chip
+  // (kpi58f, kpi58l, kpi58m: the block cannot clear the chip even right behind the
+  // widest value; there it must not be moved right, the rest is test bench 2, backlog)
+  const kChipRows = id => kCards(id).flatMap(c => c.ts.filter(t => +t.getAttribute("font-size") < 18 && c.ts.indexOf(t) > 1)).map(t => t.getBBox());
+  for (const id of ["kpi58f", "kpi58l", "kpi58m"]) {
+    const a = kCards(id)[0].dx[0], b = kCards(id + "b")[0].dx[0];
+    check(Math.abs(a - b) < 0.5, `${id}: Δ-Block bleibt hinter der Wertspalte wie mit Mini-Brücke (${a.toFixed(1)} / ${b.toFixed(1)} px)`);
+  }
+  for (const id of ["kpi58a", "kpi58c", "kpi58g", "kpi58h", "kpi58n"]) {
+    const chip = kq(id, 'svg g[role="button"] rect').map(r => r.getBBox());
+    const hits = kChipRows(id).filter(b => chip.some(cb => kBoxHit(b, cb)));
+    check(chip.length > 0 && hits.length === 0, `${id}: Sortierknopf überdeckt keine Δ-Zeile (${hits.length} Treffer)`);
+  }
+  // 3 · no sign on a rounded zero, 7 · also with a digit in the unit, 2 · no bracketed zero
   const kTexts = kAll.flatMap(id => kCards(id).flatMap(c => c.texts.map(t => [id, t])));
   const sz = kTexts.filter(([, t]) => kSignedZero(t));
   check(sz.length === 0, `kpi58: keine gerundete Null mit Vorzeichen (${sz.map(([i, t]) => i + " " + t).join(", ") || "keine"})`);
-  const hy = kTexts.filter(([, t]) => kHyphenMinus(t));
+  const bz = kTexts.filter(([, t]) => kBracketZero(t));
+  check(bz.length === 0 && kTexts.some(([i, t]) => i === "kpi58i" && /^\(1,3M€\)/.test(t)),
+    `kpi58i: Finanzformat ohne Klammer-Null, negative Werte weiter in Klammern (${bz.map(([i, t]) => i + " " + t).join(", ") || "keine"})`);
+  check(kTexts.some(([i, t]) => i === "kpi58k" && /^0,0 tCO2 · /.test(t)), "kpi58k: „0,0 tCO2“ ohne Vorzeichen trotz Ziffer in der Einheit");
+  // 4 · only U+2212 as minus (the Non-GAAP prefix keeps its text hyphen)
+  const hy = kTexts.filter(([i, t]) => kHyphenMinus(t) && i !== "kpi58j");
   check(hy.length === 0, `kpi58: Minus nur als U+2212 (${hy.map(([i, t]) => i + " " + t).join(", ") || "keins"})`);
   check(kTexts.some(([i, t]) => i === "kpi58a" && /^−4,2/.test(t)) && kTexts.some(([i, t]) => i === "kpi58e" && /^−/.test(t)),
     "kpi58a/e: negativer Kartenwert mit U+2212");
-  // rounded zero reads plain and stays neutral grey (like an exact zero)
   {
-    const g = kq("kpi58a", "svg g.icd-cat")[0];
-    const ts = [...g.querySelectorAll("text")];
-    const grey = ts.find(t => /^Δ/.test(t.textContent)).getAttribute("fill");
-    const z = ts.filter(t => /^0,0\D*( ·|$)/.test(t.textContent));
-    check(z.length >= 1 && z.every(t => t.getAttribute("fill") === grey),
-      `kpi58a: Umsatz-Δ auf 0 gerundet ohne Vorzeichen und grau (${z.map(t => t.textContent + " " + t.getAttribute("fill")).join(", ")})`);
+    const j = kCards("kpi58j").map(c => c.texts[1]);
+    check(j[0] === "Non-GAAP 1.200" && j[1] === "Non-GAAP 5.000" && /^−Non-GAAP 300$/.test(j[2]),
+      `kpi58j: Textpräfix behält den Bindestrich, nur das Vorzeichen ist U+2212 (${j.join(" | ")})`);
   }
-  // 5 · one Δ row sits on the baseline of the first of two rows; card without comparison
+  // 1 (review) · colors: a Δ that rounds to zero beside a real Δ% keeps its status
+  // color (text, stripe, tint, ▲); only a row that reads zero as a whole is grey
   {
-    const cs = kCards("kpi58d");
-    check(cs.length === 3 && cs[0].dy.length === 2 && cs[1].dy.length === 1 && Math.abs(cs[1].dy[0] - cs[0].dy[0]) < 0.5,
-      `kpi58d: einzelne Δ-Zeile auf der Grundlinie der ersten von zweien (${cs.map(c => c.dy.map(v => v.toFixed(1)).join("+")).join(" / ")})`);
+    const cs = kCards("kpi58h");
+    const grey = cs[0].ts.find(t => /^Δ/.test(t.textContent)).getAttribute("fill");
+    const row = c => c.ts[c.ts.findIndex(t => /^Δ/.test(t.textContent)) + 1];
+    const [lz, wa] = [cs[1], cs[2]];
+    check(/^▲ 0,0M€ · \+10,0%$/.test(row(lz).textContent) && row(lz).getAttribute("fill") !== grey
+      && lz.stripe === cs[0].stripe && lz.tint,
+      `kpi58h: Lizenzen „${row(lz).textContent}“ farbig wie Umsatz (Streifen ${lz.stripe}, Tönung ${lz.tint})`);
+    check(/^● 0,0M€ · 0,0%$/.test(row(wa).textContent) && row(wa).getAttribute("fill") === grey
+      && wa.stripe !== cs[0].stripe && !wa.tint,
+      `kpi58h: Wartung „${row(wa).textContent}“ liest ganz null: grau, Streifen neutral (${wa.stripe}), keine Tönung`);
+    const a = kCards("kpi58a")[0];
+    const ra = a.ts.filter(t => /^0,0M€ · \+0,1%$/.test(t.textContent));
+    check(ra.length === 1 && ra[0].getAttribute("fill") !== grey, "kpi58a: „0,0M€ · +0,1%“ ohne Vorzeichen, Farbe aus dem Δ");
+    const e = kCards("kpi58e")[2];
+    const re = e.ts.find(t => /^0,0M€ · 0,0%$/.test(t.textContent));
+    check(re && re.getAttribute("fill") === grey && e.stripe === kCards("kpi58e")[3].stripe,
+      "kpi58e: Marge „0,0M€ · 0,0%“ grau, Streifen neutral wie die Karte ohne Vergleich");
+  }
+  // 6 · a missing basis is named in the row grid of the neighbours ("PL n.a.", no Δ)
+  {
     const c = kCards("kpi58c");
-    check(c.length === 3 && c[0].lbl.length === 1 && c[0].texts.includes("n.a.") && Math.abs(c[0].dy[0] - c[1].dy[0]) < 0.5,
-      `kpi58c: Karte ohne Vergleich zeigt „${c[0].lbl.join("")} n.a.“ in der Δ-Zeile der Reihe`);
+    check(c[0].na.length === 1 && c[0].na[0].lbl === "PY" && c[0].dx.length === 0
+      && Math.abs(c[0].na[0].y - c[1].dy[0]) < 0.5 && Math.abs(c[0].na[0].x - c[1].dx[0]) < 0.5,
+      `kpi58c: Karte ohne Vergleich zeigt „PY n.a.“ an der Stelle der ΔPY-Zeile (${c[0].na.map(r => r.lbl).join()})`);
+    const d = kCards("kpi58d");
+    check(d[1].na.length === 1 && d[1].na[0].lbl === "PL" && Math.abs(d[1].na[0].y - d[0].dy[0]) < 0.5
+      && d[1].dy.length === 1 && Math.abs(d[1].dy[0] - d[0].dy[1]) < 0.5,
+      `kpi58d: „PL n.a.“ auf der ersten, ΔPY auf der zweiten Grundlinie der Nachbarn (${d.map(k => k.dy.map(v => v.toFixed(1)).join("+")).join(" / ")})`);
     const e = kCards("kpi58e");
-    check(e.length === 4 && e[3].texts.includes("n.a.") && kSame(e.map(c => c.dx[0])), "kpi58e: Stapel-Layout, Karte ohne Vergleich mit n.a.-Zeile");
+    check(e[3].na.length === 1 && e[3].na[0].lbl === "PY" && Math.abs(e[3].na[0].y - e[0].dy[0]) < 0.5
+      && Math.abs(e[3].na[0].vx - e[0].vx[0]) < 0.5,
+      "kpi58e: Stapel-Layout, „PY n.a.“ auf Höhe und in der Wertspalte der ΔPY-Zeile der Nachbarn");
+    const o = kCards("kpi58o");
+    const pyVal = o[1].ts.find(t => t.textContent === "PY");
+    check(o[0].na.length === 1 && o[0].na[0].lbl === "PY" && o[0].dx.length === 0 && pyVal
+      && Math.abs(o[0].na[0].y - kRel(pyVal, o[1].g.querySelector("rect")).y) < 0.5,
+      "kpi58o: mit Referenzwerten steht „PY n.a.“ in der PY-Wertzeile, die ΔPY-Zeile bleibt frei");
   }
 }
 // ---- KPI58-END
