@@ -362,8 +362,19 @@ window.MK_VERSION = '0.7.0';
   function ckSketchOpt(v) {
     const o = {}; if (!v) return o;
     const bound = key => !!(((v.roles || {})[key]) || []).length;
-    if (v.kind === 'scatter') o.bubble = bound('size');
+    if (v.kind === 'scatter' || v.kind === 'scatpath' || v.kind === 'bubshare') o.bubble = bound('size');
+    // P&L Statement byDatenWG (engine custom): Vorlage und Karten-Art des Werttreiberbaums (ab 0.7.0)
+    if (v.engine === 'custom') {
+      if (v.kind === 'pnlmega' || v.kind === 'pnlbs') o.template = CAT.ckValue(v, 'template');
+      if (v.kind === 'pnltree') o.treeCard = CAT.ckValue(v, 'treeCard');
+      return o;
+    }
     if (v.engine !== 'ck') return o;
+    // Typen aus ChartKitchen 1.55 bis 1.57 (ab 0.7.0)
+    if (v.kind === 'stockflow') o.net = CAT.ckValue(v, 'sfNet') !== 'off';
+    if (v.kind === 'cumline') o.cumKind = CAT.ckValue(v, 'cumulativeKind');
+    if (v.kind === 'scatpath') { o.play = CAT.ckValue(v, 'scatterPlay') === 'on'; o.arrow = CAT.ckValue(v, 'scatterPathArrow') === 'on'; }
+    if (v.kind === 'bubshare') o.total = CAT.ckValue(v, 'scatterTotalBubble') === 'on';
     if (v.kind === 'kpi') o.trend = bound('category') ? CAT.ckValue(v, 'cardTrendChart') : 'off';
     if (v.kind === 'bridge') o.orient = CAT.ckValue(v, 'bridgeOrientation') === 'columns' ? 'columns' : 'bars';
     if (v.kind === 'scatter') o.quadrant = CAT.ckValue(v, 'scatterQuadrant');
@@ -1147,7 +1158,7 @@ window.MK_VERSION = '0.7.0';
     `, false, [an.smallMultiples, an.fieldParam].filter(Boolean).length ? t('grp.on', { n: [an.smallMultiples, an.fieldParam].filter(Boolean).length }) : '') : '';
     const opt = (list, cur, labels) => list.map(x => `<option value="${x}" ${String(cur) === String(x) ? 'selected' : ''}>${labels ? labels[x] : x}</option>`).join('');
     // ChartKitchen-Optionen (ab 1.47): nur bei Umsetzung mit ChartKitchen; die Vorgabe des Visuals steht als „(Vorgabe)" in der Liste
-    const ckOpts = v.engine === 'ck' ? CAT.ckOptsFor(v.kind) : [];
+    const ckOpts = (v.engine === 'ck' || v.engine === 'custom') ? CAT.ckOptsFor(v.kind) : [];
     const ckSet = ckOpts.filter(o => ((v.ckProps || {})[o.key] || o.def) !== o.def).length;
     const ckBox = ckOpts.length ? grp('ckopts', t('ck.sec'), `
       <p class="hint" style="margin:0 0 8px">${esc(t('ck.hint'))}</p>

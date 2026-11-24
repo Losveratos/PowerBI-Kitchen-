@@ -54,12 +54,14 @@
     text:        role('text',        'text',       'any',     false, 1),
     geo:         role('category',    'geo',        'column',  true,  1),
     rowType:     role('rowType',     'rowType',    'column',  false, 1),
+    // ab ChartKitchen 1.57: Teil der Blase (Rolle bubbleShare)
+    share:       role('share',       'share',      'measure', false, 1),
   };
 
   // Rollen einer konkreten Kachel: Katalogrollen plus Darstellungsvarianten.
   // Small Multiples → Zusatzrolle „Small Multiples nach"; Feldparameter → die Achsenrolle nimmt mehrere Felder (die Optionen des Parameters).
   const R_MULT = role('multiples', 'multiples', 'column', false, 1);
-  const NO_VARIANTS = ['multiples', 'map', 'treemap', 'decomp', 'pie', 'gauge', 'ndonut'];
+  const NO_VARIANTS = ['multiples', 'map', 'treemap', 'decomp', 'pie', 'gauge', 'ndonut', 'scatpath', 'pnlmega', 'pnlbs', 'pnltree'];
   const hasCategory = def => !!(def && def.roles && def.roles.some(r => r.key === 'category' && r.kind === 'column'));
   const variantsFor = def => !!(def && hasCategory(def) && !NO_VARIANTS.includes(def.id));
   function rolesFor(def, v) {
@@ -70,6 +72,7 @@
     return out;
   }
 
+  const BY_ID = {};
   // Kurzform: K(id, groupId, {engines, ck, native:{type, map}, roles, warnNote, sketch})
   // label kommt aus i18n (viz.<id>.label), note aus viz.<id>.note (falls vorhanden).
   function K(id, groupId, o) {
@@ -84,6 +87,12 @@
   }
   const STD = [R.category, R.ac, R.ref, R.fc];               // Standard-IBCS-Vergleich
   const TIME = [R.time, R.ac, R.ref, R.fc];
+  // P&L Statement byDatenWG: dieselbe GUID und Rollen-Map für alle GuV-Varianten; das Zeitfeld (Rollen-Schlüssel category) ist die Rolle period
+  const PNL_REF = { py: /(?<![a-z])(py|vj|vorjahr|prior|previous|ly)(?![a-z])/i, pl: /(?<![a-z])(pl|bu|budget|plan|target)(?![a-z])/i, fc: /(?<![a-z])(fc|forecast|prognose)(?![a-z])/i };
+  const PNL_CV = { name: 'pnlByDatenWG', guid: 'pnlByDatenWG3F9A7D2C51E64B08A1C4E7F0B92D6358', map: { rows: 'levels', ac: 'ac', ref: PNL_REF, fc: 'fc', rowType: 'rowType' } };
+  const PNL_CV_T = { name: PNL_CV.name, guid: PNL_CV.guid, map: Object.assign({}, PNL_CV.map, { category: 'period' }) };
+  const PNL = { engines: ['custom'], engine: 'custom', ck: null, native: null };
+  const PERIOD = RX(R.time, { labelKey: 'period' });
 
   const CATALOG = [
     // ---------- IBCS · Vergleich (Struktur) ----------
@@ -100,7 +109,8 @@
     K('pareto', 'cols', { roles: [R.category, R.ac], native: { type: 'lineClusteredColumnComboChart', map: { category: 'Category', ac: 'Y' } } }),
     K('stackcol', 'cols', { roles: [R.time, R.series, R.ac], native: { type: 'columnChart', map: { category: 'Category', series: 'Series', ac: 'Y' } } }),
     K('stackbar', 'cols', { roles: [R.category, R.series, R.ac], native: { type: 'barChart', map: { category: 'Category', series: 'Series', ac: 'Y' } } }),
-    K('marimekko', 'cols', { roles: [R.category, R.series, R.ac], engines: ['ck', 'deneb'], native: null }),
+    // Marimekko: ab ChartKitchen 1.57 gestapelte 100-%-Balken mit Zeilendicke nach Summe (B20, Blatt 02F)
+    K('marimekko', 'cols', { roles: [R.category, R.series, R.ac], engines: ['ck', 'deneb'], native: null, ckFixed: { stackNormalize: 'pct100', stackThickness: 'total' } }),
 
     // ---------- IBCS · Zeit & Verlauf ----------
     K('line', 'time', { roles: TIME, native: { type: 'lineChart', map: { category: 'Category', ac: 'Y', ref: 'Y' } } }),
@@ -110,6 +120,14 @@
     K('zchart', 'time', { roles: [R.time, R.ac], engines: ['ck', 'deneb'], native: { type: 'lineChart', map: { category: 'Category', ac: 'Y' } } }),
     K('multiples', 'time', { roles: [R.time, RX(R.category2, { key: 'series', labelKey: 'facet', req: true }), R.ac, R.ref], native: { type: 'clusteredColumnChart', map: { category: 'Category', series: 'Rows', ac: 'Y', ref: 'Y' } } }),
     K('area', 'time', { roles: [R.time, R.ac, R.series], engines: ['native'], engine: 'native', ck: null, warnNote: true, native: { type: 'areaChart', map: { category: 'Category', ac: 'Y', series: 'Series' } } }),
+    // ab ChartKitchen 1.55: eigener Modus stockflow (B11); Bestand, Zu- und Abfluss über die Token stock/inflow/outflow der Rolle rowType
+    K('stockflow', 'time', { roles: [R.time, RX(R.series, { req: true, labelKey: 'flowKind' }), R.ac, R.ref, RX(R.rowType, { labelKey: 'rowTypeSf' })], engines: ['ck', 'deneb'], native: null }),
+    // ab ChartKitchen 1.56: Säulen-Stapel als Fläche (B16, Blatt 08A)
+    K('areastack', 'time', { roles: [R.time, RX(R.series, { req: true }), R.ac], engines: ['ck', 'native'], ckFixed: { stackShape: 'area' }, native: { type: 'areaChart', map: { category: 'Category', series: 'Series', ac: 'Y' } } }),
+    // Linie kumuliert (chart.cumulative + cumulativeKind); R12 läuft ohne Jahresneustart
+    K('cumline', 'time', { roles: TIME, engines: ['ck', 'native'], ckFixed: { cumulative: true }, native: { type: 'lineChart', map: { category: 'Category', ac: 'Y', ref: 'Y' } } }),
+    // ab ChartKitchen 1.56: eine Linie je Serie, Index Basis 100 (B17, Blatt 07A)
+    K('lineidx', 'time', { roles: [R.time, RX(R.series, { req: true }), R.ac], engines: ['ck', 'native'], ckFixed: { lineSeries: true, lineIndex: 'base100' }, native: { type: 'lineChart', map: { category: 'Category', series: 'Series', ac: 'Y' } } }),
 
     // ---------- IBCS · Wasserfall & Brücke ----------
     K('waterfall', 'struct', { roles: [R.category, R.ac], native: { type: 'waterfallChart', map: { category: 'Category', ac: 'Y' } } }),
@@ -121,6 +139,13 @@
     // Scatter/Bubble: ab ChartKitchen 1.47 eigener Modus „scatter" (Y = AC, X = xValue, Größe = bubbleSize). Rollen-Schlüssel x/y/size bleiben (gespeicherte Mockups).
     K('scatter', 'struct', { roles: [R.category, RX(R.x, { labelKey: 'xValue' }), RX(R.y, { labelKey: 'yAc' }), RX(R.size, { labelKey: 'bubble' })], native: { type: 'scatterChart', map: { category: 'Category', x: 'X', y: 'Y', size: 'Size' } } }),
     K('boxplot', 'struct', { roles: [R.category, RX(R.ac, { labelKey: 'valueCol', kind: 'any' })], engines: ['ck', 'deneb'], native: null }),
+    // ab ChartKitchen 1.57: Zeitpfad im Scatter (B18, Blätter 07D/07E). Datenvertrag des Play-Modus: Kategorie = Periode, Serie = Einheit, AC = Y, X-Achse = xValue
+    K('scatpath', 'struct', { roles: [PERIOD, RX(R.series, { labelKey: 'unit' }), RX(R.x, { labelKey: 'xValue' }), RX(R.y, { labelKey: 'yAc' }), RX(R.size, { labelKey: 'bubble' })], engines: ['ck', 'deneb'], native: null, ckFixed: { scatterPath: 'line', scatterColorBy: 'group', scatterQuadrant: 'off', scatterArrows: false } }),
+    // ab ChartKitchen 1.57: Kreissegment je Blase (B19, Blätter 10E/10G); bubbleShare braucht bubbleSize
+    K('bubshare', 'struct', { roles: [R.category, RX(R.x, { labelKey: 'xValue' }), RX(R.y, { labelKey: 'yAc' }), RX(R.size, { labelKey: 'bubble', req: true }), RX(R.share, { req: true })], engines: ['ck', 'native'], ckFixed: { scatterQuadrant: 'off', scatterValueLabels: true }, native: { type: 'scatterChart', map: { category: 'Category', x: 'X', y: 'Y', size: 'Size' } } }),
+    // P&L Statement byDatenWG als Werttreiberbaum (Ansicht tree) und als Sankey (Ansicht sankey, ab 1.6)
+    K('pnltree', 'struct', Object.assign({ roles: [R.rows, RX(PERIOD, { req: false }), R.ac, RX(R.ref, { max: 3 }), R.rowType], customVisual: PNL_CV_T, cvFixed: { 'state.uiState': '{"view":"tree"}' } }, PNL)),
+    K('pnlsankey', 'struct', Object.assign({ roles: [R.rows, R.ac, R.rowType], customVisual: PNL_CV, cvFixed: { 'state.uiState': '{"view":"sankey"}' } }, PNL)),
     K('gantt', 'struct', { roles: [R.category, R.start, R.end, R.series], engines: ['custom', 'deneb'], engine: 'custom', ck: null, native: null, customVisual: { name: 'dataKitchenGantt', guid: 'dataKitchenGanttD7C41F0A93E24B6BA1F3C5E8A20D9B44', map: { category: 'task', start: 'start', end: 'end', series: 'phase' } } }),
 
     // ---------- Tabellen & KPI ----------
@@ -129,7 +154,13 @@
     K('card', 'table', { roles: [R.indicator], engines: ['native'], engine: 'native', ck: null, native: { type: 'card', map: { indicator: 'Values' } } }),
     K('multirow', 'table', { roles: [R.values], engines: ['native'], engine: 'native', ck: null, native: { type: 'multiRowCard', map: { values: 'Values' } } }),
     K('table', 'table', { roles: [R.rows, R.ac, R.ref], native: { type: 'tableEx', map: { rows: 'Values', ac: 'Values', ref: 'Values' } } }),
-    K('pnl', 'table', { roles: [R.rows, R.ac, RX(R.ref, { max: 3 }), RX(R.fc, { kind: 'measure', labelKey: 'fcM' }), R.rowType], engines: ['custom'], engine: 'custom', ck: null, native: null, customVisual: { name: 'pnlByDatenWG', guid: 'pnlByDatenWG3F9A7D2C51E64B08A1C4E7F0B92D6358', map: { rows: 'levels', ac: 'ac', ref: { py: /(?<![a-z])(py|vj|vorjahr|prior|previous|ly)(?![a-z])/i, pl: /(?<![a-z])(pl|bu|budget|plan|target)(?![a-z])/i, fc: /(?<![a-z])(fc|forecast|prognose)(?![a-z])/i }, fc: 'fc', rowType: 'rowType' } } }),
+    K('pnl', 'table', { roles: [R.rows, R.ac, RX(R.ref, { max: 3 }), RX(R.fc, { kind: 'measure', labelKey: 'fcM' }), R.rowType], engines: ['custom'], engine: 'custom', ck: null, native: null, customVisual: PNL_CV }),
+    // P&L Statement byDatenWG: Mega-Table (columns.template, ab 1.2) sowie Bilanz und Cashflow (T05A/T05B, ab 1.7)
+    K('pnlmega', 'table', Object.assign({ roles: [R.rows, RX(PERIOD, { req: true }), R.ac, RX(R.ref, { max: 3 }), RX(R.fc, { kind: 'measure', labelKey: 'fcM' }), R.rowType], customVisual: PNL_CV_T }, PNL)),
+    K('pnlbs', 'table', Object.assign({ roles: [R.rows, RX(PERIOD, { req: true }), R.ac, RX(R.ref, { max: 3 }), RX(R.rowType, { labelKey: 'rowTypeBs' })], customVisual: PNL_CV_T }, PNL)),
+    // ChartKitchen selbst: Modus pnl (GuV mit Kaskade) und table mit Spaltengruppen (Rolle colgroup = Matrix)
+    K('ckpnl', 'table', { roles: [R.rows, R.ac, R.ref, R.fc, R.rowType], engines: ['ck', 'deneb'], native: null }),
+    K('ckmatrix', 'table', { roles: [R.rows, RX(R.cols, { req: true, max: 2 }), R.ac, R.ref], engines: ['ck', 'native'], native: { type: 'pivotTable', map: { rows: 'Rows', columns: 'Columns', ac: 'Values', ref: 'Values' } } }),
     K('sparktable', 'table', { roles: [R.rows, R.time, R.ac, R.ref], engines: ['ck', 'deneb'], native: { type: 'tableEx', map: { rows: 'Values', ac: 'Values' } } }),
     K('matrix', 'table', { roles: [R.rows, R.cols, R.values], engines: ['native'], engine: 'native', ck: null, native: { type: 'pivotTable', map: { rows: 'Rows', columns: 'Columns', values: 'Values' } } }),
     K('gauge', 'table', { roles: [R.indicator, R.goal], engines: ['native'], engine: 'native', ck: null, warnNote: true, native: { type: 'gauge', map: { indicator: 'Y', goal: 'TargetValue' } } }),
@@ -152,6 +183,7 @@
     K('image', 'ctrl', { roles: [], engines: ['native'], engine: 'native', ck: null, native: { type: 'image', map: {} } }),
     K('button', 'ctrl', { roles: [], engines: ['native'], engine: 'native', ck: null, native: { type: 'actionButton', map: {} } }),
   ];
+  CATALOG.forEach(k => { BY_ID[k.id] = k; });
 
   // ChartKitchen-Modi (chart.orientation laut Feldvertrag). Typen ohne Modus bekommen keine ck-Engine (Review: Engine-Whitelist).
   const CK_MODE = {
@@ -161,6 +193,9 @@
     varint: 'intwaterfall', wfint: 'intwaterfall', waterfall: 'waterfall', wfkombi: 'waterfall', bridge: 'catbridge',
     kpi: 'cards', table: 'table', sparktable: 'table', heatmap: 'table',
     scatter: 'scatter',                                            // ab ChartKitchen 1.47
+    // ab ChartKitchen 1.55 bis 1.57 (Quelle: ibcsInspiredChartDeck/capabilities.json, chart.orientation)
+    stockflow: 'stockflow', areastack: 'columns', cumline: 'line', lineidx: 'line',
+    scatpath: 'scatter', bubshare: 'scatter', ckpnl: 'pnl', ckmatrix: 'table', marimekko: 'bars',
   };
   // ChartKitchen-Optionen je Kachel (Property-Namen aus capabilities.json, Objekt chart; ab ChartKitchen 1.47).
   // def = Vorgabe des Visuals. role = Option wirkt nur, wenn diese Rolle gebunden ist (KPI: Zeitfeld = Rolle trend).
@@ -170,6 +205,16 @@
           { key: 'cardTrendValue', values: ['last', 'sum'], def: 'last', role: 'category' }],
     bridge: [{ key: 'bridgeOrientation', values: ['auto', 'bars', 'columns'], def: 'auto' }],
     scatter: [{ key: 'scatterQuadrant', values: ['off', 'mean', 'median'], def: 'mean' }],
+    // ab ChartKitchen 1.55 bis 1.57. bool: true = Schalter im Visual; der Zustand hält 'off'/'on', der Export true/false
+    stockflow: [{ key: 'sfNet', values: ['on', 'off'], def: 'on', bool: true }],
+    cumline: [{ key: 'cumulativeKind', values: ['ytd', 'qtd', 'r12'], def: 'ytd' }],
+    scatpath: [{ key: 'scatterPlay', values: ['off', 'on'], def: 'off', bool: true },
+               { key: 'scatterPathArrow', values: ['off', 'on'], def: 'off', bool: true }],
+    bubshare: [{ key: 'scatterTotalBubble', values: ['off', 'on'], def: 'off', bool: true }],
+    // P&L Statement byDatenWG (engine custom). obj = Objekt der capabilities.json; Export über cvPropsOf, nicht chartKitchenProps
+    pnlmega: [{ key: 'template', obj: 'columns', values: ['T01A', 'T01B', 'T02A', 'T02E', 'T03A', 'T04A', '12A', '12G', '12H'], def: 'T01A' }],
+    pnlbs: [{ key: 'template', obj: 'columns', values: ['T05A', 'T05B'], def: 'T05A' }],
+    pnltree: [{ key: 'treeCard', obj: 'columns', values: ['months', 'delta', 'bridge'], def: 'months' }],
   };
   const ckOptsFor = kind => CK_OPTS[kind] || [];
   // Wert einer Option: bewusst gewählt (v.ckProps) oder Vorgabe des Visuals
@@ -178,14 +223,60 @@
     const x = ((v && v.ckProps) || {})[key];
     return opt.values.includes(x) ? x : opt.def;
   }
-  // Aufgelöste Optionen für den Export: nur bei engine ck und nur Optionen, deren Rolle gebunden ist; sonst null (Schlüssel fällt weg)
+  const exportValue = (o, x) => (o.bool ? x === 'on' : x);
+  // Aufgelöste Optionen für den Export: nur bei engine ck und nur Optionen, deren Rolle gebunden ist; sonst null (Schlüssel fällt weg).
+  // Feste Werte des Typs (ckFixed) stehen immer vorn; Typen ohne ckFixed und ohne bool-Option liefern dasselbe wie vor 0.7.
   function ckPropsOf(v) {
     if (!v || v.engine !== 'ck') return null;
-    const out = {};
-    ckOptsFor(v.kind).forEach(o => { if (o.role && !(((v.roles || {})[o.role]) || []).length) return; out[o.key] = ckValue(v, o.key); });
+    const def = BY_ID[v.kind];
+    const out = Object.assign({}, (def && def.ckFixed) || {});
+    ckOptsFor(v.kind).forEach(o => { if (o.obj) return; if (o.role && !(((v.roles || {})[o.role]) || []).length) return; out[o.key] = exportValue(o, ckValue(v, o.key)); });
     return Object.keys(out).length ? out : null;
   }
+  // Format-Einstellungen eines Custom Visuals byDatenWG (heute P&L Statement): { 'objekt.eigenschaft': Wert } oder null.
+  // Template: templateApplied = template, sonst wendet das Visual das Template beim ersten Rendern erneut an (AGENT-GUIDE, Echo-Guard).
+  // T05A ohne Zeilentyp-Spalte: statement.stockMode = allStock (Bilanz, jede Zeile ein Bestand).
+  function cvPropsOf(v) {
+    if (!v || v.engine !== 'custom') return null;
+    const def = BY_ID[v.kind]; if (!def || !def.customVisual) return null;
+    const out = Object.assign({}, def.cvFixed || {});
+    ckOptsFor(v.kind).forEach(o => {
+      if (!o.obj) return;
+      const x = ckValue(v, o.key);
+      out[o.obj + '.' + o.key] = exportValue(o, x);
+      if (o.key === 'template') {
+        out['columns.templateApplied'] = x;
+        if (x === 'T05A' && !(((v.roles || {}).rowType) || []).length) out['statement.stockMode'] = 'allStock';
+      }
+    });
+    return Object.keys(out).length ? out : null;
+  }
+  // Schlagworte für den Filter der Typauswahl (feste Menge, Reihenfolge = Anzeige)
+  const TAG_IDS = ['zeit', 'struktur', 'abweichung', 'kpi', 'tabelle', 'anteil', 'verteilung', 'geo', 'ibcs', 'nativ', 'filter', 'text'];
+  const TAGS = {
+    columns: ['zeit', 'ibcs'], kombi: ['zeit', 'abweichung', 'ibcs'], colline: ['zeit', 'ibcs'],
+    absvar: ['abweichung', 'zeit', 'ibcs'], relvar: ['abweichung', 'zeit', 'ibcs'],
+    bars: ['struktur', 'abweichung', 'ibcs'], barskombi: ['struktur', 'abweichung', 'ibcs'], dotplot: ['struktur', 'abweichung', 'ibcs'], tornado: ['struktur', 'abweichung', 'ibcs'],
+    bullet: ['struktur', 'kpi', 'ibcs'], pareto: ['struktur', 'anteil', 'ibcs'],
+    stackcol: ['zeit', 'anteil', 'ibcs'], stackbar: ['struktur', 'anteil', 'ibcs'], marimekko: ['struktur', 'anteil', 'ibcs'],
+    line: ['zeit', 'ibcs'], fan: ['zeit', 'ibcs'], zchart: ['zeit', 'ibcs'], varint: ['zeit', 'abweichung', 'ibcs'],
+    slope: ['struktur', 'abweichung', 'ibcs'], multiples: ['zeit', 'struktur', 'ibcs'], area: ['zeit', 'anteil', 'nativ'],
+    stockflow: ['zeit', 'ibcs'], areastack: ['zeit', 'anteil', 'ibcs'], cumline: ['zeit', 'abweichung', 'ibcs'], lineidx: ['zeit', 'ibcs'],
+    waterfall: ['abweichung', 'ibcs'], wfint: ['abweichung', 'ibcs'], wfkombi: ['abweichung', 'ibcs'], bridge: ['abweichung', 'ibcs'],
+    tree: ['struktur', 'abweichung'], decomp: ['struktur', 'abweichung', 'nativ'], heatmap: ['struktur', 'tabelle', 'ibcs'],
+    scatter: ['verteilung', 'ibcs'], scatpath: ['verteilung', 'zeit', 'ibcs'], bubshare: ['verteilung', 'anteil', 'ibcs'],
+    boxplot: ['verteilung'], gantt: ['zeit'],
+    pnltree: ['struktur', 'abweichung', 'ibcs'], pnlsankey: ['struktur', 'anteil'],
+    kpi: ['kpi', 'zeit', 'ibcs'], card: ['kpi', 'nativ'], multirow: ['kpi', 'nativ'], gauge: ['kpi', 'nativ'],
+    table: ['tabelle', 'ibcs'], sparktable: ['tabelle', 'zeit', 'ibcs'], pnl: ['tabelle', 'ibcs'], matrix: ['tabelle', 'nativ'],
+    pnlmega: ['tabelle', 'abweichung', 'ibcs'], pnlbs: ['tabelle', 'ibcs'], ckpnl: ['tabelle', 'abweichung', 'ibcs'], ckmatrix: ['tabelle', 'ibcs'],
+    ncolumn: ['nativ', 'zeit'], nbar: ['nativ', 'struktur'], nline: ['nativ', 'zeit'],
+    ndonut: ['anteil', 'nativ'], pie: ['anteil', 'nativ'], treemap: ['anteil', 'nativ'], map: ['geo', 'nativ'], deneb: ['nativ'],
+    slicer: ['filter', 'nativ'], button: ['filter', 'nativ'], text: ['text', 'nativ'], image: ['text', 'nativ'],
+  };
+  const tagsOf = kind => ((BY_ID[kind] && BY_ID[kind].tags) || []).slice();
   CATALOG.forEach(k => {
+    k.tags = (TAGS[k.id] || []).filter(t => TAG_IDS.includes(t));
     k.ckMode = CK_MODE[k.id] || null;
     if (!k.ckMode) {
       k.ck = null; k.engines = k.engines.filter(e => e !== 'ck');
@@ -194,13 +285,15 @@
       // note ist ein Getter: statt zuzuweisen nur merken, worauf der Hinweis hinausläuft
       if (!HAS('viz.' + k.id + '.note')) k.noModeAs = k.engines[0] === 'deneb' ? 'deneb' : 'native';
     }
+    // Ziele: Power-BI-Bericht (pbi) und Skizze (wire) immer; Fabric App (app) nur, was die dwg cli aus einer Spec erzeugt:
+    // ChartKitchen-Modus oder P&L Statement byDatenWG
+    const app = !!k.ckMode || !!(k.customVisual && k.customVisual.name === 'pnlByDatenWG');
+    k.targets = app ? ['pbi', 'app', 'wire'] : ['pbi', 'wire'];
   });
   // Polarität raten: Kennzahlen, bei denen „kleiner = besser" gilt (Review Data-Viz: Kostenüberschreitung darf nicht grün sein)
   const LOWER_RX = /kosten|cost|aufwand|expense|ausgaben|churn|fehler|defect|reklamation|retour|return|verlust|loss|dso|durchlauf|lead ?time|risiko|risk|ausfall|downtime|abgang|attrition|schulden|debt/i;
   const polarityFor = name => LOWER_RX.test(String(name || '')) ? 'lower' : 'higher';
 
-  const BY_ID = {};
-  CATALOG.forEach(k => { BY_ID[k.id] = k; });
   const GROUP_IDS = [];
   CATALOG.forEach(k => { if (!GROUP_IDS.includes(k.groupId)) GROUP_IDS.push(k.groupId); });
 
@@ -327,7 +420,7 @@
   function row(children) { return { type: 'split', dir: 'row', children: children.map(([size, node]) => ({ size, node })) }; }
   function col(children) { return { type: 'split', dir: 'col', children: children.map(([size, node]) => ({ size, node })) }; }
 
-  const API = { list: CATALOG, byId: BY_ID, engineLabel: ENGINE_LABEL, templates: TEMPLATES, roleDefs: R, ckMode: CK_MODE, polarityFor, groupIds: GROUP_IDS, rolesFor, variantsFor, fieldAliases, demoIds: DEMO_IDS, ckOpts: CK_OPTS, ckOptsFor, ckValue, ckPropsOf };
+  const API = { list: CATALOG, byId: BY_ID, engineLabel: ENGINE_LABEL, templates: TEMPLATES, roleDefs: R, ckMode: CK_MODE, polarityFor, groupIds: GROUP_IDS, rolesFor, variantsFor, fieldAliases, demoIds: DEMO_IDS, ckOpts: CK_OPTS, ckOptsFor, ckValue, ckPropsOf, cvPropsOf, tagIds: TAG_IDS, tagsOf };
   // groups = Anzeige-Namen in der aktuellen Sprache; k.group liefert denselben String, damit der Filter weiter greift
   lazy(API, 'groups', () => GROUP_IDS.map(id => T('group.' + id)));
   lazy(API, 'demoModel', () => demoModel('controlling'));

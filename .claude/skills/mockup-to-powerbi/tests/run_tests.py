@@ -1609,6 +1609,96 @@ def ck147_tests(res: Results):
               M.spec_hash(json.loads(json.dumps(base))) == h0 and M.spec_hash(with_props) != h0)
 
 
+def ck157_tests(res: Results):
+    """Tool 0.7 / ChartKitchen 1.55 bis 1.57, P&L 1.8.3: neue Kachel-Typen."""
+    import mockup_spec as M
+    import mockup_to_pbir as P
+    f = lambda ref, kind="measure": [{"ref": ref, "kind": kind}]
+    new_ck = ("stockflow", "areastack", "cumline", "lineidx", "scatpath", "bubshare",
+              "ckpnl", "ckmatrix", "marimekko")
+    res.check("1.57 · neue ChartKitchen-Typen haben einen Modus",
+              all(M.CK_ORIENTATION.get(k) for k in new_ck)
+              and M.CK_ORIENTATION["stockflow"] == "stockflow"
+              and M.CK_ORIENTATION["areastack"] == "columns",
+              repr({k: M.CK_ORIENTATION.get(k) for k in new_ck}))
+    caps_path = REPO / "ibcsInspiredChartDeck" / "capabilities.json"
+    if caps_path.exists():
+        caps = json.loads(caps_path.read_text(encoding="utf-8-sig"))
+        chart = caps["objects"]["chart"]["properties"]
+        orients = [e["value"] for e in chart["orientation"]["type"]["enumeration"]]
+        res.check("1.57 · CK_ORIENTATION nutzt nur Modi der capabilities.json im Repo",
+                  set(M.CK_ORIENTATION.values()) <= set(orients),
+                  repr(sorted(set(M.CK_ORIENTATION.values()) - set(orients))))
+        bad = []
+        for key, spec in M.CK_PROPS.items():
+            p = chart.get(key)
+            if p is None:
+                bad.append(key + " fehlt")
+                continue
+            enum = (p.get("type") or {}).get("enumeration")
+            if enum:
+                bad += ["%s=%s" % (key, v) for v in spec["values"]
+                        if v not in [e["value"] for e in enum]]
+            elif not (p.get("type") or {}).get("bool"):
+                bad.append(key + " kein bool/enum")
+        res.check("1.57 · CK_PROPS stehen so in der capabilities.json", not bad, "; ".join(bad))
+        roles = [r["name"] for r in caps["dataRoles"]]
+        res.check("1.57 · CK_ROLE_BY_KIND nur mit Rollen der capabilities.json",
+                  all(t in roles for m in M.CK_ROLE_BY_KIND.values() for t in m.values()))
+    bs = {"kind": "bubshare", "engine": "ck", "id": "mk_bs", "rect": {"x": 0, "y": 0, "w": 1, "h": 1},
+          "roles": {"category": f("DimRegion.Region", "column"), "x": f("_Measures.Menge"),
+                    "y": f("_Measures.AC"), "size": f("_Measures.Umsatz"), "share": f("_Measures.Anteil")},
+          "chartKitchenProps": {"scatterQuadrant": "off", "scatterValueLabels": True,
+                                "scatterTotalBubble": True}}
+    roles, warn = P.ck_roles_for(bs)
+    res.check("1.57 · bubshare: share -> bubbleShare, ohne Mapping-Warnung",
+              roles.get("bubbleShare") == ["_Measures.Anteil"] and roles.get("xValue") == ["_Measures.Menge"]
+              and not any("Mapping" in w or "Entsprechung" in w for w in warn), repr(roles))
+    sp = {"kind": "scatpath", "engine": "ck", "id": "mk_sp", "rect": {"x": 0, "y": 0, "w": 1, "h": 1},
+          "roles": {"category": f("DimDate.Year", "column"), "series": f("DimRegion.Region", "column"),
+                    "x": f("_Measures.FTE"), "y": f("_Measures.AC")},
+          "chartKitchenProps": {"scatterPath": "line", "scatterColorBy": "group",
+                                "scatterArrows": False, "scatterPlay": True}}
+    ar = {"kind": "areastack", "engine": "ck", "id": "mk_ar", "rect": {"x": 0, "y": 0, "w": 1, "h": 1},
+          "roles": {"category": f("DimDate.Month", "column"), "series": f("DimProduct.Category", "column"),
+                    "ac": f("_Measures.AC")},
+          "chartKitchenProps": {"stackShape": "area"}}
+    page = {"name": "S", "visuals": [bs, sp, ar]}
+    ck, _, w = P.build_slots(page)
+    by = {s_["id"]: s_ for s_ in ck}
+    res.check("1.57 · feste Optionen landen in chartProps (Fläche, Zeitpfad, Blasen)",
+              by["mk_ar"]["chartProps"] == {"orientation": "columns", "stackShape": "area"}
+              and by["mk_sp"]["chartProps"].get("scatterPath") == "line"
+              and by["mk_sp"]["chartProps"].get("scatterPlay") is True
+              and by["mk_sp"]["chartKitchenRoles"].get("series") == ["DimRegion.Region"]
+              and by["mk_bs"]["chartProps"].get("scatterTotalBubble") is True,
+              repr({k: v["chartProps"] for k, v in by.items()}))
+    res.check("1.57 · P&L-Varianten zeigen auf pnlByDatenWG",
+              set(("pnlmega", "pnlbs", "pnltree", "pnlsankey")) <= set(M.CUSTOM_VISUALS["pnlByDatenWG"]["kinds"])
+              and "period" in M.CUSTOM_VISUALS["pnlByDatenWG"]["roles"])
+    base = {"canvas": {"width": 1280, "height": 720}, "zones": {}, "design": {},
+            "meta": {"specVersion": 3},
+            "pages": [{"name": "S", "question": "", "visuals": [{"id": "mk_p", "kind": "pnlmega"}]}]}
+    h0 = M.spec_hash(base)
+    with_cv = json.loads(json.dumps(base))
+    with_cv["pages"][0]["visuals"][0]["customVisualProps"] = {"columns.template": "T02A",
+                                                              "columns.templateApplied": "T02A"}
+    res.check("0.7 · specHash: ohne customVisualProps unveraendert, mit Schluessel anders",
+              M.spec_hash(json.loads(json.dumps(base))) == h0 and M.spec_hash(with_cv) != h0)
+    pv = {"kind": "pnlmega", "engine": "custom",
+          "customVisual": {"name": "pnlByDatenWG", "guid": M.CUSTOM_VISUALS["pnlByDatenWG"]["guid"], "buckets": {}},
+          "customVisualProps": {"columns.template": "T02A", "columns.templateApplied": "T02A",
+                                "kaputt": 1, "a.b.c": 2, "columns.liste": [1]}}
+    cs, _ = P.custom_settings(pv, None)
+    res.check("0.7 · customVisualProps werden zu Einstellungen des Custom Visuals (nur objekt.eigenschaft)",
+              cs == {"columns.template": "T02A", "columns.templateApplied": "T02A"}, repr(cs))
+    objs = P.desktop_objects(cs)
+    res.check("0.7 · P&L-Template steht in visual.objects.columns",
+              "template" in objs.get("columns", [{}])[0].get("properties", {}), repr(objs)[:200])
+    res.check("0.7 · Custom Visual ohne customVisualProps bleibt ohne Einstellungen",
+              P.custom_settings({"kind": "pnl", "customVisual": pv["customVisual"]}, None) == ({}, []))
+
+
 # --------------------------------------------------------------------------- #
 def main() -> int:
     ap = argparse.ArgumentParser(description="Evals fuer mockup-to-powerbi")
@@ -1648,6 +1738,8 @@ def main() -> int:
             review_fix_tests(tmp, res)
             print("ChartKitchen 1.47 (Tool 0.6.0)")
             ck147_tests(res)
+            print("ChartKitchen 1.57 / P&L 1.8.3 (Tool 0.7)")
+            ck157_tests(res)
     finally:
         shutil.rmtree(tmp, ignore_errors=True)
 

@@ -1077,12 +1077,28 @@ def kpi_card_settings(v: dict, nspec: dict):
     return out, warn
 
 
+def custom_visual_props(v: dict) -> dict:
+    """`visuals[].customVisualProps` (Tool 0.7.0) -> {"objekt.eigenschaft": Wert}.
+
+    Das Kitchen schreibt dort die Format-Einstellungen der P&L-Varianten
+    (pnlmega/pnlbs: columns.template + templateApplied, pnltree: columns.treeCard,
+    pnltree/pnlsankey: state.uiState). Nur Schluessel der Form objekt.eigenschaft
+    mit einfachen Werten kommen durch, alles andere faellt weg."""
+    out = {}
+    for key, val in ((v.get("customVisualProps") or {}).items()):
+        if (isinstance(key, str) and key.count(".") == 1 and all(key.split("."))
+                and isinstance(val, (str, int, float, bool))):
+            out[key] = val
+    return out
+
+
 def custom_settings(v: dict, nspec) -> tuple:
-    """(Einstellungen, Warnungen) eines Custom Visuals — heute nur ibcsKpiCard."""
+    """(Einstellungen, Warnungen) eines Custom Visuals: ibcsKpiCard aus der
+    Kitchen-Kachel, sonst die Werte aus `customVisualProps` (P&L-Varianten)."""
     name, _ = custom_visual_info(v.get("customVisual") or {})
     if name == "ibcsKpiCard" and nspec is not None:
         return kpi_card_settings(v, nspec)
-    return {}, []
+    return custom_visual_props(v), []
 
 
 def custom_visual_json(v: dict, st) -> dict:
@@ -2683,8 +2699,10 @@ def build_slots(page: dict, nspec=None, st=None):
                 settings, ow = ck_objects(v, orientation, roles, nspec)
                 w += ow
                 # Tool 0.6.0: gewaehlte ChartKitchen-Optionen auch als fertige Einstellung
+                # Die im Workshop gewaehlte Option geht vor (z. B. cumline mit
+                # cumulativeKind r12 gegen das ytd aus analysis.cumulative).
                 for pk, pv in ck_chart_props(v).items():
-                    settings.setdefault("chart." + pk, pv)
+                    settings["chart." + pk] = pv
                 slot["ckSettings"] = settings
                 slot["objects"] = desktop_objects(settings)
             if st is not None:

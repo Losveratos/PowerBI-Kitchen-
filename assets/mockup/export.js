@@ -115,9 +115,11 @@
         const hasRef = def.roles.some(r => r.key === 'ref' || r.key === 'goal'); const hasMeasure = def.roles.some(r => r.kind === 'measure');
         // ChartKitchen-Optionen (ab 0.6.0, ChartKitchen 1.47): nur bei engine ck und nur, wenn der Typ welche kennt; sonst fehlt der Schlüssel (Hash bleibt)
         const ckProps = CAT.ckPropsOf ? CAT.ckPropsOf(v) : null;
+        // Format-Einstellungen eines Custom Visuals byDatenWG (ab 0.7.0, P&L Statement: Template, Ansicht, Karten-Art); fehlt, wenn der Typ keine kennt
+        const cvProps = CAT.cvPropsOf ? CAT.cvPropsOf(v) : null;
         return {
           id, stableId: l.node.id, slug: slug(title), page: p.name, kind: v.kind, label: def.label, engine: v.engine,
-          chartKitchenType: v.engine === 'ck' ? def.ck : null, chartKitchenMode: v.engine === 'ck' ? def.ckMode : null, ...(ckProps ? { chartKitchenProps: ckProps } : {}), native,
+          chartKitchenType: v.engine === 'ck' ? def.ck : null, chartKitchenMode: v.engine === 'ck' ? def.ckMode : null, ...(ckProps ? { chartKitchenProps: ckProps } : {}), ...(cvProps ? { customVisualProps: cvProps } : {}), native,
           customVisual: cvBuckets ? { name: def.customVisual.name, guid: def.customVisual.guid, buckets: cvBuckets } : null,
           title: titleShown ? title : '', titleShown, displayName: title, subtitle: v.sub || '', content: v.content || '', scenario: def.roles.some(r => r.key === 'ref') ? v.scenario : null,
           // deltaBasis = wirksame Basis (gegen die die Skizze rechnet, null ohne gezeigten Bezug); gewählt, aber nicht gezeigt: deltaBasisRequested
@@ -218,7 +220,7 @@
     // Die JSON-Rundreise sorgt dafür, dass genau das zählt, was die Datei schreibt (undefined fällt weg, NaN wird null);
     // so lässt sich der Hash aus der Spec allein nachrechnen.
     const core = JSON.parse(JSON.stringify({ canvas: { width: spec.canvas.width, height: spec.canvas.height }, design: spec.design, zones: spec.zones,
-      pages: spec.pages.map(p => Object.assign(p.role && p.role !== 'nav' ? { role: p.role } : {}, { name: p.name, question: p.question, visuals: p.visuals.map(v => ({ id: v.id, kind: v.kind, engine: v.engine, title: v.title, content: v.content, rect: v.rect, roles: v.roles, analysis: v.analysis, link: v.link, chartKitchenProps: v.chartKitchenProps })) })),
+      pages: spec.pages.map(p => Object.assign(p.role && p.role !== 'nav' ? { role: p.role } : {}, { name: p.name, question: p.question, visuals: p.visuals.map(v => ({ id: v.id, kind: v.kind, engine: v.engine, title: v.title, content: v.content, rect: v.rect, roles: v.roles, analysis: v.analysis, link: v.link, chartKitchenProps: v.chartKitchenProps, customVisualProps: v.customVisualProps })) })),
       fields: spec.fields.map(noDoc), newFields: spec.newFields.map(noDoc), links: spec.links }));
     spec.meta.specHash = fnv(canon(core));
     return spec;
@@ -385,6 +387,7 @@
         const roleLines = Object.keys(v.roles).map(key => `  - ${roleLabel(v.kind, key)}: ${v.roles[key].map(f => `\`${f.ref}\`${f.isNew ? B('vNew') : ''}${f.missing ? ` ${T('exp.missing')}` : ''}`).join(', ')}`);
         out.push(roleLines.length ? B('vRoles') : B('vRolesNone'), ...roleLines);
         // ChartKitchen-Optionen und abweichende Rollen-Zuordnung ab 1.47 (Zeitfeld der KPI → trend, Scatter → xValue/actual/bubbleSize)
+        if (v.customVisualProps) out.push(T('exp.brief.vCvProps', { list: Object.keys(v.customVisualProps).map(k => `\`${k}\` = \`${v.customVisualProps[k]}\``).join(' · ') }));
         if (v.chartKitchenProps) out.push(B('vCkProps', { list: Object.keys(v.chartKitchenProps).map(k => `\`chart.${k}\` = \`${v.chartKitchenProps[k]}\``).join(' · ') }));
         if (v.engine === 'ck' && v.kind === 'kpi' && (v.roles.category || []).length) out.push(B('vCkTrend', { f: v.roles.category[0].ref }));
         if (v.engine === 'ck' && v.kind === 'scatter') out.push(B('vCkScatter', { b: (v.roles.size || []).length ? B('vCkBubble') : '' }));

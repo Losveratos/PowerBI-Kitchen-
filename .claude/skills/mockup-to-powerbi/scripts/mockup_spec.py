@@ -61,9 +61,13 @@ CK_ROLE_UNSUPPORTED = {"x", "y", "size", "start", "end", "field", "text"}
 #   kpi:     das Zeitfeld (Mockup-Rolle category) ist die Grouping-Rolle `trend` — in `category`
 #            wuerde jede Periode eine eigene Karte.
 #   scatter: Y = AC (`actual`), X = `xValue`, Blasengroesse = `bubbleSize`.
+#   scatpath: wie scatter; Kategorie = Periode, Serie = Einheit (Datenvertrag des Zeitpfads, 1.57).
+#   bubshare: wie scatter, dazu Blasenanteil `share` -> `bubbleShare` (1.57).
 CK_ROLE_BY_KIND = {
     "kpi": {"category": "trend"},
     "scatter": {"x": "xValue", "y": "actual", "size": "bubbleSize"},
+    "scatpath": {"x": "xValue", "y": "actual", "size": "bubbleSize"},
+    "bubshare": {"x": "xValue", "y": "actual", "size": "bubbleSize", "share": "bubbleShare"},
 }
 
 # ChartKitchen-Optionen je Kachel (visuals[].chartKitchenProps, Tool 0.6.0) -> Objekt `chart`.
@@ -73,6 +77,23 @@ CK_PROPS = {
     "cardTrendValue": {"values": ("last", "sum"), "default": "last"},
     "bridgeOrientation": {"values": ("auto", "bars", "columns"), "default": "auto"},
     "scatterQuadrant": {"values": ("off", "mean", "median"), "default": "mean"},
+    # ab ChartKitchen 1.55 bis 1.57 (capabilities.json, Objekt chart). Feste Werte je Typ
+    # (catalog.js -> ckFixed) und waehlbare (CK_OPTS) kommen beide als chartKitchenProps.
+    "stackShape": {"values": ("columns", "area"), "default": "columns"},
+    "stackNormalize": {"values": ("off", "pct100"), "default": "off"},
+    "stackThickness": {"values": ("equal", "total"), "default": "equal"},
+    "cumulative": {"values": (True, False), "default": False},
+    "cumulativeKind": {"values": ("ytd", "qtd", "r12"), "default": "ytd"},
+    "lineSeries": {"values": (True, False), "default": False},
+    "lineIndex": {"values": ("off", "base100"), "default": "off"},
+    "scatterPath": {"values": ("off", "line"), "default": "off"},
+    "scatterColorBy": {"values": ("single", "status", "group"), "default": "single"},
+    "scatterArrows": {"values": (True, False), "default": False},
+    "scatterPlay": {"values": (True, False), "default": False},
+    "scatterPathArrow": {"values": (True, False), "default": False},
+    "scatterValueLabels": {"values": (True, False), "default": False},
+    "scatterTotalBubble": {"values": (True, False), "default": False},
+    "sfNet": {"values": (True, False), "default": True},
 }
 
 # Vollstaendiges Rollen-Vokabular (Quelle: assets/mockup/catalog.js -> R und R_MULT).
@@ -80,7 +101,7 @@ CK_PROPS = {
 # das Tool darf wachsen.
 ROLE_KEYS = ("category", "subcategory", "series", "multiples", "ac", "ref", "fc",
              "values", "rows", "columns", "x", "y", "size", "indicator", "goal",
-             "start", "end", "field", "text", "rowType")
+             "start", "end", "field", "text", "rowType", "share")
 
 CK_ORIENTATION = {
     "columns": "columns", "kombi": "columns", "colline": "columns",
@@ -115,6 +136,10 @@ CK_ORIENTATION = {
     "table": "table", "sparktable": "table", "heatmap": "table",
     # ab ChartKitchen 1.47 / Tool 0.6.0
     "scatter": "scatter",
+    # ab ChartKitchen 1.55 bis 1.57 (Kitchen catalog.js -> CK_MODE)
+    "stockflow": "stockflow", "areastack": "columns", "cumline": "line",
+    "lineidx": "line", "scatpath": "scatter", "bubshare": "scatter",
+    "ckpnl": "pnl", "ckmatrix": "table", "marimekko": "bars",
 }
 
 # Modus aus der Spec (`chartKitchenMode`, Kitchen catalog.js -> CK_MODE), den der Skill
@@ -142,7 +167,8 @@ def ck_mode_for(visual: dict):
 # --------------------------------------------------------------------------- #
 # Kachel-Typen ohne Kategorieachse — dort bietet das Tool keine Variante an.
 NO_VARIANT_KINDS = frozenset(
-    {"multiples", "map", "treemap", "decomp", "pie", "gauge", "ndonut"})
+    {"multiples", "map", "treemap", "decomp", "pie", "gauge", "ndonut",
+     "scatpath", "pnlmega", "pnlbs", "pnltree"})
 
 # Native Klassiker (Gruppe `native`, engine nur `native`) aus Tool 0.4.1.
 # Quelle: catalog.js -> K('ncolumn'|'nbar'|'nline'|'ndonut', 'native', ...)
@@ -188,7 +214,9 @@ CUSTOM_VISUALS = {
     },
     "pnlByDatenWG": {
         "guid": "pnlByDatenWG3F9A7D2C51E64B08A1C4E7F0B92D6358",
-        "kinds": ["pnl"],
+        # pnlmega (Template), pnlbs (T05A/T05B), pnltree/pnlsankey (Ansicht) ab Tool 0.7;
+        # deren Format-Einstellungen stehen in visuals[].customVisualProps
+        "kinds": ["pnl", "pnlmega", "pnlbs", "pnltree", "pnlsankey"],
         "label": "pnlByDatenWG (GuV)",
         "roles": ["account", "accountName", "levels", "parent", "sortOrder", "rowType",
                   "formulaDef", "signConvention", "displayInvert", "varianceInvert",
@@ -903,7 +931,8 @@ def _hash_core_v3(spec: dict) -> dict:
         core["pages"] = [dict(_pick(p, ("name", "question")),
                               **({"role": p["role"]} if p.get("role") and p.get("role") != "nav" else {}), **(
             {"visuals": [_pick(v, ("id", "kind", "engine", "title", "content", "rect",
-                                   "roles", "analysis", "link", "chartKitchenProps"))
+                                   "roles", "analysis", "link", "chartKitchenProps",
+                                   "customVisualProps"))
                          for v in (p.get("visuals") or [])]}
             if isinstance(p, dict) and "visuals" in p else {}))
             for p in (spec.get("pages") or []) if isinstance(p, dict)]

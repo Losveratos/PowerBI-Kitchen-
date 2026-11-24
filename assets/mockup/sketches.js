@@ -237,7 +237,12 @@
       cumul: 'kumuliert', margin: 'Marge %', revenue: 'Umsatz', apply: 'Anwenden',
       spec: 'Vega-Spec', prior: 'Vorjahr', region: 'Region', all: 'Alle', grand: 'Gesamt',
       ytd: 'YTD Jan–Jun', mat: 'MAT', month: 'Monat', product: 'Produkt',
-      nomeas: 'Kennzahl fehlt'
+      nomeas: 'Kennzahl fehlt',
+      sfNet: 'Netto', sfStock: 'Bestand', sfIn: 'Zufluss', sfOut: 'Abfluss',
+      pnlS: ['Umsatz', 'Material', 'Rohertrag', 'Personal', 'Sonstige', 'EBIT'],
+      bsTitle: 'Bilanz', bsDate: '30.06.2026', cfTitle: 'Cashflow',
+      bsRows: ['Anlagevermögen', 'Umlaufvermögen', 'Aktiva', 'Eigenkapital', 'Rückstellungen', 'Verbindlichkeiten', 'Passiva'],
+      cfRows: ['Anfangsbestand', 'Operativer Cashflow', 'Investiver Cashflow', 'Finanzierung', 'Endbestand']
     },
     en: {
       mon: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
@@ -251,7 +256,12 @@
       cumul: 'cumulative', margin: 'Margin %', revenue: 'Revenue', apply: 'Apply',
       spec: 'Vega spec', prior: 'Prior year', region: 'Region', all: 'All', grand: 'Total',
       ytd: 'YTD Jan–Jun', mat: 'MAT', month: 'Month', product: 'Product',
-      nomeas: 'Measure missing'
+      nomeas: 'Measure missing',
+      sfNet: 'Net', sfStock: 'Stock', sfIn: 'Inflow', sfOut: 'Outflow',
+      pnlS: ['Revenue', 'Materials', 'Gross profit', 'Personnel', 'Other', 'EBIT'],
+      bsTitle: 'Balance sheet', bsDate: 'Jun 30, 2026', cfTitle: 'Cash flow',
+      bsRows: ['Fixed assets', 'Current assets', 'Total assets', 'Equity', 'Provisions', 'Liabilities', 'Total equity and liabilities'],
+      cfRows: ['Opening balance', 'Operating cash flow', 'Investing cash flow', 'Financing', 'Closing balance']
     }
   };
 
@@ -4223,6 +4233,989 @@
     var fs = clamp(Math.min(P.h * 0.4, P.w * 0.3), 10, 24);
     b += txt(P.x + P.w / 2, P.y + P.h / 2 + fs * 0.34, '{ }', fs, c.C.ink, 'middle', '600');
     if (!c.small && P.h >= 52) b += txt(P.x + P.w / 2, P.y + P.h - 4, fit(c, c.t.spec, P.w - 6, c.fsT), c.fsT, c.C.sub, 'middle');
+    return wrap(c, b);
+  };
+
+  /* ====================================================================== */
+  /*  Skizzen ab ChartKitchen 1.55 bis 1.57 und P&L Statement 1.2 bis 1.8   */
+  /*  Optionen (alle optional, ohne sie zeichnet jede Skizze ihre Vorgabe): */
+  /*    stockflow  o.net:Boolean          Netto-Panel (chart.sfNet)         */
+  /*    cumline    o.cumKind:'ytd'|'qtd'|'r12' (chart.cumulativeKind)       */
+  /*    scatpath   o.play:Boolean, o.arrow:Boolean (scatterPlay, …PathArrow)*/
+  /*               o.bubble:Boolean (Blasengröße gebunden)                  */
+  /*    bubshare   o.total:Boolean       Gesamtblase (scatterTotalBubble)   */
+  /*    pnlmega    o.template:'T01A'|… (columns.template)                   */
+  /*    pnlbs      o.template:'T05A'|'T05B'                                 */
+  /*    pnltree    o.treeCard:'months'|'delta'|'bridge' (columns.treeCard)  */
+  /*    ckpnl      wie pnl (o.mode, o.density); Vorgabe acref ohne Mini     */
+  /* ====================================================================== */
+
+  function pp(x, y) { return n(x) + ' ' + n(y); }
+  /* Beschriftungen senkrecht entzerren: items [{y}], Mindestabstand gap,
+     Grenzen lo/hi. Reihenfolge nach y bleibt, Werte bleiben im Bereich.   */
+  function spreadY(items, gap, lo, hi) {
+    var i, m = items.length;
+    items.sort(function (a, b) { return a.y - b.y; });
+    for (i = 1; i < m; i++) if (items[i].y - items[i - 1].y < gap) items[i].y = items[i - 1].y + gap;
+    if (m && items[m - 1].y > hi) {
+      items[m - 1].y = hi;
+      for (i = m - 2; i >= 0; i--) if (items[i + 1].y - items[i].y < gap) items[i].y = items[i + 1].y - gap;
+    }
+    for (i = 0; i < m; i++) items[i].y = clamp(items[i].y, lo, Math.max(lo, hi));
+    return items;
+  }
+  // Polylinie in Stücken: Stück i−1 → i trägt das Szenario von Punkt i (ab fa gestrichelt)
+  function scenLine(pts, fa, col, sw) {
+    if (!pts.length) return '';
+    if (fa <= 0) return polyline(pts, col, sw * 0.85, '4 2.5');
+    if (fa >= pts.length) return polyline(pts, col, sw);
+    return polyline(pts.slice(0, fa), col, sw) + polyline(pts.slice(fa - 1), col, sw * 0.85, '4 2.5');
+  }
+  // Schritt der Beschriftung: jede k-te Stelle, damit Labels der Breite lw nicht kollidieren
+  function everyOf(step, lw, max) {
+    var k = 1;
+    while (k < (max || 6) && step * k < lw + 3) k++;
+    return step * k < lw + 3 ? 0 : k;
+  }
+
+  /* ---- 40 · Bestand und Fluss (ChartKitchen stockflow, ab 1.55) --------- */
+  S.stockflow = function (w, h, o) {
+    o = o || {};
+    var c = ctx(w, h, o), hh = hatch(c), b = hh.defs, t = c.t;
+    var cnt = c.small ? 6 : ((c.dense || c.w >= 400) ? 12 : 8), i;
+    var two = !c.small;                       // zweite Flussart je Seite (Tönungsrampe)
+    var inA = [], inB = [], outA = [], outB = [], inT = [], outT = [], net = [], stock = [];
+    var st0 = n(58 + c.rnd() * 8), run = st0;
+    for (i = 0; i < cnt; i++) {
+      inA.push(n(15 + c.rnd() * 9 + Math.sin(i * 0.9) * 3));
+      inB.push(two ? n(4 + c.rnd() * 5) : 0);
+      outA.push(n(13 + c.rnd() * 8 + Math.cos(i * 0.7) * 3));
+      outB.push(two ? n(3 + c.rnd() * 5) : 0);
+      inT.push(n(inA[i] + inB[i])); outT.push(n(outA[i] + outB[i]));
+      net.push(n(inT[i] - outT[i])); run += net[i]; stock.push(n(run));
+    }
+    var showNet = o.net !== false && !c.small && c.h >= 120 * c.lk;
+    var labH = c.lab ? c.fsA + 5 : 0, capH = c.lab ? c.fsT + 4 : 0;
+    var rightW = c.lab ? Math.min(c.iw * 0.24, Math.max(tw(t.sfOut, c.fs), tw(t.sfIn, c.fs), tw(t.sfStock, c.fs), tw(t.sfNet, c.fs)) + 6) : 0;
+    var pw = Math.max(8, c.iw - rightW), P, NP = null;
+    if (showNet) {
+      var bd = bands(c.y0, c.ih - labH, [22, 78], c.fs * 0.6);
+      b += layerCap(c, c.x0, bd[0].y + c.fsT * 0.85, t.sfNet);
+      NP = { x: c.x0, y: bd[0].y + capH, w: pw, h: Math.max(5, bd[0].h - capH) };
+      b += layerCap(c, c.x0, bd[1].y + c.fsT * 0.85, t.sfStock + ' · ' + t.sfIn + ' · ' + t.sfOut);
+      P = { x: c.x0, y: bd[1].y + capH, w: pw, h: Math.max(8, bd[1].h - capH) };
+    } else {
+      b += layerCap(c, c.x0, c.y0 + c.fsT * 0.85, t.sfStock + ' · ' + t.sfIn + ' · ' + t.sfOut);
+      P = { x: c.x0, y: c.y0 + capH, w: pw, h: Math.max(8, c.ih - labH - capH) };
+    }
+    var sl = slots(P.x, P.w, cnt, 0.34), step = sl[0].step, fa = fcStart(c, cnt);
+    var showV = c.lab && P.h >= c.fs * 6;
+    drew(c, 'labels', showV);
+    var hi = Math.max(maxOf(inT), maxOf(stock), st0) * 1.06, lo = -maxOf(outT) * 1.06;
+    var s = sc(lo, hi, P.y + P.h, P.y + (showV ? c.fs * 1.4 : 2)), z = s(0);
+    // Bestand: Fläche bis null, Punkte am Periodenende, Anfangsbestand am Beginn der ersten Periode
+    var pts = [[P.x, s(st0)]];
+    for (i = 0; i < cnt; i++) pts.push([sl[i].cx + step / 2, s(stock[i])]);
+    b += polygonEl([[P.x, z]].concat(pts).concat([[pts[pts.length - 1][0], z]]), mix(c.C.py, c.C.paper, 0.62));
+    // Flüsse: Zufluss heller über, Abfluss in AC-Farbe unter der Nulllinie
+    var cIn = [c.C.g2, c.C.g3], cOut = [c.C.ac, mix(c.C.ac, c.C.paper, 0.45)];
+    for (i = 0; i < cnt; i++) {
+      var isFC = i >= fa, x = sl[i].x, bw = sl[i].w;
+      var yA = s(inA[i]), yB = s(inT[i]), yO = s(-outA[i]), yO2 = s(-outT[i]);
+      b += isFC ? rect(x, yA, bw, Math.max(0.8, z - yA), fcFill(c, hh, bw), c.C.ac, 0.7) : rect(x, yA, bw, Math.max(0.8, z - yA), cIn[0]);
+      if (two) b += isFC ? rect(x, yB, bw, Math.max(0.8, yA - yB), c.C.paper, c.C.ac, 0.7) : rect(x, yB, bw, Math.max(0.8, yA - yB), cIn[1]);
+      b += isFC ? rect(x, z, bw, Math.max(0.8, yO - z), fcFill(c, hh, bw), c.C.ac, 0.7) : rect(x, z, bw, Math.max(0.8, yO - z), cOut[0]);
+      if (two) b += isFC ? rect(x, yO, bw, Math.max(0.8, yO2 - yO), c.C.paper, c.C.ac, 0.7) : rect(x, yO, bw, Math.max(0.8, yO2 - yO), cOut[1]);
+    }
+    b += baseH(c, P.x, P.x + P.w, z, 'AC', fcX(c, sl));
+    // Bestandslinie
+    b += scenLine(pts, fa + 1, c.C.ink, c.small ? 1.2 : 1.6);
+    var r = c.small ? 1.1 : 1.6;
+    b += circ(pts[0][0] + r, pts[0][1], r * 0.8, c.C.paper, c.C.ink, 0.8);
+    var ev = showV ? everyOf(step, tw('000', c.fs), 4) : 0;
+    for (i = 0; i < cnt; i++) {
+      var px = pts[i + 1][0], py = pts[i + 1][1];
+      b += i >= fa ? circ(px, py, r, c.C.paper, c.C.ink, 0.9) : circ(px, py, r, c.C.ink);
+      if (ev && (i === cnt - 1 || (cnt - 1 - i) % ev === 0) && px - tw('000', c.fs) / 2 >= P.x) {
+        b += txt(px, py - r - c.fs * 0.4, vlbl(c, stock[i]), c.fs, c.C.ink, 'middle', i === cnt - 1 ? '600' : null, c.C.paper);
+      }
+    }
+    // Netto-Panel
+    if (NP) {
+      var mN = maxOf(net) * 1.05, sN = sc(-mN, mN, NP.y + NP.h, NP.y), zN = sN(0);
+      var nLab = c.lab && NP.h >= c.fs * 3 && step >= tw('+00', c.fs) + 3;
+      for (i = 0; i < cnt; i++) {
+        var yN = sN(net[i]), nh = Math.max(0.8, Math.abs(zN - yN));
+        b += i >= fa ? rect(sl[i].x, Math.min(zN, yN), sl[i].w, nh, fcFill(c, hh, sl[i].w), c.C.ac, 0.7) : rect(sl[i].x, Math.min(zN, yN), sl[i].w, nh, c.C.py);
+        if (nLab) b += txt(sl[i].cx, net[i] >= 0 ? yN - c.fs * 0.3 : yN + c.fs * 0.95, dlbl(c, net[i]), c.fs * 0.9, c.C.ink, 'middle', null, c.C.paper);
+      }
+      b += ln(NP.x, zN, NP.x + NP.w, zN, c.C.axis, 0.9);
+      if (c.lab) b += txt(NP.x + NP.w + 3, zN + c.fs * 0.34, fit(c, t.sfNet, rightW - 3), c.fs, c.C.sub, 'start');
+    }
+    // Namen rechts: Bestand am letzten Punkt, Zufluss über, Abfluss unter der Nulllinie
+    if (c.lab) {
+      var last = cnt - 1, xL = P.x + P.w + 3;
+      var items = spreadY([
+        { y: pts[cnt][1] + c.fs * 0.34, s: t.sfStock, col: c.C.ink, wt: '600' },
+        { y: (z + s(inT[last])) / 2 + c.fs * 0.34, s: t.sfIn, col: c.C.txt },
+        { y: (z + s(-outT[last])) / 2 + c.fs * 0.34, s: t.sfOut, col: c.C.txt }
+      ], c.fs * 1.05, P.y + c.fs, P.y + P.h + c.fs * 0.3);
+      for (i = 0; i < items.length; i++) b += txt(xL, items[i].y, fit(c, items[i].s, rightW - 3), c.fs, items[i].col, 'start', items[i].wt || null);
+    }
+    b += fcSplit(c, sl, NP ? NP.y : P.y, P.y + P.h);
+    b += monLabels(c, sl, c.y1 - 0.5, c.uc ? c.cat : undefined);
+    return wrap(c, b);
+  };
+
+  /* ---- 41 · Gestapelte Fläche mit Summenlinie (stackShape area, ab 1.56) - */
+  S.areastack = function (w, h, o) {
+    var c = ctx(w, h, o), b = '';
+    var cnt = c.small ? 6 : ((c.dense || c.w >= 400) ? 12 : 8), i, j;
+    var segs = c.uc ? Math.max(1, Math.min(c.uc.length, c.small ? 2 : 4)) : (c.small ? 2 : 3);
+    var cols = [c.C.ac, c.C.g2, c.C.g3, mix(c.C.g3, c.C.paper, 0.5)];
+    var base = [34, 22, 16, 10], cum = [], tot = [];
+    var ser = [];
+    for (j = 0; j < segs; j++) ser.push(series(c, cnt, base[j], base[j] * 0.35));
+    for (i = 0; i < cnt; i++) {
+      var row = [0], acc = 0;
+      for (j = 0; j < segs; j++) { acc += ser[j][i]; row.push(n(acc)); }
+      cum.push(row); tot.push(n(acc));
+    }
+    var names = [];
+    for (j = 0; j < segs; j++) names.push(c.cat[j % c.cat.length]);
+    var labH = c.lab ? c.fsA + 5 : 0, capH = c.lab ? c.fsT + 4 : 0;
+    var nmW = 0;
+    for (j = 0; j < segs; j++) nmW = Math.max(nmW, tw(names[j], c.fs));
+    var direct = c.lab && c.w >= 200;
+    var rightW = direct ? Math.min(c.iw * 0.28, nmW + 6) : 0;
+    var P = { x: c.x0, y: c.y0 + capH, w: Math.max(8, c.iw - rightW), h: Math.max(8, c.ih - capH - labH) };
+    var sl = slots(P.x, P.w, cnt, 0.3), step = sl[0].step;
+    var ev = c.lab ? everyOf(step, c.real ? vmaxW(c, tot) : tw('000', c.fs), 4) : 0;
+    drew(c, 'labels', !!ev); if (ev) drew(c, 'sum');
+    var s = sc(0, maxOf(tot) * 1.04, P.y + P.h, P.y + (ev ? c.fs * 1.5 : 2));
+    var fa = fcStart(c, cnt);
+    function poly(j2, i0, i1, fill) {
+      if (i1 - i0 < 1) return '';
+      var top = [], bot = [], k;
+      for (k = i0; k <= i1; k++) { top.push([sl[k].cx, s(cum[k][j2 + 1])]); bot.push([sl[k].cx, s(cum[k][j2])]); }
+      return polygonEl(top.concat(bot.reverse()), fill);
+    }
+    for (j = 0; j < segs; j++) {
+      var col = cols[j % cols.length];
+      if (fa >= cnt) b += poly(j, 0, cnt - 1, col);
+      else {
+        if (fa > 1) b += poly(j, 0, fa - 1, col);
+        b += poly(j, Math.max(0, fa - 1), cnt - 1, mix(col, c.C.paper, 0.5));
+        if (fa < cnt) drew(c, 'fc');
+      }
+      if (j < segs - 1) {
+        var sep = [];
+        for (i = 0; i < cnt; i++) sep.push([sl[i].cx, s(cum[i][j + 1])]);
+        b += polyline(sep, c.C.paper, 0.8);
+      }
+    }
+    b += baseH(c, P.x, P.x + P.w, P.y + P.h, 'AC', fcX(c, sl));
+    // Summenlinie mit Punkten, Werte jede ev-te Periode und am Ende
+    var tp = [];
+    for (i = 0; i < cnt; i++) tp.push([sl[i].cx, s(tot[i])]);
+    b += scenLine(tp, fa, c.C.ink, c.small ? 1 : 1.3);
+    for (i = 0; i < cnt; i++) {
+      b += i >= fa ? circ(tp[i][0], tp[i][1], 1.4, c.C.paper, c.C.ink, 0.8) : circ(tp[i][0], tp[i][1], c.small ? 1 : 1.4, c.C.ink);
+      if (ev && (i === cnt - 1 || (cnt - 1 - i) % ev === 0)) b += txt(tp[i][0], tp[i][1] - c.fs * 0.55, vlbl(c, tot[i]), c.fs, c.C.ink, 'middle', '600', c.C.paper);
+    }
+    // Werte in der untersten Fläche, wenn Platz ist
+    if (ev && P.h >= c.fs * 8) {
+      for (i = 0; i < cnt; i += ev) {
+        var y1 = s(cum[i][0]), y2 = s(cum[i][1]);
+        if (y1 - y2 >= c.fs * 1.4) b += txt(sl[i].cx, (y1 + y2) / 2 + c.fs * 0.34, vlbl(c, ser[0][i]), c.fs, c.C.paper, 'middle');
+      }
+    }
+    if (direct) {
+      var last = cnt - 1, items = [];
+      for (j = 0; j < segs; j++) items.push({ y: (s(cum[last][j]) + s(cum[last][j + 1])) / 2 + c.fs * 0.34, s: names[j], j: j });
+      spreadY(items, c.fs * 1.05, P.y + c.fs, P.y + P.h);
+      for (j = 0; j < items.length; j++) b += txt(sl[last].cx + 5, items[j].y, fit(c, items[j].s, c.x1 - sl[last].cx - 5), c.fs, items[j].j === 0 ? c.C.ink : c.C.txt, 'start', items[j].j === 0 ? '600' : null);
+      b += layerCap(c, c.x0, c.y0 + c.fsT * 0.85, c.main + ' · Σ');
+    } else if (c.lab) {
+      var lx = c.x0;
+      for (j = 0; j < segs && lx < c.x1 - 20; j++) {
+        var nmj = fit(c, names[j], c.x1 - lx - c.fsT, c.fsT);
+        b += rect(lx, c.y0 + c.fsT * 0.15, c.fsT * 0.7, c.fsT * 0.7, cols[j % cols.length]);
+        b += txt(lx + c.fsT, c.y0 + c.fsT * 0.85, nmj, c.fsT, c.C.sub, 'start');
+        lx += c.fsT * 1.6 + tw(nmj, c.fsT);
+      }
+    }
+    b += monLabels(c, sl, c.y1 - 0.5);
+    return wrap(c, b);
+  };
+
+  /* ---- 42 · Kumulierte Linie YTD · QTD · R12 (chart.cumulativeKind) ----- */
+  S.cumline = function (w, h, o) {
+    o = o || {};
+    var c = ctx(w, h, o), hh = hatch(c), b = hh.defs;
+    var kc = (o.cumKind === 'qtd' || o.cumKind === 'r12') ? o.cumKind : 'ytd';
+    var cnt = kcnt(c, c.small ? 6 : 12, c.small ? 6 : 12), i, j;
+    var kind = refKind(c) || (c.noRef ? null : 'PL');
+    var mo = useVals(c, series(c, cnt, 30, 8)), mr = kind ? useRef(c, derive(c, mo, 0.88, 1.08)) : null;
+    // Vorlauf für R12: die zwölf Monate davor (gleitend ohne Jahresneustart)
+    var pre = series(c, 12, 28, 8), preR = derive(c, pre, 0.9, 1.06);
+    function cum(a, p) {
+      var out = [], run = 0;
+      for (i = 0; i < a.length; i++) {
+        if (kc === 'r12') { run = 0; for (j = i - 11; j <= i; j++) run += j >= 0 ? (+a[j] || 0) : (+p[12 + j] || 0); }
+        else { if (kc === 'qtd' && i % 3 === 0) run = 0; run += +a[i] || 0; }
+        out.push(n(run));
+      }
+      return out;
+    }
+    var ca = cum(mo, pre), cr = mr ? cum(mr, preR) : null;
+    var labH = c.lab ? c.fsA + 5 : 0, capH = c.lab ? c.fsT + 4 : 0;
+    var rightW = c.lab ? tw(c.w >= 300 ? '0.000 ' + c.main : c.main, c.fs) + 9 : 0;
+    var P = area(c, { bottom: labH, top: capH, right: rightW });
+    var sl = slots(P.x, P.w, cnt, 0.3), step = sl[0].step, fa = fcStart(c, cnt);
+    var sp = span(ca, cr), lw = c.real ? vmaxW(c, ca) : tw('000', c.fs);
+    var ev = c.lab && P.h >= c.fs * 5 ? everyOf(step, lw, 6) : 0;
+    drew(c, 'labels', !!ev);
+    var s = sc(Math.min(0, sp.lo * 1.06), sp.hi * 1.08 || 1, P.y + P.h, P.y + (ev ? c.fs * 1.4 : 2)), yZ = s(0);
+    var capY = c.y0 + c.fsT * 0.85;
+    b += layerCap(c, c.x0, capY, scenCap(c, kind) + ' · ' + kc.toUpperCase());
+    if (kind && c.w >= 300) {
+      var dE = n(ca[cnt - 1] - cr[cnt - 1]);
+      b += sumBadge(c, c.x0 + tw(scenCap(c, kind) + ' · YTD', c.fsT) + 12, c.x1, capY, null, dE, cr[cnt - 1] ? dE / Math.abs(cr[cnt - 1]) * 100 : 0, kind);
+    }
+    // Stücke: QTD beginnt jedes Quartal neu, YTD und R12 laufen durch
+    var chunks = [];
+    if (kc === 'qtd') { for (i = 0; i < cnt; i += 3) chunks.push([i, Math.min(cnt - 1, i + 2)]); }
+    else chunks.push([0, cnt - 1]);
+    if (kc === 'qtd') {
+      for (i = 3; i < cnt; i += 3) { var qx = (sl[i - 1].cx + sl[i].cx) / 2; b += ln(qx, P.y, qx, P.y + P.h, c.C.grid, 0.8, '2 2'); }
+    }
+    b += baseH(c, P.x, P.x + P.w, yZ, 'AC', fcX(c, sl));
+    var pa = [], pr = [];
+    for (i = 0; i < cnt; i++) { pa.push([sl[i].cx, s(ca[i])]); if (cr) pr.push([sl[i].cx, s(cr[i])]); }
+    var k2, sw = c.small ? 1.3 : 1.8;
+    if (cr) drew(c, 'refs', kind);
+    for (k2 = 0; k2 < chunks.length; k2++) {
+      var a0 = chunks[k2][0], a1 = chunks[k2][1];
+      if (cr) {
+        var rp = pr.slice(a0, a1 + 1);
+        b += kind === 'PY' ? polyline(rp, c.C.py, c.small ? 1.3 : 1.8) : polyline(rp, c.C.ink, c.small ? 0.8 : 1, '4 2.5');
+      }
+      b += scenLine(pa.slice(a0, a1 + 1), fa - a0, c.C.ac, sw);
+    }
+    if (fa < cnt) drew(c, 'fc');
+    var r = c.small ? 1.1 : 1.6;
+    for (i = 0; i < cnt; i++) {
+      b += i >= fa ? circ(pa[i][0], pa[i][1], r, c.C.paper, c.C.ac, 1) : circ(pa[i][0], pa[i][1], r, c.C.ac);
+      var endOfChunk = kc === 'qtd' && i % 3 === 2;
+      if (ev && i < cnt - 1 && (endOfChunk || (kc !== 'qtd' && (cnt - 1 - i) % ev === 0))) {
+        b += txt(pa[i][0], pa[i][1] - r - c.fs * 0.4, vlbl(c, ca[i]), c.fs, c.C.ink, 'middle', null, c.C.paper);
+      }
+    }
+    b += fcSplit(c, sl, P.y, P.y + P.h);
+    if (c.lab) {
+      // Abstandsmarke am Ende (Δ in Gut- bzw. Schlecht-Farbe), Kürzel rechts daneben
+      var xe = sl[cnt - 1].cx + r + 2, yA = pa[cnt - 1][1], yR = cr ? pr[cnt - 1][1] : null;
+      if (cr) {
+        var dd = n(ca[cnt - 1] - cr[cnt - 1]);
+        b += rect(xe, Math.min(yA, yR), 2.4, Math.max(0.8, Math.abs(yA - yR)), dcol(c, dd));
+        drew(c, 'delta', 'abs'); drew(c, 'basis', kind);
+      }
+      var its = [{ y: yA + c.fs * 0.34, s: (c.w >= 300 ? vlbl(c, ca[cnt - 1]) + ' ' : '') + c.main, col: c.C.ink, wt: '600' }];
+      if (cr) its.push({ y: yR + c.fs * 0.34, s: kind, col: kind === 'PY' ? c.C.sub : c.C.ink });
+      spreadY(its, c.fs * 1.05, P.y + c.fs, P.y + P.h);
+      for (i = 0; i < its.length; i++) b += txt(xe + 5, its[i].y, its[i].s, c.fs, its[i].col, 'start', its[i].wt || null);
+    }
+    b += monLabels(c, sl, c.y1 - 0.5, c.uc ? c.cat : undefined);
+    return wrap(c, b);
+  };
+
+  /* ---- 43 · Serienlinien mit Index 100 (lineSeries + lineIndex, ab 1.56) - */
+  S.lineidx = function (w, h, o) {
+    var c = ctx(w, h, o), b = '';
+    var cnt = c.small ? 6 : ((c.dense || c.w >= 400) ? 12 : 8), i, j;
+    var m = c.uc ? Math.max(1, Math.min(c.uc.length, c.small ? 2 : 6)) : (c.small ? 2 : Math.max(2, Math.min(5, Math.floor(c.ih / 30))));
+    var cols = [c.C.ac, c.C.g2, c.C.py, mix(c.C.g2, c.C.paper, 0.4), c.C.g3, c.C.hair];
+    var idx = [];
+    for (j = 0; j < m; j++) {
+      var a = [100], drift = (j === 0 ? 1.5 : (j % 2 ? -0.9 : 0.6)) + (c.rnd() - 0.5) * 1.2;
+      for (i = 1; i < cnt; i++) a.push(n(a[i - 1] * (1 + (drift + (c.rnd() - 0.5) * 3) / 100)));
+      idx.push(a);
+    }
+    var names = [];
+    for (j = 0; j < m; j++) names.push(c.cat[j % c.cat.length]);
+    var labH = c.lab ? c.fsA + 5 : 0, capH = c.lab ? c.fsT + 4 : 0, endW = 0;
+    for (j = 0; j < m; j++) endW = Math.max(endW, tw(lbl(c, idx[j][cnt - 1], 0) + ' ' + names[j], c.fs));
+    var rightW = c.lab ? Math.min(c.iw * 0.32, endW + 7) : 0;
+    var leftW = c.lab ? tw('100', c.fsA) + 4 : 0;
+    var P = area(c, { left: leftW, right: rightW, top: capH, bottom: labH });
+    var sl = slots(P.x, P.w, cnt, 0.3), fa = fcStart(c, cnt);
+    var lo = 100, hi = 100;
+    for (j = 0; j < m; j++) for (i = 0; i < cnt; i++) { if (idx[j][i] < lo) lo = idx[j][i]; if (idx[j][i] > hi) hi = idx[j][i]; }
+    var pad = Math.max(2, (hi - lo) * 0.12);
+    var s = sc(lo - pad, hi + pad, P.y + P.h, P.y + 2), y100 = s(100);
+    b += layerCap(c, c.x0, c.y0 + c.fsT * 0.85, 'Index · 100 = ' + c.mon[0]);
+    b += ln(P.x, y100, P.x + P.w, y100, c.C.hair, 0.8, '3 2');
+    if (c.lab) b += txt(P.x - 3, y100 + c.fsA * 0.34, '100', c.fsA, c.C.txt, 'end');
+    b += ln(P.x, P.y + P.h, P.x + P.w, P.y + P.h, c.C.axis, 1);
+    var ends = [], q = c.small ? 1.1 : 1.6;
+    for (j = m - 1; j >= 0; j--) {
+      var pts = [];
+      for (i = 0; i < cnt; i++) pts.push([sl[i].cx, s(idx[j][i])]);
+      b += scenLine(pts, fa, cols[j % cols.length], j === 0 ? (c.small ? 1.3 : 1.8) : (c.small ? 0.9 : 1.1));
+      var le = pts[cnt - 1];
+      b += rect(le[0] - q, le[1] - q, q * 2, q * 2, cols[j % cols.length]);
+      ends.push({ y: le[1] + c.fs * 0.34, s: lbl(c, idx[j][cnt - 1], 0) + ' ' + names[j], j: j });
+    }
+    b += rect(sl[0].cx - q, y100 - q, q * 2, q * 2, c.C.ink);
+    if (fa < cnt) drew(c, 'fc');
+    drew(c, 'labels', c.lab);
+    if (c.lab) {
+      spreadY(ends, c.fs * 1.05, P.y + c.fs * 0.8, P.y + P.h + c.fs * 0.3);
+      for (i = 0; i < ends.length; i++) {
+        b += txt(sl[cnt - 1].cx + q + 4, ends[i].y, fit(c, ends[i].s, rightW - 4), c.fs, ends[i].j === 0 ? c.C.ink : c.C.txt, 'start', ends[i].j === 0 ? '600' : null);
+      }
+    }
+    b += fcSplit(c, sl, P.y, P.y + P.h);
+    b += monLabels(c, sl, c.y1 - 0.5);
+    return wrap(c, b);
+  };
+
+  /* ---- 44 · Scatter mit Zeitpfad (scatterPath line, ab 1.57) ------------ */
+  S.scatpath = function (w, h, o) {
+    o = o || {};
+    var c = ctx(w, h, o), b = '';
+    var m = c.uc ? Math.max(1, Math.min(c.uc.length, c.small ? 2 : 4)) : (c.small ? 2 : 3);
+    var k = c.small ? 4 : 6, i, j;
+    var names = [];
+    for (j = 0; j < m; j++) names.push(c.cat[j % c.cat.length]);
+    var nmW = 0;
+    for (j = 0; j < m; j++) nmW = Math.max(nmW, tw(names[j], c.fs));
+    var P = area(c, { left: c.lab ? tw('00', c.fsA) + 4 : 0, bottom: c.lab ? c.fsA + 4 : 0, right: c.lab ? Math.min(c.iw * 0.25, nmW + 8) : 0, top: c.lab ? c.fs * 0.4 : 0 });
+    var X = function (u) { return P.x + u * P.w; }, Y = function (v) { return P.y + P.h - v * P.h; };
+    var cols = [c.C.ac, c.C.g2, c.C.py, c.C.g3], paths = [];
+    for (j = 0; j < m; j++) {
+      var x = 0.06 + c.rnd() * 0.22, y = 0.08 + c.rnd() * 0.2 + j * 0.14, pts = [];
+      var dx = 0.12 + c.rnd() * 0.04, dy = 0.07 + c.rnd() * 0.05 - j * 0.02;
+      for (i = 0; i < k; i++) {
+        pts.push([clamp(x, 0.03, 0.97), clamp(y, 0.04, 0.96)]);
+        x += dx + (c.rnd() - 0.5) * 0.05; y += dy + (c.rnd() - 0.42) * 0.1;
+      }
+      paths.push(pts);
+    }
+    // Quotenstrahl vom Ursprung (Blatt 07E) und Achsen
+    if (!c.small) b += ln(P.x, P.y + P.h, P.x + P.w, P.y + P.h * 0.12, c.C.grid, 1, '3 2');
+    b += ln(P.x, P.y + P.h, P.x + P.w, P.y + P.h, c.C.axis, 1);
+    b += ln(P.x, P.y, P.x, P.y + P.h, c.C.axis, 1);
+    var arrow = o.arrow !== false, yr0 = 2026 - k;
+    var aS = clamp(Math.min(P.w, P.h) * 0.045, 2.2, 6);
+    for (j = m - 1; j >= 0; j--) {
+      var col = cols[j % cols.length], sw = j === 0 ? (c.small ? 1.2 : 1.6) : (c.small ? 0.8 : 1);
+      var q = [];
+      for (i = 0; i < k; i++) q.push([X(paths[j][i][0]), Y(paths[j][i][1])]);
+      b += c.fc ? polyline(q.slice(0, k - 1), col, sw) + polyline(q.slice(k - 2), col, sw * 0.85, '3 2') : polyline(q, col, sw);
+      for (i = 0; i < k; i++) {
+        var r = (c.small ? 1.1 : (j === 0 ? 2 : 1.6)) * (o.bubble === true && !c.small ? 0.8 + i * 0.25 : 1);
+        b += (c.fc && i === k - 1) ? circ(q[i][0], q[i][1], r, c.C.paper, col, 0.9) : circ(q[i][0], q[i][1], r, col, c.C.paper, 0.5);
+      }
+      var lp = q[k - 1], pv = q[k - 2], ux = lp[0] - pv[0], uy = lp[1] - pv[1], ul = Math.sqrt(ux * ux + uy * uy) || 1;
+      ux /= ul; uy /= ul;
+      if (arrow) {
+        var bx = lp[0] + ux * 2.2, by = lp[1] + uy * 2.2, tx = bx + ux * aS, ty = by + uy * aS;
+        b += polygonEl([[tx, ty], [bx - uy * aS * 0.55, by + ux * aS * 0.55], [bx + uy * aS * 0.55, by - ux * aS * 0.55]], col);
+      }
+      if (c.lab) {
+        drew(c, 'labels', true);
+        var fy = c.fsA * 0.9;
+        b += txt(q[0][0] + 2, q[0][1] + fy + 2, "'" + String(yr0 + 1).slice(2), fy, c.C.sub, 'start', null, c.C.paper);
+        b += txt(lp[0], lp[1] - (arrow && uy < 0 ? aS + 4 : 4), "'" + String(yr0 + k).slice(2), fy, c.C.sub, 'middle', null, c.C.paper);
+        var nx = Math.min(lp[0] + (arrow ? aS + 5 : 4), c.x1 - tw(names[j], c.fs) * 0.6);
+        b += txt(nx, lp[1] + c.fs * 0.34, fit(c, names[j], c.x1 - nx, c.fs), c.fs, j === 0 ? c.C.ink : c.C.txt, 'start', j === 0 ? '600' : null, c.C.paper);
+      }
+    }
+    if (o.play) {
+      var pr = clamp(Math.min(P.w, P.h) * 0.07, 3, 9), pcx = P.x + pr + 3, pcy = P.y + pr + 2;
+      b += circ(pcx, pcy, pr, c.C.paper, c.C.sub, 0.9);
+      b += polygonEl([[pcx - pr * 0.32, pcy - pr * 0.45], [pcx - pr * 0.32, pcy + pr * 0.45], [pcx + pr * 0.5, pcy]], c.C.ink);
+    }
+    if (c.lab) {
+      b += txt(P.x - 3, P.y + c.fsA * 0.8, '50', c.fsA, c.C.txt, 'end');
+      b += txt(P.x - 3, P.y + P.h, '0', c.fsA, c.C.txt, 'end');
+      b += txt(P.x + P.w, c.y1 - 0.5, '100', c.fsA, c.C.txt, 'end');
+    }
+    return wrap(c, b);
+  };
+
+  /* ---- 45 · Blasen mit Anteilssegment (bubbleShare, ab 1.57) ------------ */
+  S.bubshare = function (w, h, o) {
+    o = o || {};
+    var c = ctx(w, h, o), hh = hatch(c), b = hh.defs;
+    var cnt = c.uc ? Math.max(1, Math.min(c.uc.length, 8)) : (c.small ? 3 : (c.dense ? 8 : 6)), i, j, tr;
+    var P = area(c, { left: c.lab ? tw('00', c.fsA) + 4 : 0, bottom: c.lab ? c.fsA + 4 : 0 });
+    var base = Math.min(P.w, P.h), bub = [];
+    var tot = !!o.total && !c.small, tR = base * 0.2;
+    for (i = 0; i < cnt; i++) {
+      var r = clamp(base * (0.07 + c.rnd() * 0.09) * (c.small ? 1.25 : 1), 2, base * 0.22), best = null;
+      for (tr = 0; tr < 14; tr++) {
+        var x = P.x + r + 1 + c.rnd() * Math.max(0, P.w - 2 * r - 2), y = P.y + r + 1 + c.rnd() * Math.max(0, P.h - 2 * r - 2), ov = 0;
+        for (j = 0; j < bub.length; j++) {
+          var dx = bub[j].x - x, dy = bub[j].y - y;
+          ov += Math.max(0, bub[j].r + r + 2 - Math.sqrt(dx * dx + dy * dy));
+        }
+        if (tot) { var tx = P.x + P.w - tR - 1 - x, ty = P.y + tR + 1 - y; ov += Math.max(0, tR + r + 3 - Math.sqrt(tx * tx + ty * ty)); }
+        if (!best || ov < best.ov) best = { x: x, y: y, ov: ov };
+        if (ov <= 0) break;
+      }
+      bub.push({ x: best.x, y: best.y, r: r, sh: n(0.12 + c.rnd() * 0.6), fc: c.fc && i === cnt - 1 });
+    }
+    function segPath(x, y, r, sh) {
+      var a = sh * Math.PI * 2, ex = x + r * Math.sin(a), ey = y - r * Math.cos(a);
+      return 'M' + pp(x, y) + ' L' + pp(x, y - r) + ' A' + n(r) + ' ' + n(r) + ' 0 ' + (sh > 0.5 ? 1 : 0) + ' 1 ' + pp(ex, ey) + ' Z';
+    }
+    function bubble(x, y, r, sh, col, fc, dash) {
+      var s = '<circle cx="' + n(x) + '" cy="' + n(y) + '" r="' + n(Math.max(0.4, r)) + '" fill="' + mix(col, c.C.paper, 0.72) +
+              '" stroke="' + c.C.ink + '" stroke-width="0.8"' + (dash ? ' stroke-dasharray="3 2"' : '') + '/>';
+      var fill = fc ? fcFill(c, hh, r * 2) : col;
+      if (r >= 2 && sh > 0.005) s += sh >= 0.995 ? circ(x, y, r, fill, c.C.ink, 0.8) : pathEl(segPath(x, y, r, sh), fill, c.C.ink, 0.8);
+      return s;
+    }
+    if (tot) {
+      var tx2 = P.x + P.w - tR - 1, ty2 = P.y + tR + 1, shT = 0, rs = 0;
+      for (i = 0; i < cnt; i++) { shT += bub[i].sh * bub[i].r * bub[i].r; rs += bub[i].r * bub[i].r; }
+      shT = rs ? shT / rs : 0.3;
+      b += bubble(tx2, ty2, tR, shT, c.C.ink, false, true);
+      if (c.lab && tR >= c.fs * 1.2) b += txt(tx2, ty2 + tR + c.fs * 1.05 > P.y + P.h ? ty2 + c.fs * 0.34 : ty2 + tR + c.fs * 1.05, 'Σ ' + lbl(c, shT * 100, 0) + '%', c.fs, c.C.ink, 'middle', '600', c.C.paper);
+    }
+    b += ln(P.x, P.y + P.h, P.x + P.w, P.y + P.h, c.C.axis, 1);
+    b += ln(P.x, P.y, P.x, P.y + P.h, c.C.axis, 1);
+    var lab = c.lab;
+    drew(c, 'labels', lab);
+    for (i = 0; i < cnt; i++) {
+      var bb = bub[i], colb = i === 0 ? c.C.ac : c.C.g2;
+      b += bubble(bb.x, bb.y, bb.r, bb.sh, colb, bb.fc, false);
+      if (lab && bb.r >= c.fs * 1.15) b += txt(bb.x, bb.y + c.fs * 0.34, lbl(c, bb.sh * 100, 0) + '%', c.fs, c.C.ink, 'middle', '600', c.C.paper);
+      if (lab && bb.y + bb.r + c.fs * 1.1 <= P.y + P.h && bb.r * 2 + 8 >= tw('Nord', c.fs)) {
+        b += txt(bb.x, bb.y + bb.r + c.fs * 1.05, fit(c, c.cat[i % c.cat.length], Math.max(bb.r * 2 + 10, 20)), c.fs, c.C.txt, 'middle', null, c.C.paper);
+      }
+    }
+    if (lab) {
+      b += txt(P.x - 3, P.y + c.fsA * 0.8, '50', c.fsA, c.C.txt, 'end');
+      b += txt(P.x - 3, P.y + P.h, '0', c.fsA, c.C.txt, 'end');
+      b += txt(P.x + P.w, c.y1 - 0.5, '100', c.fsA, c.C.txt, 'end');
+    }
+    return wrap(c, b);
+  };
+
+  /* ---- 46 · GuV im Chart (ChartKitchen pnl): Gerüst von S.pnl ----------- */
+  S.ckpnl = function (w, h, o) {
+    var o2 = {}, key;
+    o = o || {};
+    for (key in o) if (Object.prototype.hasOwnProperty.call(o, key)) o2[key] = o[key];
+    if (!PNL_MODES[o2.mode]) o2.mode = 'acref';
+    if (o2.treeCard == null) o2.treeCard = 'none';
+    return S.pnl(w, h, o2);
+  };
+
+  /* ---- 47 · Matrix mit zwei Spaltengruppen und Δ-Spalte (colgroup) ------- */
+  S.ckmatrix = function (w, h, o) {
+    var c = ctx(w, h, o), b = '';
+    var kind = refKind(c) || (c.noRef ? null : 'PL');
+    var P = area(c, {}), lab = c.lab, fs = c.fs, i, g;
+    var h1 = lab ? c.fsT + 5 : Math.min(4, P.h * 0.1), h2 = lab ? c.fsT + 5 : Math.min(4, P.h * 0.1);
+    var rowsCap = c.small ? 3 : Math.max(3, Math.min(14, Math.floor((P.h - h1 - h2) / (fs * 1.45)) - 1));
+    var rows = kcnt(c, c.small ? 3 : (c.dense ? 8 : 5), rowsCap);
+    var gNames = [c.t.cat[6], c.t.cat[7]], G = [];
+    for (g = 0; g < 2; g++) {
+      var ac = [], rf = [], d = [];
+      for (i = 0; i < rows; i++) {
+        var a = n((g ? 42 : 58) - i * (g ? 5 : 7) + c.rnd() * 9), p = n(a * (0.86 + c.rnd() * 0.24));
+        ac.push(a); rf.push(p); d.push(n(a - p));
+      }
+      var sA = sum(ac), sR = sum(rf);
+      G.push({ ac: ac, rf: rf, d: d, sA: sA, sR: sR, sD: n(sA - sR) });
+    }
+    var nameW = lab ? clamp(P.w * 0.24, fs * 4.5, P.w * 0.32) : P.w * 0.24;
+    var gap = 8, gw = Math.max(10, (P.w - nameW - gap) / 2);
+    var numW = lab ? Math.min(gw * 0.42, tw('000,0', fs) + 6) : gw * 0.34;
+    var dmax = 1;
+    for (g = 0; g < 2; g++) dmax = Math.max(dmax, maxOf(G[g].d.concat([G[g].sD / 2])));
+    var lwD = lab ? tw('+00,0', fs) + 3 : 1;
+    drew(c, 'labels', lab);
+    if (kind) { drew(c, 'delta', 'abs'); drew(c, 'basis', kind); }
+    var yH = P.y + h1 + h2, rh = (P.h - h1 - h2) / (rows + 1);
+    for (g = 0; g < 2; g++) {
+      var gx = P.x + nameW + g * (gw + gap), Gg = G[g];
+      Gg.x = gx; Gg.numR = gx + numW;
+      var bx0 = Gg.numR + 4, bw = Math.max(4, gx + gw - bx0);
+      var lo = Math.min(0, Math.min.apply(null, Gg.d)), hi = Math.max(0, Math.max.apply(null, Gg.d));
+      var room = bw - (lo < 0 ? lwD : 0) - (hi > 0 ? lwD : 0);
+      var ppu = Math.max(1, room) / (Math.max(dmax, hi - lo) || 1);
+      Gg.ax = bx0 + (lo < 0 ? lwD : 0) - lo * ppu; Gg.ppu = ppu; Gg.bx0 = bx0; Gg.bw = bw;
+      if (lab) {
+        b += txt(gx + gw / 2, P.y + c.fsT * 0.9, fit(c, gNames[g], gw, c.fsT), c.fsT, c.C.ink, 'middle', '600');
+        b += ln(gx, P.y + h1 - 1.5, gx + gw, P.y + h1 - 1.5, c.C.edge, 0.8);
+        b += txt(Gg.numR, yH - 4, c.main, c.fsT, c.C.sub, 'end');
+        if (kind) b += txt(clamp(Gg.ax, bx0 + tw('ΔPL', c.fsT) / 2, gx + gw - tw('ΔPL', c.fsT) / 2), yH - 4, 'Δ' + kind, c.fsT, c.C.sub, 'middle');
+      } else {
+        b += ghost(c, gx + gw * 0.2, P.y + h1 * 0.4, gw * 0.6, Math.max(1, h1 * 0.25), c.C.ghost2);
+      }
+      if (g) b += ln(gx - gap / 2, P.y, gx - gap / 2, P.y + P.h, c.C.grid, 0.8);
+    }
+    b += ln(P.x, yH, P.x + P.w, yH, c.C.axis, 1);
+    function row(idx, y, bold) {
+      var s = '', cy = y + rh / 2, ty = cy + fs * 0.34, bh = Math.max(1.4, rh * 0.5), wt = bold ? '600' : null;
+      var nm = bold ? 'Σ ' + c.t.grand : c.cat[idx % c.cat.length];
+      s += lab ? txt(P.x, ty, fit(c, nm, nameW - 4), fs, c.C.ink, 'start', wt)
+               : ghost(c, P.x, cy - 1, nameW * 0.7, Math.max(1.2, rh * 0.2), bold ? c.C.ghost2 : c.C.ghost);
+      for (var q = 0; q < 2; q++) {
+        var Gq = G[q], v = bold ? Gq.sA : Gq.ac[idx], dv = bold ? Gq.sD : Gq.d[idx], col = dcol(c, dv);
+        s += lab ? txt(Gq.numR, ty, vlbl(c, v, 1), fs, c.C.ink, 'end', wt)
+                 : ghost(c, Gq.numR - numW * 0.7, cy - 1, numW * 0.7, Math.max(1.2, rh * 0.2), c.C.ghost2);
+        if (!kind) continue;
+        var dvx = bold ? dv / 2 : dv, len = Math.max(0.8, Math.abs(dvx) * Gq.ppu), xb = dvx >= 0 ? Gq.ax : Gq.ax - len;
+        s += rect(xb, cy - bh / 2, len, bh, col);
+        if (lab && Gq.bw >= lwD * 2 + 10) s += txt(dvx >= 0 ? xb + len + 2 : xb - 2, ty, dvlbl(c, dv), fs, col, dvx >= 0 ? 'start' : 'end', wt);
+      }
+      return s;
+    }
+    for (i = 0; i < rows; i++) {
+      var y = yH + rh * i;
+      if (i) b += ln(P.x, y, P.x + P.w, y, c.C.grid, 0.6);
+      b += row(i, y, false);
+    }
+    var ys = yH + rh * rows;
+    b += ln(P.x, ys, P.x + P.w, ys, c.C.axis, 1);
+    b += row(0, ys, true);
+    if (lab) drew(c, 'sum');
+    if (kind) for (g = 0; g < 2; g++) b += baseV(c, yH, P.y + P.h, G[g].ax, kind);
+    return wrap(c, b);
+  };
+
+  /* ---- 48 · GuV Mega-Table (P&L byDatenWG, columns.template) ------------ */
+  var MEGA_FAM = { T01A: 'num', T01B: 'num', T01C: 'num', T01D: 'num', T03A: 'num', T03B: 'num',
+                   T02A: 'bar', T02B: 'bar', T02C: 'bar', T02D: 'bar', T02E: 'bar', T02F: 'bar',
+                   T04A: 'wf', T04B: 'wf', T04C: 'wf', T04D: 'wf', T04E: 'wf', '12A': 'wf', '12G': 'wf', '12H': 'wf' };
+  function scaleV(V, spec, f) {
+    var out = {}, key, i;
+    for (key in V) {
+      if (!Object.prototype.hasOwnProperty.call(V, key)) continue;
+      out[key] = [];
+      for (i = 0; i < V[key].length; i++) out[key].push(spec[i].t === 'kpi' ? V[key][i] : n(V[key][i] * f));
+    }
+    return out;
+  }
+  S.pnlmega = function (w, h, o) {
+    o = o || {};
+    var c = ctx(w, h, o), hh = hatch(c), b = hh.defs;
+    var tpl = MEGA_FAM.hasOwnProperty(o.template) ? o.template : 'T01A', fam = MEGA_FAM[tpl];
+    var fcMain = /^T0(1D|2E|2F|3B|4D|4E)$/.test(tpl), outline = tpl === '12H', fy = tpl === '12G';
+    var main = fcMain ? 'FC' : (outline ? 'PL' : 'AC');
+    var ref = /^(T02E|T04C|T04E|12A|12H)$/.test(tpl) ? 'PY' : 'PL';
+    var P = area(c, {}), lab = c.lab, fs = c.fs, i, j;
+    /* ---- Spalten je Block ---- */
+    function famCols(bi) {
+      var d = bi ? 0 : -3, a = [];
+      if (fam === 'num') {
+        a.push({ k: 'num', s: 'PY', pr: 40 + d }, { k: 'num', s: 'PL', pr: 45 + d }, { k: 'num', s: main, pr: 100 + d },
+               { k: 'dnum', s: 'PY', pr: 70 + d }, { k: 'dnum', s: 'PL', pr: 80 + d });
+      } else if (fam === 'bar') {
+        a.push({ k: 'num', s: ref, pr: 50 + d }, { k: 'num', s: main, pr: 100 + d }, { k: 'bar', s: ref, pr: 90 + d }, { k: 'pin', s: ref, pr: 72 + d });
+      } else {
+        a.push({ k: 'num', s: main, pr: 100 + d }, { k: 'wf', s: ref, pr: 95 + d }, { k: 'pin', s: ref, pr: 70 + d });
+      }
+      for (var q = 0; q < a.length; q++) a[q].bi = bi;
+      return a;
+    }
+    var cols = famCols(0).concat(famCols(1));
+    var numMin = lab ? tw('-0.000', fs) + 4 : 8;
+    function minW(x) { return (x.k === 'num' || x.k === 'dnum') ? numMin : (lab ? fs * 5.6 : 12); }
+    function wgt(x) { return (x.k === 'num' || x.k === 'dnum') ? 0.35 : 1.1; }
+    var nameW = lab ? clamp(P.w * 0.22, fs * 6, fs * 12) : P.w * 0.24, bgap = 8;
+    function need() {
+      var s2 = nameW, k4, blocks = {};
+      for (k4 = 0; k4 < cols.length; k4++) { s2 += minW(cols[k4]) + 3; blocks[cols[k4].bi] = 1; }
+      return s2 + (blocks[0] && blocks[1] ? bgap : 0);
+    }
+    while (need() > P.w && cols.length > 1) {
+      var lo = 0;
+      for (i = 1; i < cols.length; i++) if (cols[i].pr < cols[lo].pr) lo = i;
+      cols.splice(lo, 1);
+    }
+    if (need() > P.w) nameW = Math.max(P.w * 0.25, P.w - (need() - nameW));
+    var extra = Math.max(0, P.w - need()), wsum = 0;
+    for (i = 0; i < cols.length; i++) wsum += wgt(cols[i]);
+    var x = P.x + nameW, prevB = null, blk = [{ x0: 1e9, x1: -1e9 }, { x0: 1e9, x1: -1e9 }];
+    for (i = 0; i < cols.length; i++) {
+      if (prevB !== null && cols[i].bi !== prevB) x += bgap;
+      var add = extra * wgt(cols[i]) / (wsum || 1);
+      if (cols[i].k === 'num' || cols[i].k === 'dnum') add = Math.min(add, fs * 2);
+      cols[i].x = x + 1.5; cols[i].w = minW(cols[i]) + add; x += cols[i].w + 3; prevB = cols[i].bi;
+      blk[cols[i].bi].x0 = Math.min(blk[cols[i].bi].x0, cols[i].x); blk[cols[i].bi].x1 = Math.max(blk[cols[i].bi].x1, cols[i].x + cols[i].w);
+    }
+    var slack = P.x + P.w - x + 3;
+    if (slack > 1) { nameW += slack; for (i = 0; i < cols.length; i++) cols[i].x += slack; blk[0].x0 += slack; blk[0].x1 += slack; blk[1].x0 += slack; blk[1].x1 += slack; }
+    /* ---- Zeilen und Werte ---- */
+    var headH = lab ? (c.fsT + 4) * 2 + 2 : Math.min(7, P.h * 0.14);
+    var rhMin = lab ? fs * 1.7 : 4.5, spec = PNL_SPECS[PNL_SPECS.length - 1];
+    for (i = 0; i < PNL_SPECS.length; i++) if (PNL_SPECS[i].length * rhMin <= P.h - headH) { spec = PNL_SPECS[i]; break; }
+    var rh = Math.min((P.h - headH) / spec.length, rhMin * 1.5);
+    var VB = [scaleV(pnlVals(c, spec), spec, 0.17), fy ? scaleV(pnlVals(c, spec), spec, 2) : pnlVals(c, spec)];
+    function dOf(V, r, sRef) { return n(V[main][r] - V[sRef][r]); }
+    // Skalen je Spalte: Balken und Wasserfall nach Vorzeichenbereich, Pins ±40 %
+    var lwd = lab ? tw('-000', fs) + 3 : 1, lwp = lab ? tw('-00%', fs) + 4 : 1;
+    for (j = 0; j < cols.length; j++) {
+      var cj = cols[j], V = VB[cj.bi], pos = 0, neg = 0, run = 0;
+      if (cj.k === 'bar' || cj.k === 'pin' || cj.k === 'wf') {
+        for (i = 0; i < spec.length; i++) {
+          if (spec[i].t === 'kpi') continue;
+          var dv = dOf(V, i, cj.s);
+          if (cj.k === 'pin') dv = V[cj.s][i] ? clamp(dv / Math.abs(V[cj.s][i]) * 100, -40, 40) : 0;
+          if (cj.k === 'wf') { if (spec[i].t === 'pos' || spec[i].t === 'neg') run += dv; dv = run; }
+          pos = Math.max(pos, dv); neg = Math.max(neg, -dv);
+        }
+        if (pos + neg <= 0) pos = 1;
+        var lw = cj.k === 'pin' ? lwp : lwd;
+        cj.ppu = Math.max(2, cj.w - (pos > 0 ? lw : 0) - (neg > 0 ? lw : 0)) / (pos + neg);
+        cj.ax = cj.x + (neg > 0 ? lw : 0) + neg * cj.ppu;
+      }
+    }
+    /* ---- Kopf: Template, Blöcke, Spalten ---- */
+    var yH = P.y + headH;
+    drew(c, 'labels', lab);
+    if (lab) {
+      var y1 = P.y + c.fsT * 0.9, y2 = yH - 4;
+      b += txt(P.x, y1, fit(c, 'P&L · ' + tpl, nameW - 4, c.fsT), c.fsT, c.C.sub, 'start', '600');
+      var bt = [c.mon[5], fy ? 'FY' : 'YTD'];
+      for (i = 0; i < 2; i++) {
+        if (blk[i].x1 <= blk[i].x0) continue;
+        b += txt((blk[i].x0 + blk[i].x1) / 2, y1, fit(c, (i ? '' : '_') + bt[i], blk[i].x1 - blk[i].x0, c.fsT), c.fsT, c.C.ink, 'middle', '600');
+        b += ln(blk[i].x0, y1 + 3, blk[i].x1, y1 + 3, c.C.edge, 0.8);
+      }
+      for (i = 0; i < cols.length; i++) {
+        var cc = cols[i], hl = cc.k === 'num' ? cc.s : (cc.k === 'pin' ? 'Δ' + cc.s + '%' : 'Δ' + cc.s);
+        hl = fit(c, hl, cc.w, c.fsT);
+        if (cc.k === 'num' || cc.k === 'dnum') b += txt(cc.x + cc.w, y2, hl, c.fsT, cc.s === main && cc.k === 'num' ? c.C.ink : c.C.sub, 'end', '600');
+        else b += txt(clamp(cc.ax, cc.x + tw(hl, c.fsT) / 2, cc.x + cc.w - tw(hl, c.fsT) / 2), y2, hl, c.fsT, c.C.sub, 'middle', '600');
+      }
+    } else {
+      for (i = 0; i < 2; i++) if (blk[i].x1 > blk[i].x0) b += ghost(c, blk[i].x0, P.y + headH * 0.3, blk[i].x1 - blk[i].x0, Math.max(1, headH * 0.2), c.C.ghost2);
+    }
+    b += ln(P.x, yH, P.x + P.w, yH, c.C.axis, 1);
+    var yEnd = yH + rh * spec.length;
+    for (j = 0; j < cols.length; j++) if (cols[j].ax != null) b += baseV(c, yH + 1.5, yEnd, cols[j].ax, cols[j].s);
+    /* ---- Zellen ---- */
+    var indent = Math.min(fs * 1.1, nameW * 0.08), runs = [];
+    for (j = 0; j < cols.length; j++) runs.push(0);
+    var bh = Math.max(1.4, rh * 0.56);
+    if (fcMain || fy) drew(c, 'fc');
+    for (i = 0; i < spec.length; i++) {
+      var sp = spec[i], y = yH + rh * i, cy = y + rh * 0.5, ty = cy + fs * 0.34;
+      var isSum = sp.t === 'sum' || sp.t === 'total', isKpi = sp.t === 'kpi', wt = isSum ? '600' : null;
+      if (isSum && i) b += ln(P.x, y, P.x + P.w, y, c.C.axis, sp.t === 'total' ? 1.4 : 0.8);
+      var lx = P.x + sp.lvl * indent;
+      b += lab ? txt(lx, ty, fit(c, c.t.pnl[sp.i], nameW - (lx - P.x) - 4), fs, isKpi ? c.C.sub : c.C.ink, 'start', wt, null, isKpi ? 'i' : null)
+               : ghost(c, lx, cy - 0.8, Math.max(2, (nameW - (lx - P.x)) * (isSum ? 0.6 : 0.7)), Math.max(1.1, rh * 0.22), isSum ? c.C.ghost2 : c.C.ghost);
+      for (j = 0; j < cols.length; j++) {
+        var cl = cols[j], Vb = VB[cl.bi], hatchIt = fcMain || (fy && cl.bi === 1);
+        if (cl.k === 'num') {
+          var vv = Vb[cl.s][i];
+          if (lab) b += txt(cl.x + cl.w, ty, isKpi ? lbl(c, vv, 1) + ' %' : lbl(c, vv, 0), fs, cl.s === main ? c.C.ink : c.C.sub, 'end', wt, null, isKpi ? 'i' : null);
+          else if (!isKpi) b += ghost(c, cl.x + cl.w * 0.3, cy - 0.8, cl.w * 0.7, Math.max(1.1, rh * 0.22), cl.s === main ? c.C.ghost2 : c.C.ghost);
+        } else if (cl.k === 'dnum') {
+          var dn = dOf(Vb, i, cl.s), cn = dcol(c, dn);
+          if (lab) b += txt(cl.x + cl.w, ty, isKpi ? pplbl(c, dn) : dlbl(c, dn), fs, cn, 'end', wt, null, isKpi ? 'i' : null);
+          else if (!isKpi) b += rect(cl.x + cl.w * 0.4, cy - 0.8, cl.w * 0.6, Math.max(1.1, rh * 0.22), mix(cn, c.C.paper, 0.3));
+        } else if (cl.k === 'bar') {
+          var db = dOf(Vb, i, cl.s), cb = dcol(c, db);
+          if (isKpi) { if (lab) b += txt(cl.ax + 3, ty, pplbl(c, db), fs, cb, 'start', null, null, 'i'); continue; }
+          var len = Math.max(db === 0 ? 0 : 1.2, Math.abs(db) * cl.ppu), xb = db >= 0 ? cl.ax : cl.ax - len;
+          b += outline ? rect(xb, cy - bh / 2, len, bh, c.C.paper, cb, 1) : (hatchIt ? rect(xb, cy - bh / 2, len, bh, dFill(c, hh, db, len), cb, 0.8) : rect(xb, cy - bh / 2, len, bh, cb));
+          if (lab) b += txt(edgeX(db, db >= 0 ? xb + len : xb, 2, dlbl(c, db), fs, cl.x, cl.x + cl.w), ty, dlbl(c, db), fs, cb, db >= 0 ? 'start' : 'end', wt);
+        } else if (cl.k === 'pin') {
+          if (isKpi) continue;
+          var rv = Vb[cl.s][i], pv = rv ? n((Vb[main][i] - rv) / Math.abs(rv) * 100) : 0, cp = dcol(c, pv);
+          var px = cl.ax + clamp(pv, -40, 40) * cl.ppu, pr = clamp(rh * 0.17, 1.1, 2.5);
+          b += ln(cl.ax, cy, px, cy, cp, 1.3);
+          b += hatchIt || outline ? circ(px, cy, pr, c.C.paper, cp, 1) : circ(px, cy, pr, cp);
+          if (lab) b += txt(edgeX(pv, pv >= 0 ? px + pr : px - pr, 2, plbl(c, pv), fs, cl.x, cl.x + cl.w), ty, plbl(c, pv), fs, cp, pv >= 0 ? 'start' : 'end', wt);
+        } else if (cl.k === 'wf') {
+          if (isKpi) continue;
+          var dw = dOf(Vb, i, cl.s), a0, a1, cw2;
+          if (isSum) { a0 = 0; a1 = runs[j]; cw2 = dcol(c, runs[j]); }
+          else { a0 = runs[j]; a1 = runs[j] + dw; runs[j] = a1; cw2 = dcol(c, dw); }
+          var xa = cl.ax + a0 * cl.ppu, xz = cl.ax + a1 * cl.ppu, wl = Math.max(0.9, Math.abs(xz - xa));
+          b += outline ? rect(Math.min(xa, xz), cy - bh / 2, wl, bh, c.C.paper, cw2, 1)
+                       : (hatchIt ? rect(Math.min(xa, xz), cy - bh / 2, wl, bh, dFill(c, hh, a1 - a0, wl), cw2, 0.8) : rect(Math.min(xa, xz), cy - bh / 2, wl, bh, cw2));
+          if (i < spec.length - 1) b += ln(xz, cy + bh / 2, xz, cy + rh - bh / 2, c.C.hair, 0.6);
+          if (lab && isSum) b += txt(edgeX(a1, Math.max(xa, xz), 2, dlbl(c, a1), fs, cl.x, cl.x + cl.w), ty, dlbl(c, a1), fs, cw2, a1 >= 0 ? 'start' : 'end', '600');
+        }
+      }
+    }
+    return wrap(c, b);
+  };
+
+  /* ---- 49 · Bilanz (T05A) und Cashflow-Brücke (T05B) -------------------- */
+  S.pnlbs = function (w, h, o) {
+    o = o || {};
+    var c = ctx(w, h, o), b = '', t = c.t;
+    var cf = o.template === 'T05B', P = area(c, {}), lab = c.lab, fs = c.fs, i, j;
+    var spec = cf
+      ? [{ n: t.cfRows[0], t: 'stock', v: 120 }, { n: t.cfRows[1], t: 'flow', v: 86 }, { n: t.cfRows[2], t: 'flow', v: -54 },
+         { n: t.cfRows[3], t: 'flow', v: -18 }, { n: t.cfRows[4], t: 'end' }]
+      : [{ n: t.bsRows[0], t: 'item', v: 520, lvl: 1 }, { n: t.bsRows[1], t: 'item', v: 340, lvl: 1 }, { n: t.bsRows[2], t: 'sum', from: 0 },
+         { n: t.bsRows[3], t: 'item', v: 380, lvl: 1 }, { n: t.bsRows[4], t: 'item', v: 140, lvl: 1 }, { n: t.bsRows[5], t: 'item', v: 340, lvl: 1 },
+         { n: t.bsRows[6], t: 'sum', from: 3 }];
+    var AC = [], PY = [], run = { AC: 0, PY: 0 }, start = 0;
+    for (i = 0; i < spec.length; i++) {
+      var sp = spec[i];
+      if (sp.t === 'sum') {
+        var sa = 0, sy = 0;
+        for (j = sp.from; j < i; j++) { sa += AC[j]; sy += PY[j]; }
+        AC.push(n(sa)); PY.push(n(sy));
+      } else if (sp.t === 'end') { AC.push(n(run.AC)); PY.push(n(run.PY)); }
+      else {
+        var a = n(sp.v * (0.94 + c.rnd() * 0.12)), p = n(a * (0.84 + c.rnd() * 0.22));
+        AC.push(a); PY.push(p);
+        if (cf) { if (sp.t === 'stock') { run.AC = a; run.PY = p; } else { run.AC += a; run.PY += p; } }
+      }
+    }
+    if (!cf) { var fix = AC[2] - AC[6]; AC[5] = n(AC[5] + fix); AC[6] = AC[2]; var fixP = PY[2] - PY[6]; PY[5] = n(PY[5] + fixP); PY[6] = PY[2]; }
+    /* ---- Spalten ---- */
+    var cols = cf ? [{ k: 'casc', s: 'PY', pr: 80 }, { k: 'casc', s: 'AC', pr: 100 }, { k: 'dnum', pr: 70 }, { k: 'pin', pr: 60 }]
+                  : [{ k: 'num', s: 'PY', pr: 75 }, { k: 'num', s: 'AC', pr: 100 }, { k: 'bar', pr: 90 }, { k: 'pin', pr: 65 }];
+    var numMin = lab ? tw('-0.000', fs) + 4 : 8;
+    function minW(x) { return (x.k === 'num' || x.k === 'dnum') ? numMin : (lab ? fs * (x.k === 'casc' ? 7 : 5.6) : 12); }
+    function wgt(x) { return (x.k === 'num' || x.k === 'dnum') ? 0.35 : (x.k === 'casc' ? 1.4 : 1.1); }
+    var nameW = lab ? clamp(P.w * 0.26, fs * 6.5, fs * 12) : P.w * 0.26;
+    function need() { var s2 = nameW, k4; for (k4 = 0; k4 < cols.length; k4++) s2 += minW(cols[k4]) + 4; return s2; }
+    while (need() > P.w && cols.length > 1) {
+      var lo = 0;
+      for (i = 1; i < cols.length; i++) if (cols[i].pr < cols[lo].pr) lo = i;
+      cols.splice(lo, 1);
+    }
+    if (need() > P.w) nameW = Math.max(P.w * 0.28, P.w - (need() - nameW));
+    var extra = Math.max(0, P.w - need()), wsum = 0, x = P.x + nameW;
+    for (i = 0; i < cols.length; i++) wsum += wgt(cols[i]);
+    for (i = 0; i < cols.length; i++) {
+      var add = extra * wgt(cols[i]) / (wsum || 1);
+      if (cols[i].k === 'num' || cols[i].k === 'dnum') add = Math.min(add, fs * 2);
+      cols[i].x = x + 2; cols[i].w = minW(cols[i]) + add; x += cols[i].w + 4;
+    }
+    var slack = P.x + P.w - x + 4;
+    if (slack > 1) { nameW += slack; for (i = 0; i < cols.length; i++) cols[i].x += slack; }
+    var d = [], pc = [];
+    for (i = 0; i < spec.length; i++) { d.push(n(AC[i] - PY[i])); pc.push(PY[i] ? n(d[i] / Math.abs(PY[i]) * 100) : 0); }
+    var lwd = lab ? tw('-000', fs) + 3 : 1, lwp = lab ? tw('-00%', fs) + 4 : 1;
+    var cMax = Math.max(maxOf(AC), maxOf(PY));
+    if (cf) { var rA = 0, rP = 0; for (i = 0; i < spec.length; i++) { if (spec[i].t === 'stock') { rA = AC[i]; rP = PY[i]; } else if (spec[i].t === 'flow') { rA += AC[i]; rP += PY[i]; } cMax = Math.max(cMax, rA, rP); } }
+    for (j = 0; j < cols.length; j++) {
+      var cj = cols[j], pos = 0, neg = 0, lw = lwd;
+      if (cj.k === 'bar') { for (i = 0; i < spec.length; i++) { pos = Math.max(pos, d[i]); neg = Math.max(neg, -d[i]); } }
+      else if (cj.k === 'pin') { lw = lwp; for (i = 0; i < spec.length; i++) { pos = Math.max(pos, clamp(pc[i], -40, 40)); neg = Math.max(neg, -clamp(pc[i], -40, 40)); } }
+      else if (cj.k === 'casc') { pos = cMax; lw = lab ? tw('000', fs) + 3 : 1; }
+      else continue;
+      if (pos + neg <= 0) pos = 1;
+      cj.ppu = Math.max(2, cj.w - (pos > 0 ? lw : 0) - (neg > 0 ? lw : 0)) / (pos + neg);
+      cj.ax = cj.x + (neg > 0 ? lw : 0) + neg * cj.ppu;
+    }
+    /* ---- Kopf ---- */
+    var headH = lab ? (c.fsT + 4) * 2 + 2 : Math.min(7, P.h * 0.14), yH = P.y + headH;
+    var rh = Math.min((P.h - headH) / spec.length, (lab ? fs * 2.6 : 9));
+    drew(c, 'labels', lab);
+    if (lab) {
+      var y1 = P.y + c.fsT * 0.9, y2 = yH - 4;
+      b += txt(P.x, y1, fit(c, (cf ? t.cfTitle : t.bsTitle) + ' · ' + (cf ? 'T05B' : 'T05A'), nameW - 4, c.fsT), c.fsT, c.C.sub, 'start', '600');
+      if (cols.length) {
+        var bx0 = cols[0].x, bx1 = cols[cols.length - 1].x + cols[cols.length - 1].w;
+        b += txt((bx0 + bx1) / 2, y1, fit(c, cf ? c.t.ytd : t.bsDate, bx1 - bx0, c.fsT), c.fsT, c.C.ink, 'middle', '600');
+        b += ln(bx0, y1 + 3, bx1, y1 + 3, c.C.edge, 0.8);
+      }
+      for (i = 0; i < cols.length; i++) {
+        var cc = cols[i], hl = cc.k === 'num' || cc.k === 'casc' ? cc.s : (cc.k === 'pin' ? 'ΔPY%' : 'ΔPY');
+        hl = fit(c, hl, cc.w, c.fsT);
+        if (cc.k === 'num' || cc.k === 'dnum') b += txt(cc.x + cc.w, y2, hl, c.fsT, cc.s === 'AC' ? c.C.ink : c.C.sub, 'end', '600');
+        else b += txt(clamp(cc.ax, cc.x + tw(hl, c.fsT) / 2, cc.x + cc.w - tw(hl, c.fsT) / 2), y2, hl, c.fsT, cc.s === 'AC' ? c.C.ink : c.C.sub, 'middle', '600');
+      }
+    }
+    b += ln(P.x, yH, P.x + P.w, yH, c.C.axis, 1);
+    var yEnd = yH + rh * spec.length;
+    for (j = 0; j < cols.length; j++) if (cols[j].ax != null && cols[j].k !== 'casc') b += baseV(c, yH + 1.5, yEnd, cols[j].ax, 'PY');
+    for (j = 0; j < cols.length; j++) if (cols[j].k === 'casc') b += ln(cols[j].ax, yH + 1.5, cols[j].ax, yEnd, c.C.axis, 0.9);
+    /* ---- Zeilen ---- */
+    var bh = Math.max(1.4, rh * 0.56), cur = {};
+    for (i = 0; i < spec.length; i++) {
+      var spi = spec[i], y = yH + rh * i, cy = y + rh / 2, ty = cy + fs * 0.34;
+      var isSum = spi.t === 'sum' || spi.t === 'end', isStock = isSum || spi.t === 'stock', wt = isSum ? '600' : null;
+      if (isSum) {
+        // Doppelstrich über Summen (Aktiva, Passiva, Endbestand)
+        b += ln(P.x, y + 0.5, P.x + P.w, y + 0.5, c.C.axis, 0.7) + ln(P.x, y + 2.2, P.x + P.w, y + 2.2, c.C.axis, 0.7);
+      }
+      var lx = P.x + (spi.lvl || 0) * Math.min(fs, nameW * 0.08);
+      var pre = cf && spi.t === 'flow' ? (spec[i].v >= 0 ? '+ ' : '− ') : (isSum ? '= ' : '');
+      b += lab ? txt(lx, ty, fit(c, pre + spi.n, nameW - (lx - P.x) - 4), fs, c.C.ink, 'start', wt)
+               : ghost(c, lx, cy - 0.8, Math.max(2, (nameW - (lx - P.x)) * (isSum ? 0.6 : 0.7)), Math.max(1.1, rh * 0.22), isSum ? c.C.ghost2 : c.C.ghost);
+      for (j = 0; j < cols.length; j++) {
+        var cl = cols[j];
+        if (cl.k === 'num') {
+          var vv = cl.s === 'AC' ? AC[i] : PY[i];
+          if (lab) b += txt(cl.x + cl.w, ty, lbl(c, vv, 0), fs, cl.s === 'AC' ? c.C.ink : c.C.sub, 'end', wt);
+          else b += ghost(c, cl.x + cl.w * 0.3, cy - 0.8, cl.w * 0.7, Math.max(1.1, rh * 0.22), c.C.ghost2);
+        } else if (cl.k === 'dnum') {
+          if (lab) b += txt(cl.x + cl.w, ty, dlbl(c, d[i]), fs, dcol(c, d[i]), 'end', wt);
+        } else if (cl.k === 'bar') {
+          var len = Math.max(d[i] === 0 ? 0 : 1.2, Math.abs(d[i]) * cl.ppu), xb = d[i] >= 0 ? cl.ax : cl.ax - len, cb = dcol(c, d[i]);
+          b += rect(xb, cy - bh / 2, len, bh, cb);
+          if (lab) b += txt(edgeX(d[i], d[i] >= 0 ? xb + len : xb, 2, dlbl(c, d[i]), fs, cl.x, cl.x + cl.w), ty, dlbl(c, d[i]), fs, cb, d[i] >= 0 ? 'start' : 'end', wt);
+        } else if (cl.k === 'pin') {
+          var cp = dcol(c, pc[i]), px = cl.ax + clamp(pc[i], -40, 40) * cl.ppu, pr = clamp(rh * 0.17, 1.1, 2.5);
+          b += ln(cl.ax, cy, px, cy, cp, 1.3) + circ(px, cy, pr, cp);
+          if (lab) b += txt(edgeX(pc[i], pc[i] >= 0 ? px + pr : px - pr, 2, plbl(c, pc[i]), fs, cl.x, cl.x + cl.w), ty, plbl(c, pc[i]), fs, cp, pc[i] >= 0 ? 'start' : 'end', wt);
+        } else if (cl.k === 'casc') {
+          // Wert-Kaskade: Bestände ankern auf der Nulllinie, Flüsse schweben ab dem laufenden Stand
+          var key = cl.s + j, v2 = cl.s === 'AC' ? AC[i] : PY[i], full = cl.s === 'AC' ? c.C.ac : c.C.py;
+          var a0 = 0, a1 = v2;
+          if (!isStock) { a0 = cur[key] || 0; a1 = a0 + v2; }
+          cur[key] = isStock ? v2 : a1;
+          var xa = cl.ax + a0 * cl.ppu, xz = cl.ax + a1 * cl.ppu, wl = Math.max(0.9, Math.abs(xz - xa));
+          b += isStock ? rect(Math.min(xa, xz), cy - bh / 2, wl, bh, full) : rect(Math.min(xa, xz), cy - bh / 2, wl, bh, mix(full, c.C.paper, 0.45), full, 0.7);
+          if (i < spec.length - 1) b += ln(xz, cy + bh / 2, xz, cy + rh - bh / 2, c.C.hair, 0.6);
+          if (lab && cl.w >= fs * 6) b += txt(Math.min(Math.max(xa, xz) + 2, cl.x + cl.w - tw(lbl(c, v2, 0), fs)), ty, lbl(c, v2, 0), fs, cl.s === 'AC' ? c.C.ink : c.C.sub, 'start', wt, c.C.paper);
+          drew(c, 'refs', cl.s === 'PY' ? 'PY' : null);
+        }
+      }
+    }
+    return wrap(c, b);
+  };
+
+  /* ---- 50 · Werttreiberbaum (P&L byDatenWG, Ansicht tree) --------------- */
+  S.pnltree = function (w, h, o) {
+    o = o || {};
+    var c = ctx(w, h, o), hh = hatch(c), b = hh.defs, t = c.t;
+    var card = (o.treeCard === 'delta' || o.treeCard === 'bridge') ? o.treeCard : 'months';
+    var kind = refKind(c) || (c.noRef ? null : 'PL');
+    var P = area(c, {}), fs = c.fs, i;
+    var three = !c.small && P.w >= 460 && P.h >= 140;
+    // Knoten: EBIT = Rohertrag − Personal − Sonstige; Rohertrag = Umsatz − Material (t.pnlS)
+    var base = [820, -312, 0, -221, -107, 0], AC = [], RF = [];
+    for (i = 0; i < 6; i++) AC.push(n(base[i] * (0.95 + c.rnd() * 0.1)));
+    AC[2] = n(AC[0] + AC[1]); AC[5] = n(AC[2] + AC[3] + AC[4]);
+    for (i = 0; i < 6; i++) RF.push(n(AC[i] * (0.9 + c.rnd() * 0.16)));
+    RF[2] = n(RF[0] + RF[1]); RF[5] = n(RF[2] + RF[3] + RF[4]);
+    var V = { AC: AC, PL: RF, PY: RF, BU: RF };
+    var ncol = three ? 3 : 2, colGap = Math.max(10, P.w * 0.06);
+    var cw = Math.min((P.w - colGap * (ncol - 1)) / ncol, c.lab ? 190 : 120);
+    colGap = ncol > 1 ? (P.w - cw * ncol) / (ncol - 1) : 0;
+    var gapY = Math.max(3, P.h * 0.05), ch = Math.min((P.h - gapY * 2) / 3, c.lab ? fs * 6.8 : 26);
+    var X = [P.x, P.x + cw + colGap, P.x + 2 * (cw + colGap)];
+    function yAt(k3, cntK) { var tot = cntK * ch + (cntK - 1) * gapY; return P.y + (P.h - tot) / 2 + k3 * (ch + gapY); }
+    var nodes = { 5: { x: X[0], y: P.y + (P.h - ch) / 2 } };
+    nodes[2] = { x: X[1], y: yAt(0, 3), op: '+' }; nodes[3] = { x: X[1], y: yAt(1, 3), op: '−' }; nodes[4] = { x: X[1], y: yAt(2, 3), op: '−' };
+    if (three) {
+      var ch2 = Math.min(ch, (P.h * 0.5 - gapY) / 2);
+      nodes[0] = { x: X[2], y: Math.max(P.y, nodes[2].y + ch / 2 - ch2 - gapY / 2), op: '+', h: ch2 };
+      nodes[1] = { x: X[2], y: nodes[0].y + ch2 + gapY, op: '−', h: ch2 };
+    }
+    function link(p, q) {
+      var pn = nodes[p], qn = nodes[q], ph = pn.h || ch, qh = qn.h || ch;
+      var x1 = pn.x + cw, y1 = pn.y + ph / 2, x2 = qn.x, y2 = qn.y + qh / 2, mx = x1 + (x2 - x1) / 2;
+      var s = pathEl('M' + pp(x1, y1) + ' H' + n(mx) + ' V' + n(y2) + ' H' + n(x2), 'none', c.C.hair, 1);
+      if (c.lab && colGap >= fs * 1.6) s += txt(x2 - 3, y2 - 2.5, qn.op, fs, c.C.sub, 'end', '600');
+      return s;
+    }
+    b += link(5, 2) + link(5, 3) + link(5, 4);
+    if (three) b += link(2, 0) + link(2, 1);
+    function node(k3) {
+      var nd = nodes[k3], x = nd.x, y = nd.y, hgt = nd.h || ch, s = '';
+      var dv = n(AC[k3] - RF[k3]), col = kind ? dcol(c, dv) : c.C.ac;
+      s += rrect(x, y, cw, hgt, 2, c.C.paper, k3 === 5 ? c.C.ink : c.C.edge, 1);
+      s += rect(x, y + 2, 2, Math.max(0.8, hgt - 4), col);
+      var textOk = c.lab && hgt >= fs * 2.6;
+      var miniW = textOk && cw >= fs * 13 ? cw * 0.46 : 0, tw0 = cw - miniW - 8;
+      if (textOk) {
+        drew(c, 'labels', true);
+        s += txt(x + 5, y + fs * 1.15, fit(c, t.pnlS[k3], tw0, fs), fs, c.C.sub, 'start');
+        s += txt(x + 5, y + fs * 2.45, fit(c, lbl(c, Math.abs(AC[k3]), 0), tw0, fs * 1.1), fs * 1.1, c.C.ink, 'start', '700');
+        if (kind && hgt >= fs * 3.5) { drew(c, 'delta', 'abs'); drew(c, 'basis', kind); s += txt(x + 5, y + fs * 3.5, fit(c, dlbl(c, dv) + ' Δ' + kind, tw0, fs * 0.9), fs * 0.9, col, 'start', '600'); }
+      } else {
+        s += ghost(c, x + 5, y + hgt * 0.28, cw * 0.4, Math.max(1.1, hgt * 0.12));
+        s += rect(x + 5, y + hgt * 0.56, Math.max(1, cw * 0.5), Math.max(1.3, hgt * 0.16), c.C.ac);
+      }
+      // Karten-Diagramm (columns.treeCard): rechts in der Karte, bei schmalen Karten unten
+      if (kind) {
+        if (miniW) s += pnlMini(c, card, kind === 'BU' ? 'PL' : kind, V, k3, false, x + cw - miniW - 3, y + hgt * 0.2, miniW, hgt * 0.6, hh);
+        else if (!textOk && cw >= 30 && hgt >= 10) s += pnlMini(c, card, kind === 'BU' ? 'PL' : kind, V, k3, false, x + cw * 0.6, y + hgt * 0.2, cw * 0.35, hgt * 0.6, hh);
+        if (card !== 'bridge') drew(c, 'refs', kind === 'BU' ? 'PL' : kind);
+      }
+      return s;
+    }
+    var order = three ? [5, 2, 3, 4, 0, 1] : [5, 2, 3, 4];
+    for (i = 0; i < order.length; i++) b += node(order[i]);
+    return wrap(c, b);
+  };
+
+  /* ---- 51 · GuV als Sankey (P&L byDatenWG, Ansicht sankey, ab 1.6) ------ */
+  S.pnlsankey = function (w, h, o) {
+    var c = ctx(w, h, o), b = '', t = c.t;
+    var P = area(c, {}), fs = c.fs, lab = c.lab, i;
+    var rev = 100, mat = n(36 + c.rnd() * 6), gp = n(rev - mat), pers = n(gp * (0.42 + c.rnd() * 0.06)), oth = n(gp * (0.18 + c.rnd() * 0.05)), res = n(gp - pers - oth);
+    var scale = 8.2 + c.rnd() * 0.6;          // Umsatz in Mio. für die Beschriftung
+    var names = { rev: t.pnlS[0], mat: t.pnlS[1], gp: t.pnlS[2], pers: t.pnlS[3], oth: t.pnlS[4], res: t.pnlS[5] };
+    var labR = 0;
+    if (lab) labR = Math.min(P.w * 0.3, Math.max(tw(names.res, fs), tw(names.pers, fs), tw(names.oth, fs)) + 8);
+    var nw = clamp(P.w * 0.022, 2.5, 9), gap = Math.max(2, Math.min(P.h * 0.06, fs * 1.2));
+    var k = Math.max(0.01, (P.h - gap) / rev);
+    var x0 = P.x, x2 = P.x + P.w - labR - nw, x1 = x0 + (x2 - x0) / 2;
+    var N = {
+      rev: { x: x0, y: P.y + gap / 2, h: rev * k, col: c.C.ac },
+      gp: { x: x1, y: P.y, h: gp * k, col: c.C.ac },
+      mat: { x: x1, y: P.y + gp * k + gap, h: mat * k, col: c.C.bad },
+      res: { x: x2, y: P.y, h: res * k, col: c.C.good },
+      pers: { x: x2, y: P.y + res * k + gap, h: pers * k, col: c.C.bad },
+      oth: { x: x2, y: P.y + (res + pers) * k + gap * 2, h: oth * k, col: c.C.bad }
+    };
+    function ribbon(sx, sy, tx, ty, th, col) {
+      var a = sx + nw, mx = a + (tx - a) / 2;
+      return '<path d="M' + pp(a, sy) + ' C' + pp(mx, sy) + ' ' + pp(mx, ty) + ' ' + pp(tx, ty) + ' L' + pp(tx, ty + th) +
+             ' C' + pp(mx, ty + th) + ' ' + pp(mx, sy + th) + ' ' + pp(a, sy + th) + ' Z" fill="' + col + '" stroke="none"/>';
+    }
+    var tProfit = mix(c.C.ac, c.C.paper, 0.74), tCost = mix(c.C.bad, c.C.paper, 0.72), tRes = mix(c.C.good, c.C.paper, 0.7);
+    b += ribbon(N.rev.x, N.rev.y, N.gp.x, N.gp.y, N.gp.h, tProfit);
+    b += ribbon(N.rev.x, N.rev.y + N.gp.h, N.mat.x, N.mat.y, N.mat.h, tCost);
+    b += ribbon(N.gp.x, N.gp.y, N.res.x, N.res.y, N.res.h, tRes);
+    b += ribbon(N.gp.x, N.gp.y + N.res.h, N.pers.x, N.pers.y, N.pers.h, tCost);
+    b += ribbon(N.gp.x, N.gp.y + N.res.h + N.pers.h, N.oth.x, N.oth.y, N.oth.h, tCost);
+    var key, val = { rev: rev, mat: mat, gp: gp, pers: pers, oth: oth, res: res };
+    for (key in N) if (Object.prototype.hasOwnProperty.call(N, key)) b += rect(N[key].x, N[key].y, nw, Math.max(0.8, N[key].h), N[key].col);
+    drew(c, 'labels', lab);
+    if (lab) {
+      var vt = function (key2) { return lbl(c, val[key2] * scale / 100, 1) + (c.lang === 'en' ? 'M' : ' Mio.'); };
+      // innere Spalten: Name und Wert über dem Band (mit Halo), nur wenn der Knoten hoch genug ist
+      var inner = ['rev', 'gp', 'mat'];
+      for (i = 0; i < inner.length; i++) {
+        var nd = N[inner[i]], lx = nd.x + nw + 3, room = (x1 - x0) * 0.8, cyN = nd.y + nd.h / 2;
+        if (nd.h < fs * 0.9) continue;
+        if (nd.h >= fs * 2.4) {
+          b += txt(lx, cyN - fs * 0.2, fit(c, names[inner[i]], room), fs, c.C.ink, 'start', '600', c.C.paper);
+          b += txt(lx, cyN + fs * 0.95, fit(c, vt(inner[i]), room), fs, c.C.sub, 'start', null, c.C.paper);
+        } else {
+          b += txt(lx, cyN + fs * 0.34, fit(c, names[inner[i]] + ' ' + vt(inner[i]), room), fs, c.C.ink, 'start', null, c.C.paper);
+        }
+      }
+      // letzte Spalte: im reservierten Rand rechts, senkrecht entzerrt
+      var outer = ['res', 'pers', 'oth'], two = true, items = [];
+      for (i = 0; i < outer.length; i++) if (N[outer[i]].h < fs * 2.4) two = false;
+      for (i = 0; i < outer.length; i++) items.push({ y: N[outer[i]].y + N[outer[i]].h / 2 + (two ? -fs * 0.2 : fs * 0.34), k: outer[i] });
+      spreadY(items, fs * (two ? 2.3 : 1.1), P.y + fs, P.y + P.h - (two ? fs * 1.2 : 0));
+      for (i = 0; i < items.length; i++) {
+        var lx2 = x2 + nw + 3, nm2 = names[items[i].k];
+        if (two) {
+          b += txt(lx2, items[i].y, fit(c, nm2, labR - 3), fs, items[i].k === 'res' ? c.C.ink : c.C.txt, 'start', '600');
+          b += txt(lx2, items[i].y + fs * 1.15, fit(c, vt(items[i].k), labR - 3), fs, c.C.sub, 'start');
+        } else {
+          b += txt(lx2, items[i].y, fit(c, nm2, labR - 3), fs, items[i].k === 'res' ? c.C.ink : c.C.txt, 'start', items[i].k === 'res' ? '600' : null);
+        }
+      }
+    }
     return wrap(c, b);
   };
 

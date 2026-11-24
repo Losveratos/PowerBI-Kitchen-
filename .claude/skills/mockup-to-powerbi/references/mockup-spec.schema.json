@@ -1059,14 +1059,23 @@
           ]
         },
         "chartKitchenProps": {
-          "description": "Ab Tool 0.6.0 (ChartKitchen 1.47): Properties fuer das Objekt `chart`, nur bei engine ck und nur bei Typen mit Optionen. Fehlt der Schluessel, gelten die Vorgaben des Visuals.",
+          "description": "Ab Tool 0.6.0 (ChartKitchen 1.47), erweitert in 0.7.0 (ChartKitchen 1.55 bis 1.57): Properties fuer das Objekt `chart`, nur bei engine ck. Feste Werte des Kachel-Typs (z. B. areastack: stackShape = area) und im Workshop gewaehlte Optionen, jeweils aufgeloest. Fehlt der Schluessel, gelten die Vorgaben des Visuals. Erlaubte Namen und Werte: CK_PROPS in mockup_spec.py; unbekannte fallen im Konverter weg. Zaehlt zum specHash.",
           "type": "object",
           "properties": {
             "cardTrendChart": { "enum": ["off", "sparkline", "columns"] },
             "cardTrendValue": { "enum": ["last", "sum"] },
             "bridgeOrientation": { "enum": ["auto", "bars", "columns"] },
-            "scatterQuadrant": { "enum": ["off", "mean", "median"] }
+            "scatterQuadrant": { "enum": ["off", "mean", "median"] },
+            "cumulativeKind": { "enum": ["ytd", "qtd", "r12"] },
+            "stackShape": { "enum": ["columns", "area"] },
+            "lineIndex": { "enum": ["off", "base100"] },
+            "scatterPath": { "enum": ["off", "line"] }
           }
+        },
+        "customVisualProps": {
+          "description": "Ab Tool 0.7.0: Format-Einstellungen eines Custom Visuals byDatenWG als {\"objekt.eigenschaft\": Wert}, heute fuer die P&L-Varianten (pnlmega/pnlbs: columns.template und columns.templateApplied, pnltree: columns.treeCard, pnltree/pnlsankey: state.uiState als JSON-Text). Der Konverter schreibt sie nach visual.objects. Fehlt der Schluessel, gelten die Vorgaben des Visuals. Zaehlt zum specHash.",
+          "type": "object",
+          "additionalProperties": { "type": ["string", "number", "boolean"] }
         },
         "native": {
           "$ref": "#/$defs/native"

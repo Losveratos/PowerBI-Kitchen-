@@ -3,6 +3,34 @@
 Positionierung (aus dem Review): kein Report-Generator, sondern ein **Anforderungswerkzeug mit deterministischem
 Ausgang**. Der Workshop legt Struktur, Felder und Entscheidungen fest; der Bau ist eine Ableitung.
 
+## Neu in v0.7.0 (24.11.2026, lokal auf `feat/mockup-kitchen`)
+
+MockupKitchen als Workshop-Werkzeug, Design-Werkzeug und Vorlage für Rayfin-Apps. Hintergrund, Abgleich mit der
+dwg cli und Vorschläge für weitere Funktionen: [`KONZEPT-APPMODUS.md`](KONZEPT-APPMODUS.md).
+
+- **Zielmodus** (`S.target`, Export `meta.target`): Power BI, Fabric App oder Wireframe. Auswahl im Dialog „Neu“,
+  über die Pille oben links und im Reiter Bericht. Fabric App setzt Burger-Menü, Kopfleiste 96 px bei Full HD und das
+  12er-Pixelraster; Wireframe zeichnet in Grautönen. Modul `appmode.js` (`MK_APPMODE.applyTarget`).
+- **Gespeicherte Filter** (`S.views[] = { id, name, filters }`, Reiter Zonen): Chip-Zeile unter dem Kopfband, eigene
+  Zone `chips` (30 px bei 1280). Im Ziel Power BI erscheint der Hinweis „Achtung Lesezeichen“, im Export die Issues
+  `BOOKMARKS_SAVED_FILTERS` und `BOOKMARKS_BURGER_NAV`.
+- **Navigation im Burger-Menü** (`chrome.navPos = 'burger'`), zusätzlich zum Filter-Panel per Burger.
+- **Bühne** (`stage.js`, `MK_STAGE`): Die Präsentation ist klickbar. Burger-Menü mit Seiten, gespeicherten Filtern
+  und Slicern, Chips zum Wegklicken, Querfilter per Klick auf eine Kachel, Sprungziele, Doppelklick vergrößert,
+  Steuerleiste unten, Tasten ← → M F R Esc. Gefiltert wird nur der Startwert der Skizzen (`MK_STAGE.shift`), der
+  Zustand ist flüchtig und steht nicht im Export.
+- **Typauswahl mit Schlagwort-Chips** (`MK_CATALOG.tagIds`, `tagsOf`): Zeit, Struktur, Abweichung, KPI, Tabelle,
+  Anteil, Verteilung, Karte, IBCS-Notation, Nativ, Steuerung, Text und Bild. Im Ziel Fabric App zusätzlich „nur für
+  das Ziel passende“; nicht erzeugbare Typen tragen ⚠ (`def.targets`).
+- **Neue Typen aus ChartKitchen 1.57 und P&L 1.8.3** (63 statt 51): `stockflow`, `areastack`, `cumline`, `lineidx`,
+  `scatpath`, `bubshare`, `ckpnl`, `ckmatrix`, `pnlmega`, `pnlbs`, `pnltree`, `pnlsankey`; `marimekko` hat jetzt den
+  ChartKitchen-Modus `bars`. Feste Voreinstellungen je Typ in `ckFixed` bzw. `cvFixed`, wählbare in `CK_OPTS`.
+- **Export:** `meta.target`, `zones.chips { views, bookmarks }`, `zones.header.burgerNav`, Block `app { shell,
+  notBuildable }`, Issues `APP_SHELL_*`, `APP_NOT_BUILDABLE`. `meta.target` und `app` zählen nicht zum specHash, die
+  Chip-Zeile über `zones` schon. Texte der neuen Teile in `i18n-app.js` (flache Schlüssel, nach `i18n.js` geladen).
+- **Für später:** Die dwg-Shell kennt weder Burger-Menü noch gespeicherte Ansichten; der Export nennt beides als
+  Vorgabe. `dwg mockup import` liest `meta.target`, `app` und `zones.chips` noch nicht.
+
 ## Stand und Arbeitszweig (24.11.2026)
 
 Der weitere Ausbau von MockupKitchen geschieht auf dem Branch **`feat/mockup-kitchen`**. Er setzt auf `origin/main`
