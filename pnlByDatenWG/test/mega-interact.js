@@ -61,6 +61,8 @@ function check(label, cond, detail) {
                 classic: st.querySelectorAll('[data-pnl="hdr-row"]').length > 0,
                 persists: window.__miPersist.length,
                 last: window.__miPersist[window.__miPersist.length - 1] || null,
+                // 1.8.4 the rounded-zero setting the visual renders with (written by the template)
+                rz: String(window.__mi.settings.numbersCard.roundedZero.value.value),
             };
         };
     });
@@ -83,6 +85,7 @@ function check(label, cond, detail) {
     s = await upd({ ...BASE, columns: { template: "T02A" } });
     check("2 stale update: no second persist", s.persists === 1);
     check("2 stale update: still T02A (echo guard)", s.mega && s.charts === 4);
+    check("2 1.8.4 the echo guard also holds numbers.roundedZero = plain over a stale update", s.rz === "plain", s.rz);
 
     // 3 — the echo arrives
     // the pane keeps the template the author picked, the host adds what the visual wrote
@@ -90,6 +93,7 @@ function check(label, cond, detail) {
     const ECHO = { ...BASE, columns: { ...cols, template: "T02A" }, numbers: { decimals: 0, pctDecimals: 1, roundedZero: "plain" } };
     s = await upd(ECHO);
     check("3 echo: no persist, T02A", s.persists === 1 && s.charts === 4);
+    check("3 1.8.4 after the echo the pane's roundedZero = plain stands", s.rz === "plain", s.rz);
 
     // 4 — the author switches the ΔPL% pins off by hand
     s = await upd({ ...ECHO, columns: { ...ECHO.columns, dPlPin: false } });

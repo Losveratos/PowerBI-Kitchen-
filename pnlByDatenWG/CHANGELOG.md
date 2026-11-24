@@ -6,14 +6,17 @@ Fünf Korrekturen aus dem Template-Prüfstand vom 24.11.2026 (Welle 1, Punkte 6 
 als Bezug. Neue Eigenschaften stehen per Standard so, dass ein Bericht wie 1.8.3 rendert; die übrigen
 Punkte sind Notationskorrekturen und ändern das Bild bestehender Berichte gezielt an der fehlerhaften Stelle.
 
-- **Δ% bei Vorzeichenwechsel ist n.a.** (`engine.relDelta`). Regel: Δ% = Δ / |Referenz|. Leer (n.a.)
-  ist Δ%, wenn die Referenz 0 ist (wie bisher) oder Wert und Referenz verschiedene Vorzeichen tragen:
+- **Δ% bei Vorzeichenwechsel ist n.a.** (`engine.relDelta`). Regel: Δ% = Δ / |Referenz|. „n.a.“
+  ist Δ%, wenn die Referenz 0 ist (bis 1.8.3 eine Leerstelle) oder Wert und Referenz verschiedene Vorzeichen tragen:
   Finanzergebnis −15 → +69,6 las +564 %, ein Working-Capital-Fluss −6 → +10 las +267 % (Blätter T05B,
   T03A zeigten so +352,3 %). Beide negativ bleibt eine Zahl: Kostenzeilen rechnen mit SignConvention −1
   negativ gegen eine negative Referenz, über den Betrag der Referenz liest Δ% richtig (Kosten 100 → 110
-  ergibt +10 %, ein halbierter Verlust +50 %). Ein Wert von genau 0 ist kein Wechsel (−100 % bzw. +100 %).
-  Die ChartKitchen-Karte setzt n.a. schon bei Basis ≤ 0, weil sie Anzeigewerte liest; hier würde das jede
-  Kostenzeile treffen, deshalb zählt nur der Vorzeichenwechsel. **Darstellung „n.a.“** (wie die
+  ergibt +10 %, ein halbierter Verlust +50 %). Ein Wert von 0 ist kein Wechsel (−100 % bzw. +100 %);
+  Gleitkomma-Rauschen um null (0,3 − 0,1 − 0,2 = −5,6e−17, gedruckt 0,0) zählt als 0, eine Referenz in
+  dieser Größe als Referenz 0 (Toleranz 1e−9 des größeren Betrags). **Bewusste Abweichung von der
+  ChartKitchen-Karte:** die Karte setzt n.a. schon bei Basis ≤ 0, weil sie Anzeigewerte liest; P&L rechnet
+  mit dem rechnerischen Vorzeichen, dort wäre jede Kostenzeile (SignConvention −1) n.a., deshalb zählt hier
+  nur der Vorzeichenwechsel. **Darstellung „n.a.“** (wie die
   ChartKitchen-Karte), für Vorzeichenwechsel und Referenz 0 gleich: dezent kursiv in Grau in der Δ%-Zelle
   der Mega-Tabelle, an der Achse einer Pin-Spalte (Mega-Tabelle und klassische Tabelle, ohne Pin), im
   Tooltip, im Szenario-Raster, im Kopf von Baumkarte, Hover-Panel, Kachel und Mikrokarte; bis 1.8.3 blieb
@@ -40,13 +43,13 @@ Punkte sind Notationskorrekturen und ändern das Bild bestehender Berichte gezie
   sonst unverändert. Auch die klassische Tabelle (feste Kappung bei ±40 %) behält am gekappten Pin den
   Kopf (gefüllt bzw. bei AC&FC FY umrandet wie der ungekappte Pin) direkt vor dem Dreieck; ihre Geometrie
   bleibt gleich.
-- **Zahlen in der Kultur des Hosts, auch wenn sie spät kommt.** Das Visual las `host.locale` nur im
-  Konstruktor und blieb auf en-US, wenn der Host die Sprache erst danach lieferte (veröffentlichter
-  Bericht, App): deutsche Texte, aber „4.28“ in den Karten des ROI-Baums (11A). Jetzt übernimmt jedes
-  Update die aktuelle Sprache des Hosts; alle Zahlen nutzen weiter denselben Formatierer
-  (`Intl.NumberFormat` mit dieser Sprache), der Formatierer-Speicher der Mega-Tabelle merkt sich die
-  Sprache mit. **Wirkung:** In solchen Hosts stehen unter de-DE überall Dezimalkommas (Baum: Werte, Δ, %,
-  Faktor). Berichte, deren Host die Sprache von Anfang an liefert, rendern wie vorher.
+- **Zahlen folgen einem Sprachwechsel des Hosts zur Laufzeit.** Das Visual las `host.locale` nur im
+  Konstruktor; wechselte der Host die Sprache danach, zogen nur die Texte nach, die Zahlen blieben im
+  alten Format. Jetzt übernimmt jedes Update die aktuelle Sprache des Hosts; alle Zahlen nutzen weiter
+  denselben Formatierer (`Intl.NumberFormat` mit dieser Sprache), der Formatierer-Speicher der
+  Mega-Tabelle merkt sich die Sprache mit. **Wirkung:** keine für Berichte ohne Sprachwechsel. Der
+  Prüfstand-Befund „4.28“ im ROI-Baum (11A) war ein Lesefehler: Power BI und App zeigen dort 4,28 mit
+  Komma, der dwg-Host liefert die Sprache schon im Konstruktor.
 - **Gerundete Null ohne Vorzeichen in allen Templates** (wie ChartKitchen). Jedes Template schreibt beim
   Anwenden `numbers.roundedZero = plain` (wie die Dezimalen, in derselben Schreibaktion und unter demselben
   Echo-Schutz); damit hängt das Ergebnis nicht mehr vom vorher angewandten Template ab. „Aus“ (klassische
@@ -60,11 +63,14 @@ Punkte sind Notationskorrekturen und ändern das Bild bestehender Berichte gezie
 megatable-test „Schwellen-Rot auf der gedruckten Zahl“, „Pin-Kappung: Schalter und Faktor“, „n.a. in Zelle und
 Pin-Spalte“, „roundedZero in allen Presets“ (neu); hub-test: Template-Zahlen mit `roundedZero` (vier Erwartungen
 angepasst, ein Block neu); hub-interact: kein ↺ wegen `roundedZero`, ↺ schreibt `plain` (neu); mega-shot m72
-bis m77 (neu: Vorzeichenwechsel mit n.a. und gerundete Null T03A, Schwelle T01A, Kopf gekappter Pins T04D und
-12H, Kappung aus, n.a. in der Pin-Spalte T04A), m47 angepasst (T01C druckt jetzt 0.0%), m34 (gespeichertes
-Template behält +0.0%) und m8/m10/m11 (Templates plain, ohne Template mit Vorzeichen) neu; scale-views p1 (Kopf
-gekappter Pins der klassischen Tabelle) und p30 (n.a. statt Pin) neu; tree-interact „ROI-Baum de-DE mit
-später Sprache“ und „Mikrokarte n.a.“ (neu).
+bis m80 (neu: Vorzeichenwechsel mit n.a. und gerundete Null T03A, Schwelle T01A, Kopf gekappter Pins T04D und
+12H, Kappung aus, n.a. in der Pin-Spalte T04A, Gleitkomma-Rauschen ist kein Vorzeichenwechsel, negativer
+gekappter Pin mit Kopf, Kopf im hohen Kontrast), m47 angepasst (T01C druckt jetzt 0.0%), m34 (gespeichertes
+Template behält +0.0%) und m8/m10/m11 (Templates plain, ohne Template mit Vorzeichen) neu; mega-interact:
+Template-Schreibvorgang mit `roundedZero`, Echo-Schutz hält `plain` über ein veraltetes Update (neu), Echos
+der Tests tragen `roundedZero` (auch finance-test F9); scale-views p1 (Kopf gekappter Pins der klassischen
+Tabelle) und p30 (n.a. statt Pin) neu; engine-test „Rauschen ist kein Vorzeichenwechsel“ (neu); tree-interact
+„Zahlen folgen einem Sprachwechsel des Hosts zur Laufzeit“ und „Mikrokarte n.a.“ (neu).
 
 ## 1.8.3.0 (2026-11-22): Blatt-Notation 11A, 12G und 12H
 

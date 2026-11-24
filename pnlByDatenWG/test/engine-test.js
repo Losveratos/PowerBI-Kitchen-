@@ -1078,6 +1078,15 @@ test("1.8.4 relDelta: Δ% n.a. on a sign change and against 0, same-sign negativ
     assert.strictEqual(R(0, 100), -1, "a minuend of exactly 0 is no sign change (−100 %)");
     assert.strictEqual(R(0, -100), 1, "a loss to 0: +100 %");
     assert.strictEqual(R(NaN, 100), null);
+    // float noise around zero is no sign change (review of 1a3b302): the value prints 0.0, its Δ% reads ±100 %
+    const noiseNeg = 0.3 - 0.1 - 0.2;                 // −5.55e−17
+    const noisePos = 0.1 + 0.2 - 0.3;                 // +5.55e−17
+    assert.ok(noiseNeg < 0 && noisePos > 0, "the noise really carries a sign");
+    assert.strictEqual(R(noiseNeg, 21), -1, "−5.6e−17 against PY 21: −100 %, not n.a.");
+    assert.strictEqual(R(noisePos, -43), 1, "+5.6e−17 against PY −43: +100 %, not n.a.");
+    assert.strictEqual(E.varianceOf(noiseNeg, 21, false).deltaPct, -1);
+    assert.strictEqual(R(5, noisePos), null, "a reference that is noise is a reference of 0");
+    assert.strictEqual(R(-1e-6, 21), null, "a real small value of the other sign stays a sign change");
     // varianceOf: Δ stays, only Δ% is n.a.; the rating is unchanged
     assert.deepEqual(E.varianceOf(70, -15, false), { delta: 85, deltaPct: null, good: true });
     assert.deepEqual(E.varianceOf(-6, 10, false), { delta: -16, deltaPct: null, good: false });

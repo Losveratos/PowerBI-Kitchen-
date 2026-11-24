@@ -108,7 +108,7 @@ Ansicht, sondern ein Template der Tabelle — `viewTable` gilt für beide.
 an) und `columns.capFactor` (numeric, Standard 4, 1 bis 20) direkt nach `capBars` in der Gruppe
 Mega-Table. Keine neue Rolle, kein neuer Zustand. Mit den Standards rendert ein Bericht wie 1.8.3,
 bis auf die Korrekturen der Falle 29 (Δ% n.a. über die Null, Schwellen-Rot auf der gedruckten
-Zahl, Kopf gekappter Pins auch in der klassischen Tabelle, Sprache des Hosts bei jedem Update,
+Zahl, Kopf gekappter Pins auch in der klassischen Tabelle, Zahlen folgen einem Sprachwechsel des Hosts,
 `roundedZero = plain` in allen Templates). Neuer Text `UI_RelNa` („n.a.“).
 
 **Neu in 1.7** (Bestand vs. Fluss, in Arbeit): Objekt **`statement`** mit
@@ -983,9 +983,11 @@ Anfangsbestand und `stock` am Endbestand (Formel `[Anfangsbestand]+[Operativ]+�
 
 29. **Notationskorrekturen Welle 1 (1.8.4):**
     - **Δ% n.a.:** Quelle ist `engine.relDelta(a, rv)`: Δ / |rv|, `null` bei `rv = 0` und bei
-      verschiedenen Vorzeichen von Wert und Referenz (Rohwerte, rechnerisches Vorzeichen). Zwei
-      negative Werte bleiben eine Zahl, sonst wäre jede Kostenzeile (SignConvention −1) n.a.; anders
-      als die ChartKitchen-Karte (Basis ≤ 0), die Anzeigewerte liest. Alle Δ%-Stellen gehen darüber:
+      verschiedenen Vorzeichen von Wert und Referenz (Rohwerte, rechnerisches Vorzeichen). Beträge bis
+      1e−9 × max(1, |a|, |rv|) gelten als 0 (Gleitkomma-Rauschen: ein Wert so nah an null ergibt ±100 %,
+      eine Referenz so nah an null n.a.). Zwei negative Werte bleiben eine Zahl, sonst wäre jede
+      Kostenzeile (SignConvention −1) n.a.; bewusst anders als die ChartKitchen-Karte (Basis ≤ 0), die
+      Anzeigewerte liest. Alle Δ%-Stellen gehen darüber:
       `varianceOf`, `displayVariance` (auch KPI/`marginRel`), `ytdVariance`/`blockVariance` im Visual,
       Baumkarten und Kachel. Ist Δ da, Δ% aber `null`, steht „n.a.“ (`UI_RelNa`, `Visual.relNa()`):
       Mega-Tabelle über `MegaInput.naText` (Δ%-Zelle; Pin-Spalte: `MegaCol.na`, Text
@@ -1004,8 +1006,9 @@ Anfangsbestand und `stock` am Endbestand (Formel `[Anfangsbestand]+[Operativ]+�
       (`data-pnl="pin-head"`, gleiche Füllung wie der ungekappte) direkt vor dem Dreieck.
     - **Sprache:** `syncLocale()` übernimmt `host.locale` zu Beginn jedes `update()` (leer = die zuletzt
       bekannte, im Konstruktor en-US). Zahlformat-Speicher (`treeNf`, `megaNf`) sind nach Sprache und
-      Dezimalen geschlüsselt. Ein Host, der die Sprache erst nach dem Konstruktor setzt, bekam bis
-      1.8.3 englische Zahlen zu deutschen Texten (11A „4.28“).
+      Dezimalen geschlüsselt. Damit folgen die Zahlen einem Sprachwechsel des Hosts zur Laufzeit; bis
+      1.8.3 zogen dabei nur die Texte nach. Der Prüfstand-Befund „4.28“ (11A) war ein Lesefehler, Power
+      BI und App zeigen dort Kommas.
     - **Gerundete Null in Templates:** `MegaPreset.roundedZero = "plain"` in jedem Preset (aus `P_OFF`);
       `templateSwitches().nums` trägt `roundedZero` neben den Dezimalen für jedes Template außer „off“
       (gleicher `persistProperties`-Merge, gleicher Echo-Guard `megaPending.nums`). Wie die Dezimalen

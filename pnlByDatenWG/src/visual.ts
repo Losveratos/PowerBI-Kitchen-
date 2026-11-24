@@ -1011,9 +1011,8 @@ export class Visual implements IVisual {
             if (options.viewport && options.viewport.width > 0) { this.vpW = options.viewport.width; }
             // Smart Start is an edit-mode aid — remember the raw view mode every update
             this.viewMode = options.viewMode ?? null;
-            // 1.8.4 the number culture follows the host's locale on every update: a host that
-            // hands it over only after the constructor (a published report, an app host) left
-            // the visual on en-US for good, its ROI tree printed "4.28" next to German texts
+            // 1.8.4 the number culture follows the host's locale on every update: until 1.8.3 it was
+            // read once in the constructor, so a language switch at runtime changed the texts only
             this.syncLocale();
             const dataView = options.dataViews && options.dataViews[0];
             this.lastDv = dataView;

@@ -71,7 +71,8 @@ function readMega(id) {
             // 1.5: break marks of capped elements (outlier zone, UN 5.3)
             breaks: g.querySelectorAll('path[data-pnl="mega-break"]').length,
             // 1.8.4 the head a capped pin keeps (its scenario mark) before the triangle
-            pinHeads: [...g.querySelectorAll('rect[data-pnl="mega-pin-head"]')].map(r => ({ fill: r.getAttribute("fill"), stroke: r.getAttribute("stroke") })),
+            pinHeads: [...g.querySelectorAll('rect[data-pnl="mega-pin-head"]')].map(r => ({ fill: r.getAttribute("fill"), stroke: r.getAttribute("stroke"),
+                x: +r.getAttribute("x"), w: +r.getAttribute("width") })),
             // 1.8.2 ellipse emphasis (12G / 12H): ellipse box and the label it encloses
             ellipses: [...g.querySelectorAll('ellipse[data-pnl="mega-ellipse"]')].map(e => {
                 const cx = +e.getAttribute("cx"), cy = +e.getAttribute("cy"), rx = +e.getAttribute("rx"), ry = +e.getAttribute("ry");
@@ -121,7 +122,7 @@ function readMega(id) {
     const ids = ["m1", "m2", "m3", "m4", "m5", "m6", "m7", "m8", "m9", "m10", "m11", "m12", "m13", "m14", "m15", "m16",
         "m17", "m18", "m19", "m20", "m21", "m22", "m23", "m24", "m25", "m26", "m27", "m28", "m29", "m30", "m31", "m32", "m33",
         "m34", "m35", "m36", "m37", "m38", "m39", "m40", "m41", "m42", "m43", "m44", "m45", "m46", "m47", "m48", "m49", "m50", "m51", "m52", "m53", "m54", "m55", "m56", "m57", "m58", "m59", "m60", "m61", "m62", "m63", "m64", "m65", "m66", "m67", "m68", "m69", "m70", "m71",
-        "m72", "m73", "m74", "m75", "m76", "m77"];
+        "m72", "m73", "m74", "m75", "m76", "m77", "m78", "m79", "m80"];
     const S = {};
     for (const id of ids) {
         S[id] = await page.evaluate(readMega, id);
@@ -435,6 +436,22 @@ function readMega(id) {
             // the result rows below cross zero too (PL turns negative through the −15): n.a. there as well
             na77.length === 3 && na77.every(x => x.t === "n.a." && x.italic) && fin77 && Math.abs(na77[0].y - fin77.y) < 0.5 && pinCol != null,
             JSON.stringify({ na77, y: fin77 && fin77.y }));
+    }
+    if (S.m78 && S.m79 && S.m80) {
+        const inv = S.m78.body.find(x => x.t === "Investment income");
+        const row78 = inv ? S.m78.body.filter(x => Math.abs(x.y - inv.y) < 0.5).map(x => x.t) : [];
+        check("m78 float noise is no sign change: Investment income AC 0.3−0.1−0.2 prints 0.0, ΔPY% −100.0% (not n.a.)",
+            row78.includes("0.0") && row78.includes(nb("-100.0%")) && !row78.includes("n.a."), row78.join("|"));
+        const p79 = S.m79.charts.find(c => c.pinHeads.length > 0);
+        const ax79 = p79 && p79.axes.length ? Math.min(...p79.axes.map(a => a.x)) : null;
+        check("m79 a negative capped pin keeps its filled AC head left of the axis, before its triangle (Germany −98.2)",
+            p79 != null && p79.pinHeads.length === 1 && ax79 != null && p79.pinHeads[0].x + p79.pinHeads[0].w < ax79
+            && p79.pinHeads[0].fill === "#404040" && p79.breaks === 1 && p79.labels.some(l => l.t === nb("-98.2")),
+            JSON.stringify(p79 && { h: p79.pinHeads, ax79, l: p79.labels.map(l => l.t) }));
+        const p80 = S.m80.charts.find(c => c.pinHeads.length > 0);
+        check("m80 high contrast: the three capped FC pins keep a head (pattern or hollow outline), not dropped",
+            p80 != null && p80.pinHeads.length === 3 && p80.pinHeads.every(h => h.fill && (/^url\(/.test(h.fill) || h.stroke)),
+            JSON.stringify(p80 && p80.pinHeads));
     }
     if (S.m74 && S.m75 && S.m76) {
         const p74 = S.m74.charts.find(c => c.pinHeads.length > 0);

@@ -1329,8 +1329,8 @@ export function windowValue(model: PnlModel, node: PnlNode, s: Scenario, lo: num
 /**
  * 1.8.4 the relative Δ (Δ%) of a minuend `a` against a reference `rv`, both
  * raw (calculation-signed) or both in the same display orientation:
- * (a − rv) / |rv|. Null = "n.a." (the visual leaves the Δ% cell and the pin
- * empty, as it always did for a reference of 0) when
+ * (a − rv) / |rv|. Null = "n.a." (the visual prints "n.a." in place of the
+ * Δ%, no pin) when
  *  - the reference is 0, or
  *  - minuend and reference carry opposite signs (−15 → +69.6 read +564 %, a
  *    cash flow −6 → +10 read +267 %: no percentage describes a change across
@@ -1343,9 +1343,14 @@ export function windowValue(model: PnlModel, node: PnlNode, s: Scenario, lo: num
  * would make every cost row n.a., so only the sign change counts.
  */
 export function relDelta(a: number, rv: number): number | null {
-    if (rv === 0 || !isFinite(a) || !isFinite(rv)) { return null; }
-    if ((a < 0 && rv > 0) || (a > 0 && rv < 0)) { return null; }
-    return (a - rv) / Math.abs(rv);
+    if (!isFinite(a) || !isFinite(rv)) { return null; }
+    // float noise around zero is zero (0.3 − 0.1 − 0.2 = −5.6e−17 prints 0.0): a minuend
+    // within 1e−9 of the larger magnitude is no sign change, a reference that small is 0
+    const eps = 1e-9 * Math.max(1, Math.abs(a), Math.abs(rv));
+    if (Math.abs(rv) <= eps) { return null; }
+    const av = Math.abs(a) <= eps ? 0 : a;
+    if ((av < 0 && rv > 0) || (av > 0 && rv < 0)) { return null; }
+    return (av - rv) / Math.abs(rv);
 }
 
 export function variance(node: PnlNode, ref: Scenario, minuend: Scenario = "ac"): Variance {
