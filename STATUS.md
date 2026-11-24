@@ -51,6 +51,11 @@ jeweiligen Visual-Ordner.
   Die Datenpipeline (Merge der Länder- und Regionalstatistiken, Validierung, Build) liegt noch
   außerhalb des Repos; offen: Pipeline ins Repo holen, Full-HD-Layout, Zeitreihen für Regionen.
   Bibliotheken lokal: `assets/js/vendor/d3-7.9.0.min.js`, `topojson-client-3.1.0.min.js`.
+- **Story „Die Treppe und die Wolke“** (`schlau-gebildet-reich-story.html`, neu 24.11.2026): Schulbildung,
+  Intelligenz und Einkommen in Deutschland in sieben Akten, mit Belegstufen A/B/C/M und offenem Modell.
+  Seite und `md/schlau-gebildet-reich-story.md` sind **generiert** (`python3 -I schlau-gebildet-reich/scripts/build_story.py`);
+  veröffentlichte Werte in `schlau-gebildet-reich/data/quellen.json`. Offen: fachliche Durchsicht durch Michael,
+  Entscheidung über Begleit-Post und englische Fassung.
 - **AppSource:** Einreichung liegt bei Artur (organisatorisch).
 - **Branch-Hygiene:** `kitchen-refresh-data` gehört dem Refresh-Workflow und
   bleibt. Einziger Branch mit bewusst ungemergter Arbeit:

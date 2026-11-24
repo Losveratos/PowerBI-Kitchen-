@@ -1,0 +1,613 @@
+{
+ "stand": "24.11.2026",
+ "hinweis": "Veröffentlichte Werte, auf die sich die Story stützt. Jede Zahl wurde am 24.11.2026 an der genannten Quelle abgerufen. Stufe A = amtliche Statistik, B = Metaanalyse oder Studie mit deutschen Daten, C = Studie aus einem anderen Land, kleine oder nicht zufällige Stichprobe, Arbeitspapier. Modellwerte (Stufe M) stehen nicht hier, sondern entstehen in scripts/build_story.py.",
+ "werte": {
+  "treppe": {
+   "stand": "April 2025",
+   "alle": 4784,
+   "stufen": [
+    {
+     "label": "ohne beruflichen Abschluss",
+     "kurz": "ohne Abschluss",
+     "euro": 3432
+    },
+    {
+     "label": "anerkannte Berufsausbildung",
+     "kurz": "Ausbildung",
+     "euro": 4125
+    },
+    {
+     "label": "Bachelor",
+     "kurz": "Bachelor",
+     "euro": 5289
+    },
+    {
+     "label": "Meister, Techniker, Fachschule",
+     "kurz": "Meister, Techniker",
+     "euro": 5405
+    },
+    {
+     "label": "Master",
+     "kurz": "Master",
+     "euro": 7019
+    },
+    {
+     "label": "Promotion, Habilitation",
+     "kurz": "Promotion",
+     "euro": 9476
+    }
+   ]
+  },
+  "verdienst_jahr": {
+   "jahr": 2025,
+   "median": 54066,
+   "mittelwert": 64441,
+   "p80_text": 80000,
+   "untergrenze": 20000,
+   "perzentile": [
+    {
+     "p": 0.1,
+     "euro": 33828
+    },
+    {
+     "p": 0.3,
+     "euro": 44215
+    },
+    {
+     "p": 0.5,
+     "euro": 54066
+    },
+    {
+     "p": 0.9,
+     "euro": 100719
+    },
+    {
+     "p": 0.99,
+     "euro": 219110
+    }
+   ]
+  },
+  "ba_entgelt": {
+   "stichtag": "31.12.2025",
+   "median_alle": 4217,
+   "n_alle": 21629316,
+   "klassen_grenzen": [
+    2000,
+    3000,
+    4000,
+    5000,
+    6000
+   ],
+   "klassen_alle": [
+    668682,
+    3637774,
+    5367853,
+    4504535,
+    2728262,
+    4722210
+   ],
+   "gruppen": [
+    {
+     "label": "ohne beruflichen Abschluss",
+     "kurz": "ohne Abschluss",
+     "median": 3133,
+     "anteil": 1887665,
+     "klassen": [
+      139254,
+      704018,
+      593497,
+      266683,
+      92762,
+      91451
+     ]
+    },
+    {
+     "label": "mit anerkanntem Berufsabschluss",
+     "kurz": "Berufsabschluss",
+     "median": 4069,
+     "anteil": 13181985,
+     "klassen": [
+      338744,
+      2135224,
+      3844406,
+      3286243,
+      1720400,
+      1856968
+     ]
+    },
+    {
+     "label": "mit akademischem Abschluss",
+     "kurz": "Hochschulabschluss",
+     "median": 6146,
+     "anteil": 4943151,
+     "klassen": [
+      59342,
+      225335,
+      493005,
+      758588,
+      823763,
+      2583118
+     ]
+    }
+   ]
+  },
+  "strenze": {
+   "r_bildung": 0.56,
+   "r_beruf": 0.43,
+   "r_einkommen": 0.2,
+   "r_einkommen_best": 0.23,
+   "roh_bildung": 0.48,
+   "roh_beruf": 0.36,
+   "roh_einkommen": 0.16,
+   "k_einkommen": 31,
+   "n_einkommen": 58758,
+   "k_bildung": 59,
+   "n_bildung": 84828,
+   "r_einkommen_label": "0,2 bis 0,3"
+  },
+  "roth": {
+   "rho": 0.54,
+   "roh": 0.44,
+   "stichproben": 240,
+   "n": 105185
+  },
+  "ritchie": {
+   "punkte": 3.4,
+   "von": 1,
+   "bis": 5,
+   "n": 615812,
+   "datensaetze": 42
+  },
+  "hanushek": {
+   "de": 23.5,
+   "alle": 17.8,
+   "se": 12.1,
+   "us": 27.9,
+   "n_de": 1296,
+   "laender": 23,
+   "mincer_de": 9.5,
+   "mincer_alle": 7.5
+  },
+  "heineck": {
+   "maenner": 4,
+   "mit_job": 2,
+   "personen": 1580
+  },
+  "biju": {
+   "einstieg": 0.28,
+   "alter30": 0.26,
+   "alter40": 0.19,
+   "n": 4387,
+   "herkunft40": 0.22
+  },
+  "zagorsky": {
+   "r_einkommen": 0.297,
+   "r_vermoegen": 0.156,
+   "n": 7403
+  },
+  "keuschnigg": {
+   "n": 59387,
+   "rho": 0.4,
+   "plateau_sek": 600000,
+   "plateau_eur": 60000,
+   "top1_sd": 0.86,
+   "top1_iq": 113
+  },
+  "trichter": {
+   "schule_nicht": 46,
+   "schule_akad": 83,
+   "studium_nicht": 27,
+   "studium_akad": 79,
+   "bachelor_nicht": 20,
+   "bachelor_akad": 64,
+   "master_nicht": 11,
+   "master_akad": 43,
+   "promotion_nicht": 2,
+   "promotion_akad": 6
+  },
+  "iglu": {
+   "obere": 510,
+   "facharbeiter": 559,
+   "ungelernt": 575,
+   "faktor": 2.5
+  },
+  "chancen": {
+   "kein_abi": 25.3,
+   "zwei_abi": 72.6,
+   "unten": 16.9,
+   "oben": 80.3,
+   "kinder": 67851
+  },
+  "vermoegen": {
+   "jahr": 2023,
+   "mean": 324800,
+   "median": 103200,
+   "top10": 54,
+   "gini": 72.4,
+   "p90": 779500,
+   "bildung": [
+    {
+     "label": "ohne beruflichen Abschluss",
+     "kurz": "ohne Abschluss",
+     "mean": 69600,
+     "median": 6000
+    },
+    {
+     "label": "Lehre, Berufsausbildung",
+     "kurz": "Lehre",
+     "mean": 263500,
+     "median": 85800
+    },
+    {
+     "label": "Fachhochschule",
+     "kurz": "Fachhochschule",
+     "mean": 353200,
+     "median": 115300
+    },
+    {
+     "label": "Fachschule, Meister, Techniker",
+     "kurz": "Fachschule",
+     "mean": 500000,
+     "median": 274500
+    },
+    {
+     "label": "Universität, Hochschule",
+     "kurz": "Universität",
+     "mean": 549800,
+     "median": 270300
+    }
+   ]
+  },
+  "diw": {
+   "top10_soep": 58.9,
+   "top10": 67.3,
+   "top1_soep": 21.6,
+   "top1": 35.3,
+   "selbststaendig": 73,
+   "frauen": 31,
+   "ost": 6,
+   "abi_mio": 54,
+   "abi_unten": 19,
+   "ohne_schule_mio": 0,
+   "ohne_schule_unten": 5.7
+  },
+  "hvid": {
+   "unternehmen": 40,
+   "erbschaft": 35,
+   "arbeit": 10,
+   "interviews": 130
+  },
+  "erben": {
+   "anteil_top10": 50
+  },
+  "dsm": {
+   "hochschule": 85.5,
+   "promotion": 18.8,
+   "n": 1803
+  },
+  "kfw": {
+   "akademisch": 34,
+   "ohne_abschluss": 28,
+   "bev_akademisch": 23
+  },
+  "dax": {
+   "uni": 93,
+   "fh": 6,
+   "promotion": 28,
+   "promotion_2015": 38,
+   "n": 252
+  },
+  "wai": {
+   "college": 91.1,
+   "n": 11745,
+   "min": 76.2
+  },
+  "schule": {
+   "ohne_abschluss": 64900,
+   "abgaenge": 769000,
+   "anteil": 8.4,
+   "quote_2024": 8.0
+  },
+  "quali": {
+   "gesamt": 6.3,
+   "ohne": 21.3,
+   "ausbildung": 3.6,
+   "akademisch": 3.3
+  },
+  "iab_leben": {
+   "ohne": 1083000,
+   "ausbildung": 1325000,
+   "hochschule": 2320000
+  },
+  "unsichtbar": {
+   "rows": [
+    {
+     "label": "niedrig",
+     "short": "niedrig",
+     "erwerb": 62.5,
+     "alq": 21.3,
+     "armut": 29.1
+    },
+    {
+     "label": "mittel",
+     "short": "mittel",
+     "erwerb": 83.3,
+     "alq": 3.6,
+     "armut": 15.2
+    },
+    {
+     "label": "hoch",
+     "short": "hoch",
+     "erwerb": 88.4,
+     "alq": 3.3,
+     "armut": 9.0
+    }
+   ],
+   "src": {
+    "erwerb": "2025 · Statistische Ämter des Bundes und der Länder",
+    "alq": "2025 · Bundesagentur für Arbeit",
+    "armut": "2025 · EU-SILC, Statistische Ämter"
+   },
+   "labels": {
+    "erwerb": [
+     "Bildungsstand niedrig (ohne Abitur und ohne Berufsabschluss)",
+     "Bildungsstand mittel (Abitur oder Berufsabschluss)",
+     "Bildungsstand hoch (Hochschule, Meister, Techniker)"
+    ],
+    "alq": [
+     "ohne abgeschlossene Berufsausbildung",
+     "mit betrieblicher oder schulischer Ausbildung",
+     "mit akademischer Ausbildung"
+    ],
+    "armut": [
+     "Bildungsstand niedrig (ohne Abitur und ohne Berufsabschluss)",
+     "Bildungsstand mittel (Abitur oder Berufsabschluss)",
+     "Bildungsstand hoch (Hochschule, Meister, Techniker)"
+    ]
+   },
+   "labels_kurz": {
+    "erwerb": [
+     "Bildungsstand niedrig",
+     "Bildungsstand mittel",
+     "Bildungsstand hoch"
+    ],
+    "alq": [
+     "ohne Berufsausbildung",
+     "mit Berufsausbildung",
+     "mit Studium"
+    ],
+    "armut": [
+     "Bildungsstand niedrig",
+     "Bildungsstand mittel",
+     "Bildungsstand hoch"
+    ]
+   }
+  }
+ },
+ "quellen": [
+  {
+   "id": "destatis-abschluss",
+   "stufe": "A",
+   "zitat": "Statistisches Bundesamt (2026): Verdienste in vielen Ausbildungsberufen im Handwerk unter dem Durchschnitt. Pressemitteilung Nr. 103, März 2026. Verdiensterhebung April 2025.",
+   "url": "https://www.destatis.de/DE/Presse/Pressemitteilungen/2026/03/PD26_103_62.html",
+   "linktext": "destatis.de",
+   "hinweis": "Mittelwerte, Vollzeit, ohne Sonderzahlungen. Durchschnitt aller Vollzeitbeschäftigten im April 2025 (4.784 Euro) aus der Destatis-Tabelle „Bruttomonatsverdienste im Stichmonat“."
+  },
+  {
+   "id": "destatis-jahr",
+   "stufe": "A",
+   "zitat": "Statistisches Bundesamt (2026): Mittlerer Bruttojahresverdienst lag 2025 bei 54 066 Euro. Pressemitteilung Nr. 113, April 2026.",
+   "url": "https://www.destatis.de/DE/Presse/Pressemitteilungen/2026/04/PD26_113_621.html",
+   "linktext": "destatis.de",
+   "hinweis": "Vollzeit, einschließlich Sonderzahlungen, Beschäftigungen mit mindestens sieben Arbeitsmonaten. Veröffentlicht sind das 10., 30., 50., 90. und 99. Perzentil sowie der Mittelwert."
+  },
+  {
+   "id": "ba-entgelt",
+   "stufe": "A",
+   "zitat": "Statistik der Bundesagentur für Arbeit (2026): Sozialversicherungspflichtige Bruttomonatsentgelte (Jahreszahlen), Stichtag 31.12.2025, Tabelle 3.1.",
+   "url": "https://statistik.arbeitsagentur.de/Statistikdaten/Detail/202512/iiia6/beschaeftigung-entgelt-entgelt/entgelt-dwolk-0-202512-xlsx.xlsx?__blob=publicationFile",
+   "linktext": "statistik.arbeitsagentur.de",
+   "hinweis": "Sozialversicherungspflichtig Vollzeitbeschäftigte der Kerngruppe, ohne Auszubildende, Entgelt einschließlich Sonderzahlungen. Anteile an den Entgeltklassen sind aus den Fallzahlen der Tabelle gerechnet. Bei 7,5 Prozent ist der Abschluss unbekannt; sie sind in den Gruppenanteilen nicht enthalten."
+  },
+  {
+   "id": "ba-quali",
+   "stufe": "A",
+   "zitat": "Statistik der Bundesagentur für Arbeit (2026): Qualifikationsspezifische Arbeitslosenquoten, Jahreszahlen 2025.",
+   "url": "https://statistik.arbeitsagentur.de/DE/Statischer-Content/Statistiken/Themen-im-Fokus/Berufe/AkademikerInnen/Allgemeiner-Teil/1-7-Arbeitslosigkeit.html",
+   "linktext": "statistik.arbeitsagentur.de",
+   "hinweis": "Arbeitslose bezogen auf alle zivilen Erwerbspersonen gleicher Qualifikation."
+  },
+  {
+   "id": "bildungsindikatoren",
+   "stufe": "A",
+   "zitat": "Statistische Ämter des Bundes und der Länder (2026): Internationale Bildungsindikatoren im Ländervergleich 2026, Tabellen A3.1a und A3.6a.",
+   "url": "https://www.statistikportal.de/sites/default/files/2026-09/Internationale_Bildungsindikatoren_im_Laendervergleich_2026.pdf",
+   "linktext": "statistikportal.de",
+   "hinweis": "25- bis 64-Jährige, 2025, Erstergebnis des Mikrozensus. Bildungsstand nach ISCED: Meister und Techniker zählen zum hohen Bildungsstand."
+  },
+  {
+   "id": "armut",
+   "stufe": "A",
+   "zitat": "Statistische Ämter des Bundes und der Länder (2026): Gefährdung durch Armut, Tabelle AR3.0, Endergebnisse EU-SILC 2025.",
+   "url": "https://www.statistikportal.de/de/sbe/ergebnisse/einkommen-armutsgefaehrdung-und-soziale-lebensbedingungen/gefaehrdung-durch-armut",
+   "linktext": "statistikportal.de",
+   "hinweis": "Personen ab 16 Jahren, Bildungsstand nach ISCED."
+  },
+  {
+   "id": "schulabgang",
+   "stufe": "A",
+   "zitat": "Statistisches Bundesamt (2026): Pressemitteilung Nr. 384, November 2026, Abgänge allgemeinbildender Schulen im Abschlussjahr 2025. Quote: Autor:innengruppe Bildungsberichterstattung (2026): Bildung in Deutschland 2026, Kapitel D8.",
+   "url": "https://www.destatis.de/DE/Presse/Pressemitteilungen/2026/11/PD26_384_213.html",
+   "linktext": "destatis.de",
+   "hinweis": "Der Anteil an allen Abgängen 2025 ist selbst gerechnet. Die Quote von 8 Prozent der gleichaltrigen Bevölkerung gilt für das Abgangsjahr 2024."
+  },
+  {
+   "id": "bundesbank",
+   "stufe": "A",
+   "zitat": "Deutsche Bundesbank (2025): Vermögen und Finanzen privater Haushalte in Deutschland: Ergebnisse der Vermögensbefragung 2023. Monatsbericht April 2025, mit Tabellenanhang.",
+   "url": "https://publikationen.bundesbank.de/publikationen-de/berichte-studien/monatsberichte/monatsbericht-april-2025-954594?article=vermoegen-und-finanzen-privater-haushalte-in-deutschland-ergebnisse-der-vermoegensbefragung-2023--954598",
+   "linktext": "bundesbank.de",
+   "hinweis": "Befragung, Nettovermögen je Haushalt. Die Werte nach beruflicher Bildung beziehen sich auf die Referenzperson des Haushalts."
+  },
+  {
+   "id": "strenze",
+   "stufe": "B",
+   "zitat": "Strenze, T. (2007): Intelligence and socioeconomic success: A meta-analytic review of longitudinal research. Intelligence 35(5), 401–426.",
+   "url": "https://doi.org/10.1016/j.intell.2006.09.004",
+   "linktext": "doi.org",
+   "hinweis": "Überwiegend Studien aus den USA. Die Werte 0,56, 0,43 und 0,20 sind um Messfehler korrigiert; unkorrigiert und nach Stichprobengröße gewichtet sind es 0,48, 0,36 und 0,16."
+  },
+  {
+   "id": "deutschmann",
+   "stufe": "B",
+   "zitat": "Deutschmann, Becker & Wu (2025): Occupational Success Across the Lifespan. Journal of Intelligence 13(3), 32.",
+   "url": "https://doi.org/10.3390/jintelligence13030032",
+   "linktext": "doi.org",
+   "hinweis": "Deutsche Längsschnittstudie BIJU: Intelligenz mit etwa 12 Jahren (1991), Bruttomonatseinkommen bis 2018."
+  },
+  {
+   "id": "hanushek",
+   "stufe": "B",
+   "zitat": "Hanushek, Schwerdt, Wiederhold & Woessmann (2015): Returns to skills around the world: Evidence from PIAAC. European Economic Review 73, 103–130.",
+   "url": "https://doi.org/10.1016/j.euroecorev.2014.10.006",
+   "linktext": "doi.org",
+   "hinweis": "Geprüft an der Arbeitspapier-Fassung des ifo Instituts (2014). Vollzeitbeschäftigte von 35 bis 54 Jahren, Bruttostundenlohn, Erhebung 2011/12."
+  },
+  {
+   "id": "heineck",
+   "stufe": "B",
+   "zitat": "Heineck, G. & Anger, S. (2010): The returns to cognitive abilities and personality traits in Germany. Labour Economics 17(3), 535–546.",
+   "url": "https://doi.org/10.1016/j.labeco.2009.06.001",
+   "linktext": "doi.org",
+   "hinweis": "Sozio-oekonomisches Panel 1991 bis 2006. Zahlen aus der Arbeitspapier-Fassung (SOEPpapers 124)."
+  },
+  {
+   "id": "roth",
+   "stufe": "B",
+   "zitat": "Roth, Becker, Romeyke, Schäfer, Domnick & Spinath (2015): Intelligence and school grades: A meta-analysis. Intelligence 53, 118–137.",
+   "url": "https://doi.org/10.1016/j.intell.2015.09.002",
+   "linktext": "doi.org",
+   "hinweis": "Korrigierter Wert 0,54; unkorrigiert 0,44."
+  },
+  {
+   "id": "ritchie",
+   "stufe": "B",
+   "zitat": "Ritchie, S. J. & Tucker-Drob, E. M. (2018): How Much Does Education Improve Intelligence? A Meta-Analysis. Psychological Science 29(8), 1358–1369.",
+   "url": "https://doi.org/10.1177/0956797618774253",
+   "linktext": "doi.org",
+   "hinweis": "Je nach Studiendesign 1,2 bis 5,2 Punkte je Bildungsjahr."
+  },
+  {
+   "id": "trichter",
+   "stufe": "B",
+   "zitat": "Stifterverband & McKinsey (2021/2022): Vom Arbeiterkind zum Doktor; Hochschul-Bildungs-Report 2020, Abschlussbericht.",
+   "url": "https://stifterverband.org/download/file/fid/10426",
+   "linktext": "stifterverband.org",
+   "hinweis": "Bis zum Studienanfang Geburtsjahrgänge 1992 bis 1998 (Daten des DZHW), danach Datenstand 2019, keine echte Kohorte."
+  },
+  {
+   "id": "iglu",
+   "stufe": "B",
+   "zitat": "McElvany u. a. (Hrsg.) (2023): IGLU 2021. Lesekompetenz von Grundschulkindern im internationalen Vergleich und im Trend über 20 Jahre. Waxmann, Kapitel 11.",
+   "url": "https://ifs.ep.tu-dortmund.de/storages/ifs-ep/r/Downloads_allgemein/Handreichung_Presse_IGLU.pdf",
+   "linktext": "tu-dortmund.de",
+   "hinweis": "Geprüft an der Presse-Handreichung der Herausgeber (Tabelle 11.1), nicht am Berichtsband."
+  },
+  {
+   "id": "chancen",
+   "stufe": "B",
+   "zitat": "Wößmann, Freundl, Pfaehler, Schoner & Tsaberiaba (2026): Der ifo-Chancenmonitor. ifo Schnelldienst digital 5/2026.",
+   "url": "https://www.dphv.de/wp-content/uploads/2026/04/chancenmonitor.pdf",
+   "linktext": "dphv.de (Kopie)",
+   "hinweis": "Mikrozensus 2022, Kinder von 10 bis 18 Jahren. Ohne Kontrolle der Leistung."
+  },
+  {
+   "id": "diw-mio",
+   "stufe": "B",
+   "zitat": "Schröder, Bartels, Göbler, Grabka & König (2020): MillionärInnen unter dem Mikroskop. DIW Wochenbericht 29/2020, 511–521.",
+   "url": "https://www.diw.de/documents/publikationen/73/diw_01.c.793783.de/20-29.pdf",
+   "linktext": "diw.de",
+   "hinweis": "Individuelles Nettovermögen Erwachsener 2019. Befragung, ergänzt um eine Zusatzstichprobe Hochvermögender und eine Reichenliste."
+  },
+  {
+   "id": "soeppaper",
+   "stufe": "C",
+   "zitat": "Schröder u. a. (2020): Improving the coverage of the top-wealth population in the Socio-Economic Panel. SOEPpapers 1084.",
+   "url": "https://www.diw.de/documents/publikationen/73/diw_01.c.790677.de/diw_sp1084.pdf",
+   "linktext": "diw.de",
+   "hinweis": "Arbeitspapier mit vorläufigen Gewichten. Erfasst ist der Schulabschluss, nicht der Hochschulabschluss."
+  },
+  {
+   "id": "hvid",
+   "stufe": "C",
+   "zitat": "Ströing, Grabka & Lauterbach (2016): Hochvermögende in Deutschland. DIW Wochenbericht 42/2016, 999–1006.",
+   "url": "https://www.diw.de/documents/publikationen/73/diw_01.c.545209.de/16-42-1.pdf",
+   "linktext": "diw.de",
+   "hinweis": "130 Interviews, nicht repräsentativ."
+  },
+  {
+   "id": "baresel",
+   "stufe": "B",
+   "zitat": "Baresel u. a. (2021): Hälfte aller Erbschaften und Schenkungen geht an die reichsten zehn Prozent aller Begünstigten. DIW Wochenbericht 5/2021, 63–71.",
+   "url": "https://doi.org/10.18723/diw_wb:2021-5-1",
+   "linktext": "doi.org",
+   "hinweis": ""
+  },
+  {
+   "id": "kfw",
+   "stufe": "B",
+   "zitat": "KfW Research (2026): KfW-Gründungsmonitor 2026, mit Tabellenband.",
+   "url": "https://www.kfw.de/PDF/Download-Center/Konzernthemen/Research/PDF-Dokumente-Gründungsmonitor/KfW-Gründungsmonitor-2026.pdf",
+   "linktext": "kfw.de",
+   "hinweis": "Bevölkerungsbefragung, alle Existenzgründungen des Jahres 2025."
+  },
+  {
+   "id": "dsm",
+   "stufe": "C",
+   "zitat": "Hirschfeld, Gilde & Walk (2026): Deutscher Startup Monitor 2026. Bundesverband Deutsche Startups.",
+   "url": "https://startupverband.de/media/file/rs-deutscherstartupmonitor2026",
+   "linktext": "startupverband.de",
+   "hinweis": "Online-Befragung ohne Zufallsstichprobe, 1.803 Datensätze."
+  },
+  {
+   "id": "odgers",
+   "stufe": "C",
+   "zitat": "Odgers (2026): 13. DAX-Vorstandsreport 2026.",
+   "url": "https://www.odgers.com/media/lkxofoqw/dax-vorstandsreport-2026.pdf",
+   "linktext": "odgers.com",
+   "hinweis": "Auszählung der 252 Vorstandsmitglieder zum Stichtag 27.03.2026 durch eine Personalberatung."
+  },
+  {
+   "id": "keuschnigg",
+   "stufe": "C",
+   "zitat": "Keuschnigg, M., van de Rijt, A. & Bol, T. (2023): The plateauing of cognitive ability among top earners. European Sociological Review 39(5), 820–833.",
+   "url": "https://doi.org/10.1093/esr/jcac076",
+   "linktext": "doi.org",
+   "hinweis": "Schwedische Registerdaten, nur Männer, Musterungstest mit 18 bis 19 Jahren, Lohn im Alter von 35 bis 45 Jahren. 0,40 ist eine Rangkorrelation."
+  },
+  {
+   "id": "zagorsky",
+   "stufe": "C",
+   "zitat": "Zagorsky, J. L. (2007): Do you have to be smart to be rich? The impact of IQ on wealth, income and financial distress. Intelligence 35(5), 489–501.",
+   "url": "https://doi.org/10.1016/j.intell.2007.02.003",
+   "linktext": "doi.org",
+   "hinweis": "USA, Längsschnitt NLSY79, Befragte 2004 im Alter von 33 bis 41 Jahren."
+  },
+  {
+   "id": "wai",
+   "stufe": "C",
+   "zitat": "Wai, J. & Rindermann, H. (2017): What goes into high educational and occupational achievement? Education, brains, hard work, networks, and other factors. High Ability Studies 28(1), 127–145.",
+   "url": "https://doi.org/10.1080/13598139.2017.1302874",
+   "linktext": "doi.org",
+   "hinweis": "USA. Die Restgruppe mischt „kein College“ und „keine Angabe“; der Anteil ohne College liegt also höchstens bei knapp 9 Prozent."
+  },
+  {
+   "id": "iab-leben",
+   "stufe": "B",
+   "zitat": "Schmillen, A. & Stüber, H. (2014): Bildung lohnt sich ein Leben lang. IAB-Kurzbericht 1/2014.",
+   "url": "https://doku.iab.de/kurzber/2014/kb0114.pdf",
+   "linktext": "iab.de",
+   "hinweis": "Entgelte 2008 bis 2010, nicht an die Preise von heute angepasst, Löhne nur bis zur Beitragsbemessungsgrenze."
+  }
+ ]
+}

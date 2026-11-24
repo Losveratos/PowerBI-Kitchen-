@@ -1,0 +1,377 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Die Treppe und die Wolke</title>
+<link rel="canonical" href="https://datenwgknowledgekitchen.com/schlau-gebildet-reich-story.html">
+<link rel="alternate" type="text/markdown" title="Markdown" href="md/schlau-gebildet-reich-story.md">
+<meta name="description" content="Scrollytelling in sieben Akten: wie eng Schulbildung, Intelligenz und Einkommen in Deutschland zusammenhängen, was Mittelwerte gegenüber dem Median verdecken, wer in der Verdienststatistik fehlt und warum Erfolgsgeschichten von Abbrechern nichts über Abbrecher sagen. Mit Quellen, Belegstufen und offenem Modell.">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Die Treppe und die Wolke">
+<meta property="og:description" content="Wie eng Schulbildung, Intelligenz und Einkommen in Deutschland zusammenhängen, was Mittelwerte verdecken und wen keine Statistik zeigt. Sieben Akte mit Quellen, Belegstufen und offenem Modell.">
+<meta property="og:url" content="https://datenwgknowledgekitchen.com/schlau-gebildet-reich-story.html">
+<meta property="og:image" content="https://datenwgknowledgekitchen.com/assets/start/shots/p-schlau-gebildet-reich-story.webp">
+<link rel="icon" href="assets/favicon-32.png" sizes="32x32">
+<link rel="stylesheet" href="assets/fonts/jetbrains-mono/jetbrains-mono.css">
+<style>
+:root{
+  --bg:#0d0d0d; --surface:#161616; --card:rgba(22,22,22,.92); --ring:rgba(255,255,255,.13);
+  --ink:#ffffff; --ink-2:#c9c7bd; --muted:#8e8c86; --grid:#2a2a28; --axis:#3a3a37; --dim:#55554f;
+  /* Drei Farben für drei Gruppen, einzeln geprüft auf Unterscheidbarkeit bei Farbfehlsichtigkeit.
+     Blau trägt außerdem jede Einzelreihe, Orange jede Hervorhebung. */
+  --blue:#3987e5; --orange:#d95926; --aqua:#199e70;
+  --sans:"Segoe UI",system-ui,-apple-system,Arial,sans-serif; --mono:"JetBrains Mono",ui-monospace,Consolas,monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth;color-scheme:dark}
+body{background:var(--bg);color:var(--ink-2);font-family:var(--sans);font-size:16px;line-height:1.65;-webkit-font-smoothing:antialiased}
+@media (prefers-reduced-motion: reduce){html{scroll-behavior:auto}}
+.hero{position:relative;min-height:92vh;display:flex;align-items:center;justify-content:center;overflow:hidden;text-align:center}
+.hero svg{position:absolute;inset:0;width:100%;height:100%;opacity:.6}
+.hero-inner{position:relative;max-width:880px;padding:40px max(16px,env(safe-area-inset-left)) 40px max(16px,env(safe-area-inset-right));z-index:2}
+.eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:.26em;text-transform:uppercase;color:var(--ink-2);margin-bottom:20px}
+.hero h1{font-weight:750;font-size:clamp(36px,7vw,78px);line-height:1.04;color:var(--ink);letter-spacing:-.015em;text-wrap:balance;text-shadow:0 2px 30px var(--bg)}
+.hero-sub{margin:26px auto 0;max-width:660px;font-size:clamp(16px,2vw,19px);color:var(--ink);text-shadow:0 1px 18px var(--bg),0 0 4px var(--bg)}
+.hero-meta{margin-top:34px;display:flex;gap:26px;justify-content:center;flex-wrap:wrap;font-family:var(--mono);font-size:12.5px;color:var(--ink-2);text-shadow:0 1px 12px var(--bg)}
+.hero-meta b{color:var(--ink);font-weight:600}
+.prose{max-width:700px;margin:0 auto;padding:72px max(16px,env(safe-area-inset-left)) 72px max(16px,env(safe-area-inset-right))}
+.prose h2{font-weight:700;letter-spacing:-.015em;font-size:clamp(26px,3.4vw,36px);color:var(--ink);margin-bottom:16px;line-height:1.2;text-wrap:balance}
+.prose h3{color:var(--ink);font-size:18px;margin:26px 0 8px}
+.prose p{margin-bottom:15px}
+.prose ul,.prose ol{margin:0 0 15px 1.2em}
+.prose li{margin-bottom:8px}
+.lede{font-size:19px;color:var(--ink)}
+.kicker{font-family:var(--mono);font-size:12px;letter-spacing:.26em;text-transform:uppercase;color:var(--muted);margin-bottom:12px}
+.facts{border:1px solid var(--ring);padding:16px 18px;font-size:14.5px;color:var(--ink-2);background:var(--surface)}
+.facts p{margin-bottom:10px}.facts p:last-child{margin-bottom:0}
+.facts b,.prose b{color:var(--ink)}
+.note{border-left:3px solid var(--orange);padding:4px 0 4px 16px;margin:18px 0;color:var(--ink)}
+.note .tag{display:block;font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);margin-bottom:4px}
+.act{padding:40px 0 10px}
+.act-head{max-width:700px;margin:0 auto;padding:0 max(16px,env(safe-area-inset-left)) 0 max(16px,env(safe-area-inset-right))}
+.act-head h2{font-weight:700;letter-spacing:-.015em;font-size:clamp(26px,3.4vw,36px);color:var(--ink);line-height:1.2;text-wrap:balance}
+.act-head p{margin-top:12px}
+.scrolly{position:relative;display:grid;grid-template-columns:1fr;max-width:1180px;margin:0 auto}
+.graphic{position:sticky;top:0;height:58vh;display:flex;align-items:center;justify-content:center;padding:10px max(16px,env(safe-area-inset-right)) 10px max(16px,env(safe-area-inset-left));z-index:1;background:linear-gradient(var(--bg) 85%,transparent)}
+.fig{position:relative;width:100%;height:100%;background:var(--surface);border:1px solid var(--ring)}
+@media (max-width:1019px){.graphic{padding-top:52px}}
+.fig svg{display:block;width:100%;height:100%}
+.fig-title{position:absolute;top:12px;left:16px;right:16px;pointer-events:none}
+.fig-title .t{font-weight:700;font-size:clamp(14px,1.8vw,18px);color:var(--ink)}
+.fig-title .s{font-family:var(--mono);font-size:11px;color:var(--muted);margin-top:2px}
+.steps{position:relative;z-index:2;padding:0 max(16px,env(safe-area-inset-left)) 30vh max(16px,env(safe-area-inset-right))}
+.step{max-width:440px;margin:0 auto 62vh;background:var(--card);border:1px solid var(--ring);padding:18px 20px;color:var(--ink-2);backdrop-filter:blur(3px)}
+.step:first-child{margin-top:8vh}
+.step b{color:var(--ink)}
+.step .n{font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:6px}
+.step.is-active{border-color:rgba(255,255,255,.35)}
+@media (min-width:1020px){
+  .scrolly{grid-template-columns:400px 1fr;gap:28px}
+  .graphic{grid-column:2;grid-row:1;height:100vh;top:0;padding:6vh 16px;background:none}
+  .steps{grid-column:1;grid-row:1;padding:0 0 30vh 16px}
+  .step{margin:0 0 70vh}
+  .step:first-child{margin-top:35vh}
+}
+.axis text,.lab{fill:var(--muted);font-family:var(--mono);font-size:11px;paint-order:stroke;stroke:var(--surface);stroke-width:3px;stroke-linejoin:round}
+.axis line,.axis path{stroke:var(--axis)}
+.gridl line{stroke:var(--grid)}
+.big{fill:var(--ink);font-family:var(--sans);font-weight:700}
+.tbl{width:100%;border-collapse:collapse;font-size:14px;margin:10px 0 16px}
+.tbl th{text-align:left;color:var(--muted);font-weight:600;border-bottom:1px solid var(--ring);padding:6px 6px}
+.tbl td{border-bottom:1px solid var(--grid);padding:6px 6px;vertical-align:top}
+.tbl td.r,.tbl th.r{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.tblwrap{overflow-x:auto}
+details{border-top:1px solid var(--ring);padding-top:14px;margin-top:20px}
+summary{cursor:pointer;color:var(--ink);font-weight:600}
+a{color:#8ab8ef}
+:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
+footer{max-width:700px;margin:0 auto;padding:40px max(16px,env(safe-area-inset-left)) 80px max(16px,env(safe-area-inset-right));font-family:var(--mono);font-size:12px;color:var(--muted)}
+.stat{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin:18px 0}
+.stat-i{border:1px solid var(--ring);background:var(--surface);padding:12px 14px}
+.stat-i b{display:block;font-size:26px;color:var(--ink);font-weight:700;line-height:1.1;margin-bottom:4px}
+.stat-i>span{font-family:var(--mono);font-size:11px;color:var(--muted);line-height:1.45;display:block;overflow-wrap:anywhere;hyphens:auto}
+.conf{display:inline-block;font-family:var(--mono);font-size:10px;font-weight:600;line-height:1;padding:3px 5px;border-radius:3px;vertical-align:1px;text-decoration:none}
+.conf-A{background:#12363b;color:#79d2dd}
+.conf-B{background:#3a2d15;color:#e2bb78}
+.conf-C{background:#3d2418;color:#f0a184}
+.conf-M{background:#2b2b28;color:#bcbab1}
+.refs{list-style:none;margin-left:0!important;font-size:14px}
+.refs li{margin-bottom:12px;padding-left:30px;text-indent:-30px}
+.refs .conf{text-indent:0;margin-right:8px;min-width:20px;text-align:center}
+#tip{position:fixed;display:none;z-index:30;pointer-events:none;max-width:260px;background:#000;border:1px solid var(--ring);padding:8px 10px;font-size:12.5px;line-height:1.45;color:var(--ink-2)}
+#tip b{color:var(--ink)}#tip span{font-family:var(--mono);font-size:10.5px;color:var(--muted)}
+</style>
+</head>
+<body>
+<script src="assets/js/site-chrome.js" data-chrome="mini"></script>
+<header class="hero">
+  <svg id="hero-bg" aria-hidden="true"></svg>
+  <div class="hero-inner">
+    <div class="eyebrow">Schulbildung · Intelligenz · Einkommen</div>
+    <h1>Die Treppe und die Wolke</h1>
+    <p class="hero-sub">Wer einen höheren Abschluss hat, verdient im Schnitt mehr. Wer in Intelligenztests besser abschneidet, auch. Diese Story zeigt für Deutschland, wie eng die Zusammenhänge sind, was ein Mittelwert neben dem Median verdeckt und wen weder die Statistik noch die Erfolgsgeschichte zeigt.</p>
+    <div class="hero-meta"><span><b>7</b> Akte</span><span><b>{{calc.n_quellen}}</b> Quellen mit Belegstufe</span><span><b>1</b> offenes Modell</span><span>Stand {{calc.stand}}</span></div>
+  </div>
+</header>
+
+<section class="prose" id="vorweg">
+  <p class="lede">Aus einer Treppe wird beim Hinsehen eine Wolke. Die Treppe sind die Durchschnitte je Abschluss, die jedes Jahr in den Nachrichten stehen. Die Wolke sind die einzelnen Menschen dahinter.</p>
+  <div class="facts">
+    <p><b>Was gemessen ist:</b> Verdienste, Vermögen, Arbeitslosigkeit und Armutsgefährdung stammen aus der amtlichen Statistik. Die Zusammenhänge mit Intelligenz stammen aus Metaanalysen und Einzelstudien. Jede Zahl trägt eine Belegstufe: <span class="conf conf-A">A</span> amtliche Statistik, <span class="conf conf-B">B</span> Metaanalyse oder Studie mit deutschen Daten, <span class="conf conf-C">C</span> Studie aus einem anderen Land, kleine oder nicht zufällige Stichprobe, Arbeitspapier.</p>
+    <p><b>Was gerechnet ist:</b> Einen frei verfügbaren deutschen Datensatz mit Testleistung, Abschluss und Verdienst je Person gibt es nicht. Wo einzelne Menschen zu sehen sind, ist es eine Modellbevölkerung <span class="conf conf-M">M</span>. Sie trifft die amtliche Verdienstverteilung und die Mediane der Abschlussgruppen. Die Stärke der Zusammenhänge ist aus den Studien übernommen und damit eine Annahme. Das Modell steht am Ende offen.</p>
+    <p><b>Was „Intelligenz“ hier heißt:</b> die Leistung in einem Test, auf der IQ-Skala mit Mittel 100. Sie hängt von Schule, Elternhaus und Tagesform mit ab und ist kein Maß für den Wert eines Menschen.</p>
+    <p><b>Wer schreibt:</b> Michael Tenner, Power-BI-Berater (Daten-WG). Recherche und Umsetzung mit einem KI-Agenten; jede Zahl wurde an der genannten Quelle abgerufen. Die Story fasst veröffentlichte Zahlen zusammen und rechnet nach, was aus ihnen folgt. Sie ersetzt keine Fachveröffentlichung.</p>
+  </div>
+</section>
+
+<section class="prose" id="blick">
+  <h2>Auf einen Blick</h2>
+  <div class="stat">
+    <div class="stat-i"><b>× {{calc.treppe_faktor|1}}</b><span>Verdienst mit Promotion gegenüber ohne Berufsabschluss, Mittelwerte, Vollzeit <a class="conf conf-A" href="#q-destatis-abschluss">A</a></span></div>
+    <div class="stat-i"><b>0,2 bis 0,3</b><span>Korrelation von Testleistung und Einkommen. Das sind rechnerisch {{d.model.r20.r2}} bis {{d.model.r30.r2}} % der Unterschiede <a class="conf conf-B" href="#q-strenze">B</a></span></div>
+    <div class="stat-i"><b>{{d.model.r30.above_iq_below_median|0}} %</b><span>der überdurchschnittlich Getesteten verdienen im Modell weniger als den Median <span class="conf conf-M">M</span></span></div>
+    <div class="stat-i"><b>{{calc.unter_mittel}} von 100</b><span>Vollzeitbeschäftigten verdienen weniger als den Mittelwert <a class="conf conf-A" href="#q-destatis-jahr">A</a> <span class="conf conf-M">M</span></span></div>
+    <div class="stat-i"><b>× {{calc.verm_mean_median|1}}</b><span>Mittelwert geteilt durch Median beim Nettovermögen der Haushalte <a class="conf conf-A" href="#q-bundesbank">A</a></span></div>
+    <div class="stat-i"><b>{{q.quali.ohne}} %</b><span>Arbeitslosenquote ohne Berufsausbildung, mit akademischer Ausbildung {{q.quali.akademisch}} % <a class="conf conf-A" href="#q-ba-quali">A</a></span></div>
+  </div>
+</section>
+
+<!-- AKT 1 -->
+<section class="act" id="akt1">
+  <div class="act-head"><div class="kicker">Akt 1</div><h2>Die Treppe</h2></div>
+  <div class="scrolly" data-chart="treppe">
+    <div class="graphic"><div class="fig"><div class="fig-title"><div class="t" data-title></div><div class="s" data-sub></div></div><svg role="img" aria-label="Balkendiagramm: durchschnittlicher Bruttomonatsverdienst von Vollzeitbeschäftigten nach höchstem beruflichem Abschluss"></svg></div></div>
+    <div class="steps">
+      <div class="step" data-state="bars"><span class="n">1 · Sechs Stufen</span>Im April 2025 verdienten Vollzeitbeschäftigte ohne beruflichen Abschluss im Schnitt <b>{{q.treppe.stufen.0.euro}} Euro</b> brutto im Monat, mit Berufsausbildung {{q.treppe.stufen.1.euro}} Euro, mit Promotion <b>{{q.treppe.stufen.5.euro}} Euro</b>. Der Meisterbrief ({{q.treppe.stufen.3.euro}} Euro) liegt knapp vor dem Bachelor ({{q.treppe.stufen.2.euro}} Euro). <a class="conf conf-A" href="#q-destatis-abschluss">A</a></div>
+      <div class="step" data-state="faktor"><span class="n">2 · Faktor {{calc.treppe_faktor|1}}</span>Zwischen der untersten und der obersten Stufe liegt das {{calc.treppe_faktor|1}}-Fache. So steht die Treppe jedes Jahr in den Nachrichten, und so weit stimmt sie. Über ein Erwerbsleben gerechnet kam das Institut für Arbeitsmarkt- und Berufsforschung auf rund {{calc.iab_ohne_mio|1}} Millionen Euro ohne Ausbildung und {{calc.iab_hoch_mio|1}} Millionen Euro mit Hochschulabschluss (Entgelte von 2008 bis 2010). <a class="conf conf-B" href="#q-iab-leben">B</a></div>
+      <div class="step" data-state="wer"><span class="n">3 · Was die Treppe zeigt und was nicht</span>Jede Stufe ist ein <b>Mittelwert</b>. Gezählt ist nur, wer in Vollzeit angestellt ist. Sonderzahlungen fehlen. Wer arbeitslos ist, in Teilzeit arbeitet oder selbstständig ist, steht auf keiner Stufe. Und ein Mittelwert sagt nicht, wie weit die Menschen auf einer Stufe auseinanderliegen. Beides kommt in den Akten 4, 5 und 7.</div>
+    </div>
+  </div>
+</section>
+
+<!-- AKT 2 -->
+<section class="act" id="akt2">
+  <div class="act-head"><div class="kicker">Akt 2</div><h2>Die Wolke</h2></div>
+  <div class="scrolly" data-chart="wolke">
+    <div class="graphic"><div class="fig"><div class="fig-title"><div class="t" data-title></div><div class="s" data-sub></div></div><svg role="img" aria-label="Punktwolke: Testleistung gegen Bruttojahresverdienst für 1.500 simulierte Personen, bei verschiedenen Annahmen zur Stärke des Zusammenhangs"></svg></div></div>
+    <div class="steps">
+      <div class="step" data-state="r0"><span class="n">1 · Kein Zusammenhang</span>{{calc.n_show}} simulierte Vollzeitbeschäftigte. Links-rechts die Testleistung, unten-oben der Bruttojahresverdienst. Die Verteilung der Verdienste entspricht der amtlichen von 2025: Median {{q.verdienst_jahr.median}} Euro, ein Prozent über {{d.earn.p99}} Euro. <a class="conf conf-A" href="#q-destatis-jahr">A</a> In diesem ersten Bild haben Testleistung und Verdienst nichts miteinander zu tun. Die Linie zeigt den mittleren Verdienst je Testleistung, sie liegt flach. <span class="conf conf-M">M</span></div>
+      <div class="step" data-state="r20"><span class="n">2 · r = 0,2: die Metaanalyse</span>Die größte Zusammenfassung von Längsschnittstudien kommt für Intelligenz und Einkommen auf eine Korrelation von <b>{{q.strenze.r_einkommen|2}}</b> ({{q.strenze.k_einkommen}} Studien, {{q.strenze.n_einkommen}} Personen, überwiegend USA). In den Studien mit der saubersten Anlage sind es {{q.strenze.r_einkommen_best|2}}. <a class="conf conf-B" href="#q-strenze">B</a> Die Linie steigt. Die Wolke bleibt eine Wolke.</div>
+      <div class="step" data-state="r30"><span class="n">3 · r = 0,3: deutsche Daten</span>Eine deutsche Längsschnittstudie hat Intelligenz mit zwölf Jahren gemessen und das Einkommen bis 2018 verfolgt: Korrelation {{q.biju.einstieg|2}} beim Berufseinstieg, {{q.biju.alter30|2}} mit 30, {{q.biju.alter40|2}} mit 40 Jahren. <a class="conf conf-B" href="#q-deutschmann">B</a> Ein US-Längsschnitt kommt auf {{q.zagorsky.r_einkommen|2}}. <a class="conf conf-C" href="#q-zagorsky">C</a> Mit 0,3 rechnet diese Story weiter. Das ist der obere Rand der deutschen Werte.</div>
+      <div class="step" data-state="r40"><span class="n">4 · r = 0,4: schwedische Register</span>Für {{q.keuschnigg.n}} schwedische Männer mit Musterungstest und Lohndaten aus dem Register liegt die Rangkorrelation bei <b>{{q.keuschnigg.rho|2}}</b>. <a class="conf conf-C" href="#q-keuschnigg">C</a> Das ist der höchste Wert unter den hier ausgewerteten Studien. Für Deutschland gibt es eine verwandte Zahl: Eine Standardabweichung mehr Rechenkompetenz geht mit {{q.hanushek.de}} % mehr Stundenlohn einher. <a class="conf conf-B" href="#q-hanushek">B</a></div>
+      <div class="step" data-state="quad"><span class="n">5 · Was r = 0,3 für Einzelne heißt</span>Bei r = 0,3 hängen rechnerisch {{d.model.r30.r2}} % der Unterschiede im Verdienstrang mit der Testleistung zusammen, {{calc.rest_r30}} % nicht. <b>{{d.model.r30.above_iq_below_median|0}} %</b> der Personen mit überdurchschnittlicher Testleistung verdienen weniger als den Median, und ebenso viele mit unterdurchschnittlicher verdienen mehr. Von den Personen mit einem Wert über 130 liegen {{d.model.r30.iq130_below_median|0}} % unter dem Median. <span class="conf conf-M">M</span></div>
+    </div>
+  </div>
+</section>
+
+<section class="prose">
+  <div class="note"><span class="tag">Einordnung</span>Eine Korrelation beschreibt eine Gruppe, keinen Menschen. Aus r = 0,3 lässt sich für eine einzelne Person fast nichts vorhersagen: Der mittlere Verdienst steigt mit der Testleistung, die Streuung um diesen mittleren Verdienst bleibt fast so groß wie in der ganzen Bevölkerung.</div>
+</section>
+
+<!-- AKT 3 -->
+<section class="act" id="akt3">
+  <div class="act-head"><div class="kicker">Akt 3</div><h2>Das Dreieck</h2></div>
+  <div class="scrolly" data-chart="dreieck">
+    <div class="graphic"><div class="fig"><div class="fig-title"><div class="t" data-title></div><div class="s" data-sub></div></div><svg role="img" aria-label="Schema: Intelligenz, Bildung und Einkommen als Dreieck mit den Korrelationen an den Kanten, darüber die Herkunft als vierte Größe"></svg></div></div>
+    <div class="steps">
+      <div class="step" data-state="ge"><span class="n">1 · Intelligenz und Bildung</span>Der engste der drei Zusammenhänge: Intelligenz und erreichter Bildungsstand korrelieren mit <b>{{q.strenze.r_bildung|2}}</b> ({{q.strenze.k_bildung}} Studien, {{q.strenze.n_bildung}} Personen). <a class="conf conf-B" href="#q-strenze">B</a> Mit Schulnoten sind es {{q.roth.rho|2}} ({{q.roth.stichproben}} Stichproben, {{q.roth.n}} Schülerinnen und Schüler). <a class="conf conf-B" href="#q-roth">B</a> Beide Werte sind um Messfehler korrigiert, die Rohwerte liegen bei {{q.strenze.roh_bildung|2}} und {{q.roth.roh|2}}.</div>
+      <div class="step" data-state="ey"><span class="n">2 · Bildung und Einkommen</span>Damit die Mediane der drei Abschlussgruppen so weit auseinanderliegen, wie die Bundesagentur für Arbeit sie misst, braucht das Modell eine Korrelation von <b>{{d.gruppen.rho|2}}</b> zwischen Bildungsneigung und Verdienstrang. <span class="conf conf-M">M</span> Gemessen ist: Ein Bildungsjahr mehr geht in Deutschland mit {{q.hanushek.mincer_de}} % mehr Stundenlohn einher. <a class="conf conf-B" href="#q-hanushek">B</a></div>
+      <div class="step" data-state="gy"><span class="n">3 · Der direkte Weg ist schmal</span>Intelligenz und Einkommen: {{q.strenze.r_einkommen_label}}. Rechnet man im Modell den Abschluss heraus, bleibt für die Testleistung eine Korrelation von {{d.model.r30.partial|2}} mit dem Verdienst. <span class="conf conf-M">M</span> Die deutsche Längsschnittstudie kommt zu einem ähnlichen Ergebnis: Bildung vermittelt praktisch den gesamten Effekt der Intelligenz im Kindesalter. <a class="conf conf-B" href="#q-deutschmann">B</a> Im Sozio-oekonomischen Panel bringt eine Standardabweichung mehr im Test bei Männern rund {{q.heineck.maenner}} % mehr Lohn, bei gleicher Tätigkeit {{q.heineck.mit_job}} %. <a class="conf conf-B" href="#q-heineck">B</a></div>
+      <div class="step" data-state="beide"><span class="n">4 · Der Pfeil zeigt in beide Richtungen</span>Wer besser abschneidet, bleibt länger in der Schule. Aber die Schule hebt auch die Testleistung: um etwa <b>{{q.ritchie.punkte}} IQ-Punkte je Bildungsjahr</b>, je nach Studienanlage {{q.ritchie.von}} bis {{q.ritchie.bis}} ({{q.ritchie.datensaetze}} Datensätze, {{q.ritchie.n}} Personen). <a class="conf conf-B" href="#q-ritchie">B</a> Ein Teil der Korrelation von {{q.strenze.r_bildung|2}} ist also Folge der Bildung und nicht ihre Ursache.</div>
+      <div class="step" data-state="herkunft"><span class="n">5 · Die vierte Größe</span>Von 100 Kindern aus Akademikerfamilien beginnen <b>{{q.trichter.studium_akad}}</b> ein Studium, von 100 aus Familien ohne Hochschulabschluss <b>{{q.trichter.studium_nicht}}</b>. <a class="conf conf-B" href="#q-trichter">B</a> Bei gleicher Lesekompetenz und gleichen kognitiven Grundfähigkeiten hat ein Kind aus einer Facharbeiterfamilie eine {{q.iglu.faktor}}-mal geringere Chance auf eine Gymnasialempfehlung der Lehrkraft. <a class="conf conf-B" href="#q-iglu">B</a> Die Herkunft wirkt auf alle drei Ecken, auch auf das Einkommen (Korrelation mit 40 Jahren: {{q.biju.herkunft40|2}}). <a class="conf conf-B" href="#q-deutschmann">B</a></div>
+    </div>
+  </div>
+</section>
+
+<section class="prose">
+  <h3>Der Bildungstrichter in Zahlen</h3>
+  <div class="tblwrap"><table class="tbl">
+    <tr><th>von 100 Grundschulkindern erreichen</th><th class="r">Eltern ohne Hochschulabschluss</th><th class="r">Eltern mit Hochschulabschluss</th></tr>
+    <tr><td>eine Schule, die zur Hochschulreife führt</td><td class="r">{{q.trichter.schule_nicht}}</td><td class="r">{{q.trichter.schule_akad}}</td></tr>
+    <tr><td>den Studienanfang</td><td class="r">{{q.trichter.studium_nicht}}</td><td class="r">{{q.trichter.studium_akad}}</td></tr>
+    <tr><td>den Bachelor</td><td class="r">{{q.trichter.bachelor_nicht}}</td><td class="r">{{q.trichter.bachelor_akad}}</td></tr>
+    <tr><td>den Master</td><td class="r">{{q.trichter.master_nicht}}</td><td class="r">{{q.trichter.master_akad}}</td></tr>
+    <tr><td>die Promotion</td><td class="r">{{q.trichter.promotion_nicht}}</td><td class="r">{{q.trichter.promotion_akad}}</td></tr>
+  </table></div>
+  <p>Quelle: Stifterverband und McKinsey mit Daten des DZHW. <a class="conf conf-B" href="#q-trichter">B</a> Der ifo-Chancenmonitor kommt mit dem Mikrozensus 2022 auf ein ähnliches Bild: {{q.chancen.kein_abi}} % Gymnasialbesuch, wenn kein Elternteil Abitur hat, {{q.chancen.zwei_abi}} %, wenn beide es haben. <a class="conf conf-B" href="#q-chancen">B</a> In der Lesestudie IGLU 2021 brauchte ein Kind aus der oberen Dienstklasse {{q.iglu.obere}} Punkte für eine Gymnasialempfehlung mit 50 % Wahrscheinlichkeit, ein Kind aus einer Facharbeiterfamilie {{q.iglu.facharbeiter}} und ein Kind un- und angelernter Arbeiter {{q.iglu.ungelernt}}. <a class="conf conf-B" href="#q-iglu">B</a></p>
+  <p>Wer die Treppe als „Intelligenz zahlt sich aus“ liest, überspringt deshalb zwei Schritte: Der Abschluss hängt nicht nur an der Testleistung, und die Testleistung hängt nicht nur am Kind.</p>
+</section>
+
+<!-- AKT 4 -->
+<section class="act" id="akt4">
+  <div class="act-head"><div class="kicker">Akt 4</div><h2>In den Stufen</h2></div>
+  <div class="scrolly" data-chart="gruppen">
+    <div class="graphic"><div class="fig"><div class="fig-title"><div class="t" data-title></div><div class="s" data-sub></div></div><svg role="img" aria-label="Streifendiagramm: Bruttojahresverdienst von 1.500 simulierten Personen in drei Abschlussgruppen mit dem Median je Gruppe"></svg></div></div>
+    <div class="steps">
+      <div class="step" data-state="punkte"><span class="n">1 · Dieselben Personen, nach Abschluss</span>Die {{calc.n_show}} Modellpersonen aus Akt 2, jetzt in den drei Gruppen der Entgeltstatistik: {{d.gruppen.rows.0.pct}} % ohne beruflichen Abschluss, {{d.gruppen.rows.1.pct}} % mit anerkanntem Berufsabschluss, {{d.gruppen.rows.2.pct}} % mit akademischem Abschluss. <a class="conf conf-A" href="#q-ba-entgelt">A</a> Jede Stufe der Treppe ist in Wahrheit ein breites Band. <span class="conf conf-M">M</span></div>
+      <div class="step" data-state="mediane"><span class="n">2 · Die Mediane</span>Die Bundesagentur für Arbeit misst für Vollzeitbeschäftigte Medianentgelte von <b>{{q.ba_entgelt.gruppen.0.median}} Euro</b> ohne Abschluss, {{q.ba_entgelt.gruppen.1.median}} Euro mit Berufsabschluss und <b>{{q.ba_entgelt.gruppen.2.median}} Euro</b> mit akademischem Abschluss im Monat (Ende 2025, mit Sonderzahlungen). <a class="conf conf-A" href="#q-ba-entgelt">A</a> Auf diese Abstände ist das Modell eingestellt. Der Faktor zwischen unten und oben beträgt hier {{calc.ba_faktor|1}}. Die Treppe aus Akt 1 kam auf {{calc.treppe_faktor|1}}, weil sie Bachelor, Master und Promotion trennt und Mittelwerte statt Mediane zeigt.</div>
+      <div class="step" data-state="ueber"><span class="n">3 · Die Stufen überlappen</span>Gemessen, nicht modelliert: <b>{{d.gruppen.mid_ueber_6000}} %</b> der Beschäftigten mit Berufsabschluss verdienen über 6.000 Euro im Monat, also etwa so viel wie die mittlere Person mit akademischem Abschluss oder mehr. {{d.gruppen.top_bis_4000}} % der Akademikerinnen und Akademiker liegen bei höchstens 4.000 Euro und damit unter dem Median der Gruppe mit Berufsabschluss. Von den Beschäftigten ohne Abschluss verdienen {{d.gruppen.low_ueber_4000}} % über 4.000 Euro. <a class="conf conf-A" href="#q-ba-entgelt">A</a> Das Modell kommt an denselben Stellen auf {{d.gruppen.m_mid_ueber_6000}}, {{d.gruppen.m_top_bis_4000}} und {{d.gruppen.m_low_ueber_4000}} %. <span class="conf conf-M">M</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- AKT 5 -->
+<section class="act" id="akt5">
+  <div class="act-head"><div class="kicker">Akt 5</div><h2>Median gegen Mittelwert</h2></div>
+  <div class="scrolly" data-chart="parade">
+    <div class="graphic"><div class="fig"><div class="fig-title"><div class="t" data-title></div><div class="s" data-sub></div></div><svg role="img" aria-label="Säulendiagramm: 100 Vollzeitbeschäftigte nach Bruttojahresverdienst sortiert, mit Median und Mittelwert; danach Vergleich von Median und Mittelwert beim Vermögen"></svg></div></div>
+    <div class="steps">
+      <div class="step" data-state="median"><span class="n">1 · Die Person in der Mitte</span>Hundert Vollzeitbeschäftigte, nach Verdienst aufgestellt. Die Person in der Mitte verdiente 2025 <b>{{q.verdienst_jahr.median}} Euro</b> brutto im Jahr, Sonderzahlungen eingerechnet. Das ist der Median: Die Hälfte hat mehr, die Hälfte weniger. Die unteren zehn liegen bei höchstens {{d.earn.p10}} Euro, die oberen zehn bei mindestens {{d.earn.p90}} Euro. <a class="conf conf-A" href="#q-destatis-jahr">A</a></div>
+      <div class="step" data-state="mittel"><span class="n">2 · Der Mittelwert liegt höher</span>Der Mittelwert beträgt <b>{{q.verdienst_jahr.mittelwert}} Euro</b>, das {{calc.mean_median|2}}-Fache des Medians. <a class="conf conf-A" href="#q-destatis-jahr">A</a> Zwischen den veröffentlichten Perzentilen interpoliert, verdienen rund <b>{{calc.unter_mittel}} von 100</b> weniger als diesen Durchschnitt. <span class="conf conf-M">M</span> Der Mittelwert ist die Zahl, die sich ergibt, wenn man alles gleich verteilt. Für die typische Person steht der Median.</div>
+      <div class="step" data-state="spitze"><span class="n">3 · Person 100</span>Dasselbe Bild mit einer Achse, auf die auch die letzte Säule passt. Ins oberste Prozent gehört, wer mindestens <b>{{d.earn.p99}} Euro</b> verdient, das {{calc.p99_median|1}}-Fache des Medians. <a class="conf conf-A" href="#q-destatis-jahr">A</a> Im Modell verdient dieses eine Prozent im Schnitt rund {{calc.top1_mittel}} Euro und erhält {{d.earn.top1_share}} % der gesamten Verdienstsumme. Nur so kommt der amtliche Mittelwert heraus. <span class="conf conf-M">M</span> Die letzte Säule zieht den Durchschnitt aller hundert nach oben, die 99 davor bemerken sie nicht.</div>
+      <div class="step" data-state="vermoegen"><span class="n">4 · Beim Vermögen ist der Abstand größer</span>Beim Verdienst liegt der Mittelwert {{calc.mean_median|2}}-mal über dem Median. Beim Nettovermögen der Haushalte ist es das <b>{{calc.verm_mean_median|1}}-Fache</b>: Mittelwert {{q.vermoegen.mean}} Euro, Median {{q.vermoegen.median}} Euro. Den vermögendsten zehn Prozent gehören {{q.vermoegen.top10}} % des Nettovermögens. <a class="conf conf-A" href="#q-bundesbank">A</a></div>
+      <div class="step" data-state="vb"><span class="n">5 · Vermögen nach Abschluss</span>Haushalte, deren Hauptperson keinen beruflichen Abschluss hat, besitzen im Mittel {{q.vermoegen.bildung.0.mean}} Euro. Der Median dieser Gruppe liegt bei <b>{{q.vermoegen.bildung.0.median}} Euro</b>. Wenige vermögende Haushalte ohne Abschluss heben den Durchschnitt auf das {{calc.verm_ohne_faktor|0}}-Fache dessen, was der typische Haushalt der Gruppe hat. <a class="conf conf-A" href="#q-bundesbank">A</a> Wer mit diesem Mittelwert argumentiert, beschreibt die Ausreißer.</div>
+    </div>
+  </div>
+</section>
+
+<section class="prose">
+  <div class="note"><span class="tag">Auch oben fehlen Menschen</span>Befragungen erreichen sehr Vermögende kaum. Das DIW hat seine Stichprobe deshalb gezielt um Hochvermögende und eine Reichenliste ergänzt. Der Anteil des reichsten Prozents am Nettovermögen stieg dadurch von {{q.diw.top1_soep}} % auf <b>{{q.diw.top1}} %</b>, der Anteil der reichsten zehn Prozent von {{q.diw.top10_soep}} % auf {{q.diw.top10}} %. <a class="conf conf-B" href="#q-diw-mio">B</a> Die Ausreißer nach oben sind in den üblichen Zahlen eher zu klein als zu groß.</div>
+</section>
+
+<!-- AKT 6 -->
+<section class="act" id="akt6">
+  <div class="act-head"><div class="kicker">Akt 6</div><h2>Ganz oben</h2></div>
+  <div class="scrolly" data-chart="spitze">
+    <div class="graphic"><div class="fig"><div class="fig-title"><div class="t" data-title></div><div class="s" data-sub></div></div><svg role="img" aria-label="Verteilung der Testleistung: alle Modellpersonen und das oberste Prozent im Verdienst, mit dem in Schweden gemessenen Mittelwert"></svg></div></div>
+    <div class="steps">
+      <div class="step" data-state="alle"><span class="n">1 · Die Frage</span>Wenn Testleistung und Verdienst zusammenhängen: Stehen dann ganz oben die mit den höchsten Werten? Die graue Fläche zeigt die Testleistung aller Modellpersonen. <span class="conf conf-M">M</span></div>
+      <div class="step" data-state="r30"><span class="n">2 · Das oberste Prozent bei r = 0,3</span>Bei r = 0,3 liegt das oberste Prozent der Verdienste im Mittel bei <b>{{d.model.r30.top1_mean_iq|0}}</b>. {{d.model.r30.top1_below100|0}} % dieser Personen haben eine Testleistung unter 100, {{d.model.r30.top1_above130|0}} % eine über 130. <span class="conf conf-M">M</span> Das oberste Prozent ist klüger als der Durchschnitt, aber es ist keine Auswahl der Klügsten.</div>
+      <div class="step" data-state="r40"><span class="n">3 · Bei r = 0,4</span>Mit dem schwedischen Wert aus Akt 2 rückt das oberste Prozent auf <b>{{d.model.r40.top1_mean_iq|0}}</b>, und {{d.model.r40.top1_below100|0}} % liegen unter 100. <span class="conf conf-M">M</span> Das wäre die Erwartung, wenn der Zusammenhang über die ganze Verdienstskala gleich stark wäre.</div>
+      <div class="step" data-state="schweden"><span class="n">4 · Gemessen: oben wird es flach</span>In den schwedischen Registerdaten steigt die Testleistung mit dem Lohn nur bis etwa <b>{{q.keuschnigg.plateau_eur}} Euro</b> im Jahr. Darüber bleibt sie bei rund einer Standardabweichung über dem Mittel stehen. Das oberste Prozent liegt bei +{{q.keuschnigg.top1_sd|2}} Standardabweichungen, auf der IQ-Skala etwa {{q.keuschnigg.top1_iq}}, und schneidet etwas schlechter ab als die Gruppe direkt darunter. <a class="conf conf-C" href="#q-keuschnigg">C</a> Das ist weniger, als das Modell bei r = 0,4 erwartet. Nur Männer, nur Schweden.</div>
+    </div>
+  </div>
+</section>
+
+<section class="prose">
+  <h3>Was oben stattdessen zählt</h3>
+  <p>Für Deutschland gibt es keine Daten zur Testleistung von Spitzenverdienern. Es gibt aber Daten dazu, woher große Vermögen kommen. Unter den Millionärinnen und Millionären sind nach Stellung im Beruf {{q.diw.selbststaendig}} % selbstständig. {{q.diw.frauen}} % sind Frauen, {{q.diw.ost}} % leben in Ostdeutschland. <a class="conf conf-B" href="#q-diw-mio">B</a> In einer Befragung von {{q.hvid.interviews}} Hochvermögenden nannten {{q.hvid.unternehmen}} % Unternehmertum als wichtigsten Grund ihres Vermögens, {{q.hvid.erbschaft}} % Erbschaft oder Schenkung und {{q.hvid.arbeit}} % ein Gehalt. <a class="conf conf-C" href="#q-hvid">C</a> Die Hälfte aller Erbschafts- und Schenkungssummen geht an die reichsten zehn Prozent der Begünstigten. <a class="conf conf-B" href="#q-baresel">B</a></p>
+  <p>In den USA korreliert der IQ mit dem Einkommen mit {{q.zagorsky.r_einkommen|2}}, mit dem Nettovermögen nur mit {{q.zagorsky.r_vermoegen|2}}. <a class="conf conf-C" href="#q-zagorsky">C</a> Je weiter man nach oben schaut, desto weniger erklären Testleistung und Abschluss, und desto mehr erklären Eigentum, Selbstständigkeit und Familie.</p>
+</section>
+
+<!-- AKT 7 -->
+<section class="act" id="akt7">
+  <div class="act-head"><div class="kicker">Akt 7</div><h2>Die Unsichtbaren</h2>
+    <p>Survivorship Bias heißt: Man zieht Schlüsse aus denen, die übrig geblieben sind, und übersieht die anderen. In diesem Thema passiert das zweimal. Die Verdienststatistik zählt nur, wer eine Vollzeitstelle hat. Und die Erfolgsgeschichte erzählt nur, wer es nach oben geschafft hat.</p></div>
+  <div class="scrolly" data-chart="unsichtbar">
+    <div class="graphic"><div class="fig"><div class="fig-title"><div class="t" data-title></div><div class="s" data-sub></div></div><svg role="img" aria-label="Je 100 Punkte für niedrigen, mittleren und hohen Bildungsstand: Anteil nicht Erwerbstätiger, Arbeitsloser und Armutsgefährdeter"></svg></div></div>
+    <div class="steps">
+      <div class="step" data-state="erwerb"><span class="n">1 · Wer auf der Treppe fehlt</span>Von 100 Menschen zwischen 25 und 64 Jahren mit niedrigem Bildungsstand sind <b>{{calc.nicht_erwerb_0}}</b> nicht erwerbstätig, mit mittlerem {{calc.nicht_erwerb_1}}, mit hohem {{calc.nicht_erwerb_2}}. <a class="conf conf-A" href="#q-bildungsindikatoren">A</a> Die Treppe aus Akt 1 vergleicht also unten eine Auswahl von gut sechs Zehnteln der Gruppe mit oben fast neun Zehnteln. Der wahre Abstand zwischen den Gruppen ist größer als der Abstand zwischen den Stufen.</div>
+      <div class="step" data-state="alq"><span class="n">2 · Arbeitslosigkeit</span>Ohne abgeschlossene Berufsausbildung lag die Arbeitslosenquote 2025 bei <b>{{q.quali.ohne}} %</b>, mit betrieblicher oder schulischer Ausbildung bei {{q.quali.ausbildung}} %, mit akademischer bei {{q.quali.akademisch}} %. <a class="conf conf-A" href="#q-ba-quali">A</a> Beim Verdienst trennt der Abschluss um den Faktor {{calc.treppe_faktor|1}}, bei der Arbeitslosigkeit um den Faktor {{calc.quali_faktor|1}}.</div>
+      <div class="step" data-state="armut"><span class="n">3 · Armutsgefährdung</span>Armutsgefährdet waren 2025 <b>{{q.unsichtbar.rows.0.armut}} %</b> der Menschen mit niedrigem Bildungsstand, {{q.unsichtbar.rows.1.armut}} % mit mittlerem und {{q.unsichtbar.rows.2.armut}} % mit hohem. <a class="conf conf-A" href="#q-armut">A</a> Im Abschlussjahr 2025 verließen {{q.schule.ohne_abschluss}} Jugendliche die Schule ohne Ersten Schulabschluss, {{q.schule.anteil}} % aller Abgänge. <a class="conf conf-A" href="#q-schulabgang">A</a> Über diese Menschen wird selten eine Geschichte erzählt.</div>
+    </div>
+  </div>
+</section>
+
+<section class="prose" id="geschichte">
+  <h2>Die Geschichte, die erzählt wird</h2>
+  <p>Erzählt wird gern vom Schul- oder Studienabbrecher, der ein Unternehmen aufgebaut hat. Solche Menschen gibt es. Aber eine Geschichte entsteht aus dem Ausgang, und zum Ausgang „ist gescheitert“ gibt es selten ein Porträt. Wer aus den erzählten Fällen auf alle Abbrecher schließt, rechnet mit einer Stichprobe, in der die übrigen fehlen. Ein Blick auf die, die oben angekommen sind:</p>
+  <div class="stat">
+    <div class="stat-i"><b>{{q.dsm.hochschule}} %</b><span>der Start-up-Gründerinnen und -Gründer haben einen Hochschulabschluss, {{q.dsm.promotion}} % eine Promotion <a class="conf conf-C" href="#q-dsm">C</a></span></div>
+    <div class="stat-i"><b>{{q.dax.uni}} + {{q.dax.fh}} %</b><span>der DAX-Vorstände haben einen Universitäts- oder Fachhochschulabschluss, {{q.dax.promotion}} % sind promoviert <a class="conf conf-C" href="#q-odgers">C</a></span></div>
+    <div class="stat-i"><b>{{q.diw.abi_mio}} %</b><span>der Millionärinnen und Millionäre haben die Hochschulreife, in der unteren Vermögenshälfte {{q.diw.abi_unten}} % <a class="conf conf-C" href="#q-soeppaper">C</a></span></div>
+    <div class="stat-i"><b>{{q.wai.college}} %</b><span>von {{q.wai.n}} US-Führungskräften, Richtern und Milliardären haben ein College besucht <a class="conf conf-C" href="#q-wai">C</a></span></div>
+  </div>
+  <p>Unter den Millionärinnen und Millionären der DIW-Stichprobe hat niemand die Schule ohne Abschluss verlassen. In der unteren Vermögenshälfte sind es {{q.diw.ohne_schule_unten}} %. <a class="conf conf-C" href="#q-soeppaper">C</a></p>
+  <p>Die Ausreißer nach oben gibt es trotzdem, und sie lassen sich zählen: <b>{{calc.ohne_ueber_6000_n}}</b> Vollzeitbeschäftigte ohne beruflichen Abschluss verdienen mehr als 6.000 Euro im Monat. Das sind {{calc.ohne_ueber_6000}} % ihrer Gruppe. {{d.gruppen.low_bis_3000}} % derselben Gruppe verdienen höchstens 3.000 Euro. Mit akademischem Abschluss liegen {{d.gruppen.top_ueber_6000}} % über 6.000 Euro. <a class="conf conf-A" href="#q-ba-entgelt">A</a> Jede einzelne dieser {{calc.ohne_ueber_6000_n}} Geschichten ist wahr. Als Aussage über die Gruppe taugt der Median: {{q.ba_entgelt.gruppen.0.median}} Euro.</p>
+  <p>Gegründet wird auch ohne Abschluss, und zwar häufig: {{q.kfw.ohne_abschluss}} % aller Existenzgründungen des Jahres 2025 kamen von Menschen ohne Berufsabschluss, {{q.kfw.akademisch}} % von Menschen mit Hochschulabschluss. <a class="conf conf-B" href="#q-kfw">B</a> Die Abbrecher-Geschichte handelt aber nicht von diesen Gründungen, sondern von den wenigen, die sehr groß wurden. Sie ist wahr für die Person, von der sie handelt, und sagt nichts über die Gruppe, aus der die Person kommt.</p>
+</section>
+
+<section class="prose" id="fazit">
+  <h2>Was bleibt</h2>
+  <ul>
+    <li><b>Die Treppe stimmt, aber sie beschreibt Durchschnitte.</b> Zwischen den Stufen liegt der Faktor {{calc.treppe_faktor|1}}. Innerhalb jeder Stufe liegen die Verdienste weit auseinander, und die Stufen überlappen.</li>
+    <li><b>Intelligenz und Einkommen hängen schwach zusammen.</b> Bei 0,2 bis 0,3 bleibt für Einzelne fast alles offen. Der Weg läuft weitgehend über den Abschluss.</li>
+    <li><b>Der Abschluss hängt nicht nur an der Testleistung.</b> Bei gleicher Leistung entscheidet die Herkunft mit, und Schule hebt die Testleistung selbst.</li>
+    <li><b>Der Median beschreibt die typische Person, der Mittelwert die Summe.</b> Beim Verdienst liegen sie {{calc.mean_median|2}}-fach auseinander, beim Vermögen {{calc.verm_mean_median|1}}-fach, bei Haushalten ohne Abschluss {{calc.verm_ohne_faktor|0}}-fach.</li>
+    <li><b>Ganz oben erklärt Testleistung wenig.</b> In Schweden hört der Anstieg bei etwa {{q.keuschnigg.plateau_eur}} Euro auf. Große Vermögen kommen aus Unternehmen und Erbschaften.</li>
+    <li><b>Zwei Gruppen fehlen im Bild.</b> Unten die, die keine Vollzeitstelle haben. Oben die, die keine Befragung erreicht. Und in den Erfolgsgeschichten alle, bei denen es nicht geklappt hat.</li>
+  </ul>
+</section>
+
+<section class="prose" id="grenzen">
+  <h2>Was diese Daten nicht sagen</h2>
+  <ul>
+    <li>Sie sagen nichts über einzelne Menschen und nichts über den Wert von Menschen. Alle Zusammenhänge gelten für große Gruppen.</li>
+    <li>Sie belegen keine Ursache. Korrelationen zwischen Testleistung, Abschluss und Einkommen entstehen auch durch Elternhaus, Gesundheit, Wohnort, Beruf und Zufall.</li>
+    <li>Die Werte für Intelligenz und Einkommen stammen überwiegend aus den USA und aus Schweden. Für Deutschland gibt es eine Längsschnittstudie und Kompetenzmessungen bei Erwachsenen, aber keine Registerdaten.</li>
+    <li>Die Metaanalysen berichten um Messfehler korrigierte Werte. Die Rohwerte sind kleiner (Intelligenz und Bildung {{q.strenze.roh_bildung|2}}, Intelligenz und Einkommen {{q.strenze.roh_einkommen|2}}).</li>
+    <li>Verdienst ist nicht Einkommen. Die amtlichen Zahlen sind Bruttoverdienste von Angestellten. Selbstständige, Kapitalerträge, Renten und Transfers fehlen.</li>
+    <li>Die Quellen grenzen Bildung verschieden ab: beruflicher Abschluss (Verdienste, Arbeitslosigkeit) oder Bildungsstand nach internationaler Einteilung (Erwerbstätigkeit, Armut). Dort zählen Meister und Techniker zum hohen Bildungsstand.</li>
+    <li>Die Stichjahre unterscheiden sich: Verdienste 2025, Vermögen 2023, Millionärsstudie 2019, Bildungstrichter mit Geburtsjahrgängen 1992 bis 1998.</li>
+  </ul>
+</section>
+
+<section class="prose" id="transparenz">
+  <h2>Transparenz: Messung und Modell</h2>
+  <div class="tblwrap"><table class="tbl">
+    <tr><th>Was die Story zeigt</th><th>Herkunft</th></tr>
+    <tr><td>Treppe (Akt 1), Mediane und Überlappung der Gruppen (Akt 4), Median, Mittelwert und Perzentile (Akt 5), Vermögen, Erwerbstätigkeit, Arbeitslosigkeit, Armut (Akt 7)</td><td><span class="conf conf-A">A</span> amtlich, unverändert übernommen</td></tr>
+    <tr><td>Korrelationen und Effektgrößen im Text</td><td><span class="conf conf-B">B</span> <span class="conf conf-C">C</span> aus den genannten Studien</td></tr>
+    <tr><td>Punkte in Akt 2 und 4, Linie in Akt 2, Anteile über und unter dem Median, Testleistung im obersten Prozent (Akt 6)</td><td><span class="conf conf-M">M</span> Modellbevölkerung</td></tr>
+    <tr><td>Säulen zwischen den veröffentlichten Perzentilen, Verdienst von Person 100 (Akt 5)</td><td><span class="conf conf-M">M</span> Interpolation und Annahme über den oberen Rand</td></tr>
+  </table></div>
+
+  <h3>Das Modell</h3>
+  <p><b>Verdienstverteilung.</b> Bruttojahresverdienst von Vollzeitbeschäftigten 2025. Stützstellen sind die veröffentlichten Perzentile 10, 30, 50, 90 und 99. Dazwischen ist der Logarithmus des Verdienstes linear im Normalwert des Rangs interpoliert. Unter dem 10. Perzentil gilt die Steigung des ersten Abschnitts, mindestens aber {{q.verdienst_jahr.untergrenze}} Euro (Mindestlohn 2025 bei 30 Wochenstunden). Über dem 99. Perzentil folgt ein Pareto-Ausläufer mit dem Exponenten {{d.earn.alpha|2}}. Er ist so gewählt, dass der Mittelwert der ganzen Verteilung dem amtlichen Mittelwert entspricht. Zur Probe: Für das 80. Perzentil nennt das Statistische Bundesamt „rund 80.000 Euro“, das Modell ergibt {{calc.p80}} Euro.</p>
+  <p><b>Drei Größen je Person.</b> Testleistung, Bildungsneigung und Verdienstrang sind gemeinsam normalverteilt (Gauß-Kopula). Korrelation Testleistung und Bildungsneigung: {{q.strenze.r_bildung|2}} (Metaanalyse). Korrelation Testleistung und Verdienstrang: 0,2, 0,3 oder 0,4 (Annahme, begründet in Akt 2), sonst 0,3. Korrelation Bildungsneigung und Verdienstrang: {{d.gruppen.rho|2}}. Dieser Wert ist nicht übernommen, sondern so bestimmt, dass die Mediane der drei Abschlussgruppen im Verhältnis zum Gesamtmedian möglichst gut zu den Medianentgelten der Bundesagentur passen.</p>
+  <p><b>Gruppen.</b> Die Bildungsneigung wird nach den Anteilen der Vollzeitbeschäftigten mit bekanntem Abschluss geschnitten: {{d.gruppen.rows.0.pct}} % ohne beruflichen Abschluss, {{d.gruppen.rows.1.pct}} % mit anerkanntem Berufsabschluss, {{d.gruppen.rows.2.pct}} % mit akademischem Abschluss.</p>
+  <div class="tblwrap"><table class="tbl">
+    <tr><th>Gruppe</th><th class="r">Median im Modell</th><th class="r">Ziel aus der Statistik</th></tr>
+    <tr><td>{{d.gruppen.rows.0.label}}</td><td class="r">{{d.gruppen.rows.0.median}} €</td><td class="r">{{d.gruppen.rows.0.ziel}} €</td></tr>
+    <tr><td>{{d.gruppen.rows.1.label}}</td><td class="r">{{d.gruppen.rows.1.median}} €</td><td class="r">{{d.gruppen.rows.1.ziel}} €</td></tr>
+    <tr><td>{{d.gruppen.rows.2.label}}</td><td class="r">{{d.gruppen.rows.2.median}} €</td><td class="r">{{d.gruppen.rows.2.ziel}} €</td></tr>
+  </table></div>
+  <p><b>Probe.</b> Die Bundesagentur veröffentlicht je Abschlussgruppe, wie viele Beschäftigte in sechs Entgeltklassen liegen. Diese Werte gehen nicht in das Modell ein und eignen sich deshalb als Prüfung. Anteil der Gruppe bis zur genannten Grenze, gemessen und im Modell an derselben Stelle relativ zum Median:</p>
+  <div class="tblwrap"><table class="tbl">
+    <tr><th>bis … Euro im Monat</th><th class="r">2.000</th><th class="r">3.000</th><th class="r">4.000</th><th class="r">5.000</th><th class="r">6.000</th></tr>
+    <tr><td>ohne Abschluss, gemessen</td><td class="r">{{d.gruppen.rows.0.kum_ba.0|0}} %</td><td class="r">{{d.gruppen.rows.0.kum_ba.1|0}} %</td><td class="r">{{d.gruppen.rows.0.kum_ba.2|0}} %</td><td class="r">{{d.gruppen.rows.0.kum_ba.3|0}} %</td><td class="r">{{d.gruppen.rows.0.kum_ba.4|0}} %</td></tr>
+    <tr><td>ohne Abschluss, Modell</td><td class="r">{{d.gruppen.rows.0.kum_modell.0|0}} %</td><td class="r">{{d.gruppen.rows.0.kum_modell.1|0}} %</td><td class="r">{{d.gruppen.rows.0.kum_modell.2|0}} %</td><td class="r">{{d.gruppen.rows.0.kum_modell.3|0}} %</td><td class="r">{{d.gruppen.rows.0.kum_modell.4|0}} %</td></tr>
+    <tr><td>Berufsabschluss, gemessen</td><td class="r">{{d.gruppen.rows.1.kum_ba.0|0}} %</td><td class="r">{{d.gruppen.rows.1.kum_ba.1|0}} %</td><td class="r">{{d.gruppen.rows.1.kum_ba.2|0}} %</td><td class="r">{{d.gruppen.rows.1.kum_ba.3|0}} %</td><td class="r">{{d.gruppen.rows.1.kum_ba.4|0}} %</td></tr>
+    <tr><td>Berufsabschluss, Modell</td><td class="r">{{d.gruppen.rows.1.kum_modell.0|0}} %</td><td class="r">{{d.gruppen.rows.1.kum_modell.1|0}} %</td><td class="r">{{d.gruppen.rows.1.kum_modell.2|0}} %</td><td class="r">{{d.gruppen.rows.1.kum_modell.3|0}} %</td><td class="r">{{d.gruppen.rows.1.kum_modell.4|0}} %</td></tr>
+    <tr><td>Hochschulabschluss, gemessen</td><td class="r">{{d.gruppen.rows.2.kum_ba.0|0}} %</td><td class="r">{{d.gruppen.rows.2.kum_ba.1|0}} %</td><td class="r">{{d.gruppen.rows.2.kum_ba.2|0}} %</td><td class="r">{{d.gruppen.rows.2.kum_ba.3|0}} %</td><td class="r">{{d.gruppen.rows.2.kum_ba.4|0}} %</td></tr>
+    <tr><td>Hochschulabschluss, Modell</td><td class="r">{{d.gruppen.rows.2.kum_modell.0|0}} %</td><td class="r">{{d.gruppen.rows.2.kum_modell.1|0}} %</td><td class="r">{{d.gruppen.rows.2.kum_modell.2|0}} %</td><td class="r">{{d.gruppen.rows.2.kum_modell.3|0}} %</td><td class="r">{{d.gruppen.rows.2.kum_modell.4|0}} %</td></tr>
+  </table></div>
+  <p><b>Umfang.</b> {{calc.n_big}} Personen für die Kennzahlen, die ersten {{calc.n_show}} davon in den Diagrammen. Fester Startwert {{calc.seed|raw}}, der Lauf ist wiederholbar. Der Code liegt im Repository unter <code>schlau-gebildet-reich/scripts/</code>, die veröffentlichten Werte unter <code>schlau-gebildet-reich/data/quellen.json</code>.</p>
+
+  <h3>Was das Modell nicht kann</h3>
+  <ul>
+    <li>Es kennt keine Herkunft, kein Geschlecht, kein Alter, keine Branche und keine Region. Alle diese Größen stecken im Rest.</li>
+    <li>Es unterstellt, dass der Zusammenhang über die ganze Skala gleich stark ist. Die schwedischen Daten zeigen, dass das am oberen Rand nicht stimmt.</li>
+    <li>Die Breite der Bänder in Akt 4 ist eine Folge der Annahmen. Die Probe oben zeigt, wie weit sie von den gemessenen Entgeltklassen abweicht.</li>
+    <li>Die Gruppen entstehen durch harte Schnitte an einer einzigen angenommenen Größe. Aussagen über die Testleistung einzelner Abschlussgruppen lässt das Modell deshalb nicht zu, und die Story macht keine.</li>
+    <li>Der Verdienst über dem 99. Perzentil ist eine Annahme über die Form. Gesichert ist nur, dass der Mittelwert stimmt.</li>
+  </ul>
+
+  <h3>Sensitivität</h3>
+  <div class="tblwrap"><table class="tbl">
+    <tr><th>Annahme für Testleistung und Verdienstrang</th><th class="r">0,2</th><th class="r">0,3</th><th class="r">0,4</th></tr>
+    <tr><td>überdurchschnittlich getestet, Verdienst unter dem Median</td><td class="r">{{d.model.r20.above_iq_below_median|0}} %</td><td class="r">{{d.model.r30.above_iq_below_median|0}} %</td><td class="r">{{d.model.r40.above_iq_below_median|0}} %</td></tr>
+    <tr><td>Testleistung über 130, Verdienst unter dem Median</td><td class="r">{{d.model.r20.iq130_below_median|0}} %</td><td class="r">{{d.model.r30.iq130_below_median|0}} %</td><td class="r">{{d.model.r40.iq130_below_median|0}} %</td></tr>
+    <tr><td>Testleistung über 130, mittlerer Verdienst</td><td class="r">{{d.model.r20.iq130_median}} €</td><td class="r">{{d.model.r30.iq130_median}} €</td><td class="r">{{d.model.r40.iq130_median}} €</td></tr>
+    <tr><td>oberstes Verdienstprozent, mittlere Testleistung</td><td class="r">{{d.model.r20.top1_mean_iq|0}}</td><td class="r">{{d.model.r30.top1_mean_iq|0}}</td><td class="r">{{d.model.r40.top1_mean_iq|0}}</td></tr>
+    <tr><td>oberstes Verdienstprozent, Testleistung unter 100</td><td class="r">{{d.model.r20.top1_below100|0}} %</td><td class="r">{{d.model.r30.top1_below100|0}} %</td><td class="r">{{d.model.r40.top1_below100|0}} %</td></tr>
+    <tr><td>Korrelation Testleistung und Verdienstrang bei gleichem Abschluss</td><td class="r">{{d.model.r20.partial|2}}</td><td class="r">{{d.model.r30.partial|2}}</td><td class="r">{{d.model.r40.partial|2}}</td></tr>
+  </table></div>
+  <p>Der negative Wert bei 0,2 zeigt, dass die drei Korrelationen nicht ganz zusammenpassen. Bei {{q.strenze.r_bildung|2}} zwischen Testleistung und Bildung und {{d.gruppen.rho|2}} zwischen Bildung und Verdienst müsste die Korrelation von Testleistung und Verdienst bei mindestens {{calc.r_min|2}} liegen, damit eine höhere Testleistung bei gleichem Abschluss nicht mit weniger Verdienst einhergeht. Die Werte stammen aus verschiedenen Ländern, Jahrzehnten und Stichproben und sind unterschiedlich um Messfehler korrigiert. Auch deshalb rechnet die Story mit 0,3.</p>
+</section>
+
+<section class="prose" id="quellen">
+  <h2>Quellen</h2>
+  <p>Alle Quellen wurden am {{calc.stand}} abgerufen. Wo eine Zahl nicht am Original, sondern an einer Arbeitspapier-Fassung oder einer Handreichung geprüft ist, steht das dabei.</p>
+  <ul class="refs">
+<!--__QUELLEN__-->
+  </ul>
+</section>
+
+<footer>Michael Tenner · Daten-WG Knowledge Kitchen · Stand {{calc.stand}} · Korrekturen und Hinweise: michael.tenner84@gmail.com</footer>
+<div id="tip" role="tooltip"></div>
+
+<script src="assets/js/vendor/d3-7.9.0.min.js"></script>
+<script>
+const D = /*__DATA__*/null;
+/*__CHARTS__*/
+</script>
+</body>
+</html>
