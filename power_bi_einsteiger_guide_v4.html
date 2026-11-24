@@ -2752,7 +2752,7 @@ kbd.kbd {
     <h2 class="section-title">DAX <em>· Formelsprache</em></h2>
     <span class="section-hint">20 Karten · inkl. 14 Rezepte</span>
   </div>
-  <p class="section-intro">DAX ist das Herz der analytischen Auswertung in Power BI. Ohne DAX bleibt man bei einfachen Summen — mit DAX werden Time-Intelligence, dynamische Filter und komplexe Geschäftslogik möglich. Unten findest du dazu 14 <strong>DAX-Rezepte</strong> — vom Vorjahresvergleich bis zu den User-Defined Functions, Stand Oktober 2026.</p>
+  <p class="section-intro">DAX ist das Herz der analytischen Auswertung in Power BI. Ohne DAX bleibt man bei einfachen Summen — mit DAX werden Time-Intelligence, dynamische Filter und komplexe Geschäftslogik möglich. Unten findest du dazu 14 <strong>DAX-Rezepte</strong> — vom Vorjahresvergleich bis zu den User-Defined Functions, Stand November 2026.</p>
 
   <div class="start-with">
     <span class="start-with-label">Als erstes</span>
@@ -2800,7 +2800,7 @@ kbd.kbd {
 
   <!-- pbi2 · DAX-Rezepte -->
   <h3 style="font-family: var(--serif); font-weight: 500; font-size: 20px; margin: 32px 0 16px; letter-spacing: -0.01em;">DAX-Rezepte <em style="color: var(--c-dax);">· Muster für den Alltag</em></h3>
-  <p class="section-intro" style="margin-bottom: 16px; font-size: 16px;">Jedes Rezept: wann du es brauchst, die Formel, der Filterkontext-Trick in einem Satz, der typische Fehler und der Learn-Link. Alle Formeln nutzen das Beispielmodell dieses Guides: <code>fact_verkauf</code> (Menge, Preis, Umsatz, LieferDatum), <code>'Datum'</code> (Datum, Jahr, Quartal, Monatsbeginn), <code>Region[Name]</code>, <code>Produkt[Produkt]</code> und die Basis-Measure <code>[Umsatz] = SUM(fact_verkauf[Umsatz])</code>. Stand Oktober 2026.</p>
+  <p class="section-intro" style="margin-bottom: 16px; font-size: 16px;">Jedes Rezept: wann du es brauchst, die Formel, der Filterkontext-Trick in einem Satz, der typische Fehler und der Learn-Link. Alle Formeln nutzen das Beispielmodell dieses Guides: <code>fact_verkauf</code> (Menge, Preis, Umsatz, LieferDatum), <code>'Datum'</code> (Datum, Jahr, Quartal, Monatsbeginn), <code>Region[Name]</code>, <code>Produkt[Produkt]</code> und die Basis-Measure <code>[Umsatz] = SUM(fact_verkauf[Umsatz])</code>. Stand November 2026.</p>
 
   <div class="card-grid card-grid-3">
     <button class="card" data-c="dax" data-key="dax-r-vj">
@@ -2973,6 +2973,17 @@ kbd.kbd {
           <a class="dwg-folge-ts" href="https://www.youtube.com/watch?v=6gQiIbyhWEc&amp;t=443s" target="_blank" rel="noopener" title="Auf YouTube ab 7:23 abspielen">▶ 7:23</a>
         </div>
       </div>
+      <div class="dwg-folge">
+        <a class="dwg-folge-link" href="folgen.html#ep-nldG2mLwA30" aria-label="Folge öffnen: The Five Pillars of DAX · Francesco Bergamaschi"></a>
+        <span class="dwg-folge-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><polygon points="8 5 19 12 8 19 8 5" fill="currentColor"/></svg></span>
+        <div class="dwg-folge-main">
+          <div class="dwg-folge-eyebrow">Sprungmarke · The Five Pillars of DAX · Francesco Bergamaschi</div>
+          <div class="dwg-folge-title">ALLSELECTED: how to use it without getting burned</div>
+        </div>
+        <div class="dwg-folge-meta">
+          <a class="dwg-folge-ts" href="https://www.youtube.com/watch?v=nldG2mLwA30&amp;t=543s" target="_blank" rel="noopener" title="Auf YouTube ab 9:03 abspielen">▶ 9:03</a>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -2999,7 +3010,7 @@ kbd.kbd {
           <li><a href="https://learn.microsoft.com/de-de/training/paths/dax-power-bi/" target="_blank" rel="noopener">Lernpfad: DAX in semantischen Modellen</a></li>
           <li><a href="https://learn.microsoft.com/de-de/training/modules/dax-power-bi-modify-filter/" target="_blank" rel="noopener">Modul: DAX-Filterkontext ändern</a></li>
           <li><a href="https://learn.microsoft.com/de-de/training/modules/dax-power-bi-time-intelligence/" target="_blank" rel="noopener">Modul: DAX-Zeitintelligenz</a></li>
-          <li><a href="https://learn.microsoft.com/de-de/training/modules/create-calculation-groups/" target="_blank" rel="noopener">Modul: Calculation Groups</a></li>
+          <li><a href="https://learn.microsoft.com/de-de/training/modules/design-semantic-models-scale/" target="_blank" rel="noopener">Modul: Semantikmodelle in Fabric skalierbar entwerfen (u. a. Berechnungen)</a></li>
         </ul>
       </div>
       <div class="vertiefen-col">
@@ -3038,8 +3049,8 @@ kbd.kbd {
       <p class="hero-text"><strong>Things that mean the same should look the same.</strong> Das ist der zentrale IBCS-Tenet. Wenn Ist-Werte überall solide gefüllt, Plan-Werte überall hohl und Vorjahres-Werte überall schraffiert sind — dann liest sich jedes Diagramm in Sekundenbruchteilen.</p>
     </div>
     <div>
-      <p class="hero-text"><strong>Power BI &amp; IBCS:</strong> Out-of-the-box ist Power BI nicht IBCS-konform. Mit Custom Visuals wie Inforiver oder Zebra BI — beide kostenpflichtig, aber etabliert —, mit Deneb und eigenen Themes lässt sich IBCS sauber umsetzen. In Microsoft Fabric bringt Planning (Fabric IQ) zusätzlich IBCS-zertifizierte Intelligence Sheets mit. Viele SUCCESS-Regeln — Botschaft, Achsen, Farbe, Dichte — gehen schon mit Bordmitteln.</p>
-      <p class="hero-text" style="margin-top: 8px;"><strong>Status (Oktober 2026):</strong> ISO 24896:2026 „Notation for business reporting“ — laut IBCS Association im Juni 2026 veröffentlicht (seit Juli 2024 ISO-Projekt).</p>
+      <p class="hero-text"><strong>Power BI &amp; IBCS:</strong> Out-of-the-box ist Power BI nicht IBCS-konform. Mit Custom Visuals wie Inforiver oder Zebra BI — beide kostenpflichtig, aber etabliert —, mit Deneb und eigenen Themes lässt sich IBCS sauber umsetzen. In Microsoft Fabric bringt Planning (Fabric IQ) zusätzlich IBCS-zertifizierte Intelligence Sheets mit. Viele SUCCESS-Regeln — Botschaft, Achsen, Farbe, Dichte — gehen schon mit Bordmitteln. Die Daten-WG baut eigene, IBCS-inspirierte (nicht zertifizierte) Visuals: <a href="chartkitchen-doku.html">ChartKitchen</a> und <a href="pnl-doku.html">P&amp;L Statement</a>.</p>
+      <p class="hero-text" style="margin-top: 8px;"><strong>Status (November 2026):</strong> ISO 24896:2026 „Notation for business reporting“ — laut IBCS Association im Juni 2026 veröffentlicht.</p>
     </div>
   </div>
 
@@ -3242,6 +3253,39 @@ kbd.kbd {
           <a class="dwg-folge-ts" href="https://www.youtube.com/watch?v=GWCHNmLs72M&amp;t=179s" target="_blank" rel="noopener" title="Auf YouTube ab 2:59 abspielen">▶ 2:59</a>
         </div>
       </div>
+      <div class="dwg-folge">
+        <a class="dwg-folge-link" href="folgen.html#ep-n2j_NJVb-GE" aria-label="Folge öffnen: Power BI Update Oktober 2026"></a>
+        <span class="dwg-folge-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><polygon points="8 5 19 12 8 19 8 5" fill="currentColor"/></svg></span>
+        <div class="dwg-folge-main">
+          <div class="dwg-folge-eyebrow">Sprungmarke · Power BI Update Oktober 2026</div>
+          <div class="dwg-folge-title">Natives Gantt-Diagramm (Preview): Start und Ende als Measure</div>
+        </div>
+        <div class="dwg-folge-meta">
+          <a class="dwg-folge-ts" href="https://www.youtube.com/watch?v=n2j_NJVb-GE&amp;t=16s" target="_blank" rel="noopener" title="Auf YouTube ab 0:16 abspielen">▶ 0:16</a>
+        </div>
+      </div>
+      <div class="dwg-folge">
+        <a class="dwg-folge-link" href="folgen.html#ep--_4bfrjRCVo" aria-label="Folge öffnen: Objektive Daten gibt es nicht"></a>
+        <span class="dwg-folge-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><polygon points="8 5 19 12 8 19 8 5" fill="currentColor"/></svg></span>
+        <div class="dwg-folge-main">
+          <div class="dwg-folge-eyebrow">Sprungmarke · Objektive Daten gibt es nicht</div>
+          <div class="dwg-folge-title">Der entscheidende Hebel: erst die knackige Botschaft, dann die Details</div>
+        </div>
+        <div class="dwg-folge-meta">
+          <a class="dwg-folge-ts" href="https://www.youtube.com/watch?v=-_4bfrjRCVo&amp;t=547s" target="_blank" rel="noopener" title="Auf YouTube ab 9:07 abspielen">▶ 9:07</a>
+        </div>
+      </div>
+      <div class="dwg-folge">
+        <a class="dwg-folge-link" href="folgen.html#ep-tXBcz_b1PQc" aria-label="Folge öffnen: BI Thinkers Talk nr.80"></a>
+        <span class="dwg-folge-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><polygon points="8 5 19 12 8 19 8 5" fill="currentColor"/></svg></span>
+        <div class="dwg-folge-main">
+          <div class="dwg-folge-eyebrow">Solo · 61 min</div>
+          <div class="dwg-folge-title">BI Thinkers Talk nr.80: ein IBCS-inspiriertes Custom Visual mit Small Multiples</div>
+        </div>
+        <div class="dwg-folge-meta">
+          <a class="dwg-folge-yt" href="https://youtu.be/tXBcz_b1PQc" target="_blank" rel="noopener" title="Direkt auf YouTube"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg></a>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -3260,6 +3304,8 @@ kbd.kbd {
           <li><a href="https://learn.microsoft.com/de-de/power-bi/visuals/power-bi-visualization-customize-x-axis-and-y-axis" target="_blank" rel="noopener">Achsen anpassen (Bereich, Runden)</a></li>
           <li><a href="https://learn.microsoft.com/de-de/power-bi/create-reports/power-bi-sparklines-tables" target="_blank" rel="noopener">Sparklines in Tabelle &amp; Matrix</a></li>
           <li><a href="https://learn.microsoft.com/de-de/fabric/iq/plan/intelligence-ibcs/how-to-apply-ibcs-formatting" target="_blank" rel="noopener">IBCS-Vorlagen in Planning (Fabric IQ)</a></li>
+          <li><a href="https://learn.microsoft.com/de-de/power-bi/create-reports/power-bi-visual-style-presets" target="_blank" rel="noopener">Stilvorlagen für Visuals (Style presets)</a></li>
+          <li><a href="https://learn.microsoft.com/de-de/power-bi/visuals/power-bi-visualization-gantt" target="_blank" rel="noopener">Gantt-Visual (Preview)</a></li>
         </ul>
       </div>
       <div class="vertiefen-col">
@@ -3267,7 +3313,15 @@ kbd.kbd {
         <ul>
           <li><a href="https://learn.microsoft.com/de-de/training/modules/power-bi-effective-reports/" target="_blank" rel="noopener">Modul: Power BI-Berichte entwerfen</a></li>
           <li><a href="https://learn.microsoft.com/de-de/training/paths/power-bi-effective/" target="_blank" rel="noopener">Lernpfad: Effektive Berichte in Power BI</a></li>
-          <li><a href="https://learn.microsoft.com/de-de/training/modules/visuals-in-power-bi/" target="_blank" rel="noopener">Modul: Visuals in Power BI</a></li>
+        </ul>
+        <div class="vertiefen-label" style="margin-top: 14px;">Aus der Kitchen</div>
+        <ul>
+          <li><a href="chartkitchen-doku.html">ChartKitchen byDatenWG · Doku</a></li>
+          <li><a href="ibcs-trainer.html">IBCS-Trainer · Notation üben</a></li>
+          <li><a href="business-chart-builder.html">Business Chart Builder · Deneb-Vorlagen</a></li>
+          <li><a href="finance-reporting-budapest-post.html">Eine GuV-Seite, sechs Sprossen</a></li>
+          <li><a href="visual-standards-rechner.html">Visual-Standards-Rechner: Core, Deneb oder Custom Visual?</a></li>
+          <li><a href="visuals-sicherheit.html">Custom Visuals prüfen: Sicherheit &amp; Betrieb</a></li>
         </ul>
       </div>
       <div class="vertiefen-col">
@@ -3292,7 +3346,7 @@ kbd.kbd {
     <h2 class="section-title">Interaktivität <em>· UX</em></h2>
     <span class="section-hint">7 Karten · Klickbar</span>
   </div>
-  <p class="section-intro">Statische Berichte beantworten eine Frage. Interaktive Berichte werden zum Analyse-Werkzeug. Mit Drillthrough, Bookmarks, Buttons und Field Parameters wird aus einer Reportseite ein Tool, mit dem Anwender selbst in die Daten eintauchen. Neu dabei: Copilot im Bericht — und Q&amp;A läuft im Februar 2027 aus.</p>
+  <p class="section-intro">Statische Berichte beantworten eine Frage. Interaktive Berichte werden zum Analyse-Werkzeug. Mit Drillthrough, Bookmarks, Buttons und Field Parameters wird aus einer Reportseite ein Tool, mit dem Anwender selbst in die Daten eintauchen. Neu dabei: Copilot im Bericht — und Q&amp;A läuft laut Learn im Februar 2027 aus (eine ältere Ankündigung nannte Dezember 2026).</p>
 
   <div class="start-with">
     <span class="start-with-label">Als erstes</span>
@@ -3428,6 +3482,28 @@ kbd.kbd {
           <a class="dwg-folge-ts" href="https://www.youtube.com/watch?v=TAM5AAZqh7k&amp;t=40s" target="_blank" rel="noopener" title="Auf YouTube ab 0:40 abspielen">▶ 0:40</a>
         </div>
       </div>
+      <div class="dwg-folge">
+        <a class="dwg-folge-link" href="folgen.html#ep-n2j_NJVb-GE" aria-label="Folge öffnen: Power BI Update Oktober 2026"></a>
+        <span class="dwg-folge-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><polygon points="8 5 19 12 8 19 8 5" fill="currentColor"/></svg></span>
+        <div class="dwg-folge-main">
+          <div class="dwg-folge-eyebrow">Sprungmarke · Power BI Update Oktober 2026</div>
+          <div class="dwg-folge-title">Listenslicer jetzt auch als Dropdown</div>
+        </div>
+        <div class="dwg-folge-meta">
+          <a class="dwg-folge-ts" href="https://www.youtube.com/watch?v=n2j_NJVb-GE&amp;t=169s" target="_blank" rel="noopener" title="Auf YouTube ab 2:49 abspielen">▶ 2:49</a>
+        </div>
+      </div>
+      <div class="dwg-folge">
+        <a class="dwg-folge-link" href="folgen.html#ep-HQaLWjA-E2E" aria-label="Folge öffnen: How to Write Back"></a>
+        <span class="dwg-folge-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><polygon points="8 5 19 12 8 19 8 5" fill="currentColor"/></svg></span>
+        <div class="dwg-folge-main">
+          <div class="dwg-folge-eyebrow">Sprungmarke · How to Write Back</div>
+          <div class="dwg-folge-title">Translytical Task Flows explained: native, low-cost, and flexible</div>
+        </div>
+        <div class="dwg-folge-meta">
+          <a class="dwg-folge-ts" href="https://www.youtube.com/watch?v=HQaLWjA-E2E&amp;t=825s" target="_blank" rel="noopener" title="Auf YouTube ab 13:45 abspielen">▶ 13:45</a>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -3447,13 +3523,14 @@ kbd.kbd {
           <li><a href="https://learn.microsoft.com/de-de/power-bi/create-reports/power-bi-field-parameters" target="_blank" rel="noopener">Feldparameter</a></li>
           <li><a href="https://learn.microsoft.com/de-de/power-bi/create-reports/desktop-tooltips" target="_blank" rel="noopener">Berichtsseiten als QuickInfo</a></li>
           <li><a href="https://learn.microsoft.com/de-de/power-bi/visuals/power-bi-visualization-conditional-formatting" target="_blank" rel="noopener">Bedingte Formatierung</a></li>
+          <li><a href="https://learn.microsoft.com/de-de/power-bi/visuals/power-bi-visualization-slicer-visual" target="_blank" rel="noopener">Slicer (inkl. Datumsauswahl)</a></li>
+          <li><a href="https://learn.microsoft.com/de-de/fabric/iq/connectors/copilot-power-bi-fabric" target="_blank" rel="noopener">Microsoft Copilot in Power BI und Fabric (Preview)</a></li>
         </ul>
       </div>
       <div class="vertiefen-col">
         <div class="vertiefen-label">Microsoft Learn · Training</div>
         <ul>
           <li><a href="https://learn.microsoft.com/de-de/training/modules/power-bi-effective-user-experience/" target="_blank" rel="noopener">Modul: Berichtsdesign für die User Experience</a></li>
-          <li><a href="https://learn.microsoft.com/de-de/training/modules/power-bi-effective-filters/" target="_blank" rel="noopener">Modul: Berichtsfilter konfigurieren</a></li>
         </ul>
       </div>
       <div class="vertiefen-col">
@@ -3463,6 +3540,7 @@ kbd.kbd {
           <li><a href="wissensgraph/thema/drillthrough.html">Thema Drillthrough</a></li>
           <li><a href="wissensgraph/thema/bookmarks.html">Thema Bookmarks</a></li>
           <li><a href="wissensgraph/thema/copilot.html">Thema Copilot</a></li>
+          <li><a href="wissensgraph/thema/translytical-task-flows.html">Thema Translytical Task Flows</a></li>
         </ul>
       </div>
     </div>
@@ -3574,6 +3652,17 @@ kbd.kbd {
           <a class="dwg-folge-ts" href="https://www.youtube.com/watch?v=EVsJ6zyGUWc&amp;t=2585s" target="_blank" rel="noopener" title="Auf YouTube ab 43:05 öffnen">▶ 43:05</a>
         </div>
       </div>
+      <div class="dwg-folge">
+        <a class="dwg-folge-link" href="folgen.html#ep-3V9DQwfm0GA" aria-label="Folge öffnen: Power BI Update September 2026"></a>
+        <span class="dwg-folge-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><polygon points="8 5 19 12 8 19 8 5" fill="currentColor"/></svg></span>
+        <div class="dwg-folge-main">
+          <div class="dwg-folge-eyebrow">Ab 6:48 · Power BI Update September 2026</div>
+          <div class="dwg-folge-title">Das neue Monitoring für Aktualisierungen</div>
+        </div>
+        <div class="dwg-folge-meta">
+          <a class="dwg-folge-ts" href="https://www.youtube.com/watch?v=3V9DQwfm0GA&amp;t=408s" target="_blank" rel="noopener" title="Auf YouTube ab 6:48 öffnen">▶ 6:48</a>
+        </div>
+      </div>
     </div>
     <div class="deep-links">
       <div class="deep-links-group">
@@ -3590,7 +3679,7 @@ kbd.kbd {
         <div class="deep-links-label">Microsoft Learn · Training</div>
         <ul>
           <li><a href="https://learn.microsoft.com/training/modules/manage-workspaces-power-bi-service/" target="_blank" rel="noopener">Manage workspaces in Power BI service</a></li>
-          <li><a href="https://learn.microsoft.com/en-us/training/modules/power-bi-deployment-pipelines/" target="_blank" rel="noopener">Create and manage a Power BI deployment pipeline</a></li>
+          <li><a href="https://learn.microsoft.com/training/modules/implement-cicd-in-fabric/" target="_blank" rel="noopener">Implement CI/CD in Microsoft Fabric</a></li>
           <li><a href="https://learn.microsoft.com/training/modules/choose-content-distribution-method/" target="_blank" rel="noopener">Choose a content distribution method</a></li>
         </ul>
       </div>
@@ -3601,6 +3690,8 @@ kbd.kbd {
           <li><a href="wissensgraph/thema/workspace.html">Thema: Workspace</a></li>
           <li><a href="wissensgraph/thema/git.html">Thema: Git</a></li>
           <li><a href="wissensgraph/thema/refresh.html">Thema: Refresh</a></li>
+          <li><a href="wissensgraph/thema/premium.html">Thema: Premium</a></li>
+          <li><a href="wissensgraph/thema/self-service-bi.html">Thema: Self-Service BI</a></li>
         </ul>
       </div>
     </div>
@@ -3836,7 +3927,7 @@ kbd.kbd {
     <button class="card" data-c="ext" data-key="ext-copilot">
       <div class="card-eyebrow">KI</div>
       <h3 class="card-title">Copilot in Power BI</h3>
-      <p class="card-desc">DAX schreiben, Berichte zusammenfassen, Fragen stellen. Voraussetzung: bezahlte Kapazität ab F2 (oder P1).</p>
+      <p class="card-desc">DAX schreiben, Berichte zusammenfassen, Fragen stellen. Im Bericht: bezahlte Kapazität ab F2 (oder P1). Standalone-Copilot endet am 15.01.2027.</p>
       <div class="card-more">Mehr →</div>
     </button>
     <button class="card" data-c="ext" data-key="ext-fabric">
@@ -3858,7 +3949,7 @@ kbd.kbd {
       <span class="dwg-folgen-block-eyebrow">Aus dem Kanal</span>
       <span class="dwg-folgen-block-title">Fabric &amp; Tooling in der Praxis</span>
     </div>
-    <p class="dwg-folgen-block-hint">OneLake-Speicherorte, Mirroring ohne ETL und MCP Server für Power-BI-Modelling — drei Folgen für das Drumherum jenseits von Desktop.</p>
+    <p class="dwg-folgen-block-hint">OneLake-Speicherorte, Mirroring ohne ETL, MCP Server für Power-BI-Modelling und Fabric Apps — Folgen für das Drumherum jenseits von Desktop.</p>
     <div class="dwg-folgen-list">
       <div class="dwg-folge">
         <a class="dwg-folge-link" href="folgen.html#ep-ZVVSPQj9dlc" aria-label="Folge öffnen: Wo liegen meine Daten im OneLake"></a>
@@ -3893,6 +3984,17 @@ kbd.kbd {
           <a class="dwg-folge-yt" href="https://youtu.be/iinfiHxznOU" target="_blank" rel="noopener" title="Direkt auf YouTube"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg></a>
         </div>
       </div>
+      <div class="dwg-folge">
+        <a class="dwg-folge-link" href="folgen.html#ep-PW6MP-SDmRk" aria-label="Folge öffnen: Fabric &amp; Power BI Quarterly · 2026-3"></a>
+        <span class="dwg-folge-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><polygon points="8 5 19 12 8 19 8 5" fill="currentColor"/></svg></span>
+        <div class="dwg-folge-main">
+          <div class="dwg-folge-eyebrow">Sprungmarke · Fabric &amp; Power BI Quarterly · 2026-3</div>
+          <div class="dwg-folge-title">MS Build: Fabric Apps und Rayfin</div>
+        </div>
+        <div class="dwg-folge-meta">
+          <a class="dwg-folge-ts" href="https://www.youtube.com/watch?v=PW6MP-SDmRk&amp;t=586s" target="_blank" rel="noopener" title="Auf YouTube ab 9:46 abspielen">▶ 9:46</a>
+        </div>
+      </div>
     </div>
   </div>
   <div class="dwg-folgen-block deep-dive-block">
@@ -3900,7 +4002,7 @@ kbd.kbd {
       <span class="dwg-folgen-block-eyebrow">Weiter vertiefen</span>
       <span class="dwg-folgen-block-title">Code first: PBIP, TMDL, MCP und Modell-Checks</span>
     </div>
-    <p class="dwg-folgen-block-hint">Wie PBIR/PBIP, TMDL und MCP-Server den Werkzeugkasten verändern – und warum Copilot kein Modell ersetzt. Klick auf die Zeile öffnet die Folgen-Karte mit Kapiteln, der Zeitstempel springt direkt an die Stelle auf YouTube.</p>
+    <p class="dwg-folgen-block-hint">Wie PBIR/PBIP, TMDL und MCP-Server den Werkzeugkasten verändern – und warum Copilot kein Modell ersetzt. Wie agentische Entwicklung im eigenen Team aussieht, zeigt <a href="power-bi-on-claude.html">Power BI on Claude</a>. Klick auf die Zeile öffnet die Folgen-Karte mit Kapiteln, der Zeitstempel springt direkt an die Stelle auf YouTube.</p>
     <div class="dwg-folgen-list">
       <div class="dwg-folge">
         <a class="dwg-folge-link" href="folgen.html#ep-TYp5xCAU2AU" aria-label="Folge öffnen: Fabric &amp; Power BI Quarterly · 2026-1"></a>
@@ -3957,6 +4059,39 @@ kbd.kbd {
           <a class="dwg-folge-ts" href="https://www.youtube.com/watch?v=d3HdhRe_nK8&amp;t=1295s" target="_blank" rel="noopener" title="Auf YouTube ab 21:35 öffnen">▶ 21:35</a>
         </div>
       </div>
+      <div class="dwg-folge">
+        <a class="dwg-folge-link" href="folgen.html#ep-3V9DQwfm0GA" aria-label="Folge öffnen: Power BI Update September 2026"></a>
+        <span class="dwg-folge-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><polygon points="8 5 19 12 8 19 8 5" fill="currentColor"/></svg></span>
+        <div class="dwg-folge-main">
+          <div class="dwg-folge-eyebrow">Ab 10:02 · Power BI Update September 2026</div>
+          <div class="dwg-folge-title">Agentic Development für Power BI ist GA</div>
+        </div>
+        <div class="dwg-folge-meta">
+          <a class="dwg-folge-ts" href="https://www.youtube.com/watch?v=3V9DQwfm0GA&amp;t=602s" target="_blank" rel="noopener" title="Auf YouTube ab 10:02 öffnen">▶ 10:02</a>
+        </div>
+      </div>
+      <div class="dwg-folge">
+        <a class="dwg-folge-link" href="folgen.html#ep-KeK1Mv0mXfM" aria-label="Folge öffnen: AI Analytics: Einfach Tokens draufwerfen?"></a>
+        <span class="dwg-folge-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><polygon points="8 5 19 12 8 19 8 5" fill="currentColor"/></svg></span>
+        <div class="dwg-folge-main">
+          <div class="dwg-folge-eyebrow">Ab 10:53 · AI Analytics: Einfach Tokens draufwerfen?</div>
+          <div class="dwg-folge-title">MCP als Standard und die Fragmentierung der KI-Welt</div>
+        </div>
+        <div class="dwg-folge-meta">
+          <a class="dwg-folge-ts" href="https://www.youtube.com/watch?v=KeK1Mv0mXfM&amp;t=653s" target="_blank" rel="noopener" title="Auf YouTube ab 10:53 öffnen">▶ 10:53</a>
+        </div>
+      </div>
+      <div class="dwg-folge">
+        <a class="dwg-folge-link" href="folgen.html#ep-Xd-qWYqV91k" aria-label="Folge öffnen: Copilot - Besser als sein Ruf? · Enea Licaj"></a>
+        <span class="dwg-folge-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><polygon points="8 5 19 12 8 19 8 5" fill="currentColor"/></svg></span>
+        <div class="dwg-folge-main">
+          <div class="dwg-folge-eyebrow">Ab 9:19 · Copilot - Besser als sein Ruf? · Enea Licaj</div>
+          <div class="dwg-folge-title">Copilot ist besser als sein Ruf</div>
+        </div>
+        <div class="dwg-folge-meta">
+          <a class="dwg-folge-ts" href="https://www.youtube.com/watch?v=Xd-qWYqV91k&amp;t=559s" target="_blank" rel="noopener" title="Auf YouTube ab 9:19 öffnen">▶ 9:19</a>
+        </div>
+      </div>
     </div>
     <div class="deep-links">
       <div class="deep-links-group">
@@ -3967,14 +4102,15 @@ kbd.kbd {
           <li><a href="https://learn.microsoft.com/power-bi/transform-model/desktop-external-tools" target="_blank" rel="noopener">External tools in Power BI Desktop</a></li>
           <li><a href="https://learn.microsoft.com/power-bi/transform-model/desktop-composite-models" target="_blank" rel="noopener">Composite models &amp; Direct Lake</a></li>
           <li><a href="https://learn.microsoft.com/power-bi/create-reports/copilot-introduction" target="_blank" rel="noopener">Copilot für Power BI – Überblick &amp; Voraussetzungen</a></li>
+          <li><a href="https://learn.microsoft.com/power-bi/developer/mcp/mcp-servers-overview" target="_blank" rel="noopener">MCP-Server für Power BI (Authoring und Fabric IQ)</a></li>
         </ul>
       </div>
       <div class="deep-links-group">
         <div class="deep-links-label">Microsoft Learn · Training</div>
         <ul>
-          <li><a href="https://learn.microsoft.com/training/modules/optimize-model-power-bi/" target="_blank" rel="noopener">Optimize a model for performance in Power BI</a></li>
-          <li><a href="https://learn.microsoft.com/training/modules/create-calculation-groups/" target="_blank" rel="noopener">Create calculation groups</a></li>
-          <li><a href="https://learn.microsoft.com/training/modules/create-manage-power-bi-assets/" target="_blank" rel="noopener">Create and manage Power BI assets (PBIP, XMLA)</a></li>
+          <li><a href="https://learn.microsoft.com/training/modules/optimize-semantic-model-performance/" target="_blank" rel="noopener">Optimize Semantic Model Performance</a></li>
+          <li><a href="https://learn.microsoft.com/training/modules/design-semantic-models-scale/" target="_blank" rel="noopener">Design semantic models for scale in Microsoft Fabric</a></li>
+          <li><a href="https://learn.microsoft.com/training/modules/manage-semantic-model-lifecycle/" target="_blank" rel="noopener">Manage the Semantic Model Development Lifecycle</a></li>
         </ul>
       </div>
       <div class="deep-links-group">
@@ -3985,6 +4121,7 @@ kbd.kbd {
           <li><a href="wissensgraph/thema/tabular-editor.html">Thema: Tabular Editor</a></li>
           <li><a href="wissensgraph/thema/dax-studio.html">Thema: DAX Studio</a></li>
           <li><a href="wissensgraph/thema/copilot.html">Thema: Copilot</a></li>
+          <li><a href="wissensgraph/thema/incremental-refresh.html">Thema: Incremental Refresh</a></li>
         </ul>
       </div>
     </div>
@@ -4069,7 +4206,7 @@ kbd.kbd {
       <span class="dwg-folgen-block-eyebrow">Aus dem Kanal</span>
       <span class="dwg-folgen-block-title">Reports von Grund auf</span>
     </div>
-    <p class="dwg-folgen-block-hint">Ein knapp einstündiger Solo-Walkthrough vom leeren Power-BI-Canvas zum fertigen Report-Einreichung — Entscheidungen werden laut erklärt.</p>
+    <p class="dwg-folgen-block-hint">Ein knapp einstündiger Solo-Walkthrough vom leeren Power-BI-Canvas zur fertigen Report-Einreichung — Entscheidungen werden laut erklärt. Dazu die Geburtstagsausgabe des BI Thinkers Talk, in der ein IBCS-inspiriertes Custom Visual übergeben und diskutiert wird.</p>
     <div class="dwg-folgen-list">
       <div class="dwg-folge">
         <a class="dwg-folge-link" href="folgen.html#ep-z3eVRymUp30" aria-label="Folge öffnen: Maven Analytics Challenge Walkthrough"></a>
@@ -4080,6 +4217,17 @@ kbd.kbd {
         </div>
         <div class="dwg-folge-meta">
           <a class="dwg-folge-yt" href="https://youtu.be/z3eVRymUp30" target="_blank" rel="noopener" title="Direkt auf YouTube"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg></a>
+        </div>
+      </div>
+      <div class="dwg-folge">
+        <a class="dwg-folge-link" href="folgen.html#ep-tXBcz_b1PQc" aria-label="Folge öffnen: BI Thinkers Talk nr.80"></a>
+        <span class="dwg-folge-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><polygon points="8 5 19 12 8 19 8 5" fill="currentColor"/></svg></span>
+        <div class="dwg-folge-main">
+          <div class="dwg-folge-eyebrow">Solo · 61 min</div>
+          <div class="dwg-folge-title">BI Thinkers Talk nr.80: Übergabe eines IBCS-inspirierten Custom Visuals</div>
+        </div>
+        <div class="dwg-folge-meta">
+          <a class="dwg-folge-yt" href="https://youtu.be/tXBcz_b1PQc" target="_blank" rel="noopener" title="Direkt auf YouTube"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg></a>
         </div>
       </div>
     </div>
@@ -4095,7 +4243,7 @@ kbd.kbd {
       <div class="vertiefen-col">
         <div class="vertiefen-label">Microsoft Learn · Training</div>
         <ul>
-          <li><a href="https://learn.microsoft.com/de-de/training/paths/build-power-bi-visuals-reports/" target="_blank" rel="noopener">Lernpfad: Power BI-Visuals und -Berichte erstellen</a></li>
+          <li><a href="https://learn.microsoft.com/de-de/training/paths/power-bi-effective/" target="_blank" rel="noopener">Lernpfad: Effektive Berichte in Power BI entwerfen</a></li>
           <li><a href="https://learn.microsoft.com/de-de/training/modules/power-bi-effective-user-experience/" target="_blank" rel="noopener">Modul: Berichtsdesign für die User Experience</a></li>
         </ul>
       </div>
@@ -4104,6 +4252,14 @@ kbd.kbd {
         <ul>
           <li><a href="#viz">06 · IBCS &amp; Visualisierung</a></li>
           <li><a href="#inter">07 · Interaktivität</a></li>
+        </ul>
+        <div class="vertiefen-label" style="margin-top: 14px;">Aus der Kitchen</div>
+        <ul>
+          <li><a href="finance-reporting-budapest-post.html">Eine GuV-Seite in sechs Sprossen</a></li>
+          <li><a href="pnl-doku.html">P&amp;L Statement byDatenWG · Doku</a></li>
+          <li><a href="sankey-wasserfall-post.html">Sankey trifft IBCS-Wasserfall</a></li>
+          <li><a href="waermestreifen-3d.html">Wärmestreifen 3D als Custom Visual</a></li>
+          <li><a href="mockupkitchen-post.html">MockupKitchen: vom Whiteboard zur Power-BI-Seite</a></li>
         </ul>
       </div>
       <div class="vertiefen-col">
@@ -4122,15 +4278,14 @@ kbd.kbd {
 ============================================================ -->
 <section class="sources" id="quellen">
   <h2 class="sources-title">Quellen &amp; <em>weiterführende Literatur</em></h2>
-  <p class="sources-intro">Dieser Guide stützt sich auf die offizielle Microsoft-Learn-Dokumentation, die IBCS-Standards von Hichert+Faisst und etablierte Community-Quellen (Marco Russo &amp; Alberto Ferrari / SQLBI, Tabular-Editor- und DAX-Studio-Communities). Jede zitierte Zahl und jede Best-Practice-Empfehlung ist hier rückverfolgbar. <strong>Quellen-Validierung Mai 2026:</strong> Folding-Benchmark, Refresh-Limits, F-SKU-Modellgrößen, Star-Schema-Quotes, RLS-Viewer-Regel, DAX-Variables-Performance und Auto-Date/Time-Empfehlung wurden gegen Microsoft Learn verifiziert. Versionsdaten (Field Parameters Preview Mai 2022/GA Juli 2025, Sparklines Preview Dez 2021/GA Juni 2025, Small Multiples GA Juli 2021, ISO 24896:2026, veröffentlicht Juni 2026) sind im Text präzisiert. <strong>Screenshots:</strong> Die in einzelnen Modal-Karten eingebetteten Screenshots stammen direkt von Microsoft-Learn-CDN und stehen unter der Microsoft-Dokumentations-Lizenz (CC BY 4.0) zur freien Nutzung mit Quellenangabe. Da sich die Plattform monatlich weiterentwickelt, im Zweifel die jeweils aktuellste Quell-Seite konsultieren.</p>
-  <p class="sources-intro"><strong>Aktualisierung Oktober 2026:</strong> Architektur, Power Query, Query Folding, Datenmodell, Service, RLS und Tools wurden erneut gegen Microsoft Learn geprüft — u. a. P-SKU-Abkündigung und F-SKU-Lizenzregeln, Pro-Modellgröße (1 GB), PBIP/PBIR (PBIR ist Standard-Berichtsformat), TMDL view und DAX query view (GA), Direct Lake on OneLake vs. on SQL endpoints, Folding-Indikatoren und Query Plan (nur Power Query Online), <code>Value.NativeQuery</code> mit <code>EnableFolding</code>, Deployment Pipelines (2–10 Stages, PPU/Fabric), Org-Apps, Refresh-Limits (vier Fehlschläge in Folge), OLS per TMDL view, Copilot-Voraussetzungen (bezahlte Kapazität ab F2) und Fabric Data Agents.</p>
+  <p class="sources-intro">Dieser Guide stützt sich auf die offizielle Microsoft-Learn-Dokumentation, die IBCS-Standards von Hichert+Faisst und etablierte Community-Quellen (Marco Russo &amp; Alberto Ferrari / SQLBI, Tabular-Editor- und DAX-Studio-Communities). Jede zitierte Zahl und jede Best-Practice-Empfehlung ist hier rückverfolgbar. <strong>Quellen-Validierung Mai 2026:</strong> Folding-Benchmark, Refresh-Limits, F-SKU-Modellgrößen, Star-Schema-Quotes, RLS-Viewer-Regel, DAX-Variables-Performance und Auto-Date/Time-Empfehlung wurden gegen Microsoft Learn verifiziert. Versionsdaten (Field Parameters Preview Mai 2022/GA Juli 2025, Sparklines Preview Dez 2021/GA Juni 2025, Small Multiples GA Juli 2021, ISO 24896:2026, veröffentlicht Juni 2026) sind im Text präzisiert. <strong>Screenshots:</strong> Die in einzelnen Modal-Karten eingebetteten Screenshots von Microsoft Learn liegen als lokale Kopien unter <code>assets/learn/</code>, damit beim Lesen keine Bilder von fremden Servern geladen werden; sie stehen unter der Lizenz CC BY 4.0, die Quelle steht jeweils in der Bildunterschrift. Bilder aus eigenen Arbeiten der Daten-WG sind als solche gekennzeichnet und verlinken auf den zugehörigen Beitrag. Da sich die Plattform monatlich weiterentwickelt, im Zweifel die jeweils aktuellste Quell-Seite konsultieren.</p>
+  <p class="sources-intro"><strong>Aktualisierung November 2026:</strong> Am 24.11.2026 wurde der Guide erneut gegen Microsoft Learn, SQLBI und die Ankündigungen der Microsoft Ignite (November 2026) geprüft und um die Neuerungen bis zum November-2026-Update ergänzt, u. a. Abschaltung des Standalone-Copilot zum 15.01.2027 und der neue Microsoft Copilot in Power BI und Fabric (Preview), Stilvorlagen, Slicer-Neuerungen, das Gantt-Visual (Preview), Org-Apps mit Audiences, Semantic views und agentische Entwicklung mit MCP. Korrigiert wurden u. a. die Wirkung von <code>FILTER(Region, …)</code> in CALCULATE, wer RLS-Mitglieder zuweisen darf, Microsoft-365-Gruppen bei RLS, Abo-Optionen und umgezogene Learn-Links. <strong>Aktualisierung Oktober 2026:</strong> Architektur, Power Query, Query Folding, Datenmodell, Service, RLS und Tools wurden erneut gegen Microsoft Learn geprüft — u. a. P-SKU-Abkündigung und F-SKU-Lizenzregeln, Pro-Modellgröße (1 GB), PBIP/PBIR (PBIR ist Standard-Berichtsformat), TMDL view und DAX query view (GA), Direct Lake on OneLake vs. on SQL endpoints, Folding-Indikatoren und Query Plan (nur Power Query Online), <code>Value.NativeQuery</code> mit <code>EnableFolding</code>, Deployment Pipelines (2–10 Stages, PPU/Fabric), Org-Apps, Refresh-Limits (vier Fehlschläge in Folge), OLS per TMDL view, Copilot-Voraussetzungen (bezahlte Kapazität ab F2) und Fabric Data Agents.</p>
 
   <div class="sources-group">
     <div class="sources-group-label">Microsoft Learn · Power BI Grundlagen</div>
     <ul class="sources-list">
       <li><a href="https://learn.microsoft.com/de-de/power-bi/fundamentals/power-bi-overview" target="_blank" rel="noopener">Was ist Power BI? — Übersicht</a><span class="url">learn.microsoft.com/de-de/power-bi/fundamentals/power-bi-overview</span></li>
       <li><a href="https://learn.microsoft.com/de-de/power-bi/fundamentals/desktop-getting-started" target="_blank" rel="noopener">Power BI Desktop — Einstieg</a><span class="url">learn.microsoft.com/de-de/power-bi/fundamentals/desktop-getting-started</span></li>
-      <li><a href="https://learn.microsoft.com/de-de/power-bi/fundamentals/fabric-power-bi" target="_blank" rel="noopener">Power BI in Microsoft Fabric</a><span class="url">learn.microsoft.com/de-de/power-bi/fundamentals/fabric-power-bi</span></li>
       <li><a href="https://learn.microsoft.com/de-de/power-bi/enterprise/service-premium-what-is" target="_blank" rel="noopener">Power BI Premium &amp; Capacity</a><span class="url">learn.microsoft.com/de-de/power-bi/enterprise/service-premium-what-is</span></li>
       <li><a href="https://learn.microsoft.com/de-de/power-bi/connect-data/service-gateway-onprem" target="_blank" rel="noopener">On-Premises Data Gateway</a><span class="url">learn.microsoft.com/de-de/power-bi/connect-data/service-gateway-onprem</span></li>
       <li><a href="https://learn.microsoft.com/de-de/power-bi/connect-data/service-dataset-modes-understand" target="_blank" rel="noopener">Storage Modes: Import, DirectQuery, Direct Lake</a><span class="url">learn.microsoft.com/de-de/power-bi/connect-data/service-dataset-modes-understand</span></li>
@@ -4203,7 +4358,11 @@ kbd.kbd {
       <li><a href="https://learn.microsoft.com/de-de/power-bi/create-reports/power-bi-field-parameters" target="_blank" rel="noopener">Field Parameters</a><span class="url">learn.microsoft.com/de-de/power-bi/create-reports/power-bi-field-parameters</span></li>
       <li><a href="https://learn.microsoft.com/de-de/power-bi/create-reports/desktop-tooltips" target="_blank" rel="noopener">Report-Page Tooltips</a><span class="url">learn.microsoft.com/de-de/power-bi/create-reports/desktop-tooltips</span></li>
       <li><a href="https://learn.microsoft.com/de-de/power-bi/create-reports/desktop-conditional-format-visual-titles" target="_blank" rel="noopener">Dynamische Titel · Conditional Formatting</a><span class="url">learn.microsoft.com/de-de/power-bi/create-reports/desktop-conditional-format-visual-titles</span></li>
-      <li><a href="https://learn.microsoft.com/de-de/power-bi/create-reports/desktop-small-multiples" target="_blank" rel="noopener">Small Multiples</a><span class="url">learn.microsoft.com/de-de/power-bi/create-reports/desktop-small-multiples</span></li>
+      <li><a href="https://learn.microsoft.com/de-de/power-bi/visuals/power-bi-visualization-small-multiples" target="_blank" rel="noopener">Small Multiples erstellen</a><span class="url">learn.microsoft.com/de-de/power-bi/visuals/power-bi-visualization-small-multiples</span></li>
+      <li><a href="https://learn.microsoft.com/de-de/power-bi/create-reports/power-bi-visual-style-presets" target="_blank" rel="noopener">Stilvorlagen für Visuals (Style presets)</a><span class="url">learn.microsoft.com/de-de/power-bi/create-reports/power-bi-visual-style-presets</span></li>
+      <li><a href="https://learn.microsoft.com/de-de/power-bi/visuals/power-bi-visualization-slicer-visual" target="_blank" rel="noopener">Slicer · Stile inkl. Datumsauswahl</a><span class="url">learn.microsoft.com/de-de/power-bi/visuals/power-bi-visualization-slicer-visual</span></li>
+      <li><a href="https://learn.microsoft.com/de-de/power-bi/visuals/power-bi-visualization-gantt" target="_blank" rel="noopener">Gantt-Visual (Preview)</a><span class="url">learn.microsoft.com/de-de/power-bi/visuals/power-bi-visualization-gantt</span></li>
+      <li><a href="https://learn.microsoft.com/de-de/power-bi/natural-language/q-and-a-intro" target="_blank" rel="noopener">Q&amp;A · Hinweis zur Abkündigung</a><span class="url">learn.microsoft.com/de-de/power-bi/natural-language/q-and-a-intro</span></li>
     </ul>
   </div>
 
@@ -4223,6 +4382,7 @@ kbd.kbd {
       <li><a href="https://learn.microsoft.com/fabric/cicd/deployment-pipelines/deploy-content" target="_blank" rel="noopener">Deployment Pipelines – Inhalte deployen (inkl. Rückwärts-Deployment)</a><span class="url">learn.microsoft.com/fabric/cicd/deployment-pipelines/deploy-content</span></li>
       <li><a href="https://learn.microsoft.com/fabric/cicd/git-integration/intro-to-git-integration" target="_blank" rel="noopener">Fabric Git integration – unterstützte Provider</a><span class="url">learn.microsoft.com/fabric/cicd/git-integration/intro-to-git-integration</span></li>
       <li><a href="https://learn.microsoft.com/power-bi/connect-data/refresh-troubleshooting-refresh-scenarios" target="_blank" rel="noopener">Refresh troubleshooting – Limits, Timeouts, deaktivierter Zeitplan</a><span class="url">learn.microsoft.com/power-bi/connect-data/refresh-troubleshooting-refresh-scenarios</span></li>
+      <li><a href="https://learn.microsoft.com/power-bi/collaborate-share/end-user-subscribe" target="_blank" rel="noopener">Berichte abonnieren – Frequenzen, Anhänge, neue Zustellplattform</a><span class="url">learn.microsoft.com/power-bi/collaborate-share/end-user-subscribe</span></li>
       <li><a href="https://learn.microsoft.com/fabric/security/service-admin-object-level-security" target="_blank" rel="noopener">Object-level security (OLS) – TMDL view und Tabular Editor</a><span class="url">learn.microsoft.com/fabric/security/service-admin-object-level-security</span></li>
       <li><a href="https://learn.microsoft.com/dax/lookupvalue-function-dax" target="_blank" rel="noopener">LOOKUPVALUE · DAX-Referenz (Fehler bei mehreren Treffern)</a><span class="url">learn.microsoft.com/dax/lookupvalue-function-dax</span></li>
       <li><a href="https://learn.microsoft.com/fabric/enterprise/powerbi/service-security-sensitivity-label-overview" target="_blank" rel="noopener">Sensitivity labels in Power BI</a><span class="url">learn.microsoft.com/fabric/enterprise/powerbi/service-security-sensitivity-label-overview</span></li>
@@ -4230,7 +4390,7 @@ kbd.kbd {
   </div>
 
   <div class="sources-group">
-    <div class="sources-group-label">Microsoft Learn · Tools, KI &amp; Training (Stand Oktober 2026)</div>
+    <div class="sources-group-label">Microsoft Learn · Tools, KI &amp; Training (Stand November 2026)</div>
     <ul class="sources-list">
       <li><a href="https://learn.microsoft.com/power-bi/transform-model/desktop-tmdl-view" target="_blank" rel="noopener">TMDL view in Power BI Desktop</a><span class="url">learn.microsoft.com/power-bi/transform-model/desktop-tmdl-view</span></li>
       <li><a href="https://learn.microsoft.com/power-bi/transform-model/dax-query-view" target="_blank" rel="noopener">DAX query view</a><span class="url">learn.microsoft.com/power-bi/transform-model/dax-query-view</span></li>
@@ -4240,15 +4400,20 @@ kbd.kbd {
       <li><a href="https://learn.microsoft.com/power-bi/create-reports/desktop-performance-analyzer" target="_blank" rel="noopener">Performance Analyzer</a><span class="url">learn.microsoft.com/power-bi/create-reports/desktop-performance-analyzer</span></li>
       <li><a href="https://learn.microsoft.com/power-bi/create-reports/copilot-introduction" target="_blank" rel="noopener">Copilot für Power BI – Überblick und Voraussetzungen</a><span class="url">learn.microsoft.com/power-bi/create-reports/copilot-introduction</span></li>
       <li><a href="https://learn.microsoft.com/fabric/enterprise/fabric-copilot-capacity" target="_blank" rel="noopener">Fabric Copilot capacity</a><span class="url">learn.microsoft.com/fabric/enterprise/fabric-copilot-capacity</span></li>
+      <li><a href="https://learn.microsoft.com/fabric/iq/connectors/copilot-power-bi-fabric" target="_blank" rel="noopener">Microsoft Copilot in Power BI und Fabric (Preview) – Lizenzen und Zeitplan der Abschaltung</a><span class="url">learn.microsoft.com/fabric/iq/connectors/copilot-power-bi-fabric</span></li>
+      <li><a href="https://learn.microsoft.com/power-bi/developer/mcp/mcp-servers-overview" target="_blank" rel="noopener">MCP-Server für Power BI – Authoring (lokal und gehostet) und Fabric IQ</a><span class="url">learn.microsoft.com/power-bi/developer/mcp/mcp-servers-overview</span></li>
+      <li><a href="https://learn.microsoft.com/power-bi/fundamentals/whats-new" target="_blank" rel="noopener">What's new in Power BI – aktuelles Monats-Update</a><span class="url">learn.microsoft.com/power-bi/fundamentals/whats-new</span></li>
+      <li><a href="https://learn.microsoft.com/power-bi/fundamentals/desktop-latest-update-archive" target="_blank" rel="noopener">Power BI – Archiv der Monats-Updates</a><span class="url">learn.microsoft.com/power-bi/fundamentals/desktop-latest-update-archive</span></li>
       <li><a href="https://learn.microsoft.com/fabric/data-science/concept-data-agent" target="_blank" rel="noopener">Fabric data agent – Konzepte</a><span class="url">learn.microsoft.com/fabric/data-science/concept-data-agent</span></li>
       <li><a href="https://learn.microsoft.com/en-us/training/modules/choose-power-bi-model-framework/" target="_blank" rel="noopener">Training: Choose a Power BI model framework</a><span class="url">learn.microsoft.com/en-us/training/modules/choose-power-bi-model-framework/</span></li>
       <li><a href="https://learn.microsoft.com/training/modules/clean-data-power-bi/" target="_blank" rel="noopener">Training: Clean, transform, and load data in Power BI</a><span class="url">learn.microsoft.com/training/modules/clean-data-power-bi/</span></li>
-      <li><a href="https://learn.microsoft.com/training/modules/design-model-power-bi/" target="_blank" rel="noopener">Training: Design a semantic model in Power BI</a><span class="url">learn.microsoft.com/training/modules/design-model-power-bi/</span></li>
+      <li><a href="https://learn.microsoft.com/training/modules/configure-semantic-model-power-bi/" target="_blank" rel="noopener">Training: Configure a Semantic Model in Power BI Desktop</a><span class="url">learn.microsoft.com/training/modules/configure-semantic-model-power-bi/</span></li>
       <li><a href="https://learn.microsoft.com/training/modules/manage-workspaces-power-bi-service/" target="_blank" rel="noopener">Training: Manage workspaces in Power BI service</a><span class="url">learn.microsoft.com/training/modules/manage-workspaces-power-bi-service/</span></li>
-      <li><a href="https://learn.microsoft.com/en-us/training/modules/power-bi-deployment-pipelines/" target="_blank" rel="noopener">Training: Create and manage a Power BI deployment pipeline</a><span class="url">learn.microsoft.com/en-us/training/modules/power-bi-deployment-pipelines/</span></li>
+      <li><a href="https://learn.microsoft.com/training/modules/implement-cicd-in-fabric/" target="_blank" rel="noopener">Training: Implement CI/CD in Microsoft Fabric</a><span class="url">learn.microsoft.com/training/modules/implement-cicd-in-fabric/</span></li>
       <li><a href="https://learn.microsoft.com/training/modules/row-level-security-power-bi/" target="_blank" rel="noopener">Training: Secure data access in Power BI (RLS/OLS)</a><span class="url">learn.microsoft.com/training/modules/row-level-security-power-bi/</span></li>
-      <li><a href="https://learn.microsoft.com/training/modules/optimize-model-power-bi/" target="_blank" rel="noopener">Training: Optimize a model for performance in Power BI</a><span class="url">learn.microsoft.com/training/modules/optimize-model-power-bi/</span></li>
-      <li><a href="https://learn.microsoft.com/training/modules/create-calculation-groups/" target="_blank" rel="noopener">Training: Create calculation groups</a><span class="url">learn.microsoft.com/training/modules/create-calculation-groups/</span></li>
+      <li><a href="https://learn.microsoft.com/training/modules/optimize-semantic-model-performance/" target="_blank" rel="noopener">Training: Optimize Semantic Model Performance</a><span class="url">learn.microsoft.com/training/modules/optimize-semantic-model-performance/</span></li>
+      <li><a href="https://learn.microsoft.com/training/modules/design-semantic-models-scale/" target="_blank" rel="noopener">Training: Design semantic models for scale in Microsoft Fabric (u. a. Berechnungen)</a><span class="url">learn.microsoft.com/training/modules/design-semantic-models-scale/</span></li>
+      <li><a href="https://learn.microsoft.com/training/modules/manage-semantic-model-lifecycle/" target="_blank" rel="noopener">Training: Manage the Semantic Model Development Lifecycle</a><span class="url">learn.microsoft.com/training/modules/manage-semantic-model-lifecycle/</span></li>
     </ul>
   </div>
 
@@ -4256,9 +4421,8 @@ kbd.kbd {
     <div class="sources-group-label">IBCS · International Business Communication Standards</div>
     <ul class="sources-list">
       <li><a href="https://www.ibcs.com/" target="_blank" rel="noopener">IBCS Association · Standards-Übersicht</a><span class="url">ibcs.com</span></li>
-      <li><a href="https://www.ibcs.com/standards/" target="_blank" rel="noopener">IBCS Standards · vollständig (CC BY-SA)</a><span class="url">ibcs.com/standards</span></li>
-      <li><a href="https://www.ibcs.com/success/" target="_blank" rel="noopener">SUCCESS-Formel · die 7 Regeln im Detail</a><span class="url">ibcs.com/success</span></li>
-      <li><a href="https://www.iso.org/standard/79518.html" target="_blank" rel="noopener">ISO 24896 · Notation for business reporting</a><span class="url">iso.org/standard/79518.html</span></li>
+      <li><a href="https://www.ibcs.com/ibcs-version-2-0/" target="_blank" rel="noopener">IBCS Standards Version 2.0 · vollständig, mit der SUCCESS-Formel (CC BY-SA)</a><span class="url">ibcs.com/ibcs-version-2-0</span></li>
+      <li><a href="https://www.iso.org/standard/88366.html" target="_blank" rel="noopener">ISO 24896:2026 · Notation for business reporting</a><span class="url">iso.org/standard/88366.html</span></li>
       <li><a href="https://zebrabi.com/ibcs/" target="_blank" rel="noopener">Zebra BI · IBCS-Praxis-Guide für Power BI</a><span class="url">zebrabi.com/ibcs</span></li>
     </ul>
   </div>
@@ -4269,7 +4433,10 @@ kbd.kbd {
       <li><a href="https://www.sqlbi.com/" target="_blank" rel="noopener">SQLBI · Marco Russo &amp; Alberto Ferrari (DAX-Experten)</a><span class="url">sqlbi.com</span></li>
       <li><a href="https://www.sqlbi.com/articles/power-bi-star-schema-or-single-table/" target="_blank" rel="noopener">SQLBI · Star-Schema oder Single Table?</a><span class="url">sqlbi.com/articles/power-bi-star-schema-or-single-table/</span></li>
       <li><a href="https://dax.guide/" target="_blank" rel="noopener">DAX Guide · Funktions-Referenz (SQLBI)</a><span class="url">dax.guide</span></li>
-      <li><a href="https://www.sqlbi.com/books/the-definitive-guide-to-dax-2nd-edition/" target="_blank" rel="noopener">Buch · The Definitive Guide to DAX (Russo / Ferrari)</a><span class="url">sqlbi.com/books/the-definitive-guide-to-dax-2nd-edition/</span></li>
+      <li><a href="https://www.sqlbi.com/books/the-definitive-guide-to-dax-third-edition/" target="_blank" rel="noopener">Buch · The Definitive Guide to DAX, Third Edition (Russo / Ferrari)</a><span class="url">sqlbi.com/books/the-definitive-guide-to-dax-third-edition/</span></li>
+      <li><a href="https://www.sqlbi.com/articles/filter-arguments-in-calculate/" target="_blank" rel="noopener">SQLBI · Filter arguments in CALCULATE (Tabellen- vs. Spaltenfilter)</a><span class="url">sqlbi.com/articles/filter-arguments-in-calculate/</span></li>
+      <li><a href="https://www.sqlbi.com/articles/choosing-between-date-or-integer-to-represent-dates-in-power-bi-and-tabular/" target="_blank" rel="noopener">SQLBI · Date oder Integer? Kodierung von Beziehungsspalten in VertiPaq</a><span class="url">sqlbi.com/articles/choosing-between-date-or-integer-to-represent-dates-in-power-bi-and-tabular/</span></li>
+      <li><a href="https://docs.tabulareditor.com/en/features/using-bpa.html" target="_blank" rel="noopener">Tabular Editor · Best Practice Analyzer verwenden (Apply fix, Fix-Skript)</a><span class="url">docs.tabulareditor.com/en/features/using-bpa.html</span></li>
       <li><a href="https://github.com/TabularEditor/TabularEditor" target="_blank" rel="noopener">Tabular Editor 2 · kostenfrei, Open Source</a><span class="url">github.com/TabularEditor/TabularEditor</span></li>
       <li><a href="https://tabulareditor.com/" target="_blank" rel="noopener">Tabular Editor · Offizielle Website (TE2 &amp; TE3)</a><span class="url">tabulareditor.com</span></li>
       <li><a href="https://daxstudio.org/" target="_blank" rel="noopener">DAX Studio · Performance-Diagnose (kostenfrei)</a><span class="url">daxstudio.org</span></li>
@@ -4281,7 +4448,7 @@ kbd.kbd {
     <div class="sources-group-label">Power BI Blog &amp; Roadmap</div>
     <ul class="sources-list">
       <li><a href="https://powerbi.microsoft.com/de-de/blog/" target="_blank" rel="noopener">Power BI Blog · monatliche Updates</a><span class="url">powerbi.microsoft.com/de-de/blog/</span></li>
-      <li><a href="https://learn.microsoft.com/en-us/fabric/release-plan/" target="_blank" rel="noopener">Microsoft Fabric Release Plan</a><span class="url">learn.microsoft.com/en-us/fabric/release-plan/</span></li>
+      <li><a href="https://roadmap.fabric.microsoft.com/" target="_blank" rel="noopener">Microsoft Fabric Roadmap</a><span class="url">roadmap.fabric.microsoft.com</span></li>
       <li><a href="https://community.fabric.microsoft.com/" target="_blank" rel="noopener">Fabric Community Forum</a><span class="url">community.fabric.microsoft.com</span></li>
     </ul>
   </div>
@@ -4296,7 +4463,31 @@ kbd.kbd {
       <li><a href="wissensgraph/thema/deployment-pipelines.html">Thema: Deployment Pipelines</a><span class="url">wissensgraph/thema/deployment-pipelines.html</span></li>
       <li><a href="wissensgraph/thema/row-level-security.html">Thema: Row-Level Security</a><span class="url">wissensgraph/thema/row-level-security.html</span></li>
       <li><a href="wissensgraph/thema/tmdl.html">Thema: TMDL</a><span class="url">wissensgraph/thema/tmdl.html</span></li>
+      <li><a href="wissensgraph/thema/incremental-refresh.html">Thema: Incremental Refresh</a><span class="url">wissensgraph/thema/incremental-refresh.html</span></li>
+      <li><a href="wissensgraph/thema/translytical-task-flows.html">Thema: Translytical Task Flows</a><span class="url">wissensgraph/thema/translytical-task-flows.html</span></li>
+      <li><a href="wissensgraph/thema/premium.html">Thema: Premium</a><span class="url">wissensgraph/thema/premium.html</span></li>
+      <li><a href="wissensgraph/thema/self-service-bi.html">Thema: Self-Service BI</a><span class="url">wissensgraph/thema/self-service-bi.html</span></li>
       <li><a href="wissensgraph/index.html">Wissensgraph – alle Themen</a><span class="url">wissensgraph/index.html</span></li>
+    </ul>
+  </div>
+
+  <div class="sources-group">
+    <div class="sources-group-label">Daten-WG Knowledge Kitchen · eigene Beiträge und Werkzeuge</div>
+    <ul class="sources-list">
+      <li><a href="chartkitchen-doku.html">ChartKitchen byDatenWG · IBCS-inspiriertes Chart-Visual, Dokumentation</a><span class="url">chartkitchen-doku.html</span></li>
+      <li><a href="pnl-doku.html">P&amp;L Statement byDatenWG · GuV-Visual, Dokumentation</a><span class="url">pnl-doku.html</span></li>
+      <li><a href="visuals-sicherheit.html">Sicherheit &amp; Betrieb der byDatenWG-Visuals (ChartKitchen, P&amp;L Statement, dataKitchenGantt)</a><span class="url">visuals-sicherheit.html</span></li>
+      <li><a href="finance-reporting-budapest-post.html">Eine GuV-Seite, sechs Sprossen: Finance Reporting in Power BI</a><span class="url">finance-reporting-budapest-post.html</span></li>
+      <li><a href="sankey-wasserfall-post.html">Sankey trifft IBCS-Wasserfall</a><span class="url">sankey-wasserfall-post.html</span></li>
+      <li><a href="whitepaper-ki-entwicklung-roi.html">Zehn Tage bis zum marktfähigen Stand (Bildquelle Small Multiples)</a><span class="url">whitepaper-ki-entwicklung-roi.html</span></li>
+      <li><a href="ibcs-trainer.html">IBCS-Trainer · visuelle Regeln spielerisch lernen</a><span class="url">ibcs-trainer.html</span></li>
+      <li><a href="business-chart-builder.html">Business Chart Builder · Deneb-Vorlagen im Browser</a><span class="url">business-chart-builder.html</span></li>
+      <li><a href="visual-standards-rechner.html">Visual-Standards-Rechner · Core vs. Deneb vs. 3rd-Party</a><span class="url">visual-standards-rechner.html</span></li>
+      <li><a href="powerbi-design-skill.html">Power BI Design Skill: Report-Design als Framework</a><span class="url">powerbi-design-skill.html</span></li>
+      <li><a href="mockupkitchen-post.html">MockupKitchen · Vom Whiteboard zur Power-BI-Seite</a><span class="url">mockupkitchen-post.html</span></li>
+      <li><a href="power-bi-on-claude.html">Power BI on Claude · agentische Entwicklung</a><span class="url">power-bi-on-claude.html</span></li>
+      <li><a href="fabric-apps-controlling-post.html">Fabric Apps im Heimrevier von Power BI: Vertrieb und Finance</a><span class="url">fabric-apps-controlling-post.html</span></li>
+      <li><a href="waermestreifen-3d.html">Wärmestreifen 3D für Power BI</a><span class="url">waermestreifen-3d.html</span></li>
     </ul>
   </div>
 
@@ -6301,6 +6492,7 @@ Anzahl Regionen mit Kauf =
         <li><strong>Calculation Groups und Field Parameters funktionieren nur mit expliziten Measures</strong> — beim Anlegen der ersten Calculation Group fordert Power BI dich auf, „Implizite Measures vermeiden“ (Discourage implicit measures) einzuschalten</li>
       </ul>
       <p><strong>Stattdessen:</strong> explizite Measures schreiben, z. B. <code>Menge = SUM(fact_verkauf[Menge])</code> und <code>Umsatz = SUM(fact_verkauf[Umsatz])</code>. Die Modell-Eigenschaft „Discourage implicit measures“ kannst du auch selbst im Model Explorer aktivieren.</p>
+      <p><strong>Nebenwirkung:</strong> In Modellen mit deaktivierten impliziten Measures, also auch in jedem Modell mit einer Calculation Group, kann Copilot keine Berichtsseiten erstellen (siehe Karte „Copilot im Bericht“).</p>
 
       <div class="trap">
         <strong>Anfänger-Falle</strong>
@@ -6356,7 +6548,7 @@ Umsatz Süd Q3 =
 
       <div class="trap">
         <strong>Anfänger-Falle</strong>
-        Ganze Tabellen in FILTER packen, obwohl ein Spaltenfilter reicht: <code>CALCULATE([Umsatz], FILTER(Region, Region[Name] = "Süd"))</code> iteriert die Tabelle und überschreibt dabei die Filter auf <em>allen</em> Region-Spalten. Besser: <code>CALCULATE([Umsatz], Region[Name] = "Süd")</code> oder — wenn bestehende Filter erhalten bleiben sollen — <code>KEEPFILTERS(Region[Name] = "Süd")</code>. FILTER brauchst du nur, wenn du eine Measure oder mehrere Spalten vergleichst.
+        Ganze Tabellen in FILTER packen, obwohl ein Spaltenfilter reicht: <code>CALCULATE([Umsatz], FILTER(Region, Region[Name] = "Süd"))</code> iteriert die ganze Region-Tabelle im aktuellen Filterkontext. Bestehende Filter auf Region bleiben deshalb erhalten: In der Matrix-Zeile „Nord“ ist das Ergebnis leer, weil es dort keine Zeile „Süd“ gibt. Das Verhalten entspricht also <code>KEEPFILTERS(Region[Name] = "Süd")</code>, nur teurer. Den Filter auf der Spalte ersetzt erst der einfache Boolean-Filter <code>CALCULATE([Umsatz], Region[Name] = "Süd")</code>; alle Region-Filter überschreibt <code>FILTER(ALL(Region), …)</code>. Besser also: der Boolean-Filter, wenn die Auswahl ersetzt werden soll, oder <code>KEEPFILTERS(Region[Name] = "Süd")</code>, wenn bestehende Filter erhalten bleiben sollen. FILTER brauchst du nur, wenn du eine Measure oder mehrere Spalten vergleichst.
       </div>
 
       <div class="tip">
@@ -6522,7 +6714,7 @@ Umsatz R12 =
       <pre><span class="com">// YTD mit Geschäftsjahr-Ende 30. Juni</span>
 Umsatz GJ YTD =
 <span class="fn">TOTALYTD</span> ( [Umsatz], <span class="str">'Datum'</span>[Datum], <span class="str">"6/30"</span> )</pre>
-      <p>Für Geschäftsjahre, 4-4-5-Kalender oder Wochenlogik gibt es inzwischen die <strong>kalenderbasierte Zeitintelligenz</strong> (Preview, Stand Oktober 2026) — Microsoft Learn empfiehlt sie für neue Modelle. Details im Rezept „Kalenderbasierte Zeitintelligenz“ unten.</p>
+      <p>Für Geschäftsjahre, 4-4-5-Kalender oder Wochenlogik gibt es inzwischen die <strong>kalenderbasierte Zeitintelligenz</strong> (Preview, Stand November 2026) — Microsoft Learn empfiehlt sie für neue Modelle. Details im Rezept „Kalenderbasierte Zeitintelligenz“ unten.</p>
 
       <div class="example">
         <strong>Praxis-Beispiel · Variance-Bericht</strong>
@@ -6882,6 +7074,7 @@ Rang im Jahr     = <span class="fn">RANK</span> ( <span class="kw">DENSE</span>,
         <strong>Typischer Fehler</strong>
         Sie als Modell-Ersatz behandeln: Visual Calculations lassen sich nicht in anderen Visuals wiederverwenden, nicht filtern oder sortieren, sie fehlen im Datenexport, funktionieren nicht in Slicern und Custom Visuals und nicht bei „Im Web veröffentlichen“. Kennzahlen, die mehrere Berichte brauchen, gehören ins Modell. Außerdem rechnet PREVIOUS in Achsenreihenfolge — falsche Sortierung, falscher Vormonat.
       </div>
+      <p>Seit dem September-2026-Update funktionieren Visual Calculations auch in Visuals mit Small Multiples (allgemein verfügbar). Small Multiples sind die Kleinvielfachen: dasselbe Diagramm einmal je Kategorie, etwa je Region.</p>
       <p class="learn-ref"><span class="learn-ref-label">Microsoft Learn</span><a href="https://learn.microsoft.com/de-de/power-bi/transform-model/desktop-visual-calculations-overview" target="_blank" rel="noopener">Visual Calculations · Überblick</a> · <a href="https://learn.microsoft.com/de-de/power-bi/transform-model/desktop-visual-calculations-create" target="_blank" rel="noopener">Visual Calculations erstellen</a> · <a href="https://learn.microsoft.com/de-de/training/modules/power-bi-visual-calculations/" target="_blank" rel="noopener">Training: Visual Calculations</a></p>
     `
   },
@@ -6907,9 +7100,9 @@ YTD    = <span class="fn">CALCULATE</span> ( <span class="fn">SELECTEDMEASURE</s
       <p><code>SELECTEDMEASURE()</code> ist ein Platzhalter: Das Element wird um jede Measure „herumgelegt“, die im Visual steht. Wählt der Slicer „VJ“, rechnen <code>[Umsatz]</code>, <code>[Menge]</code> und <code>[Marge %]</code> automatisch als Vorjahr.</p>
       <div class="trap">
         <strong>Typischer Fehler</strong>
-        Prozent-Measures bekommen ungewollt dieselbe Logik (YTD einer Marge ist Unsinn) — Elemente können Measures nach Name oder Datentyp ausklammern. Bei mehreren Gruppen entscheidet die <strong>Precedence</strong>, welche zuerst greift. Und: Calculation Groups setzen „Implizite Measures vermeiden“ voraus — Spalten-Drag-and-Drop als Wert funktioniert dann nicht mehr (bestehende implizite Measures laufen weiter).
+        Prozent-Measures bekommen ungewollt dieselbe Logik (YTD einer Marge ist Unsinn) — Elemente können Measures nach Name oder Datentyp ausklammern. Bei mehreren Gruppen entscheidet die <strong>Precedence</strong>, welche zuerst greift. Und: Calculation Groups setzen „Implizite Measures vermeiden“ voraus — Spalten-Drag-and-Drop als Wert funktioniert dann nicht mehr (bestehende implizite Measures laufen weiter). Nebenwirkung laut Learn: In Modellen mit deaktivierten impliziten Measures kann Copilot keine Berichtsseiten erstellen.
       </div>
-      <p class="learn-ref"><span class="learn-ref-label">Microsoft Learn</span><a href="https://learn.microsoft.com/de-de/power-bi/transform-model/calculation-groups" target="_blank" rel="noopener">Berechnungsgruppen erstellen</a> · <a href="https://learn.microsoft.com/de-de/training/modules/create-calculation-groups/" target="_blank" rel="noopener">Training: Calculation Groups</a></p>
+      <p class="learn-ref"><span class="learn-ref-label">Microsoft Learn</span><a href="https://learn.microsoft.com/de-de/power-bi/transform-model/calculation-groups" target="_blank" rel="noopener">Berechnungsgruppen erstellen</a> · <a href="https://learn.microsoft.com/de-de/training/modules/design-semantic-models-scale/" target="_blank" rel="noopener">Training: Semantikmodelle skalierbar entwerfen (u. a. Berechnungen)</a></p>
     `
   },
   'dax-r-udf': {
@@ -6945,7 +7138,7 @@ Menge Δ VJ %  = DeltaProzent ( [Menge], [Menge VJ] )</pre>
     eyebrow: 'DAX · REZEPT',
     title: 'Rezept · Kalenderbasierte Zeitintelligenz (Preview)',
     body: `
-      <p class="lead"><strong>Wann:</strong> Geschäftsjahre, Retail-Kalender (4-4-5), Wochenlogik oder Kalender mit Lücken (nur Werktage). <strong>Status Oktober 2026: Preview</strong> — in Desktop unter Optionen → Vorschaufeatures → „Enhanced DAX Time Intelligence“ aktivieren. Learn empfiehlt den Ansatz wegen Flexibilität und Performance.</p>
+      <p class="lead"><strong>Wann:</strong> Geschäftsjahre, Retail-Kalender (4-4-5), Wochenlogik oder Kalender mit Lücken (nur Werktage). <strong>Status November 2026: Preview</strong> — in Desktop unter Optionen → Vorschaufeatures → „Enhanced DAX Time Intelligence“ aktivieren. Learn empfiehlt den Ansatz wegen Flexibilität und Performance.</p>
       <h4>Formel</h4>
       <pre><span class="com">-- Kalender 'Geschäftsjahr' auf der Tabelle 'Datum' definiert</span>
 <span class="com">-- (Tabellentools → Kalenderoptionen → Neuer Kalender)</span>
@@ -7041,7 +7234,7 @@ Umsatz GJ VJ  =
         <p><code>ABS</code> verhindert ein doppeltes Minus („−12 % unter Plan“), die Leer-Prüfung fängt fehlende Planwerte ab.</p>
 
         <h4 class="step">Titel an Visual binden</h4>
-        <p>Im Format-Bereich: "Titel" → fx-Knopf neben dem Titeltext → Formatstil "Feldwert" → die Measure auswählen. Mit dem Fluent-2-Basisdesign (Standard für neue Berichte seit August 2026) sind auch Untertitel standardmäßig an — ideal für die Quantifizierung.</p>
+        <p>Im Format-Bereich: "Titel" → fx-Knopf neben dem Titeltext → Formatstil "Feldwert" → die Measure auswählen. Mit dem Fluent-2-Basisdesign (Standard für neue Berichte seit August 2026) sind laut den Visual-Standards bei Microsoft Learn Titel und Untertitel standardmäßig an, ideal für die Quantifizierung. Einschränkung: Seit dem September-2026-Update sind Titel und Untertitel getrennte Schalter, und bei Matrix, Tabelle und Card sind beide mit dem neuesten Basisdesign standardmäßig aus (Teil der Preview für die On-Object-Bearbeitung). Prüfe den Schalter also je Visual.</p>
       </div>
 
       <div class="example">
@@ -7086,7 +7279,18 @@ Umsatz GJ VJ  =
         <li>Inforiver oder Zebra BI Custom Visual für Variance-Charts mit Solid/Outlined/Hatched</li>
         <li>In Microsoft Fabric: Planning (Fabric IQ) bringt IBCS-zertifizierte Intelligence Sheets mit Vorlagen für Säulen, Wasserfälle und Tabellen</li>
         <li>Bei Bordmitteln: gleicher Farb-Code für gleiche Bedeutung konsequent durchziehen — im Theme-Bereich lassen sich dafür Sentiment-Farben (gut/neutral/schlecht) zentral setzen</li>
+        <li>Eigene Visuals der Daten-WG: <a href="chartkitchen-doku.html">ChartKitchen byDatenWG</a> (Säulen, Brücken, Tabellen in einem Visual) und <a href="pnl-doku.html">P&amp;L Statement byDatenWG</a> (GuV-Tabelle, Wasserfall, Werttreiberbaum) setzen die Szenario-Notation einheitlich um. Beide sind IBCS-inspiriert, nicht von der IBCS Association zertifiziert.</li>
       </ul>
+
+      <figure>
+        <img src="doku-assets/pbi/pbi-demo-report.png" alt="Power-BI-Demobericht mit vier KPI-Karten, Säulen für Januar bis Dezember mit Ist gefüllt, Plan als Kontur und Forecast schraffiert sowie einer Brücke vom Vorjahr zum Ist nach Produkt" loading="lazy">
+        <figcaption>
+          <strong>Abb. · Semantische Notation in einem Power-BI-Bericht</strong>
+          Ist (AC) gefüllt, Plan (PL) als Kontur, Forecast (FC) schraffiert, Vorjahr (PY) grau, und zwar in allen Visuals gleich. Demodaten. Eigene Arbeit mit dem IBCS-inspirierten Custom Visual ChartKitchen byDatenWG, mehr in der <a href="chartkitchen-doku.html">ChartKitchen-Dokumentation</a>.
+        </figcaption>
+      </figure>
+
+      <p>Wer die Regeln erst einmal üben will: Der <a href="ibcs-trainer.html">IBCS-Trainer</a> der Kitchen fragt die Notation als Quiz ab oder lässt dich in Beispielen den Verstoß finden.</p>
 
       <div class="trap">
         <strong>Anfänger-Falle</strong>
@@ -7401,6 +7605,14 @@ Umsatz GJ VJ  =
         <li><strong>Annähernde Lösung</strong> — leichtere Farbsättigung statt Schraffur (verliert die strenge IBCS-Notation, aber besser als nichts)</li>
       </ol>
 
+      <figure>
+        <img src="assets/posts/finance-reporting-budapest/01-sprosse1-pure.png" alt="GuV-Seite nur mit Standard-Visuals: Matrix mit Vorjahr, Plan, Ist und Abweichungen, Säulen je Monat und Balken je Gesellschaft, links sechs Slicer" loading="lazy">
+        <figcaption>
+          <strong>Abb. · Was mit Bordmitteln geht</strong>
+          Dieselbe GuV-Seite nur mit Standard-Visuals: Matrix, Säulen und Balken funktionieren, aber Plan als Kontur und Forecast als Schraffur fehlen. Demodaten, Beschriftung englisch. Eigene Arbeit, Stufe 1 von 6 im Beitrag <a href="finance-reporting-budapest-post.html">Eine GuV-Seite, sechs Sprossen</a>, der dieselbe Seite bis zu DAX, SVG, Deneb, Custom Visual und Fabric Apps weiterbaut.
+        </figcaption>
+      </figure>
+
       <div class="example">
         <strong>Praxis-Beispiel · Forecast-Verlauf</strong>
         Säulen-Chart Monatsumsatz: Januar–Oktober solid (ACT), November–Dezember hatched (FC). Mit einem Blick erkennbar: was ist Tatsache, was Prognose. Wenn der FC im November einen Sprung macht, fällt das sofort auf — die Schraffur signalisiert "Vorsicht: Annahme".
@@ -7453,6 +7665,22 @@ Umsatz GJ VJ  =
         <strong>Anfänger-Falle</strong>
         Stacked-Bar-Chart, weil "schön kompakt". Funktioniert nur, wenn man die erste Kategorie vergleichen will (die mit gemeinsamer Basislinie). Alle anderen Kategorien haben keine gemeinsame Basis und werden unvergleichlich. Stattdessen mehrere kleine Charts (Small Multiples) oder grouped Bars.
       </div>
+
+      <h4>Neu: Gantt als Standard-Visual (Preview)</h4>
+      <p>Für Projektpläne gibt es seit dem Oktober-2026-Update ein eingebautes Gantt-Diagramm, noch als Preview. Ein Gantt-Diagramm zeigt Aufgaben als Balken auf einer Zeitachse: Wie lange dauert was, wie weit ist es, wann liegen Meilensteine? Du aktivierst es in Desktop unter Optionen → Vorschaufeatures und startest Desktop neu. Start und Ende dürfen Measures sein; liefert das Ende-Measure einen leeren Wert, zeichnet das Visual einen Meilenstein. Aufgaben lassen sich in bis zu drei Kategorie-Ebenen gruppieren. Mit dem November-2026-Update kamen Spaltensummen, Datenbeschriftungen je Zeile, Korrekturen am Fortschrittsbalken und Tastaturnavigation dazu, ebenfalls als Preview.</p>
+
+      <figure>
+        <img src="assets/learn/gantt-project-schedule.png" alt="Gantt-Visual in Power BI mit Aufgaben, gruppiert nach den Phasen Planning, Development, Testing und Deployment von Januar bis April 2025, mit Fortschritt in den Balken und Meilenstein-Rauten" loading="lazy">
+        <figcaption>
+          <strong>Abb. · Das neue Gantt-Visual (Preview)</strong>
+          Aufgaben nach Phasen gruppiert, Fortschritt im Balken, Meilensteine als Rauten, rechts der Format-Bereich. Quelle: <a href="https://learn.microsoft.com/de-de/power-bi/visuals/power-bi-visualization-gantt" target="_blank" rel="noopener">Gantt visual in Power BI · Microsoft Learn</a>, Lizenz CC BY 4.0.
+        </figcaption>
+      </figure>
+
+      <p>Vor dem Standard-Visual brauchte man für Gantt-Diagramme ein Custom Visual oder Deneb. Die Daten-WG pflegt dafür das quelloffene Visual dataKitchenGantt (MIT-Lizenz); was es tut und nicht tut, steht auf der Seite <a href="visuals-sicherheit.html">Sicherheit &amp; Betrieb der byDatenWG-Visuals</a>. Für Berichte mit Anforderungen an Barrierefreiheit ist es laut dieser Seite derzeit nicht geeignet, weil Tastatursteuerung und Hochkontrast fehlen.</p>
+
+      <h4>Wohin fließt der Wert? Sankey neben dem Wasserfall</h4>
+      <p>Ein Wasserfall beantwortet „wie viel“: vom Umsatz Schritt für Schritt zum Ergebnis. Ein Sankey-Diagramm zeigt mit unterschiedlich breiten Bändern, wohin Werte fließen, etwa welche Umsatzarten in welche Kostenblöcke münden. Wie beide Sichten auf derselben GuV zusammenspielen, zeigt der Beitrag <a href="sankey-wasserfall-post.html">Sankey trifft IBCS-Wasserfall</a>. Ein Werkzeug, um IBCS-nahe Diagrammtypen im Browser auszuprobieren und als Deneb-Vorlage zu exportieren, ist der <a href="business-chart-builder.html">Business Chart Builder</a>.</p>
     `
   },
 
@@ -7460,7 +7688,7 @@ Umsatz GJ VJ  =
     eyebrow: 'VIZ · SIMPLIFY',
     title: 'Noise eliminieren',
     body: `
-      <p class="lead">Default-Charts bringen Dekoration mit, die keine Information trägt. Wer das nicht aufräumt, schwächt die Botschaft. Seit August 2026 starten neue Berichte mit dem Fluent-2-Basisdesign: grauer Canvas, abgerundete Ecken, mehr Innenabstand, Titel und Untertitel an, Achsentitel aus. Prüfe jedes dieser Elemente gegen deine Botschaft.</p>
+      <p class="lead">Default-Charts bringen Dekoration mit, die keine Information trägt. Wer das nicht aufräumt, schwächt die Botschaft. Seit August 2026 starten neue Berichte mit dem Fluent-2-Basisdesign: grauer Canvas, abgerundete Ecken, mehr Innenabstand, Titel und Untertitel an (bei Diagrammen; bei Tabelle, Matrix und Card je nach Version aus), Achsentitel aus. Prüfe jedes dieser Elemente gegen deine Botschaft.</p>
 
       <h4>Was raus muss</h4>
       <ul>
@@ -7481,8 +7709,22 @@ Umsatz GJ VJ  =
         <h4 class="step">Theme zentral anpassen</h4>
         <p>Menüband „Design“ → „Design anpassen“ öffnet den Theme-Bereich (GA seit August 2026, Desktop und Web): Basisdesign wählen, Farbpalette, Textstile, Visual- und Seiteneigenschaften setzen. Änderungen wirken auf alle Visuals, die keine Einzelformatierung haben.</p>
 
+        <h4 class="step">Formatierung als Stilvorlage speichern</h4>
+        <p>Seit dem November-2026-Update allgemein verfügbar: Ein fertig formatiertes Visual speicherst du im Format-Bereich unter „Stilvorlagen“ (Style presets) als benannte Vorlage. Sie steht dann allen Visuals desselben Typs im Bericht zur Auswahl, lässt sich als Standard festlegen und wird im Theme gespeichert, reist also mit dem Theme-Export in andere Berichte. Direkte Formatierungen am Visual haben weiter Vorrang; „Alle Stileinstellungen auf Standard zurücksetzen“ entfernt sie, ohne bedingte Formatierung und Aktionen zu löschen.</p>
+
         <h4 class="step">Theme exportieren &amp; wiederverwenden</h4>
         <p>Im Theme-Bereich als JSON exportieren und in anderen Berichten importieren. Wer per Code arbeitet: Im PBIR-Format (seit 2026 Standard-Berichtsformat) liegt jedes Visual als eigene <code>visual.json</code> — Massenänderungen sind dann ein Skript statt hundert Klicks.</p>
+      </div>
+
+      <h4>Weitere Neuerungen 2026</h4>
+      <ul>
+        <li><strong>Design-Menüband</strong> (allgemein verfügbar seit September 2026): Themes anwenden, importieren und herunterladen an einer Stelle, dazu die neuen Designs „Dark“ und „Soft dark“.</li>
+        <li><strong>Hintergrundfarbe der Zeichenfläche</strong> (Plot area) für Balken-, Säulen-, Linien-, Flächen-, Kombi-, Ribbon-, Wasserfall- und Streudiagramme, seit Oktober 2026 allgemein verfügbar; seit November 2026 auch mit Transparenz und Hintergrundbild. Sparsam einsetzen: Eine farbige Fläche hinter den Daten ist meist genau das Rauschen, das diese Karte entfernen will.</li>
+      </ul>
+
+      <div class="tip">
+        <strong>Aus der Kitchen · Design als System</strong>
+        Wie man Theme, Raster, Kopfband und Filterbereich für viele Berichte verbindlich macht und mit einem Linter prüft, zeigt der Beitrag <a href="powerbi-design-skill.html">Power BI Design Skill: Report-Design als Framework</a>. Seiten vorab im Workshop skizzieren und als Spezifikation übergeben: <a href="mockupkitchen-post.html">MockupKitchen</a>.
       </div>
 
       <h4>Theme-JSON Beispiel</h4>
@@ -7536,8 +7778,23 @@ Umsatz GJ VJ  =
         <p>Visual auswählen → „Visual formatieren“ → „Y-Achse“ → „Bereich“ → „Minimum“ auf 0 setzen. „Bereich runden“ aus, wenn die Achse eng an den Daten liegen soll.</p>
 
         <h4 class="step">Mehrere Charts vergleichbar machen</h4>
-        <p>Wenn zwei Charts nebeneinander stehen, die thematisch verglichen werden: gleiche Y-Achse manuell setzen (Maximum auf den größeren Wert beider Charts). Bei Small Multiples ist „Gemeinsame Y-Achse“ standardmäßig an — lass sie an, wenn absolute Werte verglichen werden.</p>
+        <p>Wenn zwei Charts nebeneinander stehen, die thematisch verglichen werden: gleiche Y-Achse manuell setzen (Maximum auf den größeren Wert beider Charts). Bei den eingebauten Small Multiples sind die Achsen laut Learn synchronisiert: eine Y-Achse links je Zeile, eine X-Achse unten je Spalte. Prüfe bei Custom Visuals, ob sie eine gemeinsame Skala anbieten und ob sie eingeschaltet ist.</p>
       </div>
+
+      <figure>
+        <img src="whitepaper-assets/multiples-vorher.png" alt="Zwei Brückendiagramme nebeneinander, Nord und Süd, jede Kachel mit eigener Skala: Süd füllt seine Kachel genauso aus wie Nord" loading="lazy">
+        <figcaption>
+          <strong>Abb. · Vorher: jede Kachel mit eigener Skala</strong>
+          Region Süd hat nur ein Drittel des Umsatzes von Nord, füllt ihre Kachel aber genauso aus. Der Vergleich der Balkenlängen täuscht.
+        </figcaption>
+      </figure>
+      <figure>
+        <img src="whitepaper-assets/multiples-nachher.png" alt="Dieselben zwei Brückendiagramme mit gemeinsamer Skala: Süd ist sichtbar etwa ein Drittel so lang wie Nord" loading="lazy">
+        <figcaption>
+          <strong>Abb. · Nachher: gemeinsame Skala</strong>
+          Mit gemeinsamer Skala ist Süd sichtbar ein Drittel von Nord. Demodaten. Eigene Arbeit mit dem Custom Visual ChartKitchen byDatenWG, beschrieben im Bericht <a href="whitepaper-ki-entwicklung-roi.html">Zehn Tage bis zum marktfähigen Stand</a>.
+        </figcaption>
+      </figure>
 
       <h4>Skalenbruch (wenn unvermeidbar)</h4>
       <p>Wenn ein Wert massiv größer ist als alle anderen (z. B. Mega-Kunde verzerrt Top-10-Liste): Skalenbruch mit Zickzack-Symbol markieren. Power BI hat das nicht nativ — manuell als Text-Annotation.</p>
@@ -7546,7 +7803,7 @@ Umsatz GJ VJ  =
         <strong>Anfänger-Falle</strong>
         Y-Achse anpassen, um "Detail sichtbar zu machen". Wenn der Unterschied wichtig ist, separates Variance-Chart bauen mit Differenzen oder Prozenten. Die absolute Skala bleibt ehrlich.
       </div>
-      <p class="learn-ref"><span class="learn-ref-label">Microsoft Learn</span><a href="https://learn.microsoft.com/de-de/power-bi/visuals/power-bi-visualization-customize-x-axis-and-y-axis" target="_blank" rel="noopener">X- und Y-Achse anpassen</a></p>
+      <p class="learn-ref"><span class="learn-ref-label">Microsoft Learn</span><a href="https://learn.microsoft.com/de-de/power-bi/visuals/power-bi-visualization-customize-x-axis-and-y-axis" target="_blank" rel="noopener">X- und Y-Achse anpassen</a> · <a href="https://learn.microsoft.com/de-de/power-bi/visuals/power-bi-visualization-small-multiples" target="_blank" rel="noopener">Small Multiples erstellen</a></p>
     `
   },
 
@@ -7668,7 +7925,7 @@ Umsatz GJ VJ  =
       <p>Eine Matrix mit Conditional Formatting: Hintergrundfarbe nach Wert, Icon-Spalten für Status, Sparkline für Trend. Mehr Information als ein "schönes" Säulen-Chart.</p>
 
       <h4>5. KPI-Reihen mit dem Card-Visual</h4>
-      <p>Das neue Card-Visual (GA seit November 2025) zeigt mehrere Kennzahlen in einem Visual — mit Referenzbeschriftungen (z. B. „Δ VJ“) und Bildern. Eine Kachelreihe statt fünf einzelner Karten: weniger Visuals, weniger Abfragen, einheitliche Formatierung.</p>
+      <p>Das neue Card-Visual (GA seit November 2025) zeigt mehrere Kennzahlen in einem Visual — mit Referenzbeschriftungen (z. B. „Δ VJ“) und Bildern. Eine Kachelreihe statt fünf einzelner Karten: weniger Visuals, weniger Abfragen, einheitliche Formatierung. Neu seit November 2026 als Preview: eine Trendachse (Trend axis), mit der jede Karte ein kleines Trenddiagramm zeigt, also Wert und Verlauf in einer Kachel.</p>
 
       <div class="example">
         <strong>Praxis-Beispiel · Cockpit-Übersicht</strong>
@@ -7805,7 +8062,7 @@ Umsatz GJ VJ  =
         <li><strong>Web-URL</strong> — externe URL öffnen</li>
         <li><strong>Alle Slicer anwenden / Alle Slicer löschen</strong> — Auswahl sammeln und erst auf Klick abfragen (spart Abfragen)</li>
         <li><strong>Datenfunktion</strong> — ruft eine Fabric User Data Function auf (Translytical Task Flows, GA seit März 2026): Datensätze ändern oder Aktionen auslösen, direkt aus dem Bericht</li>
-        <li><strong>Q&amp;A</strong> — öffnet den Q&amp;A-Explorer. <em>Auslaufmodell:</em> Q&amp;A wird laut Learn im Februar 2027 eingestellt; Nachfolger ist Copilot.</li>
+        <li><strong>Q&amp;A</strong> — öffnet den Q&amp;A-Explorer. <em>Auslaufmodell:</em> Q&amp;A wird laut den aktuellen Learn-Seiten im Februar 2027 eingestellt (eine ältere Ankündigung aus dem Januar 2026 nannte Dezember 2026); Nachfolger ist Copilot.</li>
       </ul>
 
       <div class="steps">
@@ -7834,6 +8091,22 @@ Umsatz GJ VJ  =
         <strong>Tipp</strong>
         Button-States gestalten: Standard, Hover, Gedrückt, Ausgewählt, Deaktiviert — alle haben eigene Format-Eigenschaften. Mit dem Fluent-2-Basisdesign gibt es dafür Stilvorlagen (Standard, Kontur, Transparent, Symbol &amp; Text). Für reine Filter-Umschalter ist oft der <strong>Button-Slicer</strong> die einfachere Wahl als Button + Bookmark.
       </div>
+
+      <h4>Slicer: was sich im November 2026 geändert hat</h4>
+      <p>Slicer (Datenschnitte) sind die Auswahlfelder, mit denen Anwender filtern. Mit dem November-2026-Update sind drei Neuerungen allgemein verfügbar:</p>
+      <ul>
+        <li><strong>Listen-Slicer mit Dropdown:</strong> Die Liste klappt erst bei Klick auf; gewählte Werte stehen als kleine „Pills“ im Auswahlfeld und lassen sich dort einzeln entfernen. Die Option „Show selected first“ hält die aktive Auswahl oben.</li>
+        <li><strong>Datumsauswahl als Standard:</strong> Ziehst du eine Datumsspalte in einen Slicer, startet er im Stil „Date picker“: Kalender für einen festen Zeitraum oder relative Auswahl wie „letzter voller Monat“, die mit der Zeit weiterrollt. Hierarchien unterstützt dieser Stil nicht, also die Datumsspalte selbst verwenden.</li>
+        <li><strong>Slicer-Modus im Theme:</strong> Ob ein Slicer als Datumsauswahl, Dropdown oder Liste startet, lässt sich im benutzerdefinierten Theme festlegen, einheitlich für alle Berichte.</li>
+      </ul>
+
+      <figure>
+        <img src="assets/learn/date-picker.png" alt="Datums-Slicer im Stil Date Picker mit Kalender für April 2026, Registern Manuell und Relativ sowie Format-Bereich mit der Option Stil gleich Date Picker" loading="lazy">
+        <figcaption>
+          <strong>Abb. · Slicer im Stil „Date picker“</strong>
+          Oben eine relative Auswahl, unten der Kalender für einen manuellen Zeitraum, rechts die Stil-Einstellung im Format-Bereich. Quelle: <a href="https://learn.microsoft.com/de-de/power-bi/visuals/power-bi-visualization-slicer-visual" target="_blank" rel="noopener">Slicers in Power BI · Microsoft Learn</a>, Lizenz CC BY 4.0.
+        </figcaption>
+      </figure>
       <p class="learn-ref"><span class="learn-ref-label">Microsoft Learn</span><a href="https://learn.microsoft.com/de-de/power-bi/create-reports/desktop-buttons" target="_blank" rel="noopener">Schaltflächen &amp; Aktionen</a> · <a href="https://learn.microsoft.com/de-de/power-bi/create-reports/buttons-apply-all-clear-all-slicers" target="_blank" rel="noopener">Alle Slicer anwenden/löschen</a> · <a href="https://learn.microsoft.com/de-de/power-bi/create-reports/translytical-task-flow-overview" target="_blank" rel="noopener">Translytical Task Flows</a></p>
     `
   },
@@ -7878,6 +8151,7 @@ Umsatz GJ VJ  =
       <ul>
         <li><strong>„Werte des ausgewählten Felds anzeigen“</strong> — der Slicer zeigt statt der Feldnamen die Werte, als Hierarchie-Slicer</li>
         <li><strong>„Hierarchieebene beibehalten“</strong> (Berichtseinstellung, Januar 2026) — steuert, ob eine aufgeklappte Matrix beim Wechsel aufgeklappt bleibt</li>
+        <li><strong>Hierarchie-Achse klappt automatisch auf</strong> (allgemein verfügbar seit Oktober 2026) — Balken-, Säulen- und Liniendiagramme erweitern die Achse automatisch, wenn mehrere Spalten gewählt sind, auch wenn sie aus einem Field Parameter kommen. Anwender wechseln die Achsenfelder per Slicer oder über „Personalize this visual“.</li>
       </ul>
 
       <div class="tip">
@@ -8007,7 +8281,7 @@ Umsatz GJ VJ  =
     eyebrow: 'INTERAKTIVITÄT · KI',
     title: 'Copilot im Bericht',
     body: `
-      <p class="lead">Copilot ist in Power BI Desktop und im Service an mehreren Stellen eingebaut — für Anwender, die Fragen an einen Bericht haben, und für Autoren, die schneller bauen wollen. Stand Oktober 2026.</p>
+      <p class="lead">Copilot ist in Power BI Desktop und im Service an mehreren Stellen eingebaut — für Anwender, die Fragen an einen Bericht haben, und für Autoren, die schneller bauen wollen. Stand November 2026. Diese Karte beschreibt den Copilot-Bereich im geöffneten Bericht; er ist laut Learn allgemein verfügbar und von den unten beschriebenen Abschaltungen nicht betroffen.</p>
 
       <h4>Für Anwender</h4>
       <ul>
@@ -8025,8 +8299,14 @@ Umsatz GJ VJ  =
 
       <h4>Voraussetzungen</h4>
       <ul>
-        <li>Copilot im Tenant aktiviert (Admin-Einstellungen) und eine bezahlte Fabric-Kapazität in einer unterstützten Region — Trial-SKUs werden nicht unterstützt</li>
+        <li>Copilot im Tenant aktiviert (Admin-Einstellungen) und eine bezahlte Kapazität in einer unterstützten Region: Fabric ab F2 oder Power BI Premium ab P1. Trial-Kapazitäten und kostenlose SKUs werden nicht unterstützt</li>
         <li>Für Seiten-Erstellung muss Q&amp;A für das Modell eingeschaltet sein; implizite Measures dürfen nicht deaktiviert sein, Live-Verbindungen zu Analysis Services gehen nicht</li>
+      </ul>
+
+      <h4>Was sich gerade ändert (Stand November 2026)</h4>
+      <ul>
+        <li><strong>Standalone-Copilot und App-Copilot werden abgeschaltet:</strong> Der eigenständige Power-BI-Copilot (Vollbild im Web, in Teams und mobil) und der Copilot in Workspace-Apps sind ab dem 15.01.2027 abgeschaltet. Schon am 08.12.2026 wechselt die Tenant-Einstellung für den Standalone-Copilot auf „aus“; Admins können ihn bis zum Abschaltdatum wieder einschalten. Copilot im Bericht und in Desktop bleibt.</li>
+        <li><strong>Nachfolger „Microsoft Copilot in Power BI und Fabric“ (Preview):</strong> ein Einstieg in der linken Navigation, der Berichte findet und Fragen an Power-BI-Daten über Fabric IQ beantwortet. Er braucht laut Learn weder eine F-SKU noch einen Premium-Workspace; was ein Nutzer damit kann, hängt von seiner Microsoft-Copilot-Lizenz ab, nicht von Free, Pro oder PPU. Die Tenant-Einstellung dafür steht ab dem 08.12.2026 standardmäßig auf „an“. RLS und OLS des Modells gelten weiter.</li>
       </ul>
 
       <div class="example">
@@ -8036,9 +8316,9 @@ Umsatz GJ VJ  =
 
       <div class="trap">
         <strong>Q&amp;A läuft aus</strong>
-        Q&amp;A-Visual, Q&amp;A-Button und Q&amp;A auf Dashboards werden laut Learn im Februar 2027 eingestellt. Neue Berichte nicht mehr darauf aufbauen; bestehende Q&amp;A-Elemente durch Copilot oder klassische Visuals ersetzen.
+        Q&amp;A-Visual, Q&amp;A-Button und Q&amp;A auf Dashboards werden laut den aktuellen Learn-Seiten im Februar 2027 eingestellt; eine ältere Ankündigung im Update vom Januar 2026 nannte noch Dezember 2026. Neue Berichte nicht mehr darauf aufbauen; bestehende Q&amp;A-Elemente durch Copilot oder klassische Visuals ersetzen.
       </div>
-      <p class="learn-ref"><span class="learn-ref-label">Microsoft Learn</span><a href="https://learn.microsoft.com/de-de/power-bi/create-reports/copilot-reports-overview" target="_blank" rel="noopener">Copilot in Berichten &amp; Modellen</a> · <a href="https://learn.microsoft.com/de-de/power-bi/create-reports/copilot-create-narrative" target="_blank" rel="noopener">Narrative-Visual mit Copilot</a> · <a href="https://learn.microsoft.com/de-de/power-bi/create-reports/copilot-create-reports" target="_blank" rel="noopener">Berichte mit Copilot erstellen</a> · <a href="https://learn.microsoft.com/de-de/power-bi/visuals/power-bi-visualization-q-and-a" target="_blank" rel="noopener">Q&amp;A-Visual (Abkündigung)</a></p>
+      <p class="learn-ref"><span class="learn-ref-label">Microsoft Learn</span><a href="https://learn.microsoft.com/de-de/power-bi/create-reports/copilot-reports-overview" target="_blank" rel="noopener">Copilot in Berichten &amp; Modellen</a> · <a href="https://learn.microsoft.com/de-de/power-bi/create-reports/copilot-create-narrative" target="_blank" rel="noopener">Narrative-Visual mit Copilot</a> · <a href="https://learn.microsoft.com/de-de/power-bi/create-reports/copilot-create-reports" target="_blank" rel="noopener">Berichte mit Copilot erstellen</a> · <a href="https://learn.microsoft.com/de-de/power-bi/visuals/power-bi-visualization-q-and-a" target="_blank" rel="noopener">Q&amp;A-Visual (Abkündigung)</a> · <a href="https://learn.microsoft.com/de-de/fabric/iq/connectors/copilot-power-bi-fabric" target="_blank" rel="noopener">Microsoft Copilot in Power BI und Fabric (Preview)</a></p>
     `
   },
 
@@ -8109,7 +8389,7 @@ Umsatz GJ VJ  =
       <h4>Audiences</h4>
       <p>Eine App kann mehrere Audiences haben — z. B. "Management" sieht andere Berichte als "Vertriebsteam". Aus einer App-Quelle werden mehrere Sichten verteilt.</p>
 
-      <h4>Workspace-App oder Org-App? (Stand Oktober 2026)</h4>
+      <h4>Workspace-App oder Org-App? (Stand November 2026)</h4>
       <table>
         <tr><th>Workspace-App (klassisch)</th><th>Org-App (Fabric-Item)</th></tr>
         <tr><td>Eine App pro Workspace</td><td>Beliebig viele Org-Apps pro Workspace</td></tr>
@@ -8117,6 +8397,15 @@ Umsatz GJ VJ  =
         <tr><td>Zugriff nur über die App</td><td>Nutzer mit App-Zugriff können enthaltene Items auch per Direktlink öffnen</td></tr>
       </table>
       <p>Org-Apps sind generally available und funktionieren auch in Pro-Workspaces; bestehende Workspace-Apps laufen unverändert weiter und werden nicht automatisch migriert.</p>
+      <p><strong>Neu im November 2026:</strong> Org-Apps, die vor Einführung der Audiences angelegt wurden, lassen sich jetzt auf Audiences umstellen; die Navigation ordnest du beim Bearbeiten per Drag-and-Drop. Angekündigt, aber noch im Rollout: Fabric Apps als weiterer Inhaltstyp in Org-Apps und eine neue Apps-Seite, die auch Fabric Apps zeigt. Ebenfalls neu: Eine ganze Workspace-App lässt sich samt Navigation in SharePoint Online einbetten; Berechtigungen und Audiences gelten dort weiter.</p>
+
+      <figure>
+        <img src="assets/learn/org-app-consumer-experience-view.png" alt="Org-App aus Sicht der Anwender mit Reitern für die Audiences All, Leadership und Sales team, linker Navigation und geöffneter Berichtsseite" loading="lazy">
+        <figcaption>
+          <strong>Abb. · Org-App mit Audiences</strong>
+          Oben die Reiter je Audience, links die Navigation der App, rechts der geöffnete Bericht. Quelle: <a href="https://learn.microsoft.com/de-de/power-bi/explore-reports/org-app-items" target="_blank" rel="noopener">Org apps · Microsoft Learn</a>, Lizenz CC BY 4.0, für die Website verkleinert.
+        </figcaption>
+      </figure>
 
       <div class="steps">
         <h4 class="step">App erstellen</h4>
@@ -8239,7 +8528,7 @@ Umsatz GJ VJ  =
         <p>Ziel-Stage wählen, Items auswählen (alle, selektiv oder per "Select related"), optional eine Notiz für die Deployment-Historie, dann "Deploy". Ein Vergleich zeigt vorher, was sich unterscheidet.</p>
 
         <h4 class="step">Deployment Rules</h4>
-        <p>Wichtig: Pro Stage können Rules definiert werden — z. B. "in PROD verwende eine andere Datenbank-Connection". So bleibt DEV mit Test-DB, PROD verbindet sich mit Prod-DB.</p>
+        <p>Wichtig: Pro Stage können Rules definiert werden — z. B. "in PROD verwende eine andere Datenbank-Connection". So bleibt DEV mit Test-DB, PROD verbindet sich mit Prod-DB. Neu seit November 2026 (Preview): Auch Direct-Lake-on-OneLake-Modelle unterstützen M-Parameter, sodass Parameter-Regeln jede Stage auf eine andere OneLake-Quelle zeigen lassen, ohne die Quellausdrücke von Hand umzuschreiben.</p>
       </div>
 
       <h4>Auto-Binding</h4>
@@ -8316,6 +8605,11 @@ Umsatz GJ VJ  =
         <strong>Anfänger-Falle</strong>
         Refresh-Failures ignorieren. Schlägt ein geplanter Refresh <strong>viermal hintereinander</strong> fehl, deaktiviert Power BI den Zeitplan. Plötzlich sind die Daten Tage alt, ohne dass es jemand merkt. Ursache beheben, Zeitplan wieder einschalten — und Fehler-Benachrichtigungen immer aktivieren.
       </div>
+
+      <div class="tip">
+        <strong>Echtzeit statt Zeitplan?</strong>
+        Die alten Echtzeit-Streaming-Modelle in Power BI (Push-, Streaming- und PubNub-Modelle, Streaming-Kacheln) laufen aus: Laut Learn lassen sie sich noch bis zum 31.10.2027 neu anlegen, bestehende sind nicht betroffen. Für neue Echtzeit-Szenarien empfiehlt Microsoft Real-Time Intelligence in Fabric.
+      </div>
     `
   },
 
@@ -8331,6 +8625,7 @@ Umsatz GJ VJ  =
         <li>Audiences für verschiedene Zielgruppen</li>
         <li>Konsumenten sehen "Production"-Stand (Workspace-App) bzw. den gespeicherten Stand (Org-App)</li>
         <li>Microsoft-Standard für die breite Verteilung im Unternehmen</li>
+        <li>Seit November 2026 lässt sich eine ganze Workspace-App mit Navigation in SharePoint Online einbetten</li>
       </ul>
 
       <h4>2. Direct Sharing (Single Item)</h4>
@@ -8351,8 +8646,9 @@ Umsatz GJ VJ  =
 
       <h4>4. Subscriptions</h4>
       <ul>
-        <li>Periodische E-Mail mit Bericht-Snapshot (PDF oder Bild)</li>
-        <li>Täglich, wöchentlich, monatlich</li>
+        <li>Periodische E-Mail mit Vorschaubild der Seite und Link zum Bericht; den vollständigen Bericht als Anhang (PDF oder PowerPoint) gibt es nur für Workspaces auf einer Kapazität oder mit PPU</li>
+        <li>Stündlich, täglich, wöchentlich, monatlich oder „nach Datenaktualisierung“ (einmal täglich)</li>
+        <li>Seit September 2026 ziehen Abonnements automatisch auf eine neue Zustellplattform um: Absender und Formatierung der Mail ändern sich, Zeitpläne und Empfänger bleiben</li>
         <li>Empfänger ohne Pro/PPU nur, wenn der Inhalt auf einer Kapazität liegt (Free-Konsum: ab F64)</li>
         <li>Schwächer als interaktiver Bericht — kein Drill, kein Filter</li>
       </ul>
@@ -8361,7 +8657,7 @@ Umsatz GJ VJ  =
       <table>
         <tr><th>Methode</th><th>Skalierung · Interaktion</th><th>Lizenz der Nutzer</th></tr>
         <tr><td>App</td><td>Sehr gut · vollständig</td><td>Pro/PPU, Free ab F64</td></tr>
-        <tr><td>Direct Share</td><td>Schlecht · vollständig</td><td>Pro/PPU</td></tr>
+        <tr><td>Direct Share</td><td>Schlecht · vollständig</td><td>Pro/PPU, Free ab F64</td></tr>
         <tr><td>Embed</td><td>Gut · variabel</td><td>Je nach Szenario</td></tr>
         <tr><td>Abo (Subscription)</td><td>Sehr gut · keine</td><td>Optional (Kapazität)</td></tr>
       </table>
@@ -8378,6 +8674,12 @@ Umsatz GJ VJ  =
         <strong>Tipp</strong>
         Apps + Subscriptions sind oft die richtige Kombination: App für die Power-User mit Interaktion, Subscription für die "Schau-Anwender", die nur die wichtigsten Zahlen brauchen.
       </div>
+
+      <div class="tip">
+        <strong>Angekündigt · Export nach Excel</strong>
+        Im September-2026-Update hat Microsoft angekündigt („coming soon“), das Limit für den Export „Data with current layout“ (Daten mit aktuellem Layout) aus Tabellen-Visuals von 150.000 auf 500.000 Zeilen anzuheben. Bis es ausgerollt ist, gilt das bisherige Limit.
+      </div>
+      <p class="learn-ref"><span class="learn-ref-label">Microsoft Learn</span><a href="https://learn.microsoft.com/de-de/power-bi/collaborate-share/end-user-subscribe" target="_blank" rel="noopener">Berichte abonnieren</a> · <a href="https://learn.microsoft.com/de-de/power-bi/collaborate-share/office-integration/service-embed-report-spo" target="_blank" rel="noopener">In SharePoint Online einbetten</a> · <a href="https://learn.microsoft.com/de-de/power-bi/developer/embedded/embedded-capacity" target="_blank" rel="noopener">Kapazität und Free-Nutzer</a></p>
     `
   },
 
@@ -8414,7 +8716,7 @@ Umsatz GJ VJ  =
         <p>Modeling → "View as" → Rolle auswählen → der Bericht filtert sich, als wäre der Anwender in dieser Rolle.</p>
 
         <h4 class="step">Im Service Anwender zuweisen</h4>
-        <p>Bericht publishen → im Service am semantischen Modell "..." → "Security" → Rolle auswählen → User oder Sicherheitsgruppe hinzufügen. Das dürfen nur Modell-Owner und Workspace-Admins.</p>
+        <p>Bericht publishen → im Service am semantischen Modell "..." → "Security" → Rolle auswählen → User oder Sicherheitsgruppe hinzufügen. Die Option „Security“ sehen laut Learn alle mit der Workspace-Rolle Contributor oder höher, und sie können dort Mitglieder zuweisen; je nach Szenario braucht es zusätzlich Besitz am Modell oder Build-Berechtigung.</p>
       </div>
 
       <div class="example">
@@ -8520,6 +8822,11 @@ Freigegebene Regionen =
         <strong>Tipp</strong>
         Der UserPrincipalName ist üblicherweise die E-Mail-Adresse, aber nicht immer — in Microsoft Entra ID können beide abweichen, und nach einer Namensänderung kann sich die UPN ändern. Berechtigungstabelle auf UPN aufbauen, nicht auf der Anzeige-E-Mail.
       </div>
+
+      <div class="tip">
+        <strong>Externe Gäste (B2B)</strong>
+        Für Gastnutzer aus anderen Organisationen liefert <code>USERPRINCIPALNAME()</code> je nach Tenant-Konfiguration die externe Mail-Adresse (<code>user@partner.com</code>) oder eine Form wie <code>user_partner.com#EXT#@firma.onmicrosoft.com</code>. Steht in der Berechtigungstabelle das andere Format, sieht der Gast nichts. „Test as role“ deckt das nicht auf, weil es mit deiner eigenen Identität läuft; Learn empfiehlt, mit dem echten Gastkonto zu testen. Gäste in Entra-Sicherheitsgruppen werden bei RLS-Rollen teils nicht korrekt aufgelöst; dann Gäste direkt per E-Mail-Adresse zur Rolle hinzufügen.
+      </div>
     `
   },
 
@@ -8588,20 +8895,20 @@ Freigegebene Regionen =
       <h4>Drei Performance-Regeln</h4>
       <ol>
         <li><strong>Filter auf Dimensionen, nicht auf Faktentabelle</strong></li>
-        <li><strong>Integer-Schlüssel statt Text</strong></li>
+        <li><strong>Schlanke Berechtigungstabelle mit stabilen Schlüsseln</strong></li>
         <li><strong>Bidirektional vermeiden, wenn möglich</strong></li>
       </ol>
 
       <h4>1. Dimension vs. Faktentabelle</h4>
       <pre><span class="com">// Schlecht — auf 50 Mio Zeilen filtern</span>
-fact_verkauf[Region] = <span class="fn">USERPRINCIPALNAME</span>()
+fact_verkauf[VerkaeuferEmail] = <span class="fn">USERPRINCIPALNAME</span>()
 
 <span class="com">// Gut — auf kleine Dimension filtern</span>
-dim_region[UserEmail] = <span class="fn">USERPRINCIPALNAME</span>()</pre>
+dim_verkaeufer[Email] = <span class="fn">USERPRINCIPALNAME</span>()</pre>
       <p>Die Faktentabelle hat Millionen Zeilen, die Dimension einige Hundert. Filter auf die Dimension propagiert über die Beziehung — viel schneller.</p>
 
-      <h4>2. Integer statt Text</h4>
-      <p>VertiPaq verarbeitet Integer-Spalten massiv schneller als Text-Spalten. Wenn möglich: Berechtigungstabelle nutzt Integer-IDs statt Text-Schlüssel.</p>
+      <h4>2. Schlanke Berechtigungstabelle, stabile Schlüssel</h4>
+      <p>Die Berechtigungstabelle sollte nur enthalten, was die Regel braucht: Anmeldename und den Schlüssel, über den gefiltert wird. Ob dieser Schlüssel Zahl oder Text ist, spielt zur Abfragezeit kaum eine Rolle: VertiPaq, die Speicher-Engine von Power BI, kodiert Spalten in Beziehungen immer über ein Wörterbuch, laut SQLBI unabhängig vom Datentyp. Text-Schlüssel kosten vor allem ein größeres Wörterbuch und etwas mehr Zeit beim Refresh. Wichtiger ist, dass der Schlüssel stabil und eindeutig ist, also die UPN statt eines Anzeigenamens.</p>
 
       <h4>3. Bidirektional sparsam</h4>
       <p>Bidirektionale Beziehungen multiplizieren den Filter-Aufwand. RLS mit bidirektional kann den Bericht massiv verlangsamen. Im Zweifel: alternativen Pfad finden.</p>
@@ -8702,7 +9009,7 @@ dim_region[UserEmail] = <span class="fn">USERPRINCIPALNAME</span>()</pre>
         <p>Wie in "Dynamische RLS" beschrieben — eine Rolle mit USERPRINCIPALNAME-Filter.</p>
 
         <h4 class="step">Im Service: Gruppe zuweisen</h4>
-        <p>Semantisches Modell → "..." → Security → Rolle auswählen → Mitglied hinzufügen → Gruppe suchen → Add. Erlaubt sind Benutzerkonten, Sicherheitsgruppen, Verteilergruppen und E-Mail-aktivierte Gruppen.</p>
+        <p>Semantisches Modell → "..." → Security → Rolle auswählen → Mitglied hinzufügen → Gruppe suchen → Add. Erlaubt sind Benutzerkonten, Sicherheitsgruppen, Verteilergruppen und E-Mail-aktivierte Gruppen. <strong>Achtung:</strong> Microsoft-365-Gruppen werden für RLS-Rollen nicht unterstützt, obwohl sie für Workspace-Rollen empfohlen werden. Wer dieselbe Gruppe für beides plant, braucht für RLS eine Sicherheitsgruppe.</p>
       </div>
 
       <div class="example">
@@ -8803,14 +9110,14 @@ dim_region[Name]
 
       <h4>2. Filter auf Faktentabelle</h4>
       <p>RLS-Filter direkt auf die Faktentabelle anwenden:</p>
-      <pre>fact_verkauf[Region] = <span class="fn">USERPRINCIPALNAME</span>()</pre>
-      <p>Performance-Desaster bei großen Faktentabellen. Filter auf Dimensionen, propagieren lassen.</p>
+      <pre>fact_verkauf[VerkaeuferEmail] = <span class="fn">USERPRINCIPALNAME</span>()</pre>
+      <p>Performance-Desaster bei großen Faktentabellen. Filter auf Dimensionen (z. B. <code>dim_verkaeufer[Email] = USERPRINCIPALNAME()</code> oder die Regel aus „Dynamische RLS“, Variante B), propagieren lassen.</p>
 
       <h4>3. Admin-Test als Validierung</h4>
       <p>"Ich bin Admin, sehe alles, also funktioniert RLS" — Admin sieht <strong>alle</strong> Daten, weil Admin-Rolle RLS umgeht. Test muss mit Viewer-Rolle oder "Test as role" erfolgen.</p>
 
-      <h4>4. Personal Workspace</h4>
-      <p>RLS in einem persönlichen "My Workspace" — funktioniert nicht für andere Anwender. RLS gilt erst, wenn der Bericht in einen geteilten Workspace publiziert wird.</p>
+      <h4>4. Anwendern zu viele Workspace-Rechte geben</h4>
+      <p>RLS schränkt laut Learn nur Nutzer mit Leseberechtigung ein (Viewer-Rolle, App-Zugriff, Freigabe). Wer Anwender als Contributor, Member oder Admin in den Workspace holt, „damit sie leichter rankommen“, hebelt RLS für genau diese Personen aus: Sie haben Bearbeitungsrechte am Modell und sehen alle Daten. Konsumenten bekommen deshalb nur Leserechte.</p>
 
       <h4>5. Fehlende Edge Cases</h4>
       <p>RLS funktioniert für die Hauptfälle, aber:</p>
@@ -8923,8 +9230,8 @@ dim_region[Name]
         <p>Get Data → "Dataflows" → den Dataflow wählen → Tabellen importieren. Semantische Modelle können den Dataflow als Datenquelle nutzen.</p>
       </div>
 
-      <h4>Dataflow Gen1 vs. Gen2 (Stand Oktober 2026)</h4>
-      <p><strong>Power BI Dataflows (Gen1) sind „Legacy“</strong>: weiter unterstützt, aber ohne neue Features. Dataflow Gen2 ist der empfohlene Weg für alle mit Fabric-Kapazität — schneller, mit Fast Copy, besserer inkrementeller Aktualisierung, Data Destinations (Lakehouse, Warehouse u. a.), Git/CI-CD und Pipeline-Orchestrierung. Für Gen1 schreibt Microsoft: Pro- und PPU-Kunden können vorerst bei Gen1 bleiben. Zum Umstieg gibt es einen Upgrade-Assistenten (Preview), der ID, Name, Zeitplan und Verbindungen behält.</p>
+      <h4>Dataflow Gen1 vs. Gen2 (Stand November 2026)</h4>
+      <p><strong>Power BI Dataflows (Gen1) sind „Legacy“</strong>: weiter unterstützt, aber ohne neue Features. Dataflow Gen2 ist der empfohlene Weg für alle mit Fabric-Kapazität — schneller, mit Fast Copy, besserer inkrementeller Aktualisierung, Data Destinations (Lakehouse, Warehouse u. a.), Git/CI-CD und Pipeline-Orchestrierung. Für Gen1 schreibt Microsoft: Pro- und PPU-Kunden können vorerst bei Gen1 bleiben. Zum Umstieg gibt es einen Upgrade-Assistenten (Preview), der ID, Name, Zeitplan und Verbindungen behält. Seit April 2026 legt Fabric neue Dataflows Gen2 immer mit CI/CD- und Git-Unterstützung an; die frühere Variante ohne diese Unterstützung („Gen2 Classic“) lässt sich nicht mehr neu erstellen, bestehende laufen weiter.</p>
       <p>Die Folding-Indikatoren und den Query Plan aus Sektion 3 bekommst du übrigens genau hier — im Power Query Online eines Dataflows.</p>
 
       <div class="example">
@@ -8946,7 +9253,7 @@ dim_region[Name]
       <p class="lead">Storage Modes in einem Modell mischen. Performance fast wie Import, Aktualität fast wie DirectQuery — bei massiv großen Datenmengen oft die beste Lösung.</p>
 
       <h4>Was ist ein Composite Model?</h4>
-      <p>Ein Modell mit Tabellen in unterschiedlichen Storage Modes — oder mit DirectQuery-Tabellen aus mehreren Quellen. Varianten (Stand Oktober 2026):</p>
+      <p>Ein Modell mit Tabellen in unterschiedlichen Storage Modes — oder mit DirectQuery-Tabellen aus mehreren Quellen. Varianten (Stand November 2026):</p>
       <ul>
         <li><strong>Import + DirectQuery (+ Dual)</strong> — in Desktop und im Service</li>
         <li><strong>DirectQuery auf ein anderes semantisches Modell</strong> — ein zentrales Modell um eigene Tabellen/Measures erweitern („Make changes to this model“); nur in Desktop</li>
@@ -8998,7 +9305,7 @@ dim_region[Name]
     body: `
       <p class="lead">Drittwerkzeug, das bei Modellierung in der Breite immer noch schneller ist als Power BI Desktop. TE2 ist kostenfrei und Open Source. Desktop hat aber aufgeholt — vieles, wofür man früher Tabular Editor brauchte, geht heute nativ.</p>
 
-      <h4>Was Desktop inzwischen selbst kann (Stand Oktober 2026)</h4>
+      <h4>Was Desktop inzwischen selbst kann (Stand November 2026)</h4>
       <ul>
         <li><strong>Display Folders</strong> — im Model view über die Eigenschaften</li>
         <li><strong>Calculation Groups</strong> — Model view → „Calculation group“ (oder per TMDL view)</li>
@@ -9100,7 +9407,7 @@ Vorjahr = CALCULATE( SELECTEDMEASURE(), SAMEPERIODLASTYEAR( dim_datum[Datum] ) )
 
       <div class="tip">
         <strong>Tipp · Erst die eingebauten Werkzeuge</strong>
-        Performance Analyzer (Optimize → Performance Analyzer, inzwischen auch beim Bearbeiten im Web) zeichnet pro Visual die DAX-Query auf — per „Run in DAX query view“ landet sie direkt in der <strong>DAX query view</strong> von Desktop. Dort kannst du sie umbauen, testen und Measures per „Update model“ zurückschreiben. Für Server Timings, Query-Pläne und VertiPaq-Metriken bleibt DAX Studio das Werkzeug der Wahl.
+        Performance Analyzer (in Desktop: Optimize → Performance Analyzer) zeichnet pro Visual die DAX-Query auf — per „Run in DAX query view“ landet sie direkt in der <strong>DAX query view</strong> von Desktop. Beim Bearbeiten im Web gibt es den Performance Analyzer inzwischen auch, dort unter „Ansicht“ (View); „Run in DAX query view“ fehlt im Web, du kopierst die Abfrage und fügst sie in der DAX-Abfrageansicht ein. Dort kannst du sie umbauen, testen und Measures per „Update model“ zurückschreiben. Für Server Timings, Query-Pläne und VertiPaq-Metriken bleibt DAX Studio das Werkzeug der Wahl.
         <pre style="background:rgba(255,255,255,0.6);color:var(--ink);padding:8px;font-size:12px;margin-top:6px;border-radius:4px;">// DAX query view: alle Measures samt Formel und Ordner auflisten
 EVALUATE
 SELECTCOLUMNS(
@@ -9128,7 +9435,7 @@ SELECTCOLUMNS(
         <li>Fehlende Beziehungen zwischen Tabellen</li>
         <li>Spalten in Faktentabellen, die in Dimensionen gehören</li>
         <li>Implizite Measures</li>
-        <li>~80 weitere Regeln</li>
+        <li>und weitere: Das von Microsoft gepflegte Regelset umfasst rund 70 Regeln insgesamt (Performance, Formatierung, DAX-Ausdrücke, Wartung, Fehlervermeidung, Namenskonventionen); Tabular Editor 3 bringt zusätzlich ein eigenes Regelset mit</li>
       </ul>
 
       <h4>BPA installieren</h4>
@@ -9142,7 +9449,7 @@ SELECTCOLUMNS(
         <p>Tools → Best Practice Analyzer → Run. Liste von Verstößen erscheint, sortiert nach Severity.</p>
 
         <h4 class="step">Findings korrigieren</h4>
-        <p>Jeden Befund anklicken → "Generate fix script" (wenn vorhanden). TE führt die Korrektur automatisch durch. Bei manuellen Korrekturen: Spalte/Measure ändern, BPA erneut laufen lassen.</p>
+        <p>Jeden Befund anklicken. Für Regeln mit einfachem Fix-Ausdruck gibt es zwei Wege: „Apply fix“ führt die Korrektur sofort aus; „Generate fix script“ kopiert ein C#-Skript in die Zwischenablage, das du prüfen und selbst ausführen kannst. Bei manuellen Korrekturen: Spalte/Measure ändern, BPA erneut laufen lassen.</p>
 
         <h4 class="step">Vor Production-Deploy</h4>
         <p>BPA als Schritt im Release-Prozess. Wenn BPA fehlerfrei ist, ist das Modell auf einem hohen Qualitätsniveau.</p>
@@ -9152,7 +9459,7 @@ SELECTCOLUMNS(
         <strong>Praxis-Beispiel</strong>
         Neu übernommenes Modell. BPA-Lauf zeigt 47 Findings:
         <ul>
-          <li>23 × fehlende Format Strings → "Generate fix script" → automatisch korrigiert</li>
+          <li>23 × fehlende Format Strings → "Apply fix" → automatisch korrigiert</li>
           <li>5 × Auto-Date/Time aktiv → manuell deaktivieren</li>
           <li>8 × Float statt Currency → datatype umstellen</li>
           <li>4 × unnötige bidirektionale Beziehungen → prüfen, umstellen</li>
@@ -9172,18 +9479,20 @@ SELECTCOLUMNS(
     eyebrow: 'TOOLS · KI',
     title: 'Copilot in Power BI',
     body: `
-      <p class="lead">KI-Unterstützung für Power BI: Fragen an Berichte und Modelle stellen, Zusammenfassungen erzeugen, DAX schreiben und erklären. Stand Oktober 2026 — die Funktionen ändern sich monatlich.</p>
+      <p class="lead">KI-Unterstützung für Power BI: Fragen an Berichte und Modelle stellen, Zusammenfassungen erzeugen, DAX schreiben und erklären. Stand November 2026 — die Funktionen ändern sich monatlich, und gerade ordnet Microsoft die Copilot-Einstiege neu.</p>
 
       <h4>Was Copilot kann</h4>
       <ul>
         <li><strong>Copilot-Bereich im Bericht</strong> — Fragen zum Bericht, Zusammenfassungen, Export als PDF/PPT (generally available)</li>
-        <li><strong>Standalone Copilot</strong> — Vollbild-Erlebnis aus der linken Navigation, sucht über Berichte, Modelle und Apps hinweg (Preview)</li>
+        <li><strong>Standalone Copilot</strong> (Preview, <em>Auslaufmodell</em>) — Vollbild-Erlebnis aus der linken Navigation, sucht über Berichte, Modelle und Apps hinweg. Er wird zusammen mit dem Copilot in Workspace-Apps am 15.01.2027 abgeschaltet; am 08.12.2026 wechselt seine Tenant-Einstellung auf „aus“. Copilot im Bericht und in Desktop bleibt.</li>
+        <li><strong>Microsoft Copilot in Power BI und Fabric</strong> (Preview, Nachfolger des Standalone Copilot) — Einstieg in der linken Navigation, beantwortet Fragen zu Power-BI-Daten über Fabric IQ; mit Copilot-Premium-Lizenz zusätzlich mit Kontext aus Microsoft 365 (Mails, Termine, Dokumente)</li>
         <li><strong>DAX in der DAX query view</strong> — Abfragen und Measures aus natürlicher Sprache schreiben und erklären lassen</li>
         <li><strong>Measure-Beschreibungen</strong> — automatisch erzeugt im Model view</li>
         <li><strong>Prep data for AI</strong> — AI data schema, AI instructions und verifizierte Antworten am semantischen Modell hinterlegen, damit Copilot die richtigen Felder nutzt</li>
       </ul>
 
       <h4>Voraussetzungen</h4>
+      <p>Die folgenden Punkte gelten für Copilot im Bericht, in Desktop und für Copilot in Fabric. Der neue „Microsoft Copilot in Power BI und Fabric“ braucht laut Learn weder eine F-SKU noch einen Premium- oder Fabric-Workspace; er erscheint auch in Tenants mit reinen Pro-Workspaces. Was ein Nutzer damit kann, hängt von seiner Microsoft-Copilot-Lizenz ab, nicht von Free, Pro oder PPU. Zugriff auf die Inhalte braucht er trotzdem, und RLS gilt weiter.</p>
       <ul>
         <li>Workspace auf einer <strong>bezahlten Fabric-Kapazität ab F2</strong> oder Premium ab P1 — Trial-Kapazitäten zählen nicht</li>
         <li>Pro oder PPU allein reicht nicht. Ausweg: eine <strong>Fabric Copilot capacity</strong> — eine Kapazität, die die Copilot-Nutzung bestimmter User zentral abrechnet, auch für Pro-/PPU-Workspaces und Desktop</li>
@@ -9193,6 +9502,10 @@ SELECTCOLUMNS(
 
       <h4>Fabric Data Agents</h4>
       <p>Für eigene Frage-Antwort-Assistenten gibt es in Fabric die <strong>Data Agents</strong> (generally available): bis zu fünf Datenquellen — Lakehouse, Warehouse, KQL-Datenbank, semantische Modelle u. a. — plus eigene Anweisungen. Für semantische Modelle reicht Leseberechtigung; die Agenten übernehmen „Prep data for AI“ aus dem Modell und lassen sich z. B. in Microsoft 365 Copilot oder Copilot Studio veröffentlichen.</p>
+
+      <h4>Agentische Entwicklung: KI baut mit</h4>
+      <p>Neben Copilot gibt es seit dem September-2026-Update allgemein verfügbare „agentische“ Werkzeuge: KI-Agenten (laut Learn etwa ein MCP-Client im Agentenmodus wie GitHub Copilot in VS Code) bauen Semantikmodelle und Berichte selbst, über <strong>Skills</strong> (Anleitungen für den Agenten) und den <strong>Power BI Authoring MCP-Server</strong>. MCP (Model Context Protocol) ist ein offener Standard, über den ein Agent Werkzeuge aufruft. Den Authoring-Server gibt es lokal (allgemein verfügbar, für Desktop und PBIP-Dateien) und gehostet von Microsoft (Preview, für Modelle in Fabric-Workspaces). Er ist zum Bauen gedacht, nicht zum Beantworten von Fachfragen: Dafür verweist Learn auf <strong>Fabric IQ</strong> mit eigenem MCP-Endpunkt, der die Berechtigungen, RLS und OLS des Modells beachtet. Seit Oktober 2026 kann der Report-Skill auch unterstützte Custom Visuals einfügen, binden und formatieren.</p>
+      <p>Auf der Microsoft Ignite im November 2026 angekündigt (Preview): Konnektoren, mit denen man aus ChatGPT und Claude über Fabric IQ Fragen an Power-BI-Kennzahlen stellt. Wie agentische Power-BI-Entwicklung mit Claude im Team aussieht, beschreibt die Daten-WG auf <a href="power-bi-on-claude.html">Power BI on Claude</a>.</p>
 
       <h4>Realistische Erwartung</h4>
       <p>Copilot ist <strong>Hilfsmittel, nicht Ersatz</strong> — und ersetzt kein sauberes semantisches Modell. Die Qualität der Antworten hängt direkt an Namen, Beschreibungen, Stern-Schema und ausgeblendeten Hilfsspalten. Bei einfachen Measures funktioniert es gut, bei komplexer Geschäftslogik versagt es regelmäßig.</p>
@@ -9247,7 +9560,11 @@ CALCULATE(
         <li><strong>Lakehouse als Quelle</strong> — statt SQL Server importieren: aus Lakehouse direkt lesen</li>
         <li><strong>Shortcuts</strong> — Daten aus ADLS, S3 oder anderen OneLake-Tenants ohne Kopie referenzieren</li>
         <li><strong>Git-Integration</strong> — Workspace mit Azure DevOps, GitHub oder GitHub Enterprise verbinden, ALM-Prozess</li>
+        <li><strong>Semantic views</strong> (Preview seit November 2026) — Tabellen, Beziehungen und gemeinsame Kennzahlen in einer „semantischen Sicht“ definieren; beim Veröffentlichen entsteht daraus ein verwaltetes, schreibgeschütztes Direct-Lake-on-OneLake-Modell, die Sicht bleibt die Quelle der Wahrheit</li>
       </ol>
+
+      <h4>Fabric Apps: eigene Anwendungen auf dem Modell</h4>
+      <p>Fabric Apps sind ein Item-Typ für eigene Web-Anwendungen auf Fabric-Daten, die zum Beispiel per DAX-Abfrage auf ein bestehendes Semantikmodell zugreifen. Im November-2026-Update kündigt Microsoft dazu <strong>Power BI Desktop for Apps</strong> als kommende Preview an: ein Desktop-Erlebnis, mit dem man aus einem Semantikmodell KI-gestützt interaktive Fabric Apps baut, mit Design-Bereich und lokaler Vorschau. Laut der Lizenz-Übersicht bei Learn sollen damit auch Pro-Kunden Daten-Apps per natürlicher Sprache bauen können. Die Quellen widersprechen sich, ob die Vorschau schon nutzbar ist; behandle sie als angekündigt. Wie zwei solche Apps für Vertriebscontrolling und Finance aussehen und was man vorher wissen sollte, zeigt der Beitrag <a href="fabric-apps-controlling-post.html">Fabric Apps im Heimrevier von Power BI</a>.</p>
 
       <h4>Soll man von Power BI Premium auf Fabric umstellen?</h4>
       <p>Ja — die Frage ist nur noch wann. Microsoft verkauft keine neuen P-SKUs mehr; jede P-SKU endet mit der laufenden Vertragslaufzeit (Enterprise Agreements können bis zum EA-Ende jährlich verlängern). Danach 30 Tage Kulanz, ab Tag 31 gedrosselt, ab Tag 91 blockiert. Die Migration passiert nicht automatisch: F-SKU in Azure kaufen (gleiche Region, P1 ≈ F64), Workspaces neu zuweisen, prüfen, dann P-SKU kündigen. Für reine Power-BI-Nutzung bleibt funktional alles gleich — inklusive Free-Konsum ab F64. Pro, PPU und Embedded-SKUs sind nicht betroffen.</p>
@@ -9274,7 +9591,7 @@ CALCULATE(
       <p class="lead">Power-BI-Modelle werden mit der Zeit langsam — größere Datenmengen, mehr Measures, mehr Visuals. Vier Werkzeuge zur Diagnose und Optimierung.</p>
 
       <h4>1. Performance Analyzer (Desktop)</h4>
-      <p>Optimize-Tab → Performance Analyzer (auch beim Bearbeiten im Web verfügbar). "Start recording" → durch den Bericht klicken → die Queries jedes Visuals werden aufgezeichnet. Sortiert nach Dauer. Identifiziert die langsamsten Visuals; „Run in DAX query view“ übergibt die Query zur Analyse.</p>
+      <p>Optimize-Tab → Performance Analyzer. "Start recording" → durch den Bericht klicken → die Queries jedes Visuals werden aufgezeichnet. Sortiert nach Dauer. Identifiziert die langsamsten Visuals; „Run in DAX query view“ übergibt die Query in Desktop zur Analyse. Beim Bearbeiten im Web findest du den Performance Analyzer unter „Ansicht“ (View); dort kopierst du die Query und fügst sie selbst in die DAX-Abfrageansicht ein.</p>
 
       <figure>
         <img src="assets/learn/performance-analyzer-04.png" alt="Power BI Desktop Performance Analyzer Pane mit aufgezeichneten Visual-Ladezeiten und DAX-Query-Durationen">
@@ -9368,6 +9685,12 @@ const EPISODE_LINKS = {
     ['7xYgX6lWhuQ', 'Update · 4 min', 'Power BI Update Juli 2026 — Org-Apps mit Zielgruppen GA'],
     ['jTXo4aEr07o', 'Update · 5 min', 'Power BI Update August 2025 — Org-Apps auch in Pro-Workspaces'],
   ],
+  'svc-refresh': [
+    ['3V9DQwfm0GA', 'Power BI Update September 2026', 'Das neue Monitoring für Aktualisierungen', 408],
+  ],
+  'svc-share': [
+    ['3V9DQwfm0GA', 'Power BI Update September 2026', 'Export nach Excel: Limit steigt auf 500.000 Zeilen', 237],
+  ],
   'svc-pipeline': [
     ['mTVeZzshLzE', 'Talk · 48 min', 'Microsoft Fabric — Deployment Pipelines & fehlende Konsistenz'],
     ['c90oD4zR1Aw', 'Talk · 40 min', 'More than PBIX — Zusammenarbeit mit Git & Fabric'],
@@ -9388,6 +9711,11 @@ const EPISODE_LINKS = {
   'ext-copilot': [
     ['d3HdhRe_nK8', 'Talk · 47 min', 'State of Power BI, Fabric & AI-Tools — Copilot ersetzt keine Modelle'],
     ['zkfdfc5fo-E', 'Update · 15 min', 'Power BI Update Mai 2025 — Copilot & semantisches Modell vorbereiten'],
+    ['Xd-qWYqV91k', 'Copilot - Besser als sein Ruf? · Enea Licaj', 'Warum Dashboards bleiben: Der Lagerfeuereffekt', 1597],
+    ['KeK1Mv0mXfM', 'AI Analytics: Einfach Tokens draufwerfen?', 'Semantik als Kontext: Ohne Modellierung geht es nicht', 884],
+  ],
+  'ext-incremental': [
+    ['G6hl4ivg3Mk', 'Short · 114 s', '#016 · Power BI: Schluss mit dem vollständigen Daten-Refresh!'],
   ],
   'mod-snowflake': [
     ['rrCi0lnGrCg', 'Talk · 33 min', 'Mythos Data Vault und richtig große Modelle'],
@@ -9404,12 +9732,17 @@ const EPISODE_LINKS = {
   'dax-calculate': [
     ['LQQEn7IOb7w', 'Expanded Tables in DAX', 'CALCULATE, Filtervergleich & Ergebnis am Beispiel', 467],
     ['183uLZ3GYDo', 'Alberto Ferrari · Data Binning in DAX', 'Warum eine Faktentabelle als CALCULATE-Filter teuer ist', 4695],
+    ['nldG2mLwA30', 'The Five Pillars of DAX · Francesco Bergamaschi', 'CALCULATE as the magic box – and why it beats variables for beginners', 1270],
   ],
   'dax-pitfalls': [
     ['183uLZ3GYDo', 'Alberto Ferrari · Data Binning in DAX', 'Warum eine Faktentabelle als CALCULATE-Filter teuer ist', 4695],
+    ['YxS238qvD3s', 'Short · 76 s', '#003 · Das größte DAX-No-Go? FORMAT() im Measure!'],
   ],
   'dax-r-ytd': [
     ['iTK3xUd8V5I', 'Power BI vs. Qlik · Teil 3', 'Year-to-Date per Visual Calculation (laufende Summe)', 981],
+  ],
+  'dax-r-anteil': [
+    ['nldG2mLwA30', 'The Five Pillars of DAX · Francesco Bergamaschi', 'ALLSELECTED: how to use it without getting burned', 543],
   ],
   'dax-r-keepfilters': [
     ['183uLZ3GYDo', 'Alberto Ferrari · Data Binning in DAX', 'Warum eine Faktentabelle als CALCULATE-Filter teuer ist', 4695],
@@ -9420,6 +9753,9 @@ const EPISODE_LINKS = {
   ],
   'dax-r-userel': [
     ['LQQEn7IOb7w', 'Expanded Tables in DAX', 'Aktive & inaktive Beziehungen (USERELATIONSHIP)', 145],
+  ],
+  'dax-r-bestand': [
+    ['ASwcPvbMRZc', 'Power BI Update März 2026', 'Custom Totals (Measure Totals controversy resolved!)', 148],
   ],
   'dax-r-visualcalc': [
     ['GsLfiuPlsQE', 'Visual Calculations erklärt', 'Prozent vom übergeordneten Wert umsetzen', 80],
@@ -9435,6 +9771,7 @@ const EPISODE_LINKS = {
     ['0FPA1k5YiTs', 'Deep Dive · DAX UDF + TMDL', 'Einführung in DAX User-Defined Functions', 95],
     ['6gQiIbyhWEc', 'Power BI Update September 2025', 'Was sind benutzerdefinierte DAX-Funktionen?', 30],
     ['5xB_oKdvAwQ', 'Power BI Update Juni 2026', 'DAX User-Defined Functions sind generally available', 268],
+    ['ASwcPvbMRZc', 'Power BI Update März 2026', 'User-defined DAX functions via GUI', 357],
   ],
   'dax-r-kalender': [
     ['6gQiIbyhWEc', 'Power BI Update September 2025', 'Neue Kalenderlogik für die DAX-Zeitintelligenz', 443],
@@ -9450,10 +9787,16 @@ const EPISODE_LINKS = {
   'viz-charttype': [
     ['inko8wG9jlY', 'Boring Charts, Better Insights', 'Warum Tortendiagramme scheitern', 408],
     ['c90oD4zR1Aw', 'More than PBIX', 'Chart-Wahl: Tortendiagramm oder bessere Alternativen?', 335],
+    ['n2j_NJVb-GE', 'Power BI Update Oktober 2026', 'Natives Gantt-Diagramm (Preview): Start und Ende als Measure', 16],
   ],
   'viz-noise': [
     ['GWCHNmLs72M', 'Power BI Update August 2026', 'GA: Berichtsdesign anpassen (Theme-Bereich)', 179],
     ['7xYgX6lWhuQ', 'Power BI Update Juli 2026', 'Berichtsdesign direkt im Bericht anpassen: Designvorlagen und Themes', 10],
+    ['n2j_NJVb-GE', 'Power BI Update Oktober 2026', 'Eigene Hintergrundfarbe für Diagramme', 250],
+  ],
+  'viz-message': [
+    ['-_4bfrjRCVo', 'Objektive Daten gibt es nicht', 'Der entscheidende Hebel: erst die knackige Botschaft, dann die Details', 547],
+    ['-_4bfrjRCVo', 'Objektive Daten gibt es nicht', 'Visualisierung ist Kommunikation – nicht Kartografie', 699],
   ],
   'viz-density': [
     ['lZvpCBMKASM', 'Fabric & Power BI Quarterly · 2025 Q3', 'Sparklines sind GA — was steckt dahinter?', 37],
@@ -9474,6 +9817,7 @@ const EPISODE_LINKS = {
     ['TkxwcAyBGUM', 'Power BI Update Juli 2025', 'Field Parameters sind GA', 267],
     ['TAM5AAZqh7k', 'Power BI Update Januar 2026', 'Field-Parameter-Updates: Hierarchieebene beibehalten', 122],
     ['u-lgbDfIlLg', 'Power BI Update Februar 2026', 'Neue DAX-Funktionen NAMEOF und TABLEOF', 138],
+    ['n2j_NJVb-GE', 'Power BI Update Oktober 2026', 'Auto-Expand mit Field Parameters', 257],
   ],
   'int-tooltip': [
     ['TAM5AAZqh7k', 'Power BI Update Januar 2026', 'Moderne Quickinfos mit Drillthrough-Aktionen', 79],
@@ -9481,19 +9825,26 @@ const EPISODE_LINKS = {
   ],
   'int-buttons': [
     ['TAM5AAZqh7k', 'Power BI Update Januar 2026', 'Q&A ist offiziell abgekündigt', 40],
+    ['n2j_NJVb-GE', 'Power BI Update Oktober 2026', 'Listenslicer jetzt auch als Dropdown', 169],
+    ['HQaLWjA-E2E', 'How to Write Back', 'Translytical Task Flows explained: native, low-cost, and flexible', 825],
   ],
   'int-condformat': [
     ['c5zxZLRuV_s', 'Tutorial · 6 min', 'Jedes Power BI Visual dynamisch — auch ohne fx-Button'],
     ['CvaOkO37HMU', 'Vertriebsregionen in Azure Maps', 'Heatmap: bedingte Formatierung nach Umsatz', 1314],
+    ['KCCs6e0MeWI', 'Short · 48 s', '#005 · Bedingte Formatierung? Ich nutze fast immer Measures!'],
   ],
   'int-copilot': [
     ['TAM5AAZqh7k', 'Power BI Update Januar 2026', 'Q&A ist offiziell abgekündigt', 40],
     ['TkxwcAyBGUM', 'Power BI Update Juli 2025', 'Copilot: Zusammenfassungen & Export (PDF, PPT)', 97],
     ['d3HdhRe_nK8', 'Daten-WG Life-Update · State of Power BI', 'Copilot ersetzt keine semantischen Modelle', 1295],
+    ['Xd-qWYqV91k', 'Copilot - Besser als sein Ruf? · Enea Licaj', 'Copilot ist besser als sein Ruf', 559],
+    ['Xd-qWYqV91k', 'Copilot - Besser als sein Ruf? · Enea Licaj', 'Kann KI Storytelling in Power BI?', 1801],
   ],
   'ext-fabric': [
     ['mTVeZzshLzE', 'Talk · 48 min', 'Microsoft Fabric — braucht das wirklich jemand?'],
     ['7j34Ndng0Os', 'Tutorial · 10 min', 'Open Mirroring in Microsoft Fabric — replizieren ohne ETL'],
+    ['PW6MP-SDmRk', 'Fabric & Power BI Quarterly · 2026-3', 'MS Build: Fabric Apps und Rayfin', 586],
+    ['0QZD26KPBcU', 'Fabric & Power BI Quarterly · 2026-4', 'Fabric Apps auch für Pro und PPU: Wo die Lizenzgrenze jetzt verläuft', 928],
   ],
 };
 
