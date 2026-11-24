@@ -66,7 +66,7 @@ File → Options and Settings → Options → Data Load. Hier findest du Default
 
 Power BI erzeugt sonst für jede Datums-Spalte eine versteckte Datums-Hierarchie und bläht das Modell auf. **Current File → Auto Date/Time → Haken raus.** Stattdessen eine echte Datums-Dimension verwenden.
 
-![Power BI Desktop Options dialog mit Time Intelligence Sektion und Auto date/time Checkbox](https://learn.microsoft.com/power-bi/transform-model/media/desktop-auto-date-time/auto-date-time-configure-global-options.png)
+![Power BI Desktop Options dialog mit Time Intelligence Sektion und Auto date/time Checkbox](../assets/learn/auto-date-time-configure-global-options.png)
 
 **Abb. · File → Options → Data Load** "Auto date/time" pro Datei oder global deaktivierbar. Quelle: [Auto date/time · Microsoft Learn](https://learn.microsoft.com/power-bi/transform-model/desktop-auto-date-time)
 
@@ -1139,7 +1139,7 @@ Datenbanken sind für Filter, Joins und Aggregationen **massiv optimiert** — s
 
 Identische Datenmenge, identische Endergebnisse — nur die Folding-Stufe ist verschieden. **Faktor ~12** zwischen kein und vollständigem Folding (genau: 361/31 ≈ 11,6).
 
-![Chart Refresh-Zeit nach Folding-Grad: kein Folding 361s, partielles Folding 184s, volles Folding 31s](https://learn.microsoft.com/power-query/media/query-folding-basics/outcome-timing.png)
+![Chart Refresh-Zeit nach Folding-Grad: kein Folding 361s, partielles Folding 184s, volles Folding 31s](../assets/learn/outcome-timing.png)
 
 **Abb. · Microsoft Learn Benchmark** Refresh-Zeit nach Folding-Grad (Azure Synapse DW2000c). Quelle: [Query folding examples · Microsoft Learn](https://learn.microsoft.com/power-query/query-folding-examples)
 
@@ -1217,11 +1217,11 @@ In einem Dataflow Gen2 (oder Power Query im Web): Abfrage auswählen, im Bereich
 
 Der Indikator bewertet die Abfrage *als Ganzes bis zu diesem Schritt*. Der erste Schritt (Source) ist oft „opaque“, der Navigationsschritt foldet dann. Ein „Not folding“ heißt nicht, dass gar nichts foldet — alles bis zum letzten Folding-Indikator läuft auf der Quelle.
 
-![Power Query Applied Steps mit Folding-Indikatoren für alle Schritte](https://learn.microsoft.com/power-query/media/step-folding-indicators/example-step-diagnostics-2.png)
+![Power Query Applied Steps mit Folding-Indikatoren für alle Schritte](../assets/learn/example-step-diagnostics-2.png)
 
 **Abb. · Alle Schritte folden** Optimaler Fall — alle Operationen werden an die Datenbank delegiert. Quelle: [Query folding indicators · Microsoft Learn](https://learn.microsoft.com/power-query/step-folding-indicators)
 
-![Power Query Applied Steps - ein Schritt bricht Folding, danach kein Folding mehr](https://learn.microsoft.com/power-query/media/step-folding-indicators/example-step-diagnostics-3.png)
+![Power Query Applied Steps - ein Schritt bricht Folding, danach kein Folding mehr](../assets/learn/example-step-diagnostics-3.png)
 
 **Abb. · Folding bricht** "Capitalize each word" foldet nie — ab hier laufen die Schritte lokal in der Mashup-Engine. Quelle: [Microsoft Learn](https://learn.microsoft.com/power-query/step-folding-indicators)
 
@@ -1251,7 +1251,7 @@ In Applied Steps: Rechtsklick auf einen Schritt → "View Native Query". Es öff
 - **Diagnostics** — du siehst, was die DB ausführen muss (für DBA-Optimierung)
 - **Verifikation** — Ist der Filter korrekt übersetzt? Sind die Spalten richtig?
 
-![Power Query Applied Steps mit View Native Query Option und Folding-Indikator](https://learn.microsoft.com/power-query/media/native-query-folding/filter-step-folded.png)
+![Power Query Applied Steps mit View Native Query Option und Folding-Indikator](../assets/learn/filter-step-folded.png)
 
 **Abb. · Rechtsklick auf Schritt → View Native Query** Wenn die Option verfügbar ist (nicht ausgegraut), foldet der Schritt. Quelle: [Query folding on native queries · Microsoft Learn](https://learn.microsoft.com/power-query/native-query-folding)
 
@@ -1545,7 +1545,7 @@ DateKey (FK) · TimeKey (FK) · DimAKey (FK) · DimBKey (FK) · DimCKey (FK) · 
 
 Das Zentrum jedes Stern-Schemas. Enthält die Kennzahlen und die Fremdschlüssel zu allen Dimensionen.
 
-![Power BI Desktop Model View mit Stern-Schema: Sales-Faktentabelle in der Mitte, Date/State/Region/Product Dimensionen außen, 1:n-Beziehungen](https://learn.microsoft.com/power-bi/transform-model/media/desktop-relationships-understand/model-diagram-star-schema.png)
+![Power BI Desktop Model View mit Stern-Schema: Sales-Faktentabelle in der Mitte, Date/State/Region/Product Dimensionen außen, 1:n-Beziehungen](../assets/learn/model-diagram-star-schema.png)
 
 **Abb. · Stern-Schema in Power BI Desktop (Model View)** Adventure-Works-Beispiel: `Sales`-Faktentabelle in der Mitte, vier Dimensionen außen, 1:n-Beziehungen (1-Seite an Dimension, n-Seite an Fakt). Quelle: [Model relationships · Microsoft Learn](https://learn.microsoft.com/power-bi/transform-model/desktop-relationships-understand)
 
@@ -4170,7 +4170,7 @@ Tabelle wählen (z. B. `dim_region`) → Filter-Ausdruck:
 [RegionName] = "Süd"
 ```
 
-![Power BI Desktop Manage Security Roles Dialog mit Tabellen-Auswahl und Default-Editor für RLS-Filter](https://learn.microsoft.com/power-bi/includes/media/rls-desktop-define-roles/powerbi-security-default-editor.png)
+![Power BI Desktop Manage Security Roles Dialog mit Tabellen-Auswahl und Default-Editor für RLS-Filter](../assets/learn/powerbi-security-default-editor.png)
 
 **Abb. · Manage Roles Dialog (Default Editor)** Tabellen-Auswahl links, Filter-Ausdruck rechts. "Switch to DAX editor" für komplexere Ausdrücke. Quelle: [RLS · Microsoft Learn](https://learn.microsoft.com/fabric/security/service-admin-row-level-security)
 
@@ -4249,7 +4249,7 @@ dim_region[Name]
 
 Der Ausdruck liefert für jede Zeile von `dim_region` TRUE oder FALSE: TRUE, wenn die Region in der Liste der für den User freigegebenen Regionen steht. Mehrere Regionen pro Person sind kein Problem — anders als bei `LOOKUPVALUE` (siehe „RLS-Anti-Patterns“).
 
-![Power BI Desktop Manage Security Roles Dialog mit DAX-Editor und beispielhaftem DAX-Filterausdruck](https://learn.microsoft.com/power-bi/includes/media/rls-desktop-define-roles/powerbi-security-dax-editor.png)
+![Power BI Desktop Manage Security Roles Dialog mit DAX-Editor und beispielhaftem DAX-Filterausdruck](../assets/learn/powerbi-security-dax-editor.png)
 
 **Abb. · DAX Editor in Manage Roles** Für dynamische Filter mit USERPRINCIPALNAME() / USERNAME() ist der DAX-Editor Pflicht (Switch to DAX editor). Argumente im Editor immer mit Komma trennen — auch bei deutschem Gebietsschema. Quelle: [RLS · Microsoft Learn](https://learn.microsoft.com/fabric/security/service-admin-row-level-security)
 
@@ -4294,7 +4294,7 @@ RLS testen, bevor sie publiziert wird. Wer das vergisst, riskiert Datenlecks.
 
 Modeling-Tab → "View as" → "Other user" und/oder eine Rolle wählen → "OK".
 
-![Power BI Desktop View as roles Dialog mit Auswahl-Optionen für Rollen und Other user](https://learn.microsoft.com/power-bi/includes/media/rls-desktop-view-as-roles/powerbi-desktop-rls-view-as-roles-dialog.png)
+![Power BI Desktop View as roles Dialog mit Auswahl-Optionen für Rollen und Other user](../assets/learn/powerbi-desktop-rls-view-as-roles-dialog.png)
 
 **Abb. · "View as" Dialog im Modeling-Tab** Rolle und/oder konkreten User simulieren — Bericht filtert sich entsprechend. Quelle: [RLS Guidance · Microsoft Learn](https://learn.microsoft.com/power-bi/guidance/rls-guidance)
 
@@ -5029,7 +5029,7 @@ Power-BI-Modelle werden mit der Zeit langsam — größere Datenmengen, mehr Mea
 
 Optimize-Tab → Performance Analyzer (auch beim Bearbeiten im Web verfügbar). "Start recording" → durch den Bericht klicken → die Queries jedes Visuals werden aufgezeichnet. Sortiert nach Dauer. Identifiziert die langsamsten Visuals; „Run in DAX query view“ übergibt die Query zur Analyse.
 
-![Power BI Desktop Performance Analyzer Pane mit aufgezeichneten Visual-Ladezeiten und DAX-Query-Durationen](https://learn.microsoft.com/power-bi/create-reports/media/desktop-performance-analyzer/performance-analyzer-04.png)
+![Power BI Desktop Performance Analyzer Pane mit aufgezeichneten Visual-Ladezeiten und DAX-Query-Durationen](../assets/learn/performance-analyzer-04.png)
 
 **Abb. · Performance Analyzer Pane** Pro Visual werden DAX query, Direct query, Visual display und Other Zeiten erfasst. Klick auf "Copy query" → Query in DAX Studio analysierbar. Quelle: [Performance Analyzer · Microsoft Learn](https://learn.microsoft.com/power-bi/create-reports/desktop-performance-analyzer)
 

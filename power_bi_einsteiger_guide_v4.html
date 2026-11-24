@@ -4402,7 +4402,7 @@ const DETAILS = {
         <p>Power BI erzeugt sonst für jede Datums-Spalte eine versteckte Datums-Hierarchie und bläht das Modell auf. <strong>Current File → Auto Date/Time → Haken raus.</strong> Stattdessen eine echte Datums-Dimension verwenden.</p>
 
         <figure>
-          <img src="https://learn.microsoft.com/power-bi/transform-model/media/desktop-auto-date-time/auto-date-time-configure-global-options.png" alt="Power BI Desktop Options dialog mit Time Intelligence Sektion und Auto date/time Checkbox">
+          <img src="assets/learn/auto-date-time-configure-global-options.png" alt="Power BI Desktop Options dialog mit Time Intelligence Sektion und Auto date/time Checkbox">
           <figcaption>
             <strong>Abb. · File → Options → Data Load</strong>
             "Auto date/time" pro Datei oder global deaktivierbar. Quelle: <a href="https://learn.microsoft.com/power-bi/transform-model/desktop-auto-date-time" target="_blank" rel="noopener">Auto date/time · Microsoft Learn</a>
@@ -5480,7 +5480,7 @@ Offene Positionen =
       <p>Identische Datenmenge, identische Endergebnisse — nur die Folding-Stufe ist verschieden. <strong>Faktor ~12</strong> zwischen kein und vollständigem Folding (genau: 361/31 ≈ 11,6).</p>
 
       <figure>
-        <img src="https://learn.microsoft.com/power-query/media/query-folding-basics/outcome-timing.png" alt="Chart Refresh-Zeit nach Folding-Grad: kein Folding 361s, partielles Folding 184s, volles Folding 31s">
+        <img src="assets/learn/outcome-timing.png" alt="Chart Refresh-Zeit nach Folding-Grad: kein Folding 361s, partielles Folding 184s, volles Folding 31s">
         <figcaption>
           <strong>Abb. · Microsoft Learn Benchmark</strong>
           Refresh-Zeit nach Folding-Grad (Azure Synapse DW2000c). Quelle: <a href="https://learn.microsoft.com/power-query/query-folding-examples" target="_blank" rel="noopener">Query folding examples · Microsoft Learn</a>
@@ -5577,7 +5577,7 @@ Offene Positionen =
         <p>Der Indikator bewertet die Abfrage <em>als Ganzes bis zu diesem Schritt</em>. Der erste Schritt (Source) ist oft „opaque“, der Navigationsschritt foldet dann. Ein „Not folding“ heißt nicht, dass gar nichts foldet — alles bis zum letzten Folding-Indikator läuft auf der Quelle.</p>
 
         <figure>
-          <img src="https://learn.microsoft.com/power-query/media/step-folding-indicators/example-step-diagnostics-2.png" alt="Power Query Applied Steps mit Folding-Indikatoren für alle Schritte">
+          <img src="assets/learn/example-step-diagnostics-2.png" alt="Power Query Applied Steps mit Folding-Indikatoren für alle Schritte">
           <figcaption>
             <strong>Abb. · Alle Schritte folden</strong>
             Optimaler Fall — alle Operationen werden an die Datenbank delegiert. Quelle: <a href="https://learn.microsoft.com/power-query/step-folding-indicators" target="_blank" rel="noopener">Query folding indicators · Microsoft Learn</a>
@@ -5585,7 +5585,7 @@ Offene Positionen =
         </figure>
 
         <figure>
-          <img src="https://learn.microsoft.com/power-query/media/step-folding-indicators/example-step-diagnostics-3.png" alt="Power Query Applied Steps - ein Schritt bricht Folding, danach kein Folding mehr">
+          <img src="assets/learn/example-step-diagnostics-3.png" alt="Power Query Applied Steps - ein Schritt bricht Folding, danach kein Folding mehr">
           <figcaption>
             <strong>Abb. · Folding bricht</strong>
             "Capitalize each word" foldet nie — ab hier laufen die Schritte lokal in der Mashup-Engine. Quelle: <a href="https://learn.microsoft.com/power-query/step-folding-indicators" target="_blank" rel="noopener">Microsoft Learn</a>
@@ -5626,7 +5626,7 @@ Offene Positionen =
       </ul>
 
       <figure>
-        <img src="https://learn.microsoft.com/power-query/media/native-query-folding/filter-step-folded.png" alt="Power Query Applied Steps mit View Native Query Option und Folding-Indikator">
+        <img src="assets/learn/filter-step-folded.png" alt="Power Query Applied Steps mit View Native Query Option und Folding-Indikator">
         <figcaption>
           <strong>Abb. · Rechtsklick auf Schritt → View Native Query</strong>
           Wenn die Option verfügbar ist (nicht ausgegraut), foldet der Schritt. Quelle: <a href="https://learn.microsoft.com/power-query/native-query-folding" target="_blank" rel="noopener">Query folding on native queries · Microsoft Learn</a>
@@ -5779,7 +5779,7 @@ WHERE Datum &gt;= '2024-01-01'
       <p class="lead">Das Zentrum jedes Stern-Schemas. Enthält die Kennzahlen und die Fremdschlüssel zu allen Dimensionen.</p>
 
       <figure>
-        <img src="https://learn.microsoft.com/power-bi/transform-model/media/desktop-relationships-understand/model-diagram-star-schema.png" alt="Power BI Desktop Model View mit Stern-Schema: Sales-Faktentabelle in der Mitte, Date/State/Region/Product Dimensionen außen, 1:n-Beziehungen">
+        <img src="assets/learn/model-diagram-star-schema.png" alt="Power BI Desktop Model View mit Stern-Schema: Sales-Faktentabelle in der Mitte, Date/State/Region/Product Dimensionen außen, 1:n-Beziehungen">
         <figcaption>
           <strong>Abb. · Stern-Schema in Power BI Desktop (Model View)</strong>
           Adventure-Works-Beispiel: <code>Sales</code>-Faktentabelle in der Mitte, vier Dimensionen außen, 1:n-Beziehungen (1-Seite an Dimension, n-Seite an Fakt). Quelle: <a href="https://learn.microsoft.com/power-bi/transform-model/desktop-relationships-understand" target="_blank" rel="noopener">Model relationships · Microsoft Learn</a>
@@ -8403,7 +8403,7 @@ Umsatz GJ VJ  =
         <pre>[RegionName] = <span class="str">"Süd"</span></pre>
 
         <figure>
-          <img src="https://learn.microsoft.com/power-bi/includes/media/rls-desktop-define-roles/powerbi-security-default-editor.png" alt="Power BI Desktop Manage Security Roles Dialog mit Tabellen-Auswahl und Default-Editor für RLS-Filter">
+          <img src="assets/learn/powerbi-security-default-editor.png" alt="Power BI Desktop Manage Security Roles Dialog mit Tabellen-Auswahl und Default-Editor für RLS-Filter">
           <figcaption>
             <strong>Abb. · Manage Roles Dialog (Default Editor)</strong>
             Tabellen-Auswahl links, Filter-Ausdruck rechts. "Switch to DAX editor" für komplexere Ausdrücke. Quelle: <a href="https://learn.microsoft.com/fabric/security/service-admin-row-level-security" target="_blank" rel="noopener">RLS · Microsoft Learn</a>
@@ -8479,7 +8479,7 @@ dim_region[Name]
         <p>Der Ausdruck liefert für jede Zeile von <code>dim_region</code> TRUE oder FALSE: TRUE, wenn die Region in der Liste der für den User freigegebenen Regionen steht. Mehrere Regionen pro Person sind kein Problem — anders als bei <code>LOOKUPVALUE</code> (siehe „RLS-Anti-Patterns“).</p>
 
         <figure>
-          <img src="https://learn.microsoft.com/power-bi/includes/media/rls-desktop-define-roles/powerbi-security-dax-editor.png" alt="Power BI Desktop Manage Security Roles Dialog mit DAX-Editor und beispielhaftem DAX-Filterausdruck">
+          <img src="assets/learn/powerbi-security-dax-editor.png" alt="Power BI Desktop Manage Security Roles Dialog mit DAX-Editor und beispielhaftem DAX-Filterausdruck">
           <figcaption>
             <strong>Abb. · DAX Editor in Manage Roles</strong>
             Für dynamische Filter mit USERPRINCIPALNAME() / USERNAME() ist der DAX-Editor Pflicht (Switch to DAX editor). Argumente im Editor immer mit Komma trennen — auch bei deutschem Gebietsschema. Quelle: <a href="https://learn.microsoft.com/fabric/security/service-admin-row-level-security" target="_blank" rel="noopener">RLS · Microsoft Learn</a>
@@ -8534,7 +8534,7 @@ Freigegebene Regionen =
         <p>Modeling-Tab → "View as" → "Other user" und/oder eine Rolle wählen → "OK".</p>
 
         <figure>
-          <img src="https://learn.microsoft.com/power-bi/includes/media/rls-desktop-view-as-roles/powerbi-desktop-rls-view-as-roles-dialog.png" alt="Power BI Desktop View as roles Dialog mit Auswahl-Optionen für Rollen und Other user">
+          <img src="assets/learn/powerbi-desktop-rls-view-as-roles-dialog.png" alt="Power BI Desktop View as roles Dialog mit Auswahl-Optionen für Rollen und Other user">
           <figcaption>
             <strong>Abb. · "View as" Dialog im Modeling-Tab</strong>
             Rolle und/oder konkreten User simulieren — Bericht filtert sich entsprechend. Quelle: <a href="https://learn.microsoft.com/power-bi/guidance/rls-guidance" target="_blank" rel="noopener">RLS Guidance · Microsoft Learn</a>
@@ -9277,7 +9277,7 @@ CALCULATE(
       <p>Optimize-Tab → Performance Analyzer (auch beim Bearbeiten im Web verfügbar). "Start recording" → durch den Bericht klicken → die Queries jedes Visuals werden aufgezeichnet. Sortiert nach Dauer. Identifiziert die langsamsten Visuals; „Run in DAX query view“ übergibt die Query zur Analyse.</p>
 
       <figure>
-        <img src="https://learn.microsoft.com/power-bi/create-reports/media/desktop-performance-analyzer/performance-analyzer-04.png" alt="Power BI Desktop Performance Analyzer Pane mit aufgezeichneten Visual-Ladezeiten und DAX-Query-Durationen">
+        <img src="assets/learn/performance-analyzer-04.png" alt="Power BI Desktop Performance Analyzer Pane mit aufgezeichneten Visual-Ladezeiten und DAX-Query-Durationen">
         <figcaption>
           <strong>Abb. · Performance Analyzer Pane</strong>
           Pro Visual werden DAX query, Direct query, Visual display und Other Zeiten erfasst. Klick auf "Copy query" → Query in DAX Studio analysierbar. Quelle: <a href="https://learn.microsoft.com/power-bi/create-reports/desktop-performance-analyzer" target="_blank" rel="noopener">Performance Analyzer · Microsoft Learn</a>
