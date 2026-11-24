@@ -68,6 +68,7 @@ nav.sections .wrap{display:flex;align-items:center;gap:8px;height:50px}
 .sec-links>:first-child{margin-left:auto}.sec-links>:last-child{margin-right:auto}
 .sec-links button{flex:0 0 auto;background:none;border:0;cursor:pointer;padding:7px 12px;font-size:14px;font-weight:550;color:var(--ink-2);border-radius:100px;white-space:nowrap;display:flex;align-items:center;gap:7px;transition:background .15s,color .15s}
 .sec-links button i{width:8px;height:8px;border-radius:50%;background:var(--rc)}
+.sec-links .sep{flex:0 0 1px;align-self:stretch;margin:6px 4px;background:rgba(0,0,0,.15)}
 .sec-links button:hover{background:var(--paper-2);color:var(--ink)}
 .sec-links button.on{background:var(--rc,var(--ink));color:#fff}
 .sec-links button.on i{background:#fff}
@@ -406,7 +407,11 @@ footer a:hover{color:var(--accent)}
 (function () {
   const ALL = window.FEED;
   const KINDS = [['Folge', 'Folgen'], ['Short', 'Shorts'], ['Story', 'Stories'], ['Talk', 'Talks'], ['Visual', 'Visuals'], ['Werkzeug', 'Werkzeuge'], ['Post', 'Posts'], ['Lernen', 'Lernen'], ['Event', 'Events']];
-  const KCOL = { Folge: '#166088', Short: '#4A7C59', Story: '#B8336A', Talk: '#6B46B8', Visual: '#C25A2D', Werkzeug: '#2A857A', Post: '#B9572A', Lernen: '#1E3A5F', Event: '#A67C00' };
+  const KIND_TABS = [['Talk', 'Talks'], ['Tools', 'Tools']];
+  const KIND_GROUP = { Tools: ['Werkzeug', 'Visual'] };
+  const kindLabel = k => k === 'Tools' ? 'Tools & Visuals' : (KINDS.find(x => x[0] === k) || [k, k])[1];
+  const kindIs = (i, k) => KIND_GROUP[k] ? KIND_GROUP[k].includes(i.kind) : i.kind === k;
+  const KCOL = { Tools: '#2A857A', Folge: '#166088', Short: '#4A7C59', Story: '#B8336A', Talk: '#6B46B8', Visual: '#C25A2D', Werkzeug: '#2A857A', Post: '#B9572A', Lernen: '#1E3A5F', Event: '#A67C00' };
   const RESSORTS = [
     { id: 'ki', short: 'KI', name: 'KI & Agents', color: '#6B46B8', topics: ['KI'] },
     { id: 'storys', short: 'Datenstorys', name: 'Datenstorys', color: '#B8336A', topics: ['Datenstorys'] },
@@ -438,8 +443,9 @@ footer a:hover{color:var(--accent)}
   const cnt = k => ALL.filter(i => i.kind === k).length;
   $('#dateline').textContent = new Date().toLocaleDateString('de-DE', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
   $('#counts').textContent = `${cnt('Folge') + cnt('Short')} Folgen · ${cnt('Talk')} Talks · ${cnt('Story')} Stories · ${cnt('Werkzeug') + cnt('Visual')} Tools & Visuals`;
-  $('#sec-links').innerHTML = `<button data-r="" style="--rc:#111">Start</button>` + RESSORTS.map(r => `<button data-r="${r.id}" style="--rc:${r.color}"><i></i>${esc(r.short)}</button>`).join('');
-  $('#sec-links').addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; reset(); state.ressort = b.dataset.r; update(true); });
+  $('#sec-links').innerHTML = `<button data-r="" style="--rc:#111">Start</button>` + RESSORTS.map(r => `<button data-r="${r.id}" style="--rc:${r.color}"><i></i>${esc(r.short)}</button>`).join('')
+    + `<span class="sep" aria-hidden="true"></span>` + KIND_TABS.map(([k, l]) => `<button data-k="${k}" style="--rc:${KCOL[k]}"><i></i>${esc(l)}</button>`).join('');
+  $('#sec-links').addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; reset(); if (b.dataset.k) state.kind = b.dataset.k; else state.ressort = b.dataset.r; update(true); });
   // Hauptnavigation: Klick-Dropdowns, mobil als Vollbild-Menü
   const closeDd = except => document.querySelectorAll('.dd.open').forEach(d => { if (d !== except) { d.classList.remove('open'); d.firstElementChild.setAttribute('aria-expanded', 'false'); } });
   $('#menu').addEventListener('click', e => {
@@ -484,7 +490,8 @@ footer a:hover{color:var(--accent)}
       });
       const w = document.querySelector(`#aside [data-w="${k}"]`); w.classList.toggle('has-on', !!state[k]);
     }
-    document.querySelectorAll('#sec-links button').forEach(b => { const on = b.dataset.r === state.ressort && !state.kind && !state.tag && !state.q && !state.month; b.classList.toggle('on', on); b.setAttribute('aria-pressed', on); });
+    document.querySelectorAll('#sec-links button').forEach(b => { const on = (b.dataset.k ? b.dataset.k === state.kind && !state.ressort : b.dataset.r === state.ressort && !state.kind) && !state.tag && !state.q && !state.month; b.classList.toggle('on', on); b.setAttribute('aria-pressed', on);
+      if (on && b.dataset.k) { const s = b.parentElement; const c = () => { s.scrollLeft += b.getBoundingClientRect().left - s.getBoundingClientRect().left - (s.clientWidth - b.offsetWidth) / 2; }; c(); setTimeout(c, 300); } });
     document.querySelectorAll('[data-q]').forEach(o => { if (o !== document.activeElement) o.value = state.q; });
   }
   $('#aside').addEventListener('click', e => {
@@ -514,7 +521,7 @@ footer a:hover{color:var(--accent)}
   function filtered(over) {
     const s = over ? Object.assign({}, state, over) : state;
     const q = norm(s.q), r = RBY[s.ressort];
-    const out = ALL.filter(i => (!s.kind || i.kind === s.kind) && (!r || inR(i, r)) && (!s.tag || (i.tags || []).includes(s.tag))
+    const out = ALL.filter(i => (!s.kind || kindIs(i, s.kind)) && (!r || inR(i, r)) && (!s.tag || (i.tags || []).includes(s.tag))
       && (!s.month || ym(i) === s.month)
       && (!q || norm([i.title, i.desc, i.meta, i.section, (i.tags || []).join(' ')].join(' ')).includes(q)));
     return over ? out : out.sort(SORT[state.sort]);
@@ -601,7 +608,7 @@ footer a:hover{color:var(--accent)}
 
     const chips = [];
     if (state.ressort) chips.push(['ressort', RBY[state.ressort].name]);
-    if (state.kind) chips.push(['kind', KINDS.find(k => k[0] === state.kind)[1]]);
+    if (state.kind) chips.push(['kind', kindLabel(state.kind)]);
     if (state.tag) chips.push(['tag', '#' + state.tag]);
     if (state.month) chips.push(['month', MONTHS[+state.month.slice(5) - 1] + ' ' + state.month.slice(0, 4)]);
     if (state.q) chips.push(['q', '„' + state.q + '"']);
@@ -609,7 +616,7 @@ footer a:hover{color:var(--accent)}
     const chipHtml = chips.length ? '<span class="sr-only">Gefiltert nach: </span>' + chips.map(([k, l]) => `<button data-clear="${k}" aria-label="Filter ${esc(l)} entfernen">${esc(l)} ✕</button>`).join('') + '<button data-clear="all">Alles zurücksetzen</button>' : '';
     if (!isFront) {
       // Newsroom: gefilterte Ansicht bekommt eine eigene Front mit großem Aufmacher
-      const [ek, et] = state.ressort ? ['Ressort', RBY[state.ressort].name] : state.kind ? ['Format', KINDS.find(k => k[0] === state.kind)[1]]
+      const [ek, et] = state.ressort ? ['Ressort', RBY[state.ressort].name] : state.kind ? ['Format', kindLabel(state.kind)]
         : state.tag ? ['Schlagwort', '#' + state.tag] : state.month ? ['Archiv', MONTHS[+state.month.slice(5) - 1] + ' ' + state.month.slice(0, 4)]
         : state.q ? ['Suche', '„' + state.q + '“'] : ['Alle Beiträge', state.sort === 'new' ? 'Neueste zuerst' : 'Sortiert'];
       h += `<header class="cat-head" id="cat-head" style="--rc:${rc}"><span class="cat-eyebrow">${esc(ek)}</span><h2 tabindex="-1">${esc(et)}</h2>
