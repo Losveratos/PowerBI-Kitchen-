@@ -368,5 +368,8 @@
     }).join('');
   }
 
-  root.MK_A11Y = { contrastRatio: contrastRatio, check: check, summary: summary, guide: guide, renderList: renderList, renderGuide: renderGuide };
+  var api = { contrastRatio: contrastRatio, check: check, summary: summary, guide: guide, renderList: renderList, renderGuide: renderGuide };
+  // Node (dwg cli, Tests): require('./a11y.js') liefert dieselbe API
+  if (typeof module !== 'undefined' && module.exports) module.exports = api;
+  root.MK_A11Y = api;
 })(typeof window !== 'undefined' ? window : (typeof global !== 'undefined' ? global : this));

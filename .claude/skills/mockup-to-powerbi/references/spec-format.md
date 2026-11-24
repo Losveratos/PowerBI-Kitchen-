@@ -200,7 +200,7 @@ diesen alten Hash trägt, bekommt beim nächsten Lauf einmal einen Delta-Lauf.
 | `report` | Berichtskopf, siehe unten |
 | `fields` | Kennzahlen-Steckbriefe (identisch zu `model.usedFields`), siehe unten |
 | `issues` | strukturierte Befunde, siehe unten |
-| `canvas` | `width`, `height`, `preset` (`1280x720` · `1920x1080` · `3840x2160` · `custom`), `uiScale` (1 · 1.5 · 3) |
+| `canvas` | `width`, `height`, `preset` (`1280x720` · `1920x1080` · `3840x2160` · `custom`), `uiScale` (1 · 1.5 · 3); optional `pixel` (Rastermodus, Tool 0.6.2+, siehe unten) |
 | `spacing` | `margin`, `gutter`, `tilePadding` — schon skaliert und in die Rechtecke eingerechnet; `base` hält die HD-Ausgangswerte |
 | `design` | Gestaltungsentscheidungen, siehe unten |
 | `zones` | Chrome + Inhaltsbereich, auf **allen** Seiten gleich, siehe unten |
@@ -209,6 +209,15 @@ diesen alten Hash trägt, bekommt beim nächsten Lauf einmal einen Delta-Lauf.
 | `model` | `source` (Ordnername des Semantikmodells), `tables` (Namen), `usedFields` (alle gebundenen Felder, dedupliziert) |
 | `newFields` | im Mockup neu erfundene Felder: `table`, `name`, `kind`, `ref`, `description`, **`unit`, `target`, `owner`, `source`**, `openQuestion`, `used` |
 | `warnings` | dieselben Befunde wie `issues` (ohne `info`) als fertige Sätze — bleibt für ältere Leser erhalten |
+
+### `canvas.pixel` und `visuals[].cell` (Rastermodus, ab 20.10.2026, specVersion bleibt 3)
+
+Nur wenn im Tool Design > Abstände > „Pixelraster“ an ist (`assets/mockup/pixelgrid.js`, `KONZEPT-PIXELRASTER.md`).
+`canvas.pixel` = `{mode: "lattice", n: 12, pitchX, pitchY, gutter, margins: {l, r, t, b}, exact}`: Spalten- und
+Zeilenschritt in px (Spalte j beginnt bei `contentRect.x + j·pitchX`), Zwischenraum, gelöste Ränder. `visuals[].cell` =
+`{x: [[a, b], [c, d]], y: [...]}`: Anfang und Ende der Kachel als Brüche des Inhalts (Pitch-Raum). Die Rechtecke
+(`rect`) sind schon ganzzahlig und exakt; beide Felder zählen nicht zum `specHash`. Der Skill wertet sie noch nicht aus
+(Toleranz 0, NONINT, `--resnap` sind Stufe 2 des Konzepts); die dwg cli überträgt Seiten damit exakt in ihr Raster.
 
 ## `report` (Berichtskopf, ab v3)
 

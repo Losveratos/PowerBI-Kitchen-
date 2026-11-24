@@ -1011,6 +1011,10 @@ dialog.narrow.lv-wide{width:min(96vw,1120px);max-width:min(96vw,1120px)}
           <div><input class="ctl" type="number" id="spPad" min="0" max="32" step="2"><p class="hint" data-i18n="hint.pad">Kachel innen</p></div>
         </div>
       </div>
+      <div class="field"><label for="spPixel" data-i18n="hint.pixel">Pixelraster</label>
+        <select class="ctl" id="spPixel" data-i18n-title="hint.pixelTip"><option value="off" data-i18n="hint.pixelOff">aus (freie Verteilung)</option><option value="12" data-i18n="hint.pixel12">12er-Raster (pixelgenau)</option></select>
+        <p class="hint" id="spPixelInfo" hidden></p>
+      </div>
       <div class="field"><label data-i18n="lbl.defScenario">Standard-Szenario neuer Charts</label>
         <select class="ctl" id="defScenario" data-i18n-title="tip.defScenario">
           <option value="AC/PL" data-i18n="opt.scen.acpl">AC vs PL (Ist vs Plan)</option>
@@ -1236,6 +1240,7 @@ dialog.narrow.lv-wide{width:min(96vw,1120px);max-width:min(96vw,1120px)}
 <script src="assets/mockup/catalog.js?v=20261124"></script>
 <script src="assets/mockup/a11y.js?v=20261124"></script>
 <script src="assets/mockup/diff.js?v=20261124"></script>
+<script src="assets/mockup/pixelgrid.js?v=20261124"></script>
 <script src="assets/mockup/gridcheck.js?v=20261124"></script>
 <script src="assets/mockup/fmtinfo.js?v=20261124"></script>
 <script src="assets/mockup/app.js?v=20261124"></script>

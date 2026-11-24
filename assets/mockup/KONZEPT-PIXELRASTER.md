@@ -1,4 +1,4 @@
-> Ergebnis eines Designpanels vom 25.09.2026: vier unabhängige Entwürfe (Löser, Workshop-Bedienung, Power-BI-Treue, minimale Änderung), drei Jurys (Pixelgenauigkeit, Bedienbarkeit, Umsetzungsrisiko), ein Angreifer mit Gegenbeispielen. Sieger: Linienraster im Pitch-Raum. Noch nicht umgesetzt.
+> Ergebnis eines Designpanels vom 25.09.2026: vier unabhängige Entwürfe (Löser, Workshop-Bedienung, Power-BI-Treue, minimale Änderung), drei Jurys (Pixelgenauigkeit, Bedienbarkeit, Umsetzungsrisiko), ein Angreifer mit Gegenbeispielen. Sieger: Linienraster im Pitch-Raum. Umgesetzt (20.10.2026): Stufe 1 als `pixelgrid.js` (gemeinsam mit der dwg cli), Schalter „Pixelraster“, `checkLattice()`; Stufe 0 und 2 offen, siehe README.
 
 # Empfehlung: pixelgenaue Verteilung in MockupKitchen
 

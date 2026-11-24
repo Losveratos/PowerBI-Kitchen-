@@ -3,6 +3,32 @@
 Positionierung (aus dem Review): kein Report-Generator, sondern ein **Anforderungswerkzeug mit deterministischem
 Ausgang**. Der Workshop legt Struktur, Felder und Entscheidungen fest; der Bau ist eine Ableitung.
 
+## Pixelraster als gemeinsames Modul (20.10.2026)
+
+- **`pixelgrid.js`** setzt Stufe 1 aus `KONZEPT-PIXELRASTER.md` als reines Rechenmodul um: `zones()` (Raster als
+  Standard, `{legacy: true}` = fester Rand wie 0.6.2, byte-gleich, Test über 384 Fälle), `solveMargins()`, `line()`
+  (Ganzzahl-Brüche, BigInt), `place()` und `placeFrac()`, `layout()` (Baum und Grid im Pitch-Raum), `cellOf()` und
+  `transfer()` (Seite pixelgenau in eine andere Auflösung), `slicerStack()`, `inside()`, `lines()`, `pixelBlock()`,
+  Chrome-Vorlagen `MOCKUP_CHROME` und `DWG_CHROME`. Typen in `pixelgrid.d.ts`. Die API folgt der ersten dwg-Fassung
+  (`dwg/layout/pixelgrid.mjs` der Showcase-Runde), damit deren Aufrufer und Tests unverändert bleiben.
+- **Eine Quelle für zwei Werkzeuge:** MockupKitchen lädt die Datei per `<script>` vor `gridcheck.js` und `app.js`
+  (`window.MK_PIXELGRID`). Die dwg cli (Repo Fabric-Apps-Demo) erzeugt daraus mit `dwg mockup build` ihr ES-Modul
+  `dwg/layout/pixelgrid.mjs` (Inhalt unverändert plus Export-Zeilen) und holt `gridcheck.js`, `a11y.js` und den
+  Konverter des Skills `mockup-to-powerbi` nach `dwg/mockup/vendor/`. Warum hier: MockupKitchen ist ein Browser-Tool
+  ohne Build und kann nichts aus dem dwg-Repo laden; dwg hat schon den Weg „aus dem Kitchen-Repo bauen“ (`dwg visuals
+  build`) und prüft per Manifest, dass niemand die geholten Dateien von Hand ändert. Änderungen also nur hier.
+- **Rastermodus im Tool:** Design > Abstände > „Pixelraster“ (aus · 12er-Raster). Mit Raster lösen sich die Ränder
+  (Basis 18), die Lesezeile zeigt Rand, Zwischenraum, Spalten- und Zeilenschritt; die Rand-Eingabe ruht. Zustand
+  `S.pixel = {mode: 'lattice', n: 12}`, Export `canvas.pixel` und `visuals[].cell` (Brüche), beides ohne Einfluss auf
+  den specHash. Standardprojekt FHD: KPIs 27/423/819/1215, 378 × 167, Hauptzeile 1038 + 510 wie im Konzept.
+- **`gridcheck.checkLattice(rects, lat)`:** Befunde `OFF_LATTICE` (Kante 1 bis 3 px neben einer Linie j/12 bzw. j/24),
+  `NOT_FLUSH` (Außenkante knapp nicht am Inhaltsrand), `OUTSIDE_CONTENT`. Freie Linien wie 1/5 bleiben erlaubt.
+- **Tests:** `node assets/mockup/pixelgrid-test.js` (alle Tabellenwerte aus Abschnitt 3, Sweep 320 bis 4000 px),
+  `node assets/mockup/gridcheck-test.js`. `a11y.js` exportiert für Node zusätzlich per `module.exports`.
+- **Offen (Stufe 2):** Einrasten beim Ziehen, Split-Dialog mit „±1 px“-Badge, Mindestgröße 48k, „Pixelgenau machen“
+  mit Gewichten aus den sichtbaren Pixeln (ohne das verschiebt das Einschalten Kacheln um bis zu 6 px), Skill-Seite
+  (Toleranz 0, NONINT, `--resnap`).
+
 ## Neu in v0.6.2 (stabiler Stand)
 
 Führt den Live-Zweig (v0.6.0, v0.6.1) mit den Punkten aus dem Persona-Review (v0.5.5, v0.5.6) zusammen.
@@ -112,6 +138,8 @@ Datei (file://) funktioniert ebenfalls.
 | `catalog.js` | Visual-Katalog: 47 Typen (ChartKitchen, native PBI, Custom Visuals Gantt/P&L), Datenrollen, Engines, Mapping auf pbir- und Custom-Visual-Buckets, fünf Demo-Modelle, Seitenvorlagen mit Feldbindungen |
 | `sketches.js` | SVG-Skizzen je Typ, `MK_SKETCH(kind, w, h, {scenario, seed, variance, dense, label, scale, polarity, lang, unit, palette, ink, dark, paper})`, Farben je Aufruf aus `theme(o)` |
 | `app.js` | Zustand v2 (Seiten, Design, Chrome), Container-Split-Layout → Canvas-Pixel, Skalierung (`ui = canvas.w / 1280`), Drag-and-drop, TMDL-Parser (BOM-fest), Inspector, Undo |
+| `pixelgrid.js` | Pixelraster: Zonen, Ränder, Linien, Kacheln aus Brüchen; gemeinsam mit der dwg cli (Test `pixelgrid-test.js`) |
+| `gridcheck.js` | Raster prüfen und ausrichten, `checkLattice()` für den Rastermodus (Test `gridcheck-test.js`) |
 | `export.js` | `mockup-spec.json` (specVersion 2), `AGENT-BRIEF.md`, `WORKSHOP-DOKU.md`, `pbir-visuals.<Seite>.json`, Prompt; Speichern/Öffnen als `.mockup.json` |
 | `sketches-test.html` | Testblatt: alle Skizzen in drei Größen und Skalierungen, meldet NaN/undefined |
 

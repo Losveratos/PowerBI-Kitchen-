@@ -129,6 +129,19 @@
           "type": "number",
           "minimum": 0.1,
           "maximum": 8
+        },
+        "pixel": {
+          "description": "Rastermodus (assets/mockup/pixelgrid.js, KONZEPT-PIXELRASTER.md): Spaltenschritt, Zeilenschritt, Zwischenraum und Ränder in px. Fehlt der Block, gilt die bisherige Verteilung.",
+          "type": "object",
+          "properties": {
+            "mode": { "const": "lattice" },
+            "n": { "type": "integer", "minimum": 1 },
+            "pitchX": { "type": "number" },
+            "pitchY": { "type": "number" },
+            "gutter": { "type": "integer", "minimum": 0 },
+            "margins": { "type": "object", "properties": { "l": { "type": "integer" }, "r": { "type": "integer" }, "t": { "type": "integer" }, "b": { "type": "integer" } } },
+            "exact": { "type": "boolean" }
+          }
         }
       }
     },
@@ -965,6 +978,14 @@
         },
         "rect": {
           "$ref": "#/$defs/rect"
+        },
+        "cell": {
+          "description": "Nur im Rastermodus: Lage der Kachel als Brüche [Zähler, Nenner] im Pitch-Raum, x = [Anfang, Ende], y = [Anfang, Ende].",
+          "type": "object",
+          "properties": {
+            "x": { "type": "array", "items": { "type": "array", "items": { "type": "integer" }, "minItems": 2, "maxItems": 2 } },
+            "y": { "type": "array", "items": { "type": "array", "items": { "type": "integer" }, "minItems": 2, "maxItems": 2 } }
+          }
         },
         "roles": {
           "type": "object"
