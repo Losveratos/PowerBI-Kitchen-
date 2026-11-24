@@ -4652,7 +4652,7 @@ const DETAILS = {
 
       <div class="tip">
         <strong>Neuer Power Query Editor (Vorschau, Stand November 2026)</strong>
-        Desktop bietet zwei Power-Query-Oberflächen: den bisherigen Editor und die <em>New Power Query experience</em> (Vorschau seit dem September-2026-Update). Der neue Editor hat unter anderem eine Diagrammansicht, die die Schritte einer Abfrage und ihre Abhängigkeiten als Kästchen zeigt, und eine Schemaansicht, in der du nur mit Spaltennamen und Datentypen arbeitest. Einschalten: File → Options and settings → Options → Preview features → <em>New Power Query experience</em>; seit dem November-2026-Update auch direkt unter Home → Get Data. Ein Neustart ist nicht nötig. Derselbe Schalter aktiviert auch das neue „Get Data“. Die Klickpfade in diesem Guide beschreiben den bisherigen Editor.
+        Desktop bietet zwei Power-Query-Oberflächen: den bisherigen Editor und die <em>New Power Query experience</em> (Vorschau seit dem September-2026-Update). Der neue Editor hat unter anderem eine Diagrammansicht, die jede Abfrage als Kästchen mit ihren Schritten zeigt und Abhängigkeiten als Linien, und eine Schemaansicht, in der du nur mit Spaltennamen und Datentypen arbeitest. Einschalten: File → Options and settings → Options → Preview features → <em>New Power Query experience</em>; seit dem November-2026-Update auch direkt unter Home → Get Data. Ein Neustart ist nicht nötig. Derselbe Schalter aktiviert auch das neue „Get Data“. Die Klickpfade in diesem Guide beschreiben den bisherigen Editor.
       </div>
 
       <figure>
@@ -4857,7 +4857,7 @@ const DETAILS = {
         <li><strong>Premium-Kapazität (P-SKUs) läuft aus</strong> — Microsoft verkauft keine neuen P-SKUs mehr; bestehende enden mit der jeweiligen Vertragslaufzeit. Danach: 30 Tage Kulanz, ab Tag 31 gedrosselt, ab Tag 91 blockiert. Workspaces werden nicht automatisch migriert — F-SKU kaufen, Workspaces zuweisen, dann P-SKU kündigen. Pro, PPU und Embedded-SKUs (A/EM) sind nicht betroffen. Zwei Ausnahmen nennt Microsoft Learn: Sovereign Clouds sind noch nicht betroffen, und Kunden mit laufendem Enterprise Agreement können bestehende P-SKUs bis zum Ende der EA-Laufzeit jährlich verlängern</li>
         <li><strong>F-SKUs werden in Azure gekauft</strong> — Pay-as-you-go oder günstiger per Reservierung, skalier- und pausierbar</li>
         <li><strong>Copilot</strong> in Power BI und Fabric braucht eine bezahlte Kapazität ab F2 (oder P1) — Pro oder PPU allein reichen nicht (Details in Sektion 10). Ausnahme ist der neue Einstieg <em>Microsoft Copilot in Power BI and Fabric</em> (Vorschau, Stand November 2026): Er braucht laut Learn weder F-SKU noch Premium-Workspace, sein Funktionsumfang hängt von der Copilot-Lizenz ab</li>
-        <li><strong>Daten-Apps mit Pro</strong> — laut Microsoft Learn (Stand November 2026) dürfen Pro-Nutzer in Pro-Workspaces auch Apps erstellen und teilen, die mit Semantikmodellen, Lakehouses, Warehouses und SQL-Datenbanken in Fabric verbunden sind, auch aus Power BI Desktop heraus. Die App-Datenbank ist eine PostgreSQL-Datenbank mit maximal 1 GB, geteilt wird nur mit angemeldeten Nutzern im selben Tenant. Das zugehörige Desktop-Erlebnis <em>Power BI Desktop for Apps</em> hat Microsoft im November 2026 als kommende Vorschau angekündigt</li>
+        <li><strong>Fabric Apps mit Pro</strong> — laut Microsoft Learn (Stand November 2026) dürfen Pro-Nutzer in Pro-Workspaces auch Fabric Apps (Daten-Apps, nicht zu verwechseln mit Workspace-Apps und Org-Apps) erstellen und teilen, die mit Semantikmodellen, Lakehouses, Warehouses und SQL-Datenbanken in Fabric verbunden sind, auch aus Power BI Desktop heraus. Die App-Datenbank ist eine PostgreSQL-Datenbank mit maximal 1 GB, geteilt wird nur mit angemeldeten Nutzern im selben Tenant. Das zugehörige Desktop-Erlebnis <em>Power BI Desktop for Apps</em> hat Microsoft im November 2026 als kommende Vorschau angekündigt</li>
       </ul>
 
       <div class="example">
@@ -5081,7 +5081,7 @@ const DETAILS = {
 
       <div class="tip">
         <strong>Rate Limits</strong>
-        Viele APIs haben Rate Limits (z. B. 100 Requests/Minute). Power Query drosselt nicht vorab. <code>Web.Contents</code> wiederholt aber Anfragen, die mit Status 408, 429 oder 503 scheitern, automatisch bis zu dreimal, mit wachsender Wartezeit oder nach dem <code>Retry-After</code>-Header der API. Erst danach schlägt der Refresh fehl. Abschalten lässt sich das über die Option <code>ManualStatusHandling</code>. Bei großen Datenmengen oder häufigem Refresh: in der Doku der API nach Limits suchen.
+        Viele APIs haben Rate Limits (z. B. 100 Requests/Minute). Power Query drosselt nicht vorab. <code>Web.Contents</code> wiederholt aber Anfragen, die mit Status 408, 429, 503, 504 oder 509 scheitern, automatisch bis zu dreimal, mit wachsender Wartezeit oder nach dem <code>Retry-After</code>-Header der API. Erst danach schlägt der Refresh fehl. Abschalten lässt sich das über die Option <code>ManualStatusHandling</code>. Bei großen Datenmengen oder häufigem Refresh: in der Doku der API nach Limits suchen.
       </div>
     `
   },
@@ -6427,7 +6427,7 @@ WHERE Datum &gt;= '2024-01-01'
 
       <div class="trap">
         <strong>Anfänger-Falle</strong>
-        Business Key als PK in der Dimension behalten. Funktioniert technisch, aber: bei Stammdaten-Migration kannst du im Quellsystem den Schlüssel verlieren. Surrogate macht dich unabhängig.
+        Einen Business Key als PK in der Dimension behalten, obwohl er sich im Quellsystem ändern kann. Funktioniert technisch, aber: bei Stammdaten-Migration kannst du im Quellsystem den Schlüssel verlieren. Surrogate macht dich unabhängig.
       </div>
 
       <div class="tip">
