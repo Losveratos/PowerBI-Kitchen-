@@ -206,15 +206,19 @@ SLOT_LOOK = {"title.show": False, "fill.show": True, "fill.fillColor": "#F3F4F6"
 # (Weg aus .claude/skills/chartkitchen-report/references/pbir-insertion.md).
 CK_GUID = "chartKitchenByDatenWGD9DE0F7AD44D41058672C6FBF6F5A18D"
 # Datenrollen aus der capabilities.json des Visuals (dataRoles, kind Measure/Grouping)
+# Stand ChartKitchen 1.57: ab 1.47 xValue/bubbleSize/trend (Scatter, Trend-Karte), ab 1.55
+# xPrevious/bubbleSizePrevious, ab 1.57 bubbleShare.
 CK_MEASURE_ROLES = ("actual", "previousYear", "plan", "forecast", "prevForecast",
-                    "benchmark", "lineMeasure", "comments", "filterInfo")
-CK_GROUPING_ROLES = ("category", "multiples", "series", "rowType", "fcFlag", "colgroup")
+                    "benchmark", "lineMeasure", "xValue", "xPrevious", "bubbleSize",
+                    "bubbleSizePrevious", "bubbleShare", "comments", "filterInfo")
+CK_GROUPING_ROLES = ("category", "multiples", "series", "rowType", "trend", "fcFlag", "colgroup")
 # Höchstzahl Felder je Rolle (dataViewMappings.conditions: max 1, colgroup max 2).
 # category nimmt in Desktop mehrere Spalten als Drill-Hierarchie an (Beschreibung der Rolle).
 CK_ROLE_MAX = {"colgroup": 2, "category": None}
 # chart.orientation, Enumeration aus capabilities.json
 CK_ORIENTATIONS = {"columns", "bars", "line", "waterfall", "intwaterfall", "catbridge",
-                   "table", "pareto", "dumbbell", "slope", "cards", "pnl"}
+                   "table", "pareto", "dumbbell", "slope", "scatter", "cards", "pnl",
+                   "stockflow"}
 # Spec-Unterschiede, die Bindung bzw. chart.* eines replizierten Visuals ändern
 CK_BIND_DIFF = {"kind", "scenario", "chartKitchenMode", "chartKitchenType", "engine"}
 # Kachel-Änderungen, nach denen die Slot-Objekte (chart.*, labels.*, ibcsTitle.*) gewinnen
