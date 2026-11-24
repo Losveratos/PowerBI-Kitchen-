@@ -13,6 +13,21 @@ im Abschnitt „Settings-Referenz“ nie von Hand ändern, sondern `settings.ts`
 Stand: **1.57.0.0** (22.11.2026): Backlog IBCS-Templates B13 Teil 1b, B18, B19, B20, B24, B25 (siehe „Neu in 1.57“); davor 1.56 mit B10 Teil 2, B11 Teil 2, B13 Teil 2, B15, B16, B17; davor 1.55 mit B09, B10, B11 (Teil 1), B12, B13; davor 1.54 mit B01, B04, B05, B06, B14.
 Bei Versionssprüngen: CHANGELOG.md zuerst lesen.
 
+**Neu in 1.58 (in Arbeit):**
+
+*KPI-Karten (1.58).* Keine neue Property. `renderCards` rechnet Texte und Zeilen aller Karten vorab (`cardModel`:
+`fmtV`, `refText`, `zeroAbs`, `deltaRows`, `refRows`; Zeilen als `CardRow` = Label, Wert, Δ% oder `"na"`, `plain`,
+`missing`). Flaches Layout (`flatLay`): eine Δ-Spalte für das ganze Band, `refDx = pad + colW + 20k` mit `colW` =
+breitester Titel (≤ 170k) oder Wert, gedeckelt auf die Breite, bei der jeder Δ-Block passt, mindestens der breiteste
+Wert; ohne Brücke, Trend und Bullet (`rightFree`) startet der Block bei `max(refDx, min(w/2, w − pad − blockMax))`.
+`refLabelW` gilt für alle Karten. Zeigt eine Karte zwei Δ-Zeilen (`twoRows`), sitzt eine Einzelzeile auf der ersten
+Grundlinie (`yMid − 2k`), sonst mittig. Karte ohne Δ-Zeile in einem Band mit Δ-Zeilen: graue Zeile „Δ<Label> n.a.“
+(`missing`). Gerundete Null: `cardSigned`/`cardPercent` (über `Visual.unsignZero`) drucken sie immer ohne Vorzeichen
+(Entscheidung des Autors, keine Option); `zeroAbs` macht Zeile, Streifen, Tönung und ●-Pfeil neutral. Diagramm- und
+Tabellenlabels behalten das Vorzeichen (`fmtSigned`, 1.52.2). Kartenwert, Referenzwerte und Trend-Beschriftung über
+`cardMinus` mit U+2212 (nur ein Bindestrich vor der ersten Ziffer). Tests kpi58a bis kpi58g. Offen: Sortierknopf über
+der letzten Karte (Prüfstand 2), stiller Wegfall von Δ-Zeilen (7).
+
 **Neu in 1.57 (Backlog IBCS-Templates Teil 4, 22.11.2026):**
 
 *B24 · Feste Spaltenzahl für Small Multiples (Blatt 10G).* `chart.multiplesColumns` (numeric, Standard 0, Bereich

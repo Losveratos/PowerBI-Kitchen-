@@ -10354,5 +10354,106 @@ addStage("c422c", "Review m7 · Blasengröße VJ ohne Vorjahr in der Leseansicht
 }
 // ---- B24-B25-REVIEW-END
 </script>
+<script>
+// ======================================================================
+// 1.58 · KPI-Karten (Welle 1): Δ-Block an fester x-Position, gerundete Null
+// ohne Vorzeichen, typografisches Minus, einzelne Δ-Zeile und Karte ohne Vergleich
+// ======================================================================
+// ---- KPI58-START
+{
+  const kq = (id, sel) => [...document.querySelectorAll(`#${id} ${sel}`)];
+  // per card: frame rect, all texts, the Δ row labels ("ΔPY") with x/y
+  const kCards = id => kq(id, "svg g.icd-cat").map(g => {
+    const r = g.querySelector("rect");
+    const ts = [...g.querySelectorAll("text")];
+    const lbl = ts.filter(t => /^Δ/.test(t.textContent));
+    return {
+      x: +r.getAttribute("x"), y: +r.getAttribute("y"), w: +r.getAttribute("width"), h: +r.getAttribute("height"),
+      texts: ts.map(t => t.textContent),
+      dx: lbl.map(t => +t.getAttribute("x") - +r.getAttribute("x")),
+      dy: lbl.map(t => +t.getAttribute("y") - +r.getAttribute("y")),
+      lbl: lbl.map(t => t.textContent)
+    };
+  });
+  const kSame = a => a.length < 2 || a.every(v => Math.abs(v - a[0]) < 0.5);
+  // a zero that carries a sign: "+0", "−0,0", "-0", "+0,0%"
+  const kSignedZero = t => /[+−-]0(?:[.,]0+)?(?![\d.,])/.test(t);
+  // ASCII hyphen in front of the first digit = a minus that is not U+2212
+  const kHyphenMinus = t => { const i = t.indexOf("-"), d = t.search(/\d/); return i >= 0 && d > i; };
+  const kM = 1e6;
+  const kStrip = (cats, ac, py, pl, extra) => dataView(cats,
+    [col("actual", ac, "#,0 €"), col("previousYear", py, "#,0 €")].concat(pl ? [col("plan", pl, "#,0 €")] : []),
+    { chart: Object.assign({ orientation: "cards" }, extra || {}) });
+  const kCats4 = ["Umsatz", "Finanzierungs-Cashflow", "EBIT", "Tilgung und Dividende"];
+  const kAc4 = [18.46 * kM, -4.2 * kM, 1.302 * kM, 0.95 * kM];
+  const kPy4 = [18.44 * kM, -3.9 * kM, 1.25 * kM, 1.01 * kM];
+  const kPl4 = [18.0 * kM, -4.3 * kM, 1.301 * kM, 0.9 * kM];
+
+  const kCases = [
+    ["kpi58a", "Flacher Streifen, Balken aus: Titel und Werte verschieden lang, gerundete Null, negativer Wert, zwei Δ-Zeilen", 1560, 104,
+      kStrip(kCats4, kAc4, kPy4, kPl4, { cardBars: false })],
+    ["kpi58b", "Flacher Streifen mit Mini-Brücke (Balken an)", 1560, 104, kStrip(kCats4, kAc4, kPy4, kPl4)],
+    ["kpi58c", "Jahreskarten wie 11A: erste Karte ohne Vergleich, eine Δ-Zeile", 1560, 104,
+      kStrip(["2024", "2025", "2026"], [41 * kM, 45.5 * kM, 47.2 * kM], [null, 41 * kM, 45.5 * kM], null, { cardBars: false })],
+    ["kpi58d", "Eine und zwei Δ-Zeilen gemischt (mittlere Karte ohne Plan)", 1200, 104,
+      kStrip(["Umsatz", "Kosten", "Marge"], [9.8 * kM, 4.2 * kM, 2.1 * kM], [9.1 * kM, 3.9 * kM, 2.3 * kM], [9.5 * kM, null, 2.2 * kM],
+        { cardBars: false, invertList: "Kosten" })],
+    ["kpi58e", "Stapel-Layout 960×260: negativer Wert, gerundete Null, Karte ohne Vergleich", 960, 260,
+      kStrip(["Umsatz", "Ergebnis", "Marge", "Neukunden"], [9.8 * kM, -0.42 * kM, 1.302 * kM, 1200], [9.1 * kM, -0.38 * kM, 1.3016 * kM, null])],
+    ["kpi58f", "Schmal: 2 Karten auf 560 px", 560, 96, kStrip(kCats4.slice(0, 2), kAc4.slice(0, 2), kPy4.slice(0, 2), kPl4.slice(0, 2), { cardBars: false })],
+    ["kpi58g", "Breit: 2 Karten auf 1560 px, Balken aus", 1560, 104, kStrip(kCats4.slice(2), kAc4.slice(2), kPy4.slice(2), kPl4.slice(2), { cardBars: false })]
+  ];
+  for (const [id, title, w, h, dv] of kCases) { addStage(id, title, w, h); runCap(id, dv, w, h); }
+
+  // 1 · Δ block at one relative x in every flat card row
+  for (const id of ["kpi58a", "kpi58b", "kpi58c", "kpi58d", "kpi58g"]) {
+    const cs = kCards(id).filter(c => c.dx.length);
+    check(cs.length >= 2 && kSame(cs.map(c => c.dx[0])), `${id}: Δ-Block an gleicher x-Position (${cs.map(c => c.dx[0].toFixed(1)).join(" / ")})`);
+  }
+  // the Δ block never paints over the big value (value right edge < Δ label x)
+  for (const id of ["kpi58a", "kpi58b", "kpi58c", "kpi58d", "kpi58f", "kpi58g"]) {
+    const bad = kq(id, "svg g.icd-cat").filter(g => {
+      const ts = [...g.querySelectorAll("text")];
+      const val = ts.find(t => +t.getAttribute("font-weight") === 700 && !/^Δ/.test(t.textContent) && /\d/.test(t.textContent)
+        && +t.getAttribute("font-size") >= 18);
+      const lb = ts.find(t => /^Δ/.test(t.textContent));
+      if (!val || !lb) { return false; }
+      const b = val.getBBox();
+      return b.x + b.width > +lb.getAttribute("x") - 2;
+    });
+    check(bad.length === 0, `${id}: Wert und Δ-Block überlappen nicht`);
+  }
+  // 3 · no sign on a rounded zero, 4 · only U+2212 as minus
+  const kAll = kCases.map(c => c[0]);
+  const kTexts = kAll.flatMap(id => kCards(id).flatMap(c => c.texts.map(t => [id, t])));
+  const sz = kTexts.filter(([, t]) => kSignedZero(t));
+  check(sz.length === 0, `kpi58: keine gerundete Null mit Vorzeichen (${sz.map(([i, t]) => i + " " + t).join(", ") || "keine"})`);
+  const hy = kTexts.filter(([, t]) => kHyphenMinus(t));
+  check(hy.length === 0, `kpi58: Minus nur als U+2212 (${hy.map(([i, t]) => i + " " + t).join(", ") || "keins"})`);
+  check(kTexts.some(([i, t]) => i === "kpi58a" && /^−4,2/.test(t)) && kTexts.some(([i, t]) => i === "kpi58e" && /^−/.test(t)),
+    "kpi58a/e: negativer Kartenwert mit U+2212");
+  // rounded zero reads plain and stays neutral grey (like an exact zero)
+  {
+    const g = kq("kpi58a", "svg g.icd-cat")[0];
+    const ts = [...g.querySelectorAll("text")];
+    const grey = ts.find(t => /^Δ/.test(t.textContent)).getAttribute("fill");
+    const z = ts.filter(t => /^0,0\D*( ·|$)/.test(t.textContent));
+    check(z.length >= 1 && z.every(t => t.getAttribute("fill") === grey),
+      `kpi58a: Umsatz-Δ auf 0 gerundet ohne Vorzeichen und grau (${z.map(t => t.textContent + " " + t.getAttribute("fill")).join(", ")})`);
+  }
+  // 5 · one Δ row sits on the baseline of the first of two rows; card without comparison
+  {
+    const cs = kCards("kpi58d");
+    check(cs.length === 3 && cs[0].dy.length === 2 && cs[1].dy.length === 1 && Math.abs(cs[1].dy[0] - cs[0].dy[0]) < 0.5,
+      `kpi58d: einzelne Δ-Zeile auf der Grundlinie der ersten von zweien (${cs.map(c => c.dy.map(v => v.toFixed(1)).join("+")).join(" / ")})`);
+    const c = kCards("kpi58c");
+    check(c.length === 3 && c[0].lbl.length === 1 && c[0].texts.includes("n.a.") && Math.abs(c[0].dy[0] - c[1].dy[0]) < 0.5,
+      `kpi58c: Karte ohne Vergleich zeigt „${c[0].lbl.join("")} n.a.“ in der Δ-Zeile der Reihe`);
+    const e = kCards("kpi58e");
+    check(e.length === 4 && e[3].texts.includes("n.a.") && kSame(e.map(c => c.dx[0])), "kpi58e: Stapel-Layout, Karte ohne Vergleich mit n.a.-Zeile");
+  }
+}
+// ---- KPI58-END
+</script>
 </body>
 </html>
