@@ -1,9 +1,13 @@
 Abbildungen aus der Microsoft-Dokumentation (Microsoft Learn)
 Lizenz: Creative Commons Attribution 4.0 International (CC BY 4.0)
         https://creativecommons.org/licenses/by/4.0/
-Quelle: Repository MicrosoftDocs/fabric-docs (Ordner docs/**/media/), unverändert übernommen.
-        Die jeweilige Learn-Seite ist in der figcaption des Bildes in den Guides verlinkt.
+Quelle: Microsoft Learn (learn.microsoft.com) bzw. die zugehörigen Repositories
+        MicrosoftDocs/fabric-docs, MicrosoftDocs/powerbi-docs und MicrosoftDocs/powerquery-docs
+        (Ordner **/media/). Die jeweilige Learn-Seite ist in der figcaption des Bildes
+        in den Guides und im Praxis-Pfad verlinkt.
+Änderungen: Die Bilder sind unverändert übernommen. Ausnahme:
+        org-app-consumer-experience-view.png wurde verkleinert (Hinweis steht in der Bildunterschrift).
 
-Lokale Kopien, damit beim Aufruf der Guides keine Bilder von learn.microsoft.com geladen werden.
-Weitere Bilder (Power BI / Power Query) laden die Guides noch von learn.microsoft.com;
-scripts/fetch_learn_assets.py kann sie hierher kopieren, wenn learn.microsoft.com erreichbar ist.
+Lokale Kopien, damit beim Aufruf der Seiten keine Bilder von learn.microsoft.com geladen werden.
+Das gilt seit November 2026 für alle Learn-Bilder im Fabric-Guide, im Power-BI-Guide und im Praxis-Pfad.
+Neue Bilder: scripts/fetch_learn_assets.py (siehe Kommentar dort).
