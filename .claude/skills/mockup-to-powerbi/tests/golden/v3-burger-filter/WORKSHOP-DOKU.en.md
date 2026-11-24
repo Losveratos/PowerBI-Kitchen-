@@ -27,10 +27,10 @@ As of: <datum> · Version 0.1 · Spec hash `4d42e99d` · created with MockupKitc
 
 | # | Tile | Rendering | Fields | Analysis | Prio | Status | Notes |
 |---|---|---|---|---|---|---|---|
-| 1.1 | Umsatz | KPI-Kachel (IBCS), ChartKitchen | Measure: Kosten; Target / reference: PL | lower is better | – | open | – |
+| 1.1 | Umsatz | KPI-Kachel (IBCS), ibcsKpiCard | Measure: Kosten; Target / reference: PL | lower is better | – | open | – |
 | 1.2 | Kosten | Karte (nativ) | Measure: Kosten | lower is better | – | open | – |
-| 1.3 | Deckungsbeitrag | KPI-Kachel (IBCS), ChartKitchen | Target / reference: PL | – | – | open | – |
-| 1.4 | Marge | KPI-Kachel (IBCS), ChartKitchen | Measure: Marge; Target / reference: PL | – | – | open | – |
+| 1.3 | Deckungsbeitrag | KPI-Kachel (IBCS), ibcsKpiCard | Target / reference: PL | – | – | open | – |
+| 1.4 | Marge | KPI-Kachel (IBCS), ibcsKpiCard | Measure: Marge; Target / reference: PL | – | – | open | – |
 | 1.5 | Δ PL je Produktlinie | Wasserfall horizontal + Varianz, AC/PL, ChartKitchen | Category / time: Category; AC · actual: AC; Reference (PL / PY / BU): PL | – | – | open | Klick auf eine Kategorie springt in die Detailseite. Offen: Sortierung nach Δ oder AC? · → Detail Produktlinie |
 | 1.6 | Umsatz AC/FC vs PL je Monat (in T€) | Integrierte Varianzanalyse, AC/PL/FC, ChartKitchen | Category / time: Month; AC · actual: AC; Reference (PL / PY / BU): PL; FC flag (1/0): IsForecast | – | – | open | – |
 | 1.7 | Kommentar | Textfeld | – | – | – | open | Text: Umsatz 8 % über Plan, Süd unter Plan wegen Lieferverzug. |
@@ -42,14 +42,29 @@ As of: <datum> · Version 0.1 · Spec hash `4d42e99d` · created with MockupKitc
 | # | Tile | Rendering | Fields | Analysis | Prio | Status | Notes |
 |---|---|---|---|---|---|---|---|
 | 2.1 | Detail: gewählte Produktlinie | Textfeld | – | – | – | open | Drill-through-Ziel. Titel zeigt den gefilterten Wert (SELECTEDVALUE). |
-| 2.2 | Umsatz | KPI-Kachel (IBCS), ChartKitchen | Measure: Umsatz; Target / reference: PL | – | – | open | – |
-| 2.3 | Marge % | KPI-Kachel (IBCS), ChartKitchen | Measure: Marge%; Target / reference: PL | – | – | open | – |
+| 2.2 | Umsatz | KPI-Kachel (IBCS), ibcsKpiCard | Measure: Umsatz; Target / reference: PL | – | – | open | – |
+| 2.3 | Marge % | KPI-Kachel (IBCS), ibcsKpiCard | Measure: Marge%; Target / reference: PL | – | – | open | – |
 | 2.4 | Einzelpositionen | IBCS-Tabelle, AC/PL, ChartKitchen | Rows: Product; AC · actual: AC; Reference (PL / PY / BU): PL | – | – | open | – |
 | 2.5 | Verlauf 24 Monate | Linie (AC vs Referenz), AC/PY, ChartKitchen | AC · actual: AC; Reference (PL / PY / BU): PY | – | – | open | – |
 
 ## Navigation and drill paths
 
 - From „Übersicht" (mk_7rbkjp5) to „Detail Produktlinie" (drill-through (DimProduct.Category))
+
+## Custom visuals
+
+These tiles are custom visuals from the repository. The matching `.pbiviz` has to be imported into the report, otherwise the tile stays empty.
+
+- Page 1 · **Umsatz** — `ibcsKpiCard` (ibcsKpiCard2771CF65D0C343A19EAB34E43D7B8682)
+  - `ac`: _Measures.Kosten, `pl`: _Measures.PL
+- Page 1 · **Deckungsbeitrag** — `ibcsKpiCard` (ibcsKpiCard2771CF65D0C343A19EAB34E43D7B8682)
+  - `pl`: _Measures.PL
+- Page 1 · **Marge** — `ibcsKpiCard` (ibcsKpiCard2771CF65D0C343A19EAB34E43D7B8682)
+  - `ac`: _Measures.Marge, `pl`: _Measures.PL
+- Page 2 · **Umsatz** — `ibcsKpiCard` (ibcsKpiCard2771CF65D0C343A19EAB34E43D7B8682)
+  - `ac`: _Measures.Umsatz, `pl`: _Measures.PL
+- Page 2 · **Marge %** — `ibcsKpiCard` (ibcsKpiCard2771CF65D0C343A19EAB34E43D7B8682)
+  - `ac`: _Measures.Marge%, `pl`: _Measures.PL
 
 ## Measure profile
 

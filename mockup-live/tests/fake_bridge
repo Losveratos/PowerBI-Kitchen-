@@ -1,0 +1,2 @@
+#!/usr/bin/env sh
+exec "${FAKE_BRIDGE_PYTHON:-python3}" "$(dirname "$0")/fake_bridge.py" "$@"

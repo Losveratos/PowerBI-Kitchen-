@@ -1,0 +1,15 @@
+# MockupKitchen live · Live-Helfer (mk-live) und Runner, Python 3.11 oder neuer
+#   python -m pip install -r mockup-live/agent/requirements.txt
+# Ohne Pillow läuft der Bildvergleich mit einem eigenen PNG-Leser (langsamer, ohne Farbe),
+# ohne psutil fehlen Prozessprüfungen (Desktop-Instanzen, losgelöster Start, External Tools).
+pillow>=10.0
+psutil>=5.9
+
+# Externe Werkzeuge (nicht über pip, Stände wie in `mk-live doctor` gepinnt):
+#   pbir 0.9.32                              uv tool install pbir-cli==0.9.32  (nur nicht-kommerziell)
+#   @microsoft/powerbi-desktop-bridge-cli    npm install -g @microsoft/powerbi-desktop-bridge-cli@0.1.1
+#                                            (gepinnt auf den getesteten Stand, powerbi-desktop --version)
+#   te (Tabular Editor CLI, Preview)         optional, nur für Modelländerungen
+
+# Nur für Tests des Kitchens im Browser (nicht für den Helfer):
+#   playwright>=1.40

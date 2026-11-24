@@ -30,9 +30,9 @@
           "type": "shape",
           "rect": {
             "x": 24,
-            "y": 18,
-            "w": 180,
-            "h": 48
+            "y": 19,
+            "w": 132,
+            "h": 45
           },
           "role": "chrome",
           "fields": {}
@@ -41,10 +41,10 @@
           "name": "chrome_header_title",
           "type": "shape",
           "rect": {
-            "x": 228,
-            "y": 9,
-            "w": 1668,
-            "h": 39
+            "x": 177,
+            "y": 11,
+            "w": 1719,
+            "h": 37
           },
           "role": "chrome",
           "fields": {}
@@ -53,10 +53,10 @@
           "name": "chrome_header_subtitle",
           "type": "shape",
           "rect": {
-            "x": 228,
+            "x": 177,
             "y": 48,
-            "w": 1668,
-            "h": 27
+            "w": 1719,
+            "h": 24
           },
           "role": "chrome",
           "fields": {}
@@ -74,13 +74,25 @@
           "fields": {}
         },
         {
+          "name": "chrome_filter_rule",
+          "type": "shape",
+          "rect": {
+            "x": 1620,
+            "y": 84,
+            "w": 1,
+            "h": 960
+          },
+          "role": "chrome",
+          "fields": {}
+        },
+        {
           "name": "chrome_filter_title",
           "type": "shape",
           "rect": {
-            "x": 1632,
-            "y": 96,
-            "w": 276,
-            "h": 36
+            "x": 1635,
+            "y": 102,
+            "w": 270,
+            "h": 24
           },
           "role": "chrome",
           "fields": {}
@@ -89,10 +101,34 @@
           "name": "chrome_filter_text",
           "type": "shape",
           "rect": {
-            "x": 1632,
-            "y": 144,
-            "w": 276,
-            "h": 43
+            "x": 1635,
+            "y": 138,
+            "w": 270,
+            "h": 39
+          },
+          "role": "chrome",
+          "fields": {}
+        },
+        {
+          "name": "chrome_footer_bg",
+          "type": "shape",
+          "rect": {
+            "x": 0,
+            "y": 1044,
+            "w": 1920,
+            "h": 36
+          },
+          "role": "chrome",
+          "fields": {}
+        },
+        {
+          "name": "chrome_footer_rule",
+          "type": "shape",
+          "rect": {
+            "x": 0,
+            "y": 1044,
+            "w": 1920,
+            "h": 1
           },
           "role": "chrome",
           "fields": {}
@@ -101,9 +137,9 @@
           "name": "chrome_nav_1",
           "type": "actionButton",
           "rect": {
-            "x": 1720,
+            "x": 1704,
             "y": 1047,
-            "w": 96,
+            "w": 104,
             "h": 30
           },
           "role": "chrome",
@@ -113,9 +149,9 @@
           "name": "chrome_nav_2",
           "type": "actionButton",
           "rect": {
-            "x": 1824,
+            "x": 1816,
             "y": 1047,
-            "w": 72,
+            "w": 80,
             "h": 30
           },
           "role": "chrome",
@@ -126,9 +162,9 @@
           "type": "shape",
           "rect": {
             "x": 24,
-            "y": 1044,
-            "w": 1672,
-            "h": 36
+            "y": 1045,
+            "w": 1662,
+            "h": 35
           },
           "role": "chrome",
           "fields": {}
@@ -203,10 +239,10 @@
           "name": "mk_slicer_Year_p1",
           "type": "slicer",
           "rect": {
-            "x": 1632,
-            "y": 199,
-            "w": 276,
-            "h": 84
+            "x": 1635,
+            "y": 189,
+            "w": 270,
+            "h": 78
           },
           "role": "slicer",
           "fields": {
@@ -219,10 +255,10 @@
           "name": "mk_slicer_Region_p1",
           "type": "slicer",
           "rect": {
-            "x": 1632,
-            "y": 295,
-            "w": 276,
-            "h": 84
+            "x": 1635,
+            "y": 277,
+            "w": 270,
+            "h": 96
           },
           "role": "slicer",
           "fields": {
@@ -235,10 +271,10 @@
           "name": "mk_slicer_Date_p1",
           "type": "slicer",
           "rect": {
-            "x": 1632,
-            "y": 391,
-            "w": 276,
-            "h": 84
+            "x": 1635,
+            "y": 383,
+            "w": 270,
+            "h": 78
           },
           "role": "slicer",
           "fields": {
@@ -274,9 +310,9 @@
           "type": "shape",
           "rect": {
             "x": 24,
-            "y": 18,
-            "w": 180,
-            "h": 48
+            "y": 19,
+            "w": 132,
+            "h": 45
           },
           "role": "chrome",
           "fields": {}
@@ -285,10 +321,10 @@
           "name": "chrome_header_title",
           "type": "shape",
           "rect": {
-            "x": 228,
-            "y": 9,
-            "w": 1668,
-            "h": 39
+            "x": 177,
+            "y": 11,
+            "w": 1719,
+            "h": 37
           },
           "role": "chrome",
           "fields": {}
@@ -297,10 +333,10 @@
           "name": "chrome_header_subtitle",
           "type": "shape",
           "rect": {
-            "x": 228,
+            "x": 177,
             "y": 48,
-            "w": 1668,
-            "h": 27
+            "w": 1719,
+            "h": 24
           },
           "role": "chrome",
           "fields": {}
@@ -318,13 +354,25 @@
           "fields": {}
         },
         {
+          "name": "chrome_filter_rule",
+          "type": "shape",
+          "rect": {
+            "x": 1620,
+            "y": 84,
+            "w": 1,
+            "h": 960
+          },
+          "role": "chrome",
+          "fields": {}
+        },
+        {
           "name": "chrome_filter_title",
           "type": "shape",
           "rect": {
-            "x": 1632,
-            "y": 96,
-            "w": 276,
-            "h": 36
+            "x": 1635,
+            "y": 102,
+            "w": 270,
+            "h": 24
           },
           "role": "chrome",
           "fields": {}
@@ -333,10 +381,34 @@
           "name": "chrome_filter_text",
           "type": "shape",
           "rect": {
-            "x": 1632,
-            "y": 144,
-            "w": 276,
-            "h": 43
+            "x": 1635,
+            "y": 138,
+            "w": 270,
+            "h": 39
+          },
+          "role": "chrome",
+          "fields": {}
+        },
+        {
+          "name": "chrome_footer_bg",
+          "type": "shape",
+          "rect": {
+            "x": 0,
+            "y": 1044,
+            "w": 1920,
+            "h": 36
+          },
+          "role": "chrome",
+          "fields": {}
+        },
+        {
+          "name": "chrome_footer_rule",
+          "type": "shape",
+          "rect": {
+            "x": 0,
+            "y": 1044,
+            "w": 1920,
+            "h": 1
           },
           "role": "chrome",
           "fields": {}
@@ -345,9 +417,9 @@
           "name": "chrome_nav_1",
           "type": "actionButton",
           "rect": {
-            "x": 1720,
+            "x": 1704,
             "y": 1047,
-            "w": 96,
+            "w": 104,
             "h": 30
           },
           "role": "chrome",
@@ -357,9 +429,9 @@
           "name": "chrome_nav_2",
           "type": "actionButton",
           "rect": {
-            "x": 1824,
+            "x": 1816,
             "y": 1047,
-            "w": 72,
+            "w": 80,
             "h": 30
           },
           "role": "chrome",
@@ -370,9 +442,9 @@
           "type": "shape",
           "rect": {
             "x": 24,
-            "y": 1044,
-            "w": 1672,
-            "h": 36
+            "y": 1045,
+            "w": 1662,
+            "h": 35
           },
           "role": "chrome",
           "fields": {}
@@ -401,10 +473,10 @@
           "name": "mk_slicer_Year_p2",
           "type": "slicer",
           "rect": {
-            "x": 1632,
-            "y": 199,
-            "w": 276,
-            "h": 84
+            "x": 1635,
+            "y": 189,
+            "w": 270,
+            "h": 78
           },
           "role": "slicer",
           "fields": {
@@ -417,10 +489,10 @@
           "name": "mk_slicer_Region_p2",
           "type": "slicer",
           "rect": {
-            "x": 1632,
-            "y": 295,
-            "w": 276,
-            "h": 84
+            "x": 1635,
+            "y": 277,
+            "w": 270,
+            "h": 96
           },
           "role": "slicer",
           "fields": {
@@ -433,10 +505,10 @@
           "name": "mk_slicer_Date_p2",
           "type": "slicer",
           "rect": {
-            "x": 1632,
-            "y": 391,
-            "w": 276,
-            "h": 84
+            "x": 1635,
+            "y": 383,
+            "w": 270,
+            "h": 78
           },
           "role": "slicer",
           "fields": {

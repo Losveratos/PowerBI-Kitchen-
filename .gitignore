@@ -83,3 +83,8 @@ i18n/out/
 _ch_*.json
 _new_ids.txt
 _channel_fresh.json
+
+# MockupKitchen Standalone (scripts/build_mockup_standalone.py): Build-Ergebnis mit
+# eingeschalteter Live-Oberflaeche, wird nicht eingecheckt und nicht auf Pages veroeffentlicht.
+# Nur der Ordner im Repo-Wurzelverzeichnis; die dist/-Ordner der Visuals bleiben versioniert.
+/dist/

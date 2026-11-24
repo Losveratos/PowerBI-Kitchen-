@@ -1,0 +1,16 @@
+model Model
+	culture: de-DE
+	defaultPowerBIDataSourceVersion: powerBI_V3
+	sourceQueryCulture: de-DE
+
+	annotation __PBI_TimeIntelligenceEnabled = 0
+
+ref table DimDate
+ref table DimProduct
+ref table DimRegion
+ref table FactActuals
+ref table FactPlan
+ref table FactBudget
+ref table FactForecast
+ref table FactDaily
+ref table _Measures

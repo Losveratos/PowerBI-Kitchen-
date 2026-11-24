@@ -14,7 +14,7 @@
   {
     "visual_type": "clusteredBarChart",
     "name": "v06_PL_je_Produktlinie",
-    "title": "Δ PL je Produktlinie",
+    "title": "\u0394 PL je Produktlinie",
     "x": 719,
     "y": 203,
     "width": 345,
@@ -31,10 +31,10 @@
     "visual_type": "slicer",
     "name": "slicer1_Year",
     "title": "Year",
-    "x": 1088,
-    "y": 96,
-    "width": 184,
-    "height": 56,
+    "x": 1090,
+    "y": 92,
+    "width": 180,
+    "height": 76,
     "fields": {
       "Values": "DimDate.Year"
     }
@@ -43,10 +43,10 @@
     "visual_type": "slicer",
     "name": "slicer2_Region",
     "title": "Region",
-    "x": 1088,
-    "y": 160,
-    "width": 184,
-    "height": 56,
+    "x": 1090,
+    "y": 175,
+    "width": 180,
+    "height": 76,
     "fields": {
       "Values": "DimRegion.Region"
     }

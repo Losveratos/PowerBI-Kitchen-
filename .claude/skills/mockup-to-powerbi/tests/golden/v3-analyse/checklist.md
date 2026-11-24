@@ -21,14 +21,14 @@ Mockup: **Analyse-Testfall** · specVersion 3 (gelesen als v3) · Hash `testhash
 
 ## Umfang
 
-- Visuals gesamt: 16 (ChartKitchen 11 · nativ 5 · Deneb 0)
+- Visuals gesamt: 16 (ChartKitchen 6 · nativ 5 · Deneb 0)
 - Slicer je Seite: 2 (Filter-Modus `right`)
 - Verknüpfungen: 2 (1 Drill-through, 1 Seitenwechsel)
 
 | Seite | Ordner | Fragestellung | native Visuals + Slicer | Text/Button | Chrome | CK | Deneb | Custom |
 |---|---|---|---|---|---|---|---|---|
-| Übersicht | `Ubersicht/` | Liegen wir im Plan? | 4 | 1 | 10 | 6 | 0 | 0 |
-| Detail Produktlinie | `Detail_Produktlinie/` | – | 2 | 2 | 10 | 5 | 0 | 0 |
+| Übersicht | `Ubersicht/` | Liegen wir im Plan? | 4 | 1 | 13 | 3 | 0 | 3 |
+| Detail Produktlinie | `Detail_Produktlinie/` | – | 2 | 2 | 13 | 3 | 0 | 2 |
 
 ## Offene Punkte aus der Spec (`issues`)
 
@@ -47,18 +47,29 @@ Mockup: **Analyse-Testfall** · specVersion 3 (gelesen als v3) · Hash `testhash
 ## ChartKitchen-Rollen-Mapping
 
 - [ ] [Übersicht / mk_kv12rex] `fcFlag` muss die **Zahl** 1/0 liefern, kein Boolean (DimDate.IsForecast pruefen).
-- [ ] [Übersicht / mk_wf01] Modus `waterfall` braucht die Rolle `rowType` (sum/delta je Zeile). Das Mockup kennt die Rolle nicht — Spalte im Modell bereitstellen und im Visual binden, sonst bleibt die Bruecke leer.
 - [ ] [Übersicht / mk_wf01] Szenario `AC/PL/FC` nennt FC, aber weder eine `fcFlag`-Spalte (Zahl 1/0) noch eine `forecast`-Kennzahl ist gebunden. Eines von beidem nachziehen, sonst zeichnet ChartKitchen keinen Forecast.
-- [ ] [Detail Produktlinie / mk_cl01] Typ `colline`: die zweite Kennzahl gehoert in `lineMeasure` (nur `orientation=columns`), nicht in `plan`/`previousYear`. Mapping vor dem Binden korrigieren.
+- [ ] [Übersicht / mk_wf01] Δ-Basis FC: ChartKitchen vergleicht nicht AC gegen FC (`fcrev` heisst FC gegen Vorprognose). `comparisonMode` bleibt `auto`; FC wird schraffiert gezeichnet.
+- [ ] [Detail Produktlinie / mk_cl01] Δ-Basis PY: die ChartKitchen-Rolle `previousYear` ist nicht gebunden — `comparisonMode` bleibt `auto` (PL, sonst PY).
+
+## Custom Visuals (`engine: "custom"`)
+
+`pbir add visual` kennt diese GUIDs nicht — die Kacheln stehen deshalb **nicht** in `pbir-visuals.json`, sondern als fertige `visual.json` in `<Seitenslug>/custom-visuals/`. Die `.pbiviz` muss **vorher** im Bericht importiert sein, sonst lädt das Visual nicht.
+
+| Seite | Kachel | Visual | GUID | .pbiviz | Rollen |
+|---|---|---|---|---|---|
+| Übersicht | Umsatz (`mk_5z33e3b`) | ibcsKpiCard | `ibcsKpiCard2771CF65D0C343A19EAB34E43D7B8682` | `ibcsKpiCard/dist/ibcsKpiCard*.2.3.0.0.pbiviz` | `ac`: _Measures.Kosten, `pl`: _Measures.PL |
+| Übersicht | Deckungsbeitrag (`mk_7ixiebk`) | ibcsKpiCard | `ibcsKpiCard2771CF65D0C343A19EAB34E43D7B8682` | `ibcsKpiCard/dist/ibcsKpiCard*.2.3.0.0.pbiviz` | `pl`: _Measures.PL |
+| Übersicht | Marge (`mk_ldc3xxy`) | ibcsKpiCard | `ibcsKpiCard2771CF65D0C343A19EAB34E43D7B8682` | `ibcsKpiCard/dist/ibcsKpiCard*.2.3.0.0.pbiviz` | `ac`: _Measures.Marge, `pl`: _Measures.PL |
+| Detail Produktlinie | Umsatz (`mk_nav2msq`) | ibcsKpiCard | `ibcsKpiCard2771CF65D0C343A19EAB34E43D7B8682` | `ibcsKpiCard/dist/ibcsKpiCard*.2.3.0.0.pbiviz` | `ac`: _Measures.Umsatz, `pl`: _Measures.PL |
+| Detail Produktlinie | Marge % (`mk_ap1p6su`) | ibcsKpiCard | `ibcsKpiCard2771CF65D0C343A19EAB34E43D7B8682` | `ibcsKpiCard/dist/ibcsKpiCard*.2.3.0.0.pbiviz` | `ac`: _Measures.Marge%, `pl`: _Measures.PL |
+
+- [ ] [Übersicht / mk_7ixiebk] Pflichtrolle `ac` ist leer — IBCS KPI Card 2.3 zeichnet ohne sie nichts. Feld im Mockup nachtragen oder im Bericht nachbinden.
 
 ## Analyse-Angaben ohne direkten pbir-Befehl
 
 Vollständig in [`analysis-todos.md`](analysis-todos.md) — hier nur die Zahl je Code:
 
-- `CK_INVERT`: 1
-- `CUMULATIVE`: 1
-- `DELTA_BASIS`: 2
-- `DISPLAY_UNITS_SLOT`: 1
+- `CUMULATIVE_CK_MODE`: 1
 - `MESSAGE`: 1
 - `POLARITY`: 1
 - `SCALE_GROUP`: 2

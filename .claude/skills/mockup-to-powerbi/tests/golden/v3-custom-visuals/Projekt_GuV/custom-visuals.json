@@ -74,6 +74,8 @@
     },
     "notes": "Basisplan spaeter als planStart/planEnd nachziehen.",
     "file": "custom-visuals/mk_gantt1.visual.json",
+    "engineSource": null,
+    "settings": {},
     "warnings": []
   },
   {
@@ -163,6 +165,8 @@
     },
     "notes": "",
     "file": "custom-visuals/mk_pnl1.visual.json",
+    "engineSource": null,
+    "settings": {},
     "warnings": []
   },
   {
@@ -228,6 +232,8 @@
     },
     "notes": "",
     "file": "custom-visuals/mk_gantt2.visual.json",
+    "engineSource": null,
+    "settings": {},
     "warnings": [
       "Pflichtrolle `start` ist leer — dataKitchenGantt byDatenWG zeichnet ohne sie nichts. Feld im Mockup nachtragen oder im Bericht nachbinden."
     ]

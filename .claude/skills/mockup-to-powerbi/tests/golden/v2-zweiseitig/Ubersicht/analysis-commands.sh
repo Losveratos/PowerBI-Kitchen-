@@ -7,6 +7,13 @@
 # Nav-Button 'Detail Produktlinie' -> Seite 'Detail Produktlinie'
 pbir visuals action "Test.Report/Übersicht.Page/chrome_nav_2.Visual" --type PageNavigation --target "Detail Produktlinie"
 
+# Filter-Overlay: Grundzustand ausgeblendet
+pbir visuals hide "Test.Report/Übersicht.Page/chrome_filter_bg.Visual"
+pbir visuals hide "Test.Report/Übersicht.Page/chrome_filter_title.Visual"
+pbir visuals hide "Test.Report/Übersicht.Page/chrome_filter_close.Visual"
+pbir visuals hide "Test.Report/Übersicht.Page/p1_slicer1_Year.Visual"
+pbir visuals hide "Test.Report/Übersicht.Page/p1_slicer2_Region.Visual"
+
 # Notiz/Workshop-Status als Annotation im Bericht ablegen
 pbir add annotation "Test.Report/Übersicht.Page/p1_v05_PL_je_Produktlinie.Visual" --text "Klick auf einen Balken springt in die Detailseite (Drill-through auf Category). Offen: Sortierung nach Δ oder AC?" --author mockup-to-powerbi --category Documentation
 # Notiz/Workshop-Status als Annotation im Bericht ablegen

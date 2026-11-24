@@ -1,1 +1,241 @@
-[]
+[
+  {
+    "id": "mk_5z33e3b",
+    "stableId": "5z33e3b",
+    "page": "Übersicht",
+    "kind": "kpi",
+    "label": "KPI-Kachel (IBCS)",
+    "title": "Umsatz",
+    "subtitle": "",
+    "visualName": "ibcsKpiCard",
+    "guid": "ibcsKpiCard2771CF65D0C343A19EAB34E43D7B8682",
+    "registryName": "ibcsKpiCard",
+    "pbiviz": "ibcsKpiCard/dist/ibcsKpiCard*.2.3.0.0.pbiviz",
+    "source": "ibcsKpiCard/",
+    "rect": {
+      "x": 16,
+      "y": 72,
+      "w": 317,
+      "h": 119
+    },
+    "buckets": {
+      "ac": [
+        "_Measures.Kosten"
+      ],
+      "pl": [
+        "_Measures.PL"
+      ]
+    },
+    "mockupRoles": {
+      "indicator": [
+        "_Measures.Kosten"
+      ],
+      "goal": [
+        "_Measures.PL"
+      ]
+    },
+    "analysis": {
+      "polarity": "lower",
+      "polarityAuto": false,
+      "deltaBasis": "PL",
+      "deltaBasisAuto": true,
+      "deltaKind": [
+        "abs",
+        "rel"
+      ],
+      "unit": null,
+      "displayUnits": null,
+      "decimals": null,
+      "sort": null,
+      "topN": null,
+      "timeGrain": null,
+      "cumulative": false,
+      "scaleGroup": null,
+      "message": null,
+      "smallMultiples": null,
+      "fieldParam": null
+    },
+    "workshop": {
+      "priority": null,
+      "status": "open",
+      "openQuestion": false
+    },
+    "notes": "",
+    "file": "custom-visuals/mk_5z33e3b.visual.json",
+    "engineSource": "ck",
+    "settings": {
+      "display.title": "Umsatz",
+      "display.comparisonMode": "plan",
+      "display.invert": true,
+      "display.showSparkline": false,
+      "display.showBridge": false,
+      "display.showSecondary": false,
+      "display.chartButtons": false,
+      "labels.fontPreset": "compact",
+      "display.titleSize": 17,
+      "labels.displayUnits": "auto",
+      "labels.decimals": 0,
+      "colors.goodColor": "#1E8F9E",
+      "colors.badColor": "#D64541"
+    },
+    "warnings": []
+  },
+  {
+    "id": "mk_7ixiebk",
+    "stableId": "7ixiebk",
+    "page": "Übersicht",
+    "kind": "kpi",
+    "label": "KPI-Kachel (IBCS)",
+    "title": "Deckungsbeitrag",
+    "subtitle": "",
+    "visualName": "ibcsKpiCard",
+    "guid": "ibcsKpiCard2771CF65D0C343A19EAB34E43D7B8682",
+    "registryName": "ibcsKpiCard",
+    "pbiviz": "ibcsKpiCard/dist/ibcsKpiCard*.2.3.0.0.pbiviz",
+    "source": "ibcsKpiCard/",
+    "rect": {
+      "x": 669,
+      "y": 72,
+      "w": 330,
+      "h": 119
+    },
+    "buckets": {
+      "pl": [
+        "_Measures.PL"
+      ]
+    },
+    "mockupRoles": {
+      "goal": [
+        "_Measures.PL"
+      ]
+    },
+    "analysis": {
+      "polarity": "higher",
+      "polarityAuto": true,
+      "deltaBasis": "PL",
+      "deltaBasisAuto": true,
+      "deltaKind": [
+        "abs",
+        "rel"
+      ],
+      "unit": null,
+      "displayUnits": null,
+      "decimals": null,
+      "sort": null,
+      "topN": null,
+      "timeGrain": null,
+      "cumulative": false,
+      "scaleGroup": null,
+      "message": null,
+      "smallMultiples": null,
+      "fieldParam": null
+    },
+    "workshop": {
+      "priority": null,
+      "status": "open",
+      "openQuestion": false
+    },
+    "notes": "",
+    "file": "custom-visuals/mk_7ixiebk.visual.json",
+    "engineSource": "ck",
+    "settings": {
+      "display.title": "Deckungsbeitrag",
+      "display.comparisonMode": "plan",
+      "display.invert": false,
+      "display.showSparkline": false,
+      "display.showBridge": false,
+      "display.showSecondary": false,
+      "display.chartButtons": false,
+      "labels.fontPreset": "compact",
+      "display.titleSize": 17,
+      "labels.displayUnits": "auto",
+      "labels.decimals": 0,
+      "colors.goodColor": "#1E8F9E",
+      "colors.badColor": "#D64541"
+    },
+    "warnings": [
+      "Pflichtrolle `ac` ist leer — IBCS KPI Card 2.3 zeichnet ohne sie nichts. Feld im Mockup nachtragen oder im Bericht nachbinden."
+    ]
+  },
+  {
+    "id": "mk_ldc3xxy",
+    "stableId": "ldc3xxy",
+    "page": "Übersicht",
+    "kind": "kpi",
+    "label": "KPI-Kachel (IBCS)",
+    "title": "Marge",
+    "subtitle": "",
+    "visualName": "ibcsKpiCard",
+    "guid": "ibcsKpiCard2771CF65D0C343A19EAB34E43D7B8682",
+    "registryName": "ibcsKpiCard",
+    "pbiviz": "ibcsKpiCard/dist/ibcsKpiCard*.2.3.0.0.pbiviz",
+    "source": "ibcsKpiCard/",
+    "rect": {
+      "x": 1011,
+      "y": 72,
+      "w": 253,
+      "h": 119
+    },
+    "buckets": {
+      "ac": [
+        "_Measures.Marge"
+      ],
+      "pl": [
+        "_Measures.PL"
+      ]
+    },
+    "mockupRoles": {
+      "indicator": [
+        "_Measures.Marge"
+      ],
+      "goal": [
+        "_Measures.PL"
+      ]
+    },
+    "analysis": {
+      "polarity": "higher",
+      "polarityAuto": true,
+      "deltaBasis": "PL",
+      "deltaBasisAuto": true,
+      "deltaKind": [
+        "abs",
+        "rel"
+      ],
+      "unit": null,
+      "displayUnits": null,
+      "decimals": null,
+      "sort": null,
+      "topN": null,
+      "timeGrain": null,
+      "cumulative": false,
+      "scaleGroup": null,
+      "message": null,
+      "smallMultiples": null,
+      "fieldParam": null
+    },
+    "workshop": {
+      "priority": null,
+      "status": "open",
+      "openQuestion": false
+    },
+    "notes": "",
+    "file": "custom-visuals/mk_ldc3xxy.visual.json",
+    "engineSource": "ck",
+    "settings": {
+      "display.title": "Marge",
+      "display.comparisonMode": "plan",
+      "display.invert": false,
+      "display.showSparkline": false,
+      "display.showBridge": false,
+      "display.showSecondary": false,
+      "display.chartButtons": false,
+      "labels.fontPreset": "compact",
+      "display.titleSize": 17,
+      "labels.displayUnits": "auto",
+      "labels.decimals": 0,
+      "colors.goodColor": "#1E8F9E",
+      "colors.badColor": "#D64541"
+    },
+    "warnings": []
+  }
+]

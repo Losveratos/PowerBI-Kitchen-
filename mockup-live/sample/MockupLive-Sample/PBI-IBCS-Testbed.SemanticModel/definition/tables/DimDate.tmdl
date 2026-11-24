@@ -1,0 +1,57 @@
+table DimDate
+
+	column Date
+		dataType: dateTime
+		formatString: yyyy-mm-dd
+		summarizeBy: none
+		sourceColumn: Date
+
+	column Year
+		dataType: int64
+		summarizeBy: none
+		sourceColumn: Year
+
+	column MonthNo
+		dataType: int64
+		summarizeBy: none
+		sourceColumn: MonthNo
+
+	column MonthName
+		dataType: string
+		summarizeBy: none
+		sourceColumn: MonthName
+		sortByColumn: MonthNo
+
+	column Quarter
+		dataType: string
+		summarizeBy: none
+		sourceColumn: Quarter
+
+	column YearMonth
+		dataType: string
+		summarizeBy: none
+		sourceColumn: YearMonth
+
+	column IstAktuell
+		dataType: boolean
+		summarizeBy: none
+		sourceColumn: IstAktuell
+
+	partition DimDate = m
+		mode: import
+		source =
+			let
+			    Start = #date(2024,1,1),
+			    DayCount = Duration.Days(#date(2025,12,31) - #date(2024,1,1)) + 1,
+			    Dates = List.Dates(Start, DayCount, #duration(1,0,0,0)),
+			    T0 = Table.FromList(Dates, Splitter.SplitByNothing(), {"Date"}),
+			    T1 = Table.TransformColumnTypes(T0, {{"Date", type date}}),
+			    Monate = {"Jan", "Feb", "Mär", "Apr", "Mai", "Jun", "Jul", "Aug", "Sep", "Okt", "Nov", "Dez"},
+			    T2 = Table.AddColumn(T1, "Year", each Date.Year([Date]), Int64.Type),
+			    T3 = Table.AddColumn(T2, "MonthNo", each Date.Month([Date]), Int64.Type),
+			    T4 = Table.AddColumn(T3, "MonthName", each Monate{Date.Month([Date]) - 1}, type text),
+			    T5 = Table.AddColumn(T4, "Quarter", each "Q" & Text.From(Date.QuarterOfYear([Date])), type text),
+			    T6 = Table.AddColumn(T5, "YearMonth", each Text.From(Date.Year([Date])) & "-" & Text.PadStart(Text.From(Date.Month([Date])), 2, "0"), type text),
+			    T7 = Table.AddColumn(T6, "IstAktuell", each Date.Year([Date]) = 2025, type logical)
+			in
+			    T7

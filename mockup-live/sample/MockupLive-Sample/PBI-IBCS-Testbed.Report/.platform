@@ -1,0 +1,11 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/gitIntegration/platformProperties/2.0.0/schema.json",
+  "metadata": {
+    "type": "Report",
+    "displayName": "PBI-IBCS-Testbed"
+  },
+  "config": {
+    "version": "2.0",
+    "logicalId": "e6f4fa11-dbbf-4781-afed-62fb3e7b8ee8"
+  }
+}

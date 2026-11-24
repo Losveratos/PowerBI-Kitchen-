@@ -3,6 +3,34 @@
 Positionierung (aus dem Review): kein Report-Generator, sondern ein **Anforderungswerkzeug mit deterministischem
 Ausgang**. Der Workshop legt Struktur, Felder und Entscheidungen fest; der Bau ist eine Ableitung.
 
+## Neu in v0.6.2 (stabiler Stand)
+
+Führt den Live-Zweig (v0.6.0, v0.6.1) mit den Punkten aus dem Persona-Review (v0.5.5, v0.5.6) zusammen.
+
+- **Seiten sortieren (v0.6.1, Kundenfeedback):** Reiter in der Seitenleiste per Ziehen umstellen; im Reiter „Seite" eine
+  Liste „Alle Seiten" zum Ziehen, mit ↑/↓ für die Tastatur.
+- **Seitenrolle:** je Seite *Navigation* (Standard), *Detailseite* oder *Drillthrough*. Detail- und Drillthrough-Seiten
+  stehen nicht in Kopfband-, Fußleisten- und linker Navigation, tragen ein Abzeichen am Reiter und werden vom Skill in
+  Power BI ausgeblendet (`visibility: HiddenInViewMode`). Export: `pages[].role` und `pages[].hidden`, Brief-Hinweis je
+  Seite, Prüfung `DRILL_NO_SOURCE`. Der PBIR-Import liest ausgeblendete Seiten als Detail-, Drillthrough-Bindungen als
+  Drillthrough-Seite. Im Spec-Hash zählt die Rolle nur, wenn sie vom Standard abweicht (gleiche Regel in `export.js`
+  und `mockup_spec.py`, im Browser gegen Python nachgerechnet).
+- **Zusammengeführt:** Botschaftszeile, Sortierung, Top-N und leere Kennzahl laufen über `tileGeom`/`sketchOpts`, damit
+  Bildschirm, PNG, Vergleichsbild (Live) und Export-Analyse gleich rechnen. TMDL-Import: Modellname aus
+  `database.tmdl`/`model.tmdl`, dann Projektname (Live), dann `*.SemanticModel`-Ordner, sonst Abfrage.
+
+## Neu in v0.6 für alle (auch ohne Live-Modus)
+
+Die Live-Oberfläche erscheint nur mit `?live=1` (Schalter, siehe `mockup-live/BETA.md`). Für alle Nutzerinnen und Nutzer
+geändert hat sich nur, was die Skizze ehrlicher macht (Praxistest 02.10.2026, Befund B3):
+
+- **KPI-Kachel (`kpi`):** Die Verlaufslinie erscheint nur, wenn das Zeitfeld (Rolle „Zeit (Sparkline)") gebunden ist. Ist
+  nur die Hauptkennzahl gebunden, gibt es keine Linie, so wie Desktop es zeigt. Ohne jede Bindung bleibt die
+  Platzhalter-Skizze mit Linie. Ohne gebundenen Bezug gibt es weiter keine Δ-Zeile.
+- **Tacho (`gauge`):** Die Zielnadel erscheint nur mit gebundenem Ziel.
+- **Spec:** neues Feld `display.drawn.sparkline` (`true`/`false`); der Konverter setzt daraus `showSparkline` der
+  KPI-Karte (`ibcsKpiCard`).
+
 ## Neu in v0.4 (erstes Nutzer-Feedback)
 
 - **Skizzen:** Δ-Ebene in `varint` als echte kumulierte Brücke (`deltaBridge()`, Verbinder, Labels, Σ-Spalte); Balkenbreiten

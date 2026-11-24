@@ -14,7 +14,8 @@ Drei Arten von Tests:
    die Fixtures in `tests/fixtures/` (specVersion 1, 2, 3, Burger-Filter,
    ChartKitchen ohne Referenz-Instanz, voller Analyse-Block, Custom Visuals,
    Darstellungsvarianten aus Tool 0.4.1, Typografie/Filterbereich/Fussleisten-
-   Navigation/Barrierefreiheit aus Tool 0.4.3/0.4.4).
+   Navigation/Barrierefreiheit aus Tool 0.4.3/0.4.4, Treue-Fall B1 mit den
+   Anzeige-Feldern aus Kitchen 0.5.5).
    Jede erzeugte Datei
    wird gegen `tests/golden/<Fall>/` verglichen. `.ps1` bleibt aussen vor — sie
    entsteht aus demselben Renderer wie die `.sh`.
@@ -71,6 +72,10 @@ CASES = [
      "docs_lang": "en"},
     {"name": "v3-typo-filter", "spec": "v3-typo-filter.json", "docs": True,
      "docs_lang": "en"},
+    # Paket B1: Chrome-Text, Filterbereich, IBCS-Optik nativ, ChartKitchen-objects,
+    # kpi -> ibcsKpiCard, Titel nur wenn sichtbar, Burger ausgeblendet, Kitchen 0.5.5
+    {"name": "v3-fidelity", "spec": "v3-fidelity.json", "extra": ["--ck-fallback"],
+     "docs": False},
 ]
 
 DATE_RX = re.compile(r"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z")
@@ -273,6 +278,34 @@ def unit_tests(res: Results):
     res.check("v1 bekommt einen Spec-Hash", bool(v1["meta"].get("specHash")))
     res.check("v1 Schema sauber", M.validate(M.as_document(v1)) == [])
 
+    # Seitenrollen (Tool 0.6.1): Hash nur bei Abweichung vom Standard, Konverter blendet aus
+    import copy
+    import mockup_to_pbir as P
+    base_spec = M.load(FIXTURES / "v3-analyse.json")
+    h0 = M.spec_hash(base_spec)
+    r_nav = copy.deepcopy(base_spec); r_nav["pages"][0]["role"] = "nav"
+    res.check("Rolle nav aendert den Spec-Hash nicht", M.spec_hash(r_nav) == h0)
+    r_det = copy.deepcopy(base_spec); r_det["pages"][0]["role"] = "detail"
+    res.check("Rolle detail aendert den Spec-Hash", M.spec_hash(r_det) != h0)
+    nd = M.upgrade(r_det)
+    res.check("upgrade() uebernimmt die Rolle", nd["pages"][0]["role"] == "detail")
+    res.check("Rolle detail: Schema sauber", M.validate(M.as_document(nd)) == [])
+    r_bad = copy.deepcopy(base_spec); r_bad["pages"][0]["role"] = "quatsch"
+    res.check("unbekannte Rolle wird nav", M.upgrade(r_bad)["pages"][0]["role"] == "nav")
+
+    import types
+
+    def chrome_cmds(nspec):
+        o = types.SimpleNamespace()
+        return repr(P.build_chrome(nspec, nspec["pages"][0], P.Style(nspec, o), o)[1].items)
+    try:
+        txt_det = chrome_cmds(nd)
+        txt_nav = chrome_cmds(M.upgrade(copy.deepcopy(base_spec)))
+        res.check("Konverter blendet Detailseite aus", "HiddenInViewMode" in txt_det, txt_det[:200])
+        res.check("Konverter laesst Navigationsseite sichtbar", "HiddenInViewMode" not in txt_nav)
+    except Exception as e:  # noqa: BLE001
+        res.check("Konverter mit Seitenrolle", False, "%s: %s" % (type(e).__name__, e))
+
     v2 = M.upgrade(M.load(FIXTURES / "v2-zweiseitig.json"))
     res.check("v2 wird auf v3 gehoben", v2["sourceVersion"] == 2)
     res.check("v2 Drill-Feld ergaenzt",
@@ -325,9 +358,10 @@ def unit_tests(res: Results):
         ink = None
         on_ink = "#FFFFFF"
         muted_on_ink = "#C8CDD4"
-        muted = "#6B7280"
-        panel = "#F1F3F5"
-        tile_border = "#E5E7EB"
+        muted = None          # wie die CLI ohne Flag: design.colors, sonst Kitchen
+        panel = None
+        tile_border = None
+        rule = None
 
     st = P.Style(cvs, _Opt())
     res.check("Kopfband `custom` nimmt die Spec-Farben",
@@ -435,10 +469,13 @@ def unit_tests(res: Results):
     built = {i["name"] for i in items}
     _, var_todos, _ = P.analysis_actions(var, var["pages"][0], built, "de")
     codes = {t["code"] for t in var_todos}
-    for code in ("SM_NO_FIELD", "SM_NO_BUCKET", "SM_NOT_NATIVE",
+    for code in ("SM_NO_FIELD", "SM_NO_BUCKET",
                  "FIELDPARAM", "FIELDPARAM_FEW", "FIELDPARAM_SLICER"):
         res.check("Analyse-To-do `%s` entsteht" % code, code in codes,
                   ", ".join(sorted(codes)))
+    res.check("ChartKitchen columns mit Small Multiples: kein SM_NOT_NATIVE "
+              "(CK zeichnet das Raster ueber die Rolle `multiples`)",
+              "SM_NOT_NATIVE" not in codes, ", ".join(sorted(codes)))
 
     params = P.collect_field_params(var)
     res.check("zwei Feldparameter gesammelt", len(params) == 2)
@@ -676,8 +713,9 @@ def typo_filter_tests(res: Results, P, M, D, Opt):
               == footer["x"] + footer["w"] - st.px(16))
     res.check("kein Nav-Button im Kopfband",
               not any(c["y"] < tf["zones"]["header"]["h"] for c in navs))
-    res.check("Fussleisten-Nav kleiner als im Kopfband (14,5 < 15 pt)",
-              batch1["chrome_nav_1"]["text.fontSize"] == 14.5 and st.sz(10) == 15)
+    res.check("Fussleisten-Nav 9,5 px x 1,5 x 0,75 = 10,5 pt (kleiner als Kopfband 13 pt)",
+              batch1["chrome_nav_1"]["text.default.fontSize"] == 10.5 and st.pt(11.5) == 13,
+              str(batch1["chrome_nav_1"].get("text.default.fontSize")))
     res.check("aktive Seite gefuellt, andere mit Rahmen",
               batch1["chrome_nav_1"]["fill.show"] is True
               and batch1["chrome_nav_2"]["outline.show"] is True)
@@ -703,11 +741,12 @@ def typo_filter_tests(res: Results, P, M, D, Opt):
     # --- Filterbereich ---------------------------------------------------- #
     title = next(c for c in chrome1 if c["name"] == "chrome_filter_title")
     res.check("Filter-Ueberschrift aus der Spec",
-              batch1["chrome_filter_title"]["text.text"] == "Auswahl")
+              batch1["chrome_filter_title"]["text.default.text"] == "AUSWAHL"
+              and batch1["chrome_filter_title"]["text.show"] is True)
     ftx = next((c for c in chrome1 if c["name"] == "chrome_filter_text"), None)
     res.check("Filter-Hinweistext als Shape unter der Ueberschrift",
               ftx is not None and ftx["y"] >= title["y"] + title["height"]
-              and batch1["chrome_filter_text"]["text.text"].startswith("Alle Werte"))
+              and batch1["chrome_filter_text"]["text.default.text"].startswith("Alle Werte"))
     items, _ = P.build_pbir_visuals(tf, page1)
     sl = [i for i in items if i["visual_type"] == "slicer"]
     res.check("Slicer beginnen unter dem Hinweistext",
@@ -737,7 +776,8 @@ def typo_filter_tests(res: Results, P, M, D, Opt):
               "mk_slicer_Region_p1" not in {i["name"] for i in sl_ms}
               and {"mk_slicer_Year_p1", "mk_slicer_Date_p1"} <= {i["name"] for i in sl_ms})
     res.check("nachfolgender Slicer rueckt ohne Luecke nach",
-              len(sl_ms) == 2 and sl_ms[1]["y"] - sl_ms[0]["y"] == round(64 * tms["uiScale"]),
+              len(sl_ms) == 2 and sl_ms[1]["y"] - sl_ms[0]["y"]
+              == sl_ms[0]["height"] + round(P.SLICER_GAP * tms["uiScale"]),
               str([(i["name"], i["y"]) for i in sl_ms]))
     gone = P.drop_missing_slicers(tms)
     res.check("drop_missing_slicers nimmt ihn aus der Spec und merkt ihn fuer die Checkliste",
@@ -783,15 +823,16 @@ def typo_filter_tests(res: Results, P, M, D, Opt):
     res.check("heading null: Slicer rutschen nach oben",
               min(i["y"] for i in P.build_pbir_visuals(nh, nh["pages"][0])[0]
                   if i["visual_type"] == "slicer")
-              == nh["zones"]["filter"]["y"] + round(8 * nh["uiScale"]))
+              == nh["zones"]["filter"]["y"] + round(12 * nh["uiScale"]))
     res.check("Lesezeichen-Liste folgt Ueberschrift/Hinweis",
               "chrome_filter_text" in P.panel_visual_names(tf, page1)
               and "chrome_filter_title" not in P.panel_visual_names(nh, nh["pages"][0]))
     old_fl = P.filter_layout(old)
-    res.check("alte Spec: Ueberschrift „Filter“, Slicer ab 40 px",
+    res.check("alte Spec: Ueberschrift „Filter“, Slicer ab 12 + 16 + 8 px (Kitchen)",
               old_fl["heading"] == "Filter" and not old_fl["new"]
               and old_fl["origin"][1] == old["zones"]["filter"]["y"]
-              + round(40 * old["uiScale"]))
+              + round(12 * old["uiScale"]) + round(16 * old["uiScale"])
+              + round(8 * old["uiScale"]))
     top = json.loads(json.dumps(raw))
     top["zones"]["filter"].update({"mode": "top", "side": "top", "x": 0, "y": 84,
                                    "w": 1920, "h": 84})
@@ -838,6 +879,531 @@ def typo_filter_tests(res: Results, P, M, D, Opt):
               "Typografie: Basis 1280px" in md_de and "Region (Kacheln)" in md_de
               and "Seitennavigation in der Fußleiste" in md_de
               and "Region (tiles)" in md_en)
+
+
+# --------------------------------------------------------------------------- #
+# 3c · Treue Kitchen -> Power BI (Paket B1, mockup-live/PLAN-V2.md)
+# --------------------------------------------------------------------------- #
+REPO = SKILL.parent.parent.parent      # .claude/skills/<skill> -> Repo-Wurzel
+
+
+def _caps(pattern: str):
+    """capabilities aus der neuesten passenden .pbiviz im Repo (None, wenn keine da)."""
+    import zipfile
+    hits = sorted(REPO.glob(pattern))
+    if not hits:
+        return None
+    with zipfile.ZipFile(hits[-1]) as z:
+        name = next(n for n in z.namelist() if n.endswith(".pbiviz.json"))
+        return json.loads(z.read(name).decode("utf-8-sig"))["capabilities"]
+
+
+def _check_against_caps(settings: dict, caps: dict):
+    """Fehlerliste: Objekt/Eigenschaft fehlt in capabilities, Enum-Wert unbekannt."""
+    bad = []
+    for key, value in settings.items():
+        obj, prop = key.split(".", 1)
+        p = ((caps.get("objects") or {}).get(obj) or {}).get("properties", {}).get(prop)
+        if p is None:
+            bad.append("%s fehlt" % key)
+            continue
+        enum = (p.get("type") or {}).get("enumeration")
+        if enum and value not in [e.get("value") for e in enum]:
+            bad.append("%s=%r nicht im Enum" % (key, value))
+    return bad
+
+
+def fidelity_tests(res: Results, tmp: Path):
+    import mockup_spec as M
+    import mockup_to_pbir as P
+
+    out = tmp / "fidelity"
+    code, _, err = run([str(SCRIPTS / "mockup_to_pbir.py"), str(FIXTURES / "v3-fidelity.json"),
+                        "--out", str(out), "--report", REPORT, "--plan", "--ck-fallback"])
+    res.check("B1 · Konverter laeuft auf v3-fidelity", code == 0, err[-200:])
+    if code != 0:
+        return
+    page = out / "Fidelity"
+
+    def load(name):
+        return json.loads((page / name).read_text(encoding="utf-8"))
+
+    batch = {}
+    for step in load("chrome-batch.json")["steps"]:
+        batch.setdefault(step["select"].split("/")[-1][:-len(".Visual")], {}).update(step["set"])
+    chrome = {c["name"]: c for c in load("chrome-visuals.json")}
+    items = {i["name"]: i for i in load("pbir-visuals.json")}
+    slots = {s_["id"]: s_ for s_ in load("chartkitchen-slots.json")}
+    custom = {c["id"]: c for c in load("custom-visuals.json")}
+    analysis_sh = (page / "analysis-commands.sh").read_text(encoding="utf-8")
+    todos = (out / "analysis-todos.md").read_text(encoding="utf-8")
+
+    # --- 1 · Chrome-Text sichtbar, Schrift px x k x 0,75 ------------------------ #
+    texts = ["chrome_header_title", "chrome_header_subtitle", "chrome_footer_text",
+             "chrome_filter_title", "chrome_filter_text", "chrome_burger", "chrome_logo"]
+    res.check("B1-1 · text.show = true fuer jeden Chrome-Text",
+              all(batch[n].get("text.show") is True for n in texts),
+              str([n for n in texts if batch[n].get("text.show") is not True]))
+    res.check("B1-1 · Kopfband 17/11 px x 1,5 x 0,75 = 19/12,5 pt, Titel fett",
+              batch["chrome_header_title"]["text.default.fontSize"] == 19
+              and batch["chrome_header_subtitle"]["text.default.fontSize"] == 12.5
+              and batch["chrome_header_title"].get("text.default.bold") is True)
+    res.check("B1-1 · Untertitel mit 70 % Deckkraft als Mischfarbe",
+              batch["chrome_header_subtitle"]["text.default.fontColor"]
+              == M.mix("#0F1E2E", "#FFFFFF", 0.3))
+    res.check("B1-1 · Fusszeile 10 px = 11,5 pt grau; Band und Linie gebaut",
+              batch["chrome_footer_text"]["text.default.fontSize"] == 11.5
+              and batch["chrome_footer_text"]["text.default.fontColor"] == "#6B7280"
+              and "chrome_footer_bg" in chrome and "chrome_footer_rule" in chrome
+              and chrome["chrome_footer_rule"]["height"] == 1
+              and batch["chrome_footer_rule"]["fill.fillColor"] == "#E3E1D8")
+    res.check("B1-1 · Filter-Ueberschrift 11 px Versalien grau fett, Hinweis 9,5 px",
+              batch["chrome_filter_title"]["text.default.text"] == "FILTER"
+              and batch["chrome_filter_title"]["text.default.fontSize"] == 12.5
+              and batch["chrome_filter_title"]["text.default.fontColor"] == "#6B7280"
+              and batch["chrome_filter_text"]["text.default.fontSize"] == 10.5)
+    res.check("B1-1 · Burger 32 x 32 px x k mit Umriss statt Akzent-Fuellung",
+              chrome["chrome_burger"]["width"] == 48
+              and batch["chrome_burger"]["fill.show"] is False
+              and batch["chrome_burger"]["outline.show"] is True)
+    res.check("B1-1 · Logo-Kasten 88 x 30 px x k",
+              (chrome["chrome_logo"]["width"], chrome["chrome_logo"]["height"]) == (132, 45))
+
+    # --- 2 · Filterbereich ----------------------------------------------------- #
+    res.check("B1-2 · Panel-Farbe aus design.colors.panel",
+              batch["chrome_filter_bg"]["fill.fillColor"] == "#E9E6DC")
+    sl = [items[n] for n in ("mk_slicer_Region_p1", "mk_slicer_Category_p1",
+                             "mk_slicer_Year_p1")]
+    res.check("B1-2 · Slicer: Name nur einmal (Container-Titel aus, Kopf an)",
+              all(batch[i["name"]]["title.show"] is False
+                  and batch[i["name"]]["header.show"] is True for i in sl))
+    res.check("B1-2 · Slicer im Kitchen-Kasten (Rahmen #D9D6CC, weiss)",
+              all(batch[i["name"]]["border.color"] == "#D9D6CC"
+                  and batch[i["name"]]["background.color"] == "#FFFFFF" for i in sl))
+    res.check("B1-2 · Dropdown 76 px (QA-Untergrenze), Liste 141 px, Abstand 7 px x k",
+              [i["height"] for i in sl] == [78, 141, 78]
+              and sl[1]["y"] == sl[0]["y"] + sl[0]["height"] + round(7 * 1.5), str(
+                  [(i["y"], i["height"]) for i in sl]))
+    tf_raw = json.loads((FIXTURES / "v3-typo-filter.json").read_text(encoding="utf-8"))
+    tf = M.upgrade(tf_raw)
+
+    class _Cli:
+        ink = on_ink = muted_on_ink = muted = panel = tile_border = rule = None
+
+    st_def = P.Style(tf, _Cli())
+    res.check("B1-2 · ohne Spec-Farben gelten die Kitchen-Toene",
+              (st_def.panel, st_def.rule, st_def.tile_border, st_def.muted)
+              == ("#ECEBE5", "#E3E1D8", "#E1DFD6", "#6B7280"))
+
+    class _Cli2(_Cli):
+        panel = "#ABCDEF"
+
+    res.check("B1-2 · CLI-Flag --panel gewinnt", P.Style(tf, _Cli2()).panel == "#ABCDEF")
+    res.check("B1-2 · Linie am Filterbereich (nicht im Overlay)",
+              "chrome_filter_rule" not in chrome
+              and "chrome_filter_rule" in {c["name"] for c in P.build_chrome(
+                  tf, tf["pages"][0], st_def, _Cli())[0]})
+
+    # --- 3 · --from-json als ASCII --------------------------------------------- #
+    for name in ("chrome-visuals.json", "pbir-visuals.json", "text-visuals.json"):
+        raw = (page / name).read_bytes()
+        res.check("B1-3 · %s ist reines ASCII (\\u-Escapes)" % name,
+                  all(b < 128 for b in raw))
+    res.check("B1-3 · „Fußleiste\" kommt nach dem Parsen intakt an",
+              chrome["chrome_footer_bg"]["title"] == "Fußleiste")
+
+    # --- 4 · Native Visuals mit IBCS-Optik --------------------------------------- #
+    k1 = batch["mk_kombi1"]
+    res.check("B1-4 · Szenariofarben AC/PY/PL je Kennzahl",
+              k1.get("dataPoint.field(_Measures.AC).fill") == "#404040"
+              and k1.get("dataPoint.field(_Measures.PY).fill") == "#B3B3B3"
+              and k1.get("dataPoint.field(_Measures.PL).fill") == "#FFFFFF"
+              and k1.get("dataPoint.field(_Measures.PL).borderShow") is True)
+    res.check("B1-4 · IBCS: keine Legende, keine Wertachse, kein Gitter",
+              k1.get("legend.show") is False and k1.get("valueAxis.show") is False
+              and k1.get("valueAxis.gridlineShow") is False)
+    res.check("B1-4 · display.drawn.labels false -> labels.show false",
+              k1.get("labels.show") is False)
+    b1 = batch["mk_bars1"]
+    res.check("B1-4 · Werte an, Einheiten sichtbar (M, 1 Stelle)",
+              b1.get("labels.show") is True and b1.get("labels.labelDisplayUnits") == 1000000
+              and b1.get("labels.labelPrecision") == 1)
+    res.check("B1-4 · analysis-commands setzt Einheiten per pbir set (Zahl)",
+              'mk_bars1.Visual.labels.labelDisplayUnits" --value 1000000' in analysis_sh
+              and "--labelDisplayUnits" not in analysis_sh)
+    n1 = batch["mk_ncol1"]
+    res.check("B1-4 · Klassiker: gepunktetes Gitter, Farben aus nativePalette",
+              n1.get("valueAxis.gridlineStyle") == "dotted"
+              and n1.get("dataPoint.field(_Measures.Umsatz).fill") == "#1E8F9E"
+              and "legend.show" not in n1)
+    res.check("B1-4 · Heatmap behaelt die Referenz (Values)",
+              items["mk_heat1"]["fields"]["Values"] == ["_Measures.AC", "_Measures.PY"])
+    res.check("B1-4 · Tabelle mit Sparklines behaelt die Referenz",
+              "_Measures.PL" in items["mk_spark1"]["fields"]["Values"])
+    res.check("B1-4 · Baum: Referenz als Tooltip",
+              items["mk_tree1"]["fields"].get("Tooltips") == "_Measures.PY")
+    res.check("B1-4 · absvar/relvar/bridge: kein irrefuehrendes Ersatzvisual",
+              not ({"mk_absvar1", "mk_relvar1", "mk_bridge1"} & set(items))
+              and all(slots[v]["nativeFallback"] is None
+                      and slots[v].get("nativeFallbackDropped")
+                      for v in ("mk_absvar1", "mk_relvar1", "mk_bridge1"))
+              and todos.count("CK_NO_NATIVE") == 3)
+    th = json.loads((out / "theme-fragment.json").read_text(encoding="utf-8"))
+    res.check("B1-4 · Theme-Fragment traegt dataColors aus nativePalette",
+              th.get("dataColors", [None])[0] == "#1E8F9E")
+
+    # --- 5 · ChartKitchen-Slot ------------------------------------------------- #
+    cs = {k: v["ckSettings"] for k, v in slots.items()}
+    res.check("B1-5 · objects in Desktop-Form (Literal, Farben als solid)",
+              slots["mk_bars1"]["objects"]["chart"][0]["properties"]["orientation"]
+              == {"expr": {"Literal": {"Value": "'bars'"}}}
+              and "solid" in slots["mk_bars1"]["objects"]["colors"][0]["properties"]["goodColor"])
+    res.check("B1-5 · comparisonMode aus der Δ-Basis (PL -> plan, PY -> py)",
+              cs["mk_bars1"]["chart.comparisonMode"] == "plan"
+              and cs["mk_col1"]["chart.comparisonMode"] == "py")
+    res.check("B1-5 · absvar nur abs, relvar nur rel, bars nach drawn.delta",
+              (cs["mk_absvar1"]["chart.showAbsoluteVariance"],
+               cs["mk_absvar1"]["chart.showRelativeVariance"]) == (True, False)
+              and (cs["mk_relvar1"]["chart.showAbsoluteVariance"],
+                   cs["mk_relvar1"]["chart.showRelativeVariance"]) == (False, True)
+              and cs["mk_bars1"]["chart.showRelativeVariance"] is False)
+    res.check("B1-5 · topN nur im Struktur-Modus, kumuliert ohne YTD-To-do",
+              cs["mk_bars1"].get("chart.topN") == 3
+              and cs["mk_col1"].get("chart.cumulative") is True
+              and cs["mk_col1"].get("chart.cumulativeKind") == "ytd"
+              and "CUMULATIVE" not in todos)
+    res.check("B1-5 · Einheiten, Stellen, gut/schlecht, invert",
+              cs["mk_bars1"]["labels.displayUnits"] == "m"
+              and cs["mk_bars1"]["labels.decimals"] == 1
+              and cs["mk_bars1"]["colors.goodColor"] == "#3A9A5B"
+              and cs["mk_col1"]["chart.invert"] is True)
+    res.check("B1-5 · keine In-Chart-Buttons, kein Vorschlags-Chip",
+              all(c["chart.chartButtons"] is False and c["chart.smartStart"] is False
+                  for c in cs.values()))
+    # ChartKitchen 1.43 drawTitleBlock: Titel = round(12 x fontK) px
+    res.check("B1-5 · Schrift: IBCS-Titel trifft 18 px (12 x fontScale 150), Werte 13,5 px",
+              cs["mk_bars1"]["labels.fontScale"] == 150
+              and round(12 * cs["mk_bars1"]["labels.fontScale"] / 100.0) == 18
+              and cs["mk_bars1"]["labels.fontSize"] == 9
+              and cs["mk_bars1"]["categoryAxis.fontSize"] == 8)
+    res.check("B1-5 · drawn.total / drawn.delta [] / ibcsTitle.message",
+              cs["mk_kombi1"]["chart.showTotal"] is True
+              and cs["mk_kombi1"]["chart.showAbsoluteVariance"] is False
+              and cs["mk_bars1"]["ibcsTitle.message"] == "Süd unter Plan")
+    res.check("B1-5 · waterfall ohne rowType: Modus waterfall, keine Leer-Warnung",
+              slots["mk_wfk1"]["orientation"] == "waterfall"
+              and not any("rowType" in w for w in slots["mk_wfk1"]["warnings"]))
+    res.check("B1-5 · Untertitel -> ibcsTitle.period, Container-Kopf aus",
+              slots["mk_bars1"]["container"]["title"][0]["properties"]["show"]
+              == {"expr": {"Literal": {"Value": "false"}}})
+    ck_caps = _caps("ibcsInspiredChartDeck/dist/chartKitchenByDatenWG*.1.43.0.0.pbiviz")
+    if ck_caps:
+        bad = [b_ for c in cs.values() for b_ in _check_against_caps(c, ck_caps)]
+        res.check("B1-5 · alle CK-Einstellungen stehen so in der capabilities.json 1.43",
+                  not bad, "; ".join(sorted(set(bad)))[:200])
+        orients = [e["value"] for e in ck_caps["objects"]["chart"]["properties"]
+                   ["orientation"]["type"]["enumeration"]]
+        res.check("B1-5 · CK_ORIENTATION nutzt nur gueltige Modi",
+                  set(M.CK_ORIENTATION.values()) <= set(orients))
+    an = M.upgrade(M.load(FIXTURES / "v3-analyse.json"))
+    tiles = {v["id"]: v for pg in an["pages"] for v in pg["visuals"]}
+    res.check("B1-5 · wfint -> catbridge (Struktur-Bruecke statt Zeit-Bruecke)",
+              M.ck_mode_for(tiles["mk_7rbkjp5"]) == "catbridge")
+    res.check("B1-5 · colline: zweite Kennzahl in lineMeasure",
+              P.ck_roles_for(tiles["mk_cl01"])[0].get("lineMeasure") == ["_Measures.Marge%"])
+
+    # --- 6 · kpi -> ibcsKpiCard ------------------------------------------------ #
+    kp = custom.get("mk_kpi1") or {}
+    res.check("B1-6 · kpi wird ibcsKpiCard (customVisual, kein CK-Slot)",
+              kp.get("guid") == "ibcsKpiCard2771CF65D0C343A19EAB34E43D7B8682"
+              and "mk_kpi1" not in slots and kp.get("engineSource") == "ck")
+    res.check("B1-6 · Rollen: indicator->ac, goal PY->py, Monat->trend",
+              kp.get("buckets") == {"ac": ["_Measures.AC"], "py": ["_Measures.PY"],
+                                    "trend": ["DimDate.MonthName"]})
+    ks = kp.get("settings") or {}
+    # Einzelkarte: Preset immer compact (fullhd schoebe sie unter 340 Einheiten
+    # Breite -> keine Sparkline; Live-Lauf 02.10.2026)
+    res.check("B1-6 · Karte: Basis py, Sparkline an, k / 1 Stelle, Preset compact",
+              ks.get("display.comparisonMode") == "py"
+              and ks.get("display.showSparkline") is True
+              and ks.get("labels.displayUnits") == "k" and ks.get("labels.decimals") == 1
+              and ks.get("labels.fontPreset") == "compact")
+    kpi_caps = _caps("ibcsKpiCard/dist/ibcsKpiCard*.2.3.0.0.pbiviz")
+    if kpi_caps:
+        bad = _check_against_caps(ks, kpi_caps)
+        res.check("B1-6 · Karten-Einstellungen stehen so in der capabilities.json 2.3",
+                  not bad, "; ".join(bad))
+        res.check("B1-6 · Registry-Rollen = capabilities.dataRoles",
+                  set(M.CUSTOM_VISUALS["ibcsKpiCard"]["roles"])
+                  == {r["name"] for r in kpi_caps["dataRoles"]})
+    kv = json.loads((page / "custom-visuals" / "mk_kpi1.visual.json").read_text(encoding="utf-8"))
+    res.check("B1-6 · visual.json: objects gefuellt, trend als Spalte",
+              "display" in kv["visual"]["objects"]
+              and "Column" in kv["visual"]["query"]["queryState"]["trend"]["projections"][0]["field"])
+    v1 = M.upgrade(M.load(FIXTURES / "v1-einseitig.json"))
+    res.check("B1-6 · Spec-Hash bleibt trotz kpi-Umstellung gleich",
+              v1["meta"]["specHash"] == M.spec_hash(v1))
+    res.check("B1-6 · keine DISPLAY_UNITS-To-do fuer die Karte",
+              "| Umsatz (`mk_kpi1`) | `DISPLAY_UNITS_SLOT`" not in todos)
+
+    # --- 7 · Titel nur, wenn das Kitchen einen zeigt ----------------------------- #
+    res.check("B1-7 · Titel = Label ohne Untertitel: kein sichtbarer Titel",
+              batch["mk_col1"].get("title.show") is False
+              and cs["mk_col1"]["ibcsTitle.show"] is False and slots["mk_col1"]["title"] == "")
+    res.check("B1-7 · title \"\" (0.5.5): Auswahlbereich-Name aus displayName",
+              items["mk_kombi1"]["title"] == "Monate"
+              and batch["mk_kombi1"].get("title.show") is False)
+    res.check("B1-7 · sichtbarer Titel bleibt sichtbar",
+              "title.show" not in batch["mk_bars1"] and cs["mk_bars1"]["ibcsTitle.kpi"]
+              == "AC vs PL je Region")
+
+    # --- 8 · Burger: Overlay ausgeblendet ------------------------------------- #
+    for n in ("chrome_filter_bg", "chrome_filter_title", "chrome_filter_text",
+              "chrome_filter_close", "mk_slicer_Region_p1"):
+        res.check("B1-8 · %s wird ausgeblendet angelegt" % n,
+                  'pbir visuals hide "Test.Report/Fidelity.Page/%s.Visual"' % n in analysis_sh)
+    nav = (out / "navigation.md").read_text(encoding="utf-8")
+    res.check("B1-8 · Lesezeichen-Befehle bleiben in navigation.md",
+              "pbir add bookmark" in nav and "--type Bookmark" in nav)
+
+    # --- 9 · Desktop-Lauf 02.10.2026 ------------------------------------------ #
+    fid_spec = M.upgrade(M.load(FIXTURES / "v3-fidelity.json"))
+    ft_spec = {v["id"]: v for v in fid_spec["pages"][0]["visuals"]}
+    # Text bei shape/actionButton nur im Zustand `default`, ausser text.show
+    res.check("B2-1 · state_key: shape-Text -> default, show bleibt",
+              P.state_key("shape", "text.fontSize") == "text.default.fontSize"
+              and P.state_key("shape", "text.show") == "text.show"
+              and P.state_key("shape", "text.default.bold") == "text.default.bold"
+              and P.state_key("shape", "shape.tileShape") == "shape.tileShape"
+              and P.state_key("shape", "fill.fillColor") == "fill.fillColor")
+    res.check("B2-1 · state_key: actionButton text.* und shape.* -> default",
+              P.state_key("actionButton", "text.horizontalAlignment")
+              == "text.default.horizontalAlignment"
+              and P.state_key("actionButton", "shape.tileShape") == "shape.default.tileShape"
+              and P.state_key("actionButton", "fill.show") == "fill.show"
+              and P.state_key("slicer", "text.fontSize") == "text.fontSize")
+    text_vis = {n for n, c in chrome.items() if c["visual_type"] in ("shape", "actionButton")}
+    stray = sorted("%s:%s" % (n, k) for n in text_vis for k in batch.get(n, {})
+                   if k.startswith("text.") and k != "text.show"
+                   and not k.startswith("text.default."))
+    res.check("B2-1 · chrome-batch: kein Text-Format ohne Zustand default",
+              not stray and text_vis, ", ".join(stray[:6]))
+    res.check("B2-1 · Kopfband-Titel: Text, Ausrichtung, Farbe, Fett, Raender in default",
+              {"text.default.text", "text.default.horizontalAlignment",
+               "text.default.fontColor", "text.default.bold", "text.default.leftMargin",
+               "text.default.verticalAlignment"} <= set(batch["chrome_header_title"]))
+    btn = [n for n, c in chrome.items() if c["visual_type"] == "actionButton"
+           and any(k.startswith("shape.") for k in batch.get(n, {}))]
+    res.check("B2-1 · actionButton: Form im Zustand default (wie Desktop speichert)",
+              btn and all("shape.default.tileShape" in batch[n]
+                          and "shape.tileShape" not in batch[n] for n in btn), str(btn))
+    cmds_sh = (page / "chrome-commands.sh").read_text(encoding="utf-8")
+    res.check("B2-1 · chrome-commands.sh setzt text.default.<prop>",
+              "chrome_header_title.Visual.text.default.text" in cmds_sh
+              and "chrome_header_title.Visual.text.text" not in cmds_sh
+              and "chrome_header_title.Visual.text.show" in cmds_sh)
+    # ChartKitchen-Kopf: ohne Kernaussage Container-Titel wie im Kitchen
+    sp = slots["mk_spark1"]
+    tp = sp["container"]["title"][0]["properties"]
+    res.check("B2-2 · CK ohne Kernaussage: IBCS-Kopf aus, Container-Titel an",
+              cs["mk_spark1"]["ibcsTitle.show"] is False
+              and tp["show"] == {"expr": {"Literal": {"Value": "true"}}}
+              and cs["mk_spark1"].get("ibcsTitle.kpi"))
+    res.check("B2-2 · Container-Titel = display.fontPt.title, fett, Ink",
+              tp.get("fontSize") == {"expr": {"Literal": {"Value": "%gD" % M.tile_type_sizes(
+                  fid_spec, ft_spec["mk_spark1"])["titlePt"]}}}
+              and tp.get("bold") == {"expr": {"Literal": {"Value": "true"}}}
+              and "solid" in tp.get("fontColor", {}))
+    res.check("B2-2 · CK mit Kernaussage: IBCS-Kopf an, Container-Titel aus, Hinweis",
+              cs["mk_bars1"]["ibcsTitle.show"] is True
+              and slots["mk_bars1"]["container"]["title"][0]["properties"]["show"]
+              == {"expr": {"Literal": {"Value": "false"}}}
+              and any("Kernaussage" in w for w in slots["mk_bars1"]["warnings"]))
+    # ibcsKpiCard: Einzelkarte mit trend compact (Sparkline-Platz), Titelgroesse
+    big = {"id": "x", "rect": {"x": 0, "y": 0, "w": 960, "h": 480},
+           "customVisual": {"buckets": {"ac": ["_M.AC"], "trend": ["D.M"]}}}
+    nspec15 = {"design": {"fontScale": 1.5}}
+    pre, sc, av = P.kpi_card_geometry(big, nspec15, False)
+    res.check("B2-3 · Einzelkarte 960 x 480 mit trend, k 1,5: compact, >= 340 Einheiten",
+              pre == "compact" and av >= P.KPI_COMPACT_BELOW, "%s %.2f %.0f" % (pre, sc, av))
+    res.check("B2-3 · fullhd haette die Sparkline gekostet (Live-Befund 307)",
+              round(960 / (min(960 / 460.0, 480 / 150.0) * 1.5)) == 307)
+    pre_g, _, av_g = P.kpi_card_geometry(big, nspec15, True)
+    res.check("B2-3 · Kartenraster (category) behaelt das Preset aus k",
+              pre_g == "fullhd" and av_g >= P.KPI_COMPACT_BELOW)
+    tall = dict(big, rect={"x": 0, "y": 0, "w": 200, "h": 300})
+    kv_w = P.kpi_card_settings(dict(tall, title="T", customVisual={"buckets": {
+        "ac": [{"ref": "_M.AC"}], "trend": [{"ref": "D.M", "kind": "column"}]}}),
+        {"design": {"fontScale": 1.0, "varianceColors": {"good": "#000000",
+                                                          "bad": "#FFFFFF"}}})[1]
+    res.check("B2-3 · zu schmale Karte mit trend: Hinweis auf fehlende Sparkline",
+              any("Sparkline" in w for w in kv_w), "; ".join(kv_w))
+    _, sc_k, _ = P.kpi_card_geometry(ft_spec["mk_kpi1"], fid_spec, False)
+    res.check("B2-3 · display.titleSize x Kartenskalierung = Kitchen-Titel px",
+              abs(ks["display.titleSize"] * sc_k
+                  - M.tile_type_sizes(fid_spec, ft_spec["mk_kpi1"])["titlePx"]) <= 0.5 * sc_k
+              and kv["visual"]["objects"]["display"][0]["properties"].get("showSparkline")
+              == {"expr": {"Literal": {"Value": "true"}}})
+
+    # --- Demo-Test 02.10.2026, Befund B3: KPI-Karte fuellt die Kachel ------------- #
+    def kpi_tile(w, h, buckets, title="Umsatz"):
+        return {"id": "k", "rect": {"x": 0, "y": 0, "w": w, "h": h}, "title": title,
+                "titleShown": True, "display": {"fontPx": {"title": 18}},
+                "customVisual": {"buckets": buckets}}
+    ns_demo = {"design": {"fontScale": 1.5,
+                          "varianceColors": {"good": "#1E8F9E", "bad": "#D64541"}}}
+    # Modell gegen den Beleg: compact, titleSize 21,5 in 386 x 190 -> Karte 72 Seiten-px hoch
+    base_demo = min((386 - 2 * P.KPI_CONTAINER_PAD) / 460.0,
+                    (190 - 2 * P.KPI_CONTAINER_PAD) / 150.0)
+    h_demo = P.kpi_card_units(21.5, False, False, 6, 0)[1] * base_demo
+    res.check("B3 · Kartenmodell trifft den Beleg (compact: 72 Seiten-px hoch, Zahl 21 px)",
+              abs(h_demo - 72) <= 4 and abs(26 * base_demo - 21) <= 1,
+              "%.1f / %.1f" % (h_demo, 26 * base_demo))
+    only = kpi_tile(386, 190, {"ac": ["_M.Umsatz"]})
+    pre1, sc1, _ = P.kpi_card_geometry(only, ns_demo, False)
+    set1 = P.kpi_card_settings(only, ns_demo)[0]
+    cw1, ch1 = P.kpi_card_units(set1["display.titleSize"], False, False,
+                                len("Umsatz"), 0)
+    room_h = (190 - 2 * P.KPI_CONTAINER_PAD - 2 * P.KPI_WRAP_PAD)
+    res.check("B3 · 386 x 190 nur Istwert: groesstes Preset, Karte fuellt die Hoehe",
+              pre1 == "presentation" and 26 * sc1 >= 40
+              and 0.6 * room_h <= ch1 * sc1 <= P.KPI_FILL * room_h
+              and set1["display.showSparkline"] is False,
+              "%s %.2f %.0f px" % (pre1, sc1, ch1 * sc1))
+    res.check("B3 · Titel bleibt in Kitchen-Groesse (titleSize x Skalierung = 18 px)",
+              abs(set1["display.titleSize"] * sc1 - 18) <= 0.5 * sc1)
+    pre2 = P.kpi_card_geometry(kpi_tile(386, 190, {"ac": ["_M.U"], "py": ["_M.PY"]}),
+                               ns_demo, False)[0]
+    pre3, _, av3 = P.kpi_card_geometry(kpi_tile(386, 190, {"ac": ["_M.U"],
+                                                           "trend": ["D.M"]}),
+                                       ns_demo, False)
+    res.check("B3 · mit Bezug kleiner (fullhd), mit Sparkline compact und >= 340 Einheiten",
+              pre2 == "fullhd" and pre3 == "compact" and av3 >= P.KPI_COMPACT_BELOW,
+              "%s %s %.0f" % (pre2, pre3, av3))
+    pre4, sc4, _ = P.kpi_card_geometry(kpi_tile(960, 480, {"ac": ["_M.U"]}), ns_demo, False)
+    res.check("B3 · grosse Kachel: Zahl nicht groesser als in der Skizze (40 x k px)",
+              26 * sc4 <= 40 * 1.5, "%s %.0f px" % (pre4, 26 * sc4))
+    res.check("B3 · wie die Skizze: keine Mini-Bruecke, keine zweite Bezugszeile",
+              set1.get("display.showBridge") is False
+              and set1.get("display.showSecondary") is False
+              and ks.get("display.showBridge") is False)
+
+    # --- Demo-Test 02.10.2026, Befund B2: Gestaltung aus dem Bericht --------------- #
+    src = json.loads((FIXTURES / "v3-fidelity.json").read_text(encoding="utf-8"))
+    src["design"]["sourceReport"] = True
+    src_page = src["pages"][0]
+    src_page["pbir"] = {"page": "abc123"}
+    kept_ids = ["mk_heat1", "mk_spark1"]          # natives Visual und ChartKitchen-Kachel
+    for v in src_page["visuals"]:
+        if v["id"] in kept_ids:
+            v["pbir"] = {"page": "abc123", "visual": v["id"]}
+    src_dir = Path(tempfile.mkdtemp(prefix="mk-src-"))
+    try:
+        (src_dir / "spec.json").write_text(json.dumps(src, ensure_ascii=False),
+                                           encoding="utf-8")
+        cp = subprocess.run([sys.executable, str(SCRIPTS / "mockup_to_pbir.py"),
+                             str(src_dir / "spec.json"), "--out", str(src_dir / "out"),
+                             "--plan", "--report", REPORT],
+                            capture_output=True, text=True, encoding="utf-8",
+                            env=dict(os.environ, PYTHONIOENCODING="utf-8"))
+        res.check("B2 · sourceReport: Konverter laeuft", cp.returncode == 0,
+                  (cp.stderr or cp.stdout)[-400:])
+        sdir = next((d for d in (src_dir / "out").iterdir() if d.is_dir()), None)
+        sh = (sdir / "chrome-commands.sh").read_text(encoding="utf-8") if sdir else ""
+        plan_s = json.loads((src_dir / "out" / "plan.json").read_text(encoding="utf-8")) \
+            if (src_dir / "out" / "plan.json").is_file() else {}
+        res.check("B2 · Seite aus dem Bericht: kein Seitenhintergrund-Schritt",
+              "pages background" not in sh
+              and not any(s_["op"] == "page_background" for s_ in plan_s.get("steps", []))
+              and "pages background" not in (src_dir / "out" / "commands.md").read_text(
+                  encoding="utf-8"))
+        cb = json.loads((sdir / "chrome-batch.json").read_text(encoding="utf-8")) \
+            if sdir else {}
+        styled = {}
+        for s_ in cb.get("steps") or []:
+            if s_.get("op") == "set":
+                nm = s_["select"].split("/")[-1][:-len(".Visual")]
+                styled[nm] = any(k.startswith(("background.", "border.", "dropShadow."))
+                                 for k in s_.get("set") or {})
+        others = [v["id"] for v in src_page["visuals"] if v["id"] not in kept_ids
+                  and v.get("engine") == "native"]
+        res.check("B2 · Kacheln aus dem Bericht ohne Kachelstil, neue Kacheln mit",
+                  "mk_heat1" in styled and not any(styled.get(i) for i in kept_ids)
+                  and others and all(styled.get(i) for i in others),
+                  "%s / %s" % (styled, others))
+        slots_s = json.loads((sdir / "chartkitchen-slots.json").read_text(encoding="utf-8")) \
+            if sdir else []
+        cont_s = {s_["id"]: s_.get("container") or {} for s_ in slots_s}
+        res.check("B2 · ChartKitchen aus dem Bericht: Container ohne Flaeche/Rahmen/Schatten",
+                  "background" not in cont_s.get("mk_spark1", {"background": 1})
+                  and "border" in cont_s.get("mk_bars1", {}),
+                  str(sorted(cont_s.get("mk_spark1", {}))))
+        res.check("B2 · plan.json nennt Seite und Kacheln mit Berichtsstil",
+                  plan_s.get("reportStyle", {}).get("pages") == [src_page["name"]]
+                  and len(plan_s["reportStyle"]["visuals"]) == len(kept_ids))
+        nk = M.upgrade(json.loads(json.dumps(src)))
+        res.check("B2 · Hash: sourceReport zaehlt nur, wenn gesetzt; Seitenherkunft nie",
+                  M.spec_hash(M.upgrade(M.load(FIXTURES / "v3-fidelity.json")))
+                  != M.spec_hash(nk)
+                  and nk["pages"][0].get("pbir") == {"page": "abc123"}
+                  and "sourceReport" not in M.upgrade(
+                      M.load(FIXTURES / "v3-fidelity.json"))["design"])
+        ck_src = next((v for v in nk["pages"][0]["visuals"]
+                       if v["id"] in kept_ids), None)
+        cont = P.container_objects(ck_src, P.Style(nk, argparse.Namespace()))
+        res.check("B2 · container_objects: Kachel aus dem Bericht ohne Flaeche/Rahmen/Schatten",
+                  "background" not in cont and "border" not in cont
+                  and "dropShadow" not in cont and "title" in cont)
+    finally:
+        shutil.rmtree(src_dir, ignore_errors=True)
+
+    # Live-Lauf 8: bridge senkrecht (waterfall), wfint bleibt waagrecht (catbridge)
+    res.check("B2-4 · bridge -> waterfall (senkrechte Varianz-Bruecke), Spec-Wert in orientationFrom",
+              slots["mk_bridge1"]["orientation"] == "waterfall"
+              and cs["mk_bridge1"]["chart.orientation"] == "waterfall"
+              and M.ck_mode_for({"kind": "bridge", "chartKitchenMode": "catbridge"})
+              == "waterfall"
+              and M.ck_mode_for({"kind": "bridge"}) == "waterfall"
+              and M.ck_mode_for({"kind": "wfint", "chartKitchenMode": "intwaterfall"})
+              == "catbridge")
+    res.check("B2-4 · bridge: keine Δ-Ebenen (Skizze zeichnet keine, auch bei deltaKind abs+rel)",
+              cs["mk_bridge1"]["chart.showAbsoluteVariance"] is False
+              and cs["mk_bridge1"]["chart.showRelativeVariance"] is False)
+    # columns mit AC + PY/PL: nur die Ebenen aus display.drawn.delta (Live-Lauf 8)
+    col = json.loads(json.dumps(ft_spec["mk_kombi1"]))
+    col.update(kind="columns", chartKitchenMode="columns")
+    col.setdefault("display", {})["drawn"] = dict(
+        (col.get("display") or {}).get("drawn") or {}, delta=["abs"], deltaBasis="PL")
+    co, _ = P.ck_objects(col, "columns", {"actual": ["_M.AC"], "previousYear": ["_M.PY"],
+                                          "plan": ["_M.PL"]}, fid_spec)
+    res.check("B2-5 · columns: drawn.delta [abs] -> nur ΔPL absolut, kein ΔPL %",
+              co["chart.showAbsoluteVariance"] is True
+              and co["chart.showRelativeVariance"] is False)
+    # Theme-Fragment: Umgebung der Seite und Seitenhintergrund
+    th_ps = th["visualStyles"]["page"]["*"]
+    res.check("B2-6 · theme-fragment: page.*.outspace = Kitchen-Buehne, Transparenz 0",
+              th_ps["outspace"][0]["color"]["solid"]["color"] == "#EAE8E1"
+              and th_ps["outspace"][0]["transparency"] == 0)
+    res.check("B2-6 · theme-fragment: page.*.background = design.pageBackground",
+              th_ps["background"][0]["color"]["solid"]["color"]
+              == fid_spec["design"]["pageBackground"].upper()
+              or th_ps["background"][0]["color"]["solid"]["color"]
+              == fid_spec["design"]["pageBackground"])
+    st_spec = json.loads(json.dumps(fid_spec))
+    st_spec["design"]["stageBackground"] = "#dddddd"
+    res.check("B2-6 · design.stageBackground ueberschreibt die Buehnenfarbe",
+              P.stage_color(st_spec, P.Style(st_spec, type("O", (), {})())) == "#DDDDDD")
+
+    # --- Spec-Helfer 0.5.5 -------------------------------------------------- #
+    fid = M.upgrade(M.load(FIXTURES / "v3-fidelity.json"))
+    ft = {v["id"]: v for v in fid["pages"][0]["visuals"]}
+    res.check("0.5.5 · tile_numbers liest display.numbers",
+              M.tile_numbers(ft["mk_bars1"])[:2] == ("M", 1))
+    res.check("0.5.5 · tile_type_sizes liest display.fontPx",
+              M.tile_type_sizes(fid, ft["mk_bars1"])["axisPx"] == 12
+              and M.tile_type_sizes(fid, ft["mk_bars1"])["titlePt"] == 13.5)
+    res.check("0.5.5 · Schema und Struktur sauber (v3-fidelity)",
+              M.validate(M.as_document(fid)) == [] and M.structural_errors(fid) == [])
 
 
 # --------------------------------------------------------------------------- #
@@ -1074,6 +1640,8 @@ def main() -> int:
             validation_tests(tmp, res)
             print("Einheiten")
             unit_tests(res)
+            print("Treue Kitchen -> Power BI (B1)")
+            fidelity_tests(res, tmp)
             print("specHash")
             hash_tests(tmp, res, opt.exports)
             print("Review 09.10.")

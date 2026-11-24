@@ -68,7 +68,8 @@ Nur über eine vorhandene Referenz-Instanz replizieren — Vorgehen in `.claude/
 ```bash
 # Varianten · AC/PL je Monat (kombi → orientation columns)
 pbir add visual shape "Test.Report/Varianten.Page" -n "mk_ck1_slot" -x 808 -y 384 -w 240 -h 296 -t "ChartKitchen: kombi"
-pbir set "Test.Report/Varianten.Page/mk_ck1_slot.Visual.text.text" --value "ChartKitchen: kombi · AC/PL je Monat"
+pbir set "Test.Report/Varianten.Page/mk_ck1_slot.Visual.text.show" --value true
+pbir set "Test.Report/Varianten.Page/mk_ck1_slot.Visual.text.default.text" --value "ChartKitchen: kombi · AC/PL je Monat"
 ```
 
 ## Verifizieren

@@ -1,0 +1,90 @@
+[
+  {
+    "id": "mk_kpi1",
+    "stableId": "kpi1",
+    "page": "Fidelity",
+    "kind": "kpi",
+    "label": "KPI-Kachel (IBCS)",
+    "title": "Umsatz",
+    "subtitle": "in Tsd. EUR",
+    "visualName": "ibcsKpiCard",
+    "guid": "ibcsKpiCard2771CF65D0C343A19EAB34E43D7B8682",
+    "registryName": "ibcsKpiCard",
+    "pbiviz": "ibcsKpiCard/dist/ibcsKpiCard*.2.3.0.0.pbiviz",
+    "source": "ibcsKpiCard/",
+    "rect": {
+      "x": 965,
+      "y": 414,
+      "w": 460,
+      "h": 300
+    },
+    "buckets": {
+      "ac": [
+        "_Measures.AC"
+      ],
+      "py": [
+        "_Measures.PY"
+      ],
+      "trend": [
+        "DimDate.MonthName"
+      ]
+    },
+    "mockupRoles": {
+      "indicator": [
+        "_Measures.AC"
+      ],
+      "goal": [
+        "_Measures.PY"
+      ],
+      "category": [
+        "DimDate.MonthName"
+      ]
+    },
+    "analysis": {
+      "polarity": "higher",
+      "polarityAuto": true,
+      "deltaBasis": "PY",
+      "deltaBasisAuto": false,
+      "deltaKind": [
+        "abs",
+        "rel"
+      ],
+      "unit": null,
+      "displayUnits": "K",
+      "decimals": 1,
+      "sort": null,
+      "topN": null,
+      "timeGrain": null,
+      "cumulative": false,
+      "scaleGroup": null,
+      "message": null,
+      "smallMultiples": null,
+      "fieldParam": null
+    },
+    "workshop": {
+      "priority": null,
+      "status": "open",
+      "openQuestion": false
+    },
+    "notes": "",
+    "file": "custom-visuals/mk_kpi1.visual.json",
+    "engineSource": "ck",
+    "settings": {
+      "display.title": "Umsatz",
+      "display.periodLabel": "in Tsd. EUR",
+      "display.comparisonMode": "py",
+      "display.invert": false,
+      "display.showSparkline": true,
+      "display.showBridge": false,
+      "display.showSecondary": false,
+      "display.chartButtons": false,
+      "labels.fontPreset": "compact",
+      "display.titleSize": 18.5,
+      "labels.displayUnits": "k",
+      "labels.decimals": 1,
+      "colors.goodColor": "#3A9A5B",
+      "colors.badColor": "#C8412F"
+    },
+    "warnings": []
+  }
+]

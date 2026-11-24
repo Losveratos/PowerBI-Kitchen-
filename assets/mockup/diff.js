@@ -53,7 +53,8 @@
     a = a || {}; var o = {};
     var pol = fromSpecFile ? (a.polarityAuto ? '' : a.polarity) : a.polarity;
     if (pol === 'higher' || pol === 'lower') o.polarity = pol;
-    var db = fromSpecFile ? (a.deltaBasisAuto ? '' : a.deltaBasis) : a.deltaBasis;
+    // Spec ab 0.5.5: deltaBasis ist die wirksame Basis; eine gewählte, aber nicht gezeigte steht in deltaBasisRequested
+    var db = fromSpecFile ? (a.deltaBasisRequested || (a.deltaBasisAuto ? '' : a.deltaBasis)) : a.deltaBasis;
     if (db) o.deltaBasis = db;
     if (Array.isArray(a.deltaKind)) { var dk = a.deltaKind.slice().sort(); if (dk.join(',') !== 'abs,rel') o.deltaKind = dk; }
     if (a.sort && a.sort.by && a.sort.by !== 'none') o.sort = { by: a.sort.by, dir: a.sort.dir || 'desc' };
@@ -159,6 +160,12 @@
     if (typeof l === 'string') return { id: l, name: l };
     return { id: String(l.pageId || l.toPageId || l.toPage || l.pageName || ''), name: String(l.pageName || l.toPage || l.pageId || '') };
   }
+  // Eigener Titel der Kachel aus einer Spec: ab 0.5.5 ist title der sichtbare Kopf ('' ohne Kopf, sonst ggf. das Katalog-Label),
+  // der Name steht in displayName. Wie im Zustand zählt nur ein eigener Titel; das Katalog-Label ist keiner (auch in älteren Specs).
+  function ownTitle(v) {
+    var t = v.displayName != null ? v.displayName : v.title;
+    return t && (v.label == null || t !== v.label) ? String(t) : '';
+  }
   function fromSpec(spec) {
     var pages = (spec.pages || []).map(function (p) { return { id: p.id || p.name, name: p.name }; });
     var items = [];
@@ -167,7 +174,7 @@
       (p.visuals || []).forEach(function (v) {
         var w = v.workshop || {}; var r = v.rect || {}; var lk = linkOf(v.link);
         items.push({
-          id: v.id, page: p.name, pageId: p.id || p.name, kind: v.kind, engine: v.engine || '', title: v.title || '',
+          id: v.id, page: p.name, pageId: p.id || p.name, kind: v.kind, engine: v.engine || '', title: ownTitle(v),
           fields: flatRoles(v.roles), analysis: normAnalysis(v.analysis, true), priority: w.priority || v.priority || '', status: w.status || v.status || 'open',
           notes: v.notes || w.notes || '', openQuestion: !!(w.openQuestion || v.openQuestion), interaction: normInteraction(v.interaction),
           link: lk.id, linkName: lk.name, content: v.content || '', ck: v.chartKitchenProps || null,

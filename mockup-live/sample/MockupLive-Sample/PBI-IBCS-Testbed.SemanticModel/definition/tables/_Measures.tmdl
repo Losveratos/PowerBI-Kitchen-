@@ -1,0 +1,75 @@
+table _Measures
+
+	column Platzhalter
+		dataType: string
+		isHidden
+		summarizeBy: none
+		sourceColumn: Platzhalter
+
+	measure AC = SUM ( FactActuals[Amount] )
+		formatString: #,##0
+
+	measure PY = CALCULATE ( [AC], SAMEPERIODLASTYEAR ( DimDate[Date] ) )
+		formatString: #,##0
+
+	measure PL = SUM ( FactPlan[Amount] )
+		formatString: #,##0
+
+	measure BU = SUM ( FactBudget[Amount] )
+		formatString: #,##0
+
+	measure FC = SUM ( FactForecast[Amount] )
+		formatString: #,##0
+
+	measure FC_FY = [AC] + [FC]
+		formatString: #,##0
+
+	measure ΔPY = [AC] - [PY]
+		formatString: #,##0
+
+	measure 'ΔPY%' = DIVIDE ( [AC] - [PY], [PY] )
+		formatString: 0.0%
+
+	measure ΔPL = [AC] - [PL]
+		formatString: #,##0
+
+	measure 'ΔPL%' = DIVIDE ( [AC] - [PL], [PL] )
+		formatString: 0.0%
+
+	measure ΔBU = [AC] - [BU]
+		formatString: #,##0
+
+	measure 'ΔBU%' = DIVIDE ( [AC] - [BU], [BU] )
+		formatString: 0.0%
+
+	measure Umsatz = SUM ( FactActuals[Amount] )
+		formatString: #,##0
+
+	measure Kosten = SUM ( FactActuals[Cost] )
+		formatString: #,##0
+
+	measure Marge = [Umsatz] - [Kosten]
+		formatString: #,##0
+
+	measure 'Marge%' = DIVIDE ( [Umsatz] - [Kosten], [Umsatz] )
+		formatString: 0.0%
+
+	measure Orders_AC = CALCULATE ( SUM ( FactDaily[Value] ),   FactDaily[KPI] = "Orders" )
+		formatString: #,##0
+
+	measure Orders_PY = CALCULATE ( SUM ( FactDaily[ValuePY] ), FactDaily[KPI] = "Orders" )
+		formatString: #,##0
+
+	measure Revenue_AC = CALCULATE ( SUM ( FactDaily[Value] ),   FactDaily[KPI] = "Revenue" )
+		formatString: #,##0
+
+	measure Revenue_PY = CALCULATE ( SUM ( FactDaily[ValuePY] ), FactDaily[KPI] = "Revenue" )
+		formatString: #,##0
+
+	partition _Measures = m
+		mode: import
+		source =
+			let
+			    Source = #table(type table [Platzhalter = text], {})
+			in
+			    Source

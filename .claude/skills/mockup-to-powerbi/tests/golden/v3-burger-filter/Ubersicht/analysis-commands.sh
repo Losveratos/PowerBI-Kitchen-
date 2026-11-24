@@ -7,5 +7,12 @@
 # Nav-Button 'Detail Produktlinie' -> Seite 'Detail Produktlinie'
 pbir visuals action "Test.Report/Übersicht.Page/chrome_nav_2.Visual" --type PageNavigation --target "Detail Produktlinie"
 
+# Filter-Overlay: Grundzustand ausgeblendet
+pbir visuals hide "Test.Report/Übersicht.Page/chrome_filter_bg.Visual"
+pbir visuals hide "Test.Report/Übersicht.Page/chrome_filter_title.Visual"
+pbir visuals hide "Test.Report/Übersicht.Page/chrome_filter_close.Visual"
+pbir visuals hide "Test.Report/Übersicht.Page/mk_slicer_Year_p1.Visual"
+pbir visuals hide "Test.Report/Übersicht.Page/mk_slicer_Region_p1.Visual"
+
 # Vorauswahl im Slicer „Year" = 2026
 pbir add filter DimDate Year -v "Test.Report/Übersicht.Page/mk_slicer_Year_p1.Visual" --values 2026

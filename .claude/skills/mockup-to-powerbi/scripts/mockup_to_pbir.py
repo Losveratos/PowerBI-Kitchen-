@@ -11,8 +11,9 @@ auf --out.
                              [--lang de|en]
                              [--page-name "Übersicht"]   (nur specVersion 1)
                              [--ink '#0F1E2E'] [--on-ink '#FFFFFF']
-                             [--panel '#F1F3F5'] [--muted '#6B7280']
-                             [--tile-border '#E5E7EB']
+                             [--panel '#ECEBE5'] [--muted '#6B7280']
+                             [--tile-border '#E1DFD6'] [--rule '#E3E1D8']
+                             (Farb-Vorgaben: design.colors, sonst Kitchen)
                              [--ck-fallback] [--force]
 
 Ablauf des Skills: **validate -> plan -> Freigabe -> apply -> verify.**
@@ -57,8 +58,10 @@ Verifizierte CLI-Fakten, auf denen die Ausgabe beruht (pbir 0.9.32):
     Ein unbekannter Schluessel (z. B. "text") bricht die GANZE Datei ab.
   * `title` landet im Container-Titel (visualContainerObjects.title.text),
     nicht im Textinhalt einer Textbox.
-  * Textinhalt geht ueber `pbir set "<Visual>.text.text"` — das funktioniert bei
-    shape und actionButton. Bei textbox NICHT: dort muesste
+  * Textinhalt geht ueber `pbir set "<Visual>.text.default.text"` — das funktioniert
+    bei shape und actionButton. Alle Text-Eigenschaften ausser `text.show` (und bei
+    actionButton auch `shape.*`) brauchen den Zustand `default`, sonst ignoriert
+    Power BI Desktop sie (siehe STATEFUL_OBJECTS). Bei textbox NICHT: dort muesste
     `general.paragraphs` ein Array sein; `pbir set` schreibt stattdessen ein
     Literal und die Textbox bleibt leer. Deshalb baut dieses Skript Textzeilen
     UND Text-Kacheln als `shape` mit ausgeschalteter Fuellung.
@@ -91,12 +94,16 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from mockup_spec import (                                     # noqa: E402
-    CK_ORIENTATION, CK_PROPS, CK_ROLE, CK_ROLE_BY_KIND, CK_ROLE_UNSUPPORTED, DRILL_ROLE_ORDER,
-    MEASURE_ROLE_ORDER, NO_VARIANT_KINDS, SMALL_MULTIPLES_BUCKET,
-    SMALL_MULTIPLES_TYPES, SpecError, as_document,
-    a11y_issues, build_hash, custom_visual_info, footer_nav_entries, half_pt, is_a11y_issue,
-    is_light, load, nav_position, slug, split_ref, structural_errors,
-    hash_mismatch, type_sizes, upgrade, validate,
+    CK_CUMULATIVE_MODES, CK_MULTIPLES_MODES, CK_ORIENTATION, CK_PROPS, CK_ROLE,
+    CK_ROLE_BY_KIND,
+    CK_ROLE_UNSUPPORTED, CK_TOPN_MODES, DRILL_ROLE_ORDER, KITCHEN_CHROME,
+    MEASURE_ROLE_ORDER, NATIVE_PALETTES, NO_VARIANT_KINDS, PX_TO_PT, SCENARIO_COLORS,
+    SMALL_MULTIPLES_BUCKET, SMALL_MULTIPLES_TYPES, SpecError, as_document,
+    a11y_issues, basis_of_name, build_hash, ck_mode_for, custom_visual_info, design_from_report,
+    display_name, drawn, keeps_report_style, tile_numbers, tile_type_sizes,
+    footer_nav_entries, half_pt, hash_mismatch, is_a11y_issue, is_light, load, mix, nav_position,
+    slug, split_ref, structural_errors, title_shown, type_sizes, upgrade, validate,
+    visible_title,
 )
 
 # PBIR-Schema, das `pbir add visual` in 0.9.32 schreibt. Custom Visuals kann die
@@ -111,7 +118,6 @@ Z = {"bg": 0, "text": 4, "button": 5, "content": 10,
 
 # analysis.displayUnits -> Enumwert von labels.labelDisplayUnits
 DISPLAY_UNITS = {"none": 1, "K": 1000, "M": 1000000}
-DISPLAY_UNITS_CLI = {"none": "None", "K": "Thousands", "M": "Millions"}
 
 # Slicer-Art (`zones.filter.slicers[].type`, Tool 0.4.4) -> PBIR-Formatierung.
 # VERIFIZIERT mit pbir 0.9.32 (Probe-Report, `pbir batch run` + `pbir validate
@@ -377,17 +383,23 @@ def param_slicer_hint(nspec: dict, page: dict, fp: dict, offset: int = 0) -> str
     """
     k = nspec["uiScale"]
     filt = (nspec["zones"] or {}).get("filter") or {}
-    n = len(filt.get("slicers") or []) + offset
     if filt:
         fx, fy, fw, fh = rect(filt)
+        rects = slicer_rects(nspec)
         ox, oy = filter_layout(nspec)["origin"]
         if (filt.get("mode") or filt.get("side")) == "top":
-            x, y = ox + n * round(168 * k), fy + round(8 * k)
-            w, h = round(160 * k), fh - 2 * round(8 * k)
+            x0 = (rects[-1][0] + rects[-1][2] + round(8 * k)) if rects else ox
+            h = max(round(SLICER_ROW * k),
+                    min(fh - round(8 * k), round((SLICER_ROW + SLICER_HEAD) * k)))
+            x, y = x0 + offset * round(168 * k), fy + (fh - h) // 2
+            w = round(160 * k)
         else:
-            x, y = fx + round(8 * k), oy + n * round(64 * k)
-            w, h = fw - 2 * round(8 * k), round(56 * k)
+            y0 = (rects[-1][1] + rects[-1][3] + round(SLICER_GAP * k)) if rects else oy
+            h = max(SLICER_MIN_PX, round((SLICER_ROW + SLICER_HEAD) * k))
+            x, y = fx + round(10 * k), y0 + offset * (h + round(SLICER_GAP * k))
+            w = fw - round(20 * k)
     else:
+        n = offset
         cr = page.get("contentRect") or {}
         x = int(cr.get("x", 16))
         y = int(cr.get("y", 72)) + n * round(64 * k)
@@ -412,6 +424,29 @@ def param_bucket(v: dict, buckets: dict):
         if any(f.get("ref") == cat_refs[0] for f in entries or []):
             return bucket, cat_refs
     return None, cat_refs
+
+
+# Zustandsabhaengige Formatierung bei shape/actionButton. VERIFIZIERT in Power BI
+# Desktop (Live-Lauf 02.10.2026): Desktop liest Text-Formatierung NUR aus dem
+# Eintrag mit `selector: {"id": "default"}`; ohne Selektor wirkt allein `show`.
+# Ohne den Zustand stand im Kopfband kein Text, nach `text.default.text` und
+# `.fontSize` war er da, aber mittig, hellgrau und klein (Ausrichtung, Farbe,
+# Fett und Raender lagen noch ohne Selektor). Desktop speichert Buttons ebenso
+# mit `shape.default.*` (Probe: ein in Desktop gespeicherter Button).
+# `pbir set "<Visual>.text.default.<prop>"` und die gleichen Schluessel in
+# `pbir batch` schreiben den Selektor (beides am Testbed geprueft, pbir 0.9.32).
+# fill.fillColor und outline.* legt pbir von sich aus unter `default` ab.
+STATEFUL_OBJECTS = {"shape": ("text",), "actionButton": ("text", "shape")}
+
+
+def state_key(visual_type: str, prop: str) -> str:
+    """`text.fontSize` -> `text.default.fontSize` bei shape/actionButton (alles
+    ausser `show`); bei actionButton ebenso `shape.*`. Andere Schluessel bleiben."""
+    obj, _, rest = prop.partition(".")
+    if (not rest or "." in rest or rest == "show"
+            or obj not in STATEFUL_OBJECTS.get(visual_type, ())):
+        return prop
+    return "%s.default.%s" % (obj, rest)
 
 
 class Commands:
@@ -526,14 +561,18 @@ def slicer_names(nspec: dict, page: dict):
 def filter_layout(nspec: dict):
     """Aufteilung des Filterbereichs — oder None ohne Filterzone.
 
-    Specs vor Tool 0.4.4 kennen weder `heading` noch `text`: dann bleibt alles
-    wie bisher (Ueberschrift „Filter", Slicer ab 40 px unter der Oberkante bzw.
-    ab dem linken Rand der Leiste). Mit den neuen Schluesseln gilt:
+    Geometrie wie im Kitchen (mockup-kitchen.html, .zone.filter): Polster 12 px
+    oben und 10 px seitlich, Ueberschrift 11 px (Zeile 1,45), darunter 8 px, der
+    Hinweistext 9,5 px (Zeile 1,35), darunter 8 px, dann die Slicer. Als Leiste
+    oben: Polster 16 px seitlich, Abstand 8 px, alles senkrecht mittig.
+
+    Specs vor Tool 0.4.4 kennen weder `heading` noch `text`: dann gilt die
+    Ueberschrift „Filter" und kein Hinweistext.
 
     * `heading` (Text oder null): Ueberschrift oben, null = keine
     * `text` (Text oder null): Hinweistext unter der Ueberschrift (Panel) bzw.
       rechts daneben (Leiste oben, hoechstens 220 px breit wie im Tool)
-    * die Slicer beginnen unter bzw. rechts neben beidem.
+    * die Slicer beginnen unter bzw. rechts neben beidem (`origin`).
     """
     filt = (nspec["zones"] or {}).get("filter")
     if not filt:
@@ -552,40 +591,77 @@ def filter_layout(nspec: dict):
         text = str(filt.get("text") or "").strip() or None
     else:
         heading, text = "Filter", None
+    closable = bool(filt.get("overlay")) or mode == "burger" or bool(filt.get("collapsible"))
     out = {"new": new, "mode": mode, "heading": heading, "text": text,
            "title": None, "textRect": None}
     if mode == "top":
-        if not new:
-            out["title"] = (fx + px(8), fy, px(56), fh)
-            out["origin"] = (fx + px(8), fy + px(8))
-            return out
-        x = fx + px(8)
+        x = fx + px(16)
         if heading:
-            w = max(px(56), px(len(heading) * 11 * 0.62 + 8))
+            w = max(px(40), px(len(heading) * 11 * 0.68 + 4))   # Versalien sind breiter
             out["title"] = (x, fy, w, fh)
             x += w + px(8)
         if text:
             w = min(px(220), max(px(80), px(len(text) * 9.5 * 0.55)))
             out["textRect"] = (x, fy, w, fh)
             x += w + px(8)
-        out["origin"] = (x, fy + px(8))
+        out["origin"] = (x, fy)
         return out
-    if not new:
-        out["title"] = (fx + px(8), fy + px(8), fw - px(16), px(24))
-        out["origin"] = (fx + px(8), fy + px(40))
-        return out
-    y = fy + px(8)
+    y = fy + px(12)
+    inner_x, inner_w = fx + px(10), fw - px(20)
     if heading:
-        out["title"] = (fx + px(8), y, fw - px(16), px(24))
-        y += px(32)
+        tw = inner_w - (px(28) + px(4) if closable else 0)
+        out["title"] = (inner_x, y, max(px(40), tw), px(11 * LINE))
+        y += px(11 * LINE) + px(8)
     if text:
-        inner = max(1, fw - px(16))
-        per_line = max(1, int(inner / max(1.0, 9.5 * 0.55 * k)))
+        per_line = max(1, int(inner_w / max(1.0, 9.5 * 0.55 * k)))
         lines = min(6, max(1, -(-len(text) // per_line)))
-        h = lines * px(13) + px(2)
-        out["textRect"] = (fx + px(8), y, inner, h)
+        h = px(lines * 9.5 * 1.35) + 1
+        out["textRect"] = (inner_x, y, inner_w, h)
         y += h + px(8)
-    out["origin"] = (fx + px(8), y)
+    out["origin"] = (inner_x, y)
+    return out
+
+
+# Slicer-Hoehe in px bei k = 1. Das Kitchen zeichnet je Slicer einen Kasten von
+# 27 px (10,5 px Schrift, Polster 5 px, Rahmen) im Abstand 7 px. Ein Power-BI-
+# Dropdown braucht dazu die Kopfzeile mit dem Feldnamen (der Name steht damit nur
+# einmal: Slicer-Kopf an, Container-Titel aus) -> 27 + 25 px, mindestens 76 px:
+# darunter meldet `pbir validate --qa` SLICER_HEIGHT_BELOW_FLOOR („the header or
+# selector will clip", am Testbed geprueft). Listen, Kacheln und Button-Slicer
+# brauchen mehr Platz, sonst zeigt Power BI keinen Eintrag.
+SLICER_ROW = 27
+SLICER_HEAD = 25
+SLICER_GAP = 7
+SLICER_MIN_PX = 76
+SLICER_HEIGHT = {"list": 94, "search": 94, "tile": 64, "button": 64}
+
+
+def slicer_rects(nspec: dict):
+    """Rechtecke (x, y, w, h) der Slicer in Spec-Reihenfolge (ohne `missing`)."""
+    fl = filter_layout(nspec)
+    if not fl:
+        return []
+    filt = nspec["zones"]["filter"]
+    k = nspec["uiScale"]
+
+    def px(base: float) -> int:
+        return int(round(base * k))
+
+    fx, fy, fw, fh = rect(filt)
+    ox, oy = fl["origin"]
+    out = []
+    for s in filt.get("slicers") or []:
+        if s.get("missing"):
+            continue
+        if fl["mode"] == "top":
+            h = max(px(SLICER_ROW), min(fh - px(8), px(SLICER_ROW + SLICER_HEAD)))
+            out.append((ox, fy + (fh - h) // 2, px(160), h))
+            ox += px(160) + px(8)
+        else:
+            h = max(SLICER_MIN_PX,
+                    px(SLICER_HEIGHT.get(slicer_type(s) or "", SLICER_ROW + SLICER_HEAD)))
+            out.append((fx + px(10), oy, fw - px(20), h))
+            oy += h + px(SLICER_GAP)
     return out
 
 
@@ -598,11 +674,51 @@ def slicer_type(s: dict):
 # --------------------------------------------------------------------------- #
 # Native Visuals + Slicer  (wie export.js -> buildPbir, aber je Seite)
 # --------------------------------------------------------------------------- #
+# Kitchen-Typen, deren natives Gegenstueck ohne Δ-Kennzahl etwas anderes sagt als
+# die Skizze (FIDELITY Luecke 11). Als ChartKitchen-Ersatz (--ck-fallback) entsteht
+# deshalb KEIN Diagramm, sondern ein Platzhalter mit To-do.
+NATIVE_MISLEADING = {
+    "absvar": "ein natives Säulendiagramm zeigt AC statt der Δ-Säulen",
+    "relvar": "ein natives Säulendiagramm zeigt AC statt der Δ%-Nadeln",
+    "bridge": "ein nativer Wasserfall zeigt die AC-Beiträge statt der Brücke "
+              "Referenz → Δ je Kategorie → AC",
+}
+# Typen, deren natives Gegenstueck die Referenz (`ref`) mitnehmen kann: Kitchen-Typ ->
+# PBIR-Bucket. Rollen verifiziert mit `pbir schema describe <typ> --json` (dataRoles):
+# pivotTable Rows/Columns/Values, tableEx Values, decompositionTreeVisual
+# Analyze/ExplainBy/Tooltips (Analyze nimmt nur eine Kennzahl -> Referenz als Tooltip).
+NATIVE_KEEP_REF = {"heatmap": "Values", "sparktable": "Values", "tree": "Tooltips"}
+
+
+def native_target(v: dict):
+    """(native, Grund): das native Visual einer Kachel mit allen Buckets — oder
+    (None, Grund), wenn es keines gibt bzw. ein Ersatz in die Irre fuehrte."""
+    native = v.get("native")
+    if not native:
+        return None, "kein natives Gegenstück im Katalog"
+    kind = v.get("kind")
+    if v.get("engine") == "ck" and kind in NATIVE_MISLEADING:
+        return None, NATIVE_MISLEADING[kind]
+    buckets = {b: list(e or []) for b, e in (native.get("buckets") or {}).items()}
+    keep = NATIVE_KEEP_REF.get(kind)
+    if keep:
+        have = {f.get("ref") for entries in buckets.values() for f in entries}
+        for f in ((v.get("roles") or {}).get("ref") or []):
+            if f.get("ref") and f["ref"] not in have:
+                buckets.setdefault(keep, []).append(
+                    {"ref": f["ref"], "kind": f.get("kind") or "measure",
+                     "isNew": bool(f.get("isNew"))})
+                have.add(f["ref"])
+    return {"type": native["type"], "buckets": buckets}, None
+
+
 def build_pbir_visuals(nspec: dict, page: dict, ck_fallback: bool = False):
     out = []
     skipped = []
     for v in page["visuals"]:
-        native = v.get("native")
+        native, why = native_target(v)
+        if v.get("native") and native is None and v.get("engine") == "ck":
+            v["nativeDropped"] = why          # fuer Slot, To-do und Checkliste
         if not native or is_text_tile(v):
             continue
         if v.get("engine") != "native" and not (ck_fallback and v.get("engine") == "ck"):
@@ -633,30 +749,20 @@ def build_pbir_visuals(nspec: dict, page: dict, ck_fallback: bool = False):
                 and SMALL_MULTIPLES_BUCKET not in fields):
             fields[SMALL_MULTIPLES_BUCKET] = smf
 
-        out.append(vis(native["type"], v["id"], v.get("title") or v.get("label", ""),
+        out.append(vis(native["type"], v["id"], v.get("title") or display_name(v),
                        *rect(v["rect"]), fields=fields or None))
 
     filt = (nspec["zones"] or {}).get("filter")
     if filt:
-        k = nspec["uiScale"]
-        pad = round(8 * k)
-        fx, fy, fw, fh = rect(filt)
-        ox, oy = filter_layout(nspec)["origin"]
         names = slicer_names(nspec, page)
-        j = 0                       # laufende Position: fehlende Felder lassen keine Luecke
+        rects = iter(slicer_rects(nspec))   # Kitchen-Raster; fehlende Felder ohne Luecke
         for i, s in enumerate(filt.get("slicers") or []):
             if s.get("missing"):    # Feld fehlt im Modell (main() nimmt sie vorher heraus)
                 continue
-            if filt.get("mode") == "top":
-                x, y = ox + j * round(168 * k), fy + pad
-                w, h = round(160 * k), fh - 2 * pad
-            else:
-                x, y = fx + pad, oy + j * round(64 * k)
-                w, h = fw - 2 * pad, round(56 * k)
+            x, y, w, h = next(rects)
             out.append(vis(SLICER_VISUAL_TYPE.get(slicer_type(s) or "", "slicer"),
                            names[i], s["name"], x, y, w, h,
                            fields={"Values": s["ref"]}))
-            j += 1
     return out, skipped
 
 
@@ -750,24 +856,42 @@ def cv_bucket_warnings(nspec: dict) -> list:
     return out
 
 
-def custom_visual_json(v: dict, st) -> dict:
-    """Vollstaendige PBIR-visual.json einer Custom-Visual-Kachel."""
-    cv = v.get("customVisual") or {}
-    x, y, w, h = rect(v["rect"])
-    title = v.get("title") or ""
+def container_objects(v: dict, st, hide_titles: bool = False,
+                      kitchen_head=None) -> dict:
+    """`visualContainerObjects` einer Kachel, die pbir nicht formatieren kann
+    (Custom Visuals, replizierte ChartKitchen-Visuals): Titel, Untertitel und
+    Kachel-Container aus design, in der Form, die Desktop schreibt.
+
+    Der Titeltext bleibt immer stehen (Auswahlbereich). Sichtbar ist er nur, wenn
+    die Kachel im Kitchen einen Kopf zeigt (title_shown) und das Visual ihn nicht
+    selbst zeichnet (`hide_titles`: ChartKitchen-Kopf, ibcsKpiCard-Titel).
+
+    `kitchen_head` (Ergebnis von tile_type_sizes): Kopf wie im Kitchen
+    (.tile .t-title: Gewicht 600, Ink; .t-sub: Ink mit 70 % Deckkraft) in den
+    Kachel-Groessen `display.fontPt` statt der Seiten-Typografie."""
+    title = v.get("title") or display_name(v)
     subtitle = (v.get("subtitle") or "").strip()
-    title_props = {"show": _lit(bool(title)), "text": _lit(title)}
-    sub_props = {"show": _lit(bool(subtitle)), "text": _lit(subtitle)}
-    ts = st.typo(v) if hasattr(st, "typo") else None
+    show_title = bool(title) and title_shown(v) and not hide_titles
+    title_props = {"show": _lit(show_title), "text": _lit(title)}
+    sub_props = {"show": _lit(bool(subtitle) and not hide_titles), "text": _lit(subtitle)}
+    ts = kitchen_head or (st.typo(v) if hasattr(st, "typo") else None)
     if ts:                                   # Tool 0.4.3: design.typography
         title_props["fontSize"] = _lit(ts["titlePt"])
         sub_props["fontSize"] = _lit(ts["subPt"])
+    if kitchen_head:
+        title_props["bold"] = _lit(True)
+        title_props["fontColor"] = _solid(st.ink)
+        sub_props["fontColor"] = _solid(mix(st.ink, st.tile_bg, 0.3))
     container = {
         "title": _container(title_props),
         "subTitle": _container(sub_props),
-        "background": _container({"show": _lit(True), "color": _solid(st.tile_bg),
-                                  "transparency": _lit(0)}),
     }
+    if keeps_report_style(getattr(st, "nspec", None), visual=v):
+        # design.sourceReport und Kachel aus dem Bericht: Flaeche, Rahmen und Schatten
+        # bleiben, wie sie im Bericht stehen (Befund B2, Demo-Test 02.10.2026)
+        return container
+    container["background"] = _container({"show": _lit(True), "color": _solid(st.tile_bg),
+                                          "transparency": _lit(0)})
     border = {"show": _lit(st.tile_style == "border")}
     if st.tile_style == "border":
         border["color"] = _solid(st.tile_border)
@@ -780,6 +904,195 @@ def custom_visual_json(v: dict, st) -> dict:
              "color": _solid(st.ink), "transparency": _lit(85)})
     else:
         container["dropShadow"] = _container({"show": _lit(False)})
+    return container
+
+
+def kpi_font_preset(nspec: dict) -> str:
+    """ibcsKpiCard/ChartKitchen `labels.fontPreset` nach dem Seitenfaktor k
+    (compact x1, fullhd x1,5, presentation x2)."""
+    k = float(nspec["design"].get("fontScale") or 1)
+    return "compact" if k < 1.25 else "fullhd" if k < 1.75 else "presentation"
+
+
+# ibcsKpiCard 2.3 (src/visual.ts): eine Karte unter 340 Einheiten Breite ist
+# „compact" und laesst Sparkline und Mini-Bruecke weg (< 210 auch die Referenzzeilen).
+KPI_COMPACT_BELOW = 340
+KPI_ULTRA_BELOW = 210
+KPI_PRESET_K = {"compact": 1.0, "fullhd": 1.5, "presentation": 2.0}
+# Einzelkarte (Befund B3, Demo-Test 02.10.2026). Desktop gibt einem Custom Visual das
+# Viewport in Seiten-px, der Zoom der Seite wirkt erst danach. Beleg: Kachel 386 x 190 auf
+# einer 1920er-Seite, `compact`, titleSize 21,5 -> Karte im Desktop-Bild 48 x 38 px bei
+# Zoom 0,529 = 91 x 72 Seiten-px, Zahl 21 px, Titel 18 px. Gerechnet: k = min(376/460,
+# 180/150) = 0,82, Zahl 26 x 0,82 = 21 px, Titel 21,5 x 0,82 = 18 px, Hoehe 90 x 0,82 = 74.
+# Die Karte ist so gross wie ihr Inhalt (ibcsKpiCard streckt sie nicht), deshalb sass sie
+# als kleiner Kasten in der Kachelmitte. Annahmen, in Desktop zu pruefen:
+KPI_CONTAINER_PAD = 5     # Innenabstand des Visual-Containers je Seite (Desktop-Vorgabe)
+KPI_WRAP_PAD = 8          # Rand der Flaeche, in der die Karte mittig sitzt (visual.ts)
+KPI_LINE = 1.33           # Zeilenhoehe „normal" der Schrift
+KPI_FILL = 0.85           # so viel der freien Hoehe darf die Karte einnehmen
+KPI_VALUE_CHARS = 6       # angenommene Laenge der grossen Zahl, z. B. „118,4M"
+
+
+def half_pt_free(value: float):
+    """Auf 0,5 runden ohne die pbir-Grenzen 6-45 (Ganzzahl als int)."""
+    r = int(value * 2 + 0.5) / 2.0
+    return int(r) if r == int(r) else r
+
+
+def kpi_title_px(v: dict, nspec: dict) -> float:
+    """Titelgroesse der Kachel im Kitchen in Seiten-px (display.fontPx.title)."""
+    ts = tile_type_sizes(nspec, v)
+    return ts["titlePx"] if ts else 12.0 * float(nspec["design"].get("fontScale") or 1)
+
+
+def kpi_title_size(title_px: float, scale: float):
+    """`display.titleSize` so, dass titleSize x Kartenskalierung = Kitchen-Titel px."""
+    return max(8, min(40, half_pt_free(title_px / scale)))
+
+
+def kpi_card_units(title_size: float, ref: bool, spark: bool, title_chars: int,
+                   period_chars: int) -> tuple:
+    """(Breite, Hoehe) einer Einzelkarte in Karten-Einheiten, wie buildCard() sie baut:
+    Innenabstand 12/14/12/16, Kopf in titleSize (Grossbuchstaben, Sperrung 0,06 em),
+    3 Abstand, Zahl 26 fett, Δ-Pille 12 (nur mit Bezug), Bezugszeile 8 + 12 (nur mit
+    Bezug), Sparkline 130 x 104 mit 12 Abstand (nur `spark`). Mini-Bruecke und zweite
+    Bezugszeile schaltet kpi_card_settings ab (die Skizze zeigt beides nicht)."""
+    text_h = (KPI_LINE * title_size + 3 + KPI_LINE * 26
+              + ((8 + KPI_LINE * 12) if ref else 0))
+    height = 24 + (max(text_h, 104) if spark else text_h)
+    head_w = 0.72 * title_size * title_chars
+    if period_chars:
+        head_w += 8 + 0.72 * title_size * period_chars
+    value_w = 0.6 * 26 * KPI_VALUE_CHARS + ((10 + 0.6 * 12 * 8 + 14) if ref else 0)
+    width = 30 + max(head_w, value_w) + ((12 + 130) if spark else 0)
+    return width, height
+
+
+def kpi_card_geometry(v: dict, nspec: dict, grid: bool):
+    """(fontPreset, Skalierung, Breite in Karten-Einheiten) wie ibcsKpiCard 2.3 rechnet.
+
+    Einzelkarte (keine category), Viewport W x H = Kachel minus Container-Innenabstand:
+    scale = clamp(0,7..2,6, min(W/460, H/150)) x Preset (compact 1, fullhd 1,5,
+    presentation 2). Gewaehlt wird das groesste Preset, bei dem die Karte (Hoehe und
+    Breite aus kpi_card_units, Titel in Kitchen-Groesse) noch in die Flaeche W-16 x H-16
+    passt, hoechstens KPI_FILL der Hoehe, die Zahl (26 x scale) nicht groesser als in der
+    Skizze (40 x k px) und der Titel nicht groesser als im Kitchen (titleSize mindestens
+    8). Ist `trend` gebunden, nur Presets mit mindestens
+    340 Einheiten Breite (W / scale), sonst liesse die Karte die Sparkline weg (Live-Lauf
+    02.10.2026: 960 x 480 mit `fullhd` = 307 Einheiten, keine Sparkline). Mit Bezug
+    (py/pl) ebenso mindestens 210 Einheiten, sonst fehlt die Bezugszeile. Passt nichts,
+    bleibt `compact`. Beispiel 386 x 190, nur Istwert: `presentation`, Zahl 42 px, Karte
+    etwa 170 x 125 px; mit Bezug `fullhd`, Zahl 32 px; mit Sparkline `compact`.
+
+    Raster (category gebunden): Kachelbreite minTile = 240 x Preset, scale =
+    clamp(0,55..1,4, minTile/380); dort bleibt das Preset aus k."""
+    w = float(v["rect"]["w"])
+    h = float(v["rect"]["h"])
+    if not grid:
+        buckets = (v.get("customVisual") or {}).get("buckets") or {}
+        trend = bool(buckets.get("trend"))
+        ref = bool(buckets.get("py") or buckets.get("pl"))
+        vw = max(1.0, w - 2 * KPI_CONTAINER_PAD)
+        vh = max(1.0, h - 2 * KPI_CONTAINER_PAD)
+        base = max(0.7, min(2.6, min(vw / 460.0, vh / 150.0)))
+        title_px = kpi_title_px(v, nspec)
+        title_chars = len(visible_title(v) or display_name(v) or "KPI")
+        period_chars = len(str(v.get("subtitle") or "").strip())
+        room_w = vw - 2 * KPI_WRAP_PAD
+        room_h = (vh - 2 * KPI_WRAP_PAD) * KPI_FILL
+        # Obergrenze der grossen Zahl wie in der Skizze (S.kpi: bigCap hoechstens 40 x k)
+        value_max = 40.0 * float(nspec["design"].get("fontScale") or 1)
+        for preset in ("presentation", "fullhd"):
+            scale = base * KPI_PRESET_K[preset]
+            avail = vw / scale
+            if (trend and avail < KPI_COMPACT_BELOW) or (ref and avail < KPI_ULTRA_BELOW):
+                continue
+            if 26 * scale > value_max or title_px / scale < 8:
+                continue                 # Zahl groesser als in der Skizze bzw. Titel zu gross
+            size = kpi_title_size(title_px, scale)
+            cw, ch = kpi_card_units(size, ref, trend, title_chars, period_chars)
+            if cw * scale <= room_w and ch * scale <= room_h:
+                return preset, scale, avail
+        return "compact", base, vw / base
+    preset = kpi_font_preset(nspec)
+    min_tile = max(140, int(round(240 * KPI_PRESET_K[preset])))
+    scale = max(0.55, min(1.4, min_tile / 380.0))
+    cols = max(1, int((w - 8 + 10) // (min_tile + 10)))
+    tile_w = (w - 8 - 10 * (cols - 1)) / cols
+    return preset, scale, tile_w / scale
+
+
+def kpi_card_settings(v: dict, nspec: dict):
+    """Einstellungen fuer ibcsKpiCard 2.3 aus der Spec (flach, wie ck_objects).
+    Namen und Enums aus ibcsKpiCard/dist/ibcsKpiCard*.2.3.0.0.pbiviz (capabilities):
+    display.title/periodLabel/comparisonMode(auto|py|plan)/invert/showSparkline/titleSize/
+    chartButtons/showBridge/showSecondary, labels.fontPreset/decimals/displayUnits,
+    colors.goodColor/badColor. Wie die Skizze (S.kpi in sketches.js): grosse Zahl, Titel,
+    eine Δ-Zeile, Sparkline nur mit `trend`; keine Mini-Bruecke, keine zweite Bezugszeile.
+    Groessen nach kpi_card_geometry (in Desktop zu pruefen)."""
+    a = v.get("analysis") or {}
+    d = nspec["design"]
+    buckets = (v.get("customVisual") or {}).get("buckets") or {}
+    out, warn = {}, []
+    title = visible_title(v)
+    if title:
+        out["display.title"] = title
+    sub = str(v.get("subtitle") or "").strip()
+    if sub:
+        out["display.periodLabel"] = sub
+    basis = a.get("deltaBasis")
+    mode = "auto"
+    if basis == "PY":
+        mode = "py" if buckets.get("py") else "auto"
+    elif basis in ("PL", "BU"):
+        mode = "plan" if buckets.get("pl") else "auto"
+    if basis and mode == "auto" and basis != "FC":
+        warn.append("Δ-Basis %s: passende Referenz ist nicht gebunden — "
+                    "`comparisonMode` bleibt `auto`." % basis)
+    elif basis == "FC":
+        warn.append("Δ-Basis FC: ibcsKpiCard kennt nur auto/py/plan — `auto`.")
+    out["display.comparisonMode"] = mode
+    out["display.invert"] = a.get("polarity") == "lower"
+    trend = bool(buckets.get("trend"))
+    out["display.showSparkline"] = trend
+    out["display.showBridge"] = False
+    out["display.showSecondary"] = False
+    out["display.chartButtons"] = False
+    preset, scale, avail = kpi_card_geometry(v, nspec, bool(buckets.get("category")))
+    out["labels.fontPreset"] = preset
+    # Kopfzeile der Karte: titleSize x Skalierung = Kitchen-Titel in px
+    out["display.titleSize"] = kpi_title_size(kpi_title_px(v, nspec), scale)
+    if trend and avail < KPI_COMPACT_BELOW:
+        warn.append("Kachel %d x %d px: ibcsKpiCard rechnet mit %d Einheiten Breite "
+                    "(< %d) und laesst die Sparkline weg. Kachel breiter "
+                    "ziehen (Einzelkarte ab %d px)."
+                    % (int(v["rect"]["w"]), int(v["rect"]["h"]), int(avail),
+                       KPI_COMPACT_BELOW,
+                       int(round(KPI_COMPACT_BELOW * 0.7)) + 2 * KPI_CONTAINER_PAD))
+    du, dec, _unit = tile_numbers(v)
+    out["labels.displayUnits"] = CK_DISPLAY_UNITS.get(du, "auto") if du else "auto"
+    out["labels.decimals"] = max(0, min(3, int(dec))) if dec is not None else 0
+    out["colors.goodColor"] = d["varianceColors"]["good"]
+    out["colors.badColor"] = d["varianceColors"]["bad"]
+    return out, warn
+
+
+def custom_settings(v: dict, nspec) -> tuple:
+    """(Einstellungen, Warnungen) eines Custom Visuals — heute nur ibcsKpiCard."""
+    name, _ = custom_visual_info(v.get("customVisual") or {})
+    if name == "ibcsKpiCard" and nspec is not None:
+        return kpi_card_settings(v, nspec)
+    return {}, []
+
+
+def custom_visual_json(v: dict, st) -> dict:
+    """Vollstaendige PBIR-visual.json einer Custom-Visual-Kachel."""
+    cv = v.get("customVisual") or {}
+    x, y, w, h = rect(v["rect"])
+    name, _ = custom_visual_info(cv)
+    settings, _ = custom_settings(v, getattr(st, "nspec", None))
+    # ibcsKpiCard zeichnet Titel und Zeitraum selbst -> Container-Kopf aus
+    container = container_objects(v, st, hide_titles=(name == "ibcsKpiCard"))
     return {
         "$schema": VISUAL_SCHEMA,
         "name": v["id"],
@@ -788,7 +1101,7 @@ def custom_visual_json(v: dict, st) -> dict:
         "visual": {
             "visualType": cv.get("guid"),
             "query": {"queryState": custom_query_state(cv.get("buckets"))},
-            "objects": {},
+            "objects": desktop_objects(settings) if settings else {},
             "drillFilterOtherVisuals": True,
             "visualContainerObjects": container,
         },
@@ -828,6 +1141,9 @@ def build_custom_visuals(nspec: dict, page: dict, st):
         buckets = {role: [f.get("ref") for f in entries]
                    for role, entries in (cv.get("buckets") or {}).items() if entries}
         w = custom_bucket_warnings(v, info, cv.get("buckets") or {})
+        w += list(v.get("kpiCardWarnings") or [])
+        settings, sw = custom_settings(v, nspec)
+        w += sw
         x, y, cw, ch = rect(v["rect"])
         slots.append({
             "id": v["id"], "stableId": v.get("stableId"), "page": page["name"],
@@ -844,6 +1160,8 @@ def build_custom_visuals(nspec: dict, page: dict, st):
             "analysis": v.get("analysis"), "workshop": v.get("workshop"),
             "notes": v.get("notes", ""),
             "file": "custom-visuals/%s.visual.json" % v["id"],
+            "engineSource": v.get("engineSource"),
+            "settings": settings,
             "warnings": w,
             "visualJson": custom_visual_json(v, st),
         })
@@ -921,7 +1239,12 @@ def render_custom_commands(slots, report: str, page: dict, out_dir: str,
 # Farben und Schriftgroessen aus `design`
 # --------------------------------------------------------------------------- #
 class Style:
-    """Leitet aus design + CLI-Optionen die konkreten Werte fuer das Chrome ab."""
+    """Leitet aus design + CLI-Optionen die konkreten Werte fuer das Chrome ab.
+
+    Farben: CLI-Flag (`--panel` …) vor `design.colors.<schluessel>` vor der
+    Kitchen-Vorgabe (KITCHEN_CHROME, aus mockup-kitchen.html). Schrift: Chrome-Texte
+    in pt = px x k x 0,75 (wie die Kacheltitel), siehe pt().
+    """
 
     def __init__(self, nspec: dict, opt) -> None:
         d = nspec["design"]
@@ -929,22 +1252,34 @@ class Style:
         self.nspec = nspec
         self.design = d
         self.scale = d["fontScale"]
+
+        def pick(flag: str, key: str) -> str:
+            return getattr(opt, flag, None) or c.get(key) or KITCHEN_CHROME[key]
+
         # `--ink` ueberschreibt `design.colors.ink`; ohne Flag gewinnt die Spec.
-        self.ink = opt.ink or c["ink"]
-        self.on_ink = opt.on_ink
-        self.muted_on_ink = opt.muted_on_ink
-        self.muted = opt.muted
-        self.panel = opt.panel
-        self.tile_border = opt.tile_border
+        self.ink = getattr(opt, "ink", None) or c["ink"]
+        self.on_ink = getattr(opt, "on_ink", None) or "#FFFFFF"
+        self.muted_on_ink = getattr(opt, "muted_on_ink", None) or "#C8CDD4"
+        self.muted = pick("muted", "muted")
+        self.panel = pick("panel", "panel")
+        self.tile_border = pick("tile_border", "tileBorder")
+        self.rule = pick("rule", "rule")
+        self.slicer_border = c.get("slicerBorder") or KITCHEN_CHROME["slicerBorder"]
+        self.slicer_bg = c.get("slicerBackground") or KITCHEN_CHROME["slicerBackground"]
+        self.slicer_ink = c.get("slicerInk") or KITCHEN_CHROME["slicerInk"]
+        self.footer_nav_ink = c.get("footerNavInk") or KITCHEN_CHROME["footerNavInk"]
         self.accent = d["accent"] or self.ink
         self.tile_bg = c["tileBackground"]
         self.page_bg = c["pageBackground"]
+        self.footer_bg = c.get("footerBackground") or self.page_bg
         self.radius = int(d["cornerRadius"] or 0)
         self.tile_style = d["tileStyle"] or "border"
         self.palette = d["variancePalette"]
         self.good = d["varianceColors"]["good"]
         self.bad = d["varianceColors"]["bad"]
         self.dark_mode = bool(d["darkMode"])
+        self.scen = SCENARIO_COLORS["dark" if self.dark_mode else "light"]
+        self.native_palette = d.get("nativePalette")
 
         style = (d["headerStyle"] or "dark").lower()
         self.header_style = style
@@ -953,34 +1288,48 @@ class Style:
         # seine Farben selbst.
         self.header_bg = c["headerBackground"]
         self.header_fg = c["headerInk"]
-        if style == "light":
-            self.header_muted = self.muted
-            self.header_rule = self.tile_border
-        elif style == "accent":
-            self.header_muted = self.on_ink
-            self.header_rule = None
-        elif style == "custom":
-            light = is_light(self.header_bg)
-            self.header_muted = self.muted if light else self.muted_on_ink
-            self.header_rule = self.tile_border if light else None
-        else:
-            self.header_muted = self.muted_on_ink
-            self.header_rule = None
+        light = style == "light" or (style == "custom" and is_light(self.header_bg))
+        # Untertitel: Kitchen `.zone.header .sub{opacity:.7}` -> als Mischfarbe
+        self.header_muted = mix(self.header_fg, self.header_bg, 0.3)
+        self.header_rule = self.rule if light else None
+        # Umrisse der Pillen, des Burgers und des Logo-Kastens: Kitchen nutzt
+        # rgba(Ink, .3/.4) bzw. rgba(weiss, .35/.4/.55) -> Farbe + Transparenz in %
+        self.header_light = light
+        self.nav_outline_tr = 70 if light else 65
+        self.burger_outline_tr = 70 if light else 60
+        self.logo_outline_tr = 60 if light else 45
+        self.logo_ink = mix(self.header_fg, self.header_bg, 0.4 if light else 0.25)
+        # aktive Seite: Akzent, im Akzent-Kopfband Ink (`.zone.header.accent .nav span.act`)
+        self.nav_active = self.ink if style == "accent" else self.accent
 
     def sz(self, base: float) -> int:
-        """Schriftgroesse skaliert, auf den pbir-Bereich 6-45 begrenzt."""
+        """Schriftgroesse skaliert, auf den pbir-Bereich 6-45 begrenzt (Kacheln)."""
         return max(6, min(45, int(round(base * self.scale))))
 
     def fsz(self, base: float):
-        """Wie sz(), aber auf 0,5 genau (fuer die kleinen 9,5-px-Texte aus 0.4.3/0.4.4)."""
+        """Wie sz(), aber auf 0,5 genau."""
         return half_pt(base * self.scale)
 
+    def pt(self, px: float):
+        """Kitchen-Schrift in px (bei 1280 px Basis) -> pt im Bericht: px x k x 0,75,
+        auf 0,5 gerundet. Gleiche Regel wie fuer die Kacheltitel (FIDELITY Luecke 10)."""
+        return half_pt(px * self.scale * PX_TO_PT)
+
     def typo(self, visual=None):
-        """Wirksame Schriftgroessen aus `design.typography` (None = alte Spec)."""
-        return type_sizes(self.nspec, visual)
+        """Wirksame Schriftgroessen aus `design.typography` (None = alte Spec); je
+        Kachel gewinnen `display.fontPx`/`fontPt` (Kitchen 0.5.5)."""
+        if visual is None:
+            return type_sizes(self.nspec, None)
+        return tile_type_sizes(self.nspec, visual)
 
     def px(self, base: float) -> int:
         return int(round(base * self.scale))
+
+
+# Zeichenbreite in em fuer Geist bei Pillen-Breiten (Schaetzwert, eher zu breit)
+CHAR_EM = 0.58
+# Zeilenhoehe des Kitchens (body{line-height:1.45}); Hinweistext 1.35
+LINE = 1.45
 
 
 # --------------------------------------------------------------------------- #
@@ -990,16 +1339,43 @@ def build_chrome(nspec: dict, page: dict, st: Style, opt):
     zones = nspec["zones"] or {}
     visuals = []
     cmds = Commands()
-    acts = Commands()         # Button-Aktionen: kein Batch-Op, also CLI
+    acts = Commands()         # Button-Aktionen und Ausblenden: kein Batch-Op, also CLI
     batch_props = {}          # visual -> {prop: value}   (fuer chrome-batch.json)
     notes = []
+    px = st.px
 
     def bset(name: str, prop: str, value) -> None:
         batch_props.setdefault(name, {})[prop] = value
 
-    cmds.note("Seitenhintergrund aus design.pageBackground")
-    cmds.add("pbir", "pages", "background", "{page}", "--color", st.page_bg,
-             "--transparency", "0")
+    def apply(name: str, props) -> None:
+        # Visual-Typ des zuletzt angelegten Eintrags dieses Namens (vis() kommt
+        # immer vor apply()) -> Text/Form-Schluessel mit Zustand `default`
+        vtype = next((it["visual_type"] for it in reversed(visuals)
+                      if it["name"] == name), "shape")
+        for prop, value in props:
+            prop = state_key(vtype, prop)
+            cmds.set_prop(name, prop,
+                          str(value).lower() if isinstance(value, bool) else value)
+            bset(name, prop, value)
+
+    if keeps_report_style(nspec, page=page):
+        # Seite aus dem Bericht, Gestaltung aus dem Bericht (design.sourceReport):
+        # Hintergrund bleibt, wie er in page.json steht (Befund B2, Demo-Test 02.10.2026)
+        cmds.note("Seitenhintergrund bleibt wie im Bericht (design.sourceReport)")
+    else:
+        cmds.note("Seitenhintergrund aus design.pageBackground")
+        cmds.add("pbir", "pages", "background", "{page}", "--color", st.page_bg,
+                 "--transparency", "0")
+    # Seitenrolle (Kitchen 0.6.1): Detail- und Drillthrough-Seiten sind in Power BI ausgeblendet.
+    # Seiten aus dem Bericht bekommen die Sichtbarkeit immer gesetzt, damit „wieder in die Navigation" wirkt.
+    role = page.get("role") or "nav"
+    if role != "nav":
+        cmds.note("Seite ausblenden (Rolle %s)" % role)
+        cmds.add("pbir", "set", "{page}.visibility", "--value", "HiddenInViewMode")
+        if role == "drill":
+            cmds.note("Drillthrough-Feld in Power BI setzen (Bereich Drillthrough), pbir kann es nicht anlegen")
+    elif page.get("pbir"):
+        cmds.add("pbir", "set", "{page}.visibility", "--value", "AlwaysVisible")
     cmds.note("")
 
     def band(name: str, title: str, x, y, w, h, color: str, z: int = Z["bg"],
@@ -1009,43 +1385,72 @@ def build_chrome(nspec: dict, page: dict, st: Style, opt):
         # Achtung: der Enum-Wert heisst `rectangleRounded`, nicht
         # `roundedRectangle` — pbir lehnt Letzteres ab.
         shape_val = "rectangleRounded" if rounded and st.radius else "rectangle"
-        cmds.set_prop(name, "shape.tileShape", shape_val)
-        bset(name, "shape.tileShape", shape_val)
+        props = [("shape.tileShape", shape_val)]
         if rounded and st.radius:
-            cmds.set_prop(name, "shape.rectangleRoundedCurve", str(st.radius))
-            bset(name, "shape.rectangleRoundedCurve", st.radius)
-        for prop, value in (("fill.show", True), ("fill.fillColor", color),
-                            ("outline.show", False)):
-            cmds.set_prop(name, prop, str(value).lower() if isinstance(value, bool) else value)
-            bset(name, prop, value)
+            props.append(("shape.rectangleRoundedCurve", st.radius))
+        props += [("fill.show", True), ("fill.fillColor", color), ("outline.show", False)]
+        apply(name, props)
+        cmds.position(name, "--z", str(z))
+        bset(name, "__z", z)
+        cmds.note("")
+
+    def rule_line(name: str, title: str, x, y, w, h, z: int = Z["bg"] + 1) -> None:
+        """1-px-Linie als gefuelltes Rechteck (wie die Kitchen-Rahmenlinien)."""
+        visuals.append(vis("shape", name, title, x, y, w, h))
+        cmds.note("%s (Linie %s)" % (title, st.rule))
+        apply(name, [("shape.tileShape", "rectangle"), ("fill.show", True),
+                     ("fill.fillColor", st.rule), ("outline.show", False)])
         cmds.position(name, "--z", str(z))
         bset(name, "__z", z)
         cmds.note("")
 
     def label(name: str, title: str, x, y, w, h, text: str, *,
-              size: int, color: str, bold: bool = False, align: str = "left",
+              size, color: str, bold: bool = False, align: str = "left",
               valign: str = "middle", z: int = Z["text"]) -> None:
         visuals.append(vis("shape", name, title, x, y, w, h))
         cmds.note("%s — Text (Shape ohne Fuellung; Textboxen koennen per CLI "
                   "keinen Text bekommen)" % title)
-        props = [("fill.show", False), ("outline.show", False), ("text.text", text),
-                 ("text.fontSize", size), ("text.fontColor", color),
+        # text.show ist bei Shapes standardmaessig AUS — ohne den Schalter bleibt
+        # der Text unsichtbar (Deploy 4: Kopfband und Fussleiste leer).
+        # Raender 0: die Position ist schon die Textposition aus dem Kitchen.
+        props = [("fill.show", False), ("outline.show", False), ("text.show", True),
+                 ("text.text", text), ("text.fontSize", size), ("text.fontColor", color),
                  ("text.horizontalAlignment", align),
-                 ("text.verticalAlignment", valign)]
+                 ("text.verticalAlignment", valign),
+                 ("text.leftMargin", 0), ("text.rightMargin", 0),
+                 ("text.topMargin", 0), ("text.bottomMargin", 0)]
         if bold:
             props.append(("text.bold", True))
-        for prop, value in props:
-            cmds.set_prop(name, prop,
-                          str(value).lower() if isinstance(value, bool) else value)
-            bset(name, prop, value)
+        apply(name, props)
         cmds.position(name, "--z", str(z))
         bset(name, "__z", z)
         cmds.note("")
 
     hinted = []
 
+    def pill_props(*, text, size, fg, active, outline, outline_tr, radius,
+                   active_fill=None):
+        """Kitchen-Pille: inaktiv Umriss ohne Fuellung, aktiv in Akzentfarbe."""
+        fill = active_fill or st.accent
+        if active:
+            props = [("fill.show", True), ("fill.fillColor", fill),
+                     ("outline.show", True), ("outline.lineColor", fill),
+                     ("outline.weight", 1), ("text.fontColor", st.on_ink)]
+        else:
+            props = [("fill.show", False), ("outline.show", True),
+                     ("outline.lineColor", outline), ("outline.transparency", outline_tr),
+                     ("outline.weight", 1), ("text.fontColor", fg)]
+        if radius:
+            props += [("shape.tileShape", "rectangleRounded"),
+                      ("shape.rectangleRoundedCurve", radius)]
+        props += [("text.show", True), ("text.text", text), ("text.fontSize", size),
+                  ("text.horizontalAlignment", "center"),
+                  ("text.verticalAlignment", "middle")]
+        return props
+
     def nav_button(name: str, text: str, x, y, w, h, target: str, *,
-                   active: bool, fg: str, size=None, outline=None) -> None:
+                   active: bool, fg: str, size, outline=None, outline_tr=70,
+                   radius=0, active_fill=None) -> None:
         visuals.append(vis("actionButton", name, text, x, y, w, h))
         if not hinted:
             hinted.append("x")
@@ -1055,26 +1460,18 @@ def build_chrome(nspec: dict, page: dict, st: Style, opt):
             cmds.note("")
         cmds.note("Nav-Button '%s'%s" % (text, " — aktive Seite, ohne Aktion"
                                          if active else " -> Seite '%s'" % target))
-        if active:
-            props = [("fill.show", True), ("fill.fillColor", st.accent),
-                     ("text.fontColor", st.on_ink)]
+        if outline is None:
+            props = ([("fill.show", True), ("fill.fillColor", active_fill or st.accent),
+                      ("text.fontColor", st.on_ink)] if active
+                     else [("fill.show", False), ("text.fontColor", fg)])
+            props += [("outline.show", False), ("text.show", True), ("text.text", text),
+                      ("text.fontSize", size), ("text.horizontalAlignment", "center"),
+                      ("text.verticalAlignment", "middle")]
         else:
-            props = [("fill.show", False), ("text.fontColor", fg)]
-        if outline and not active:
-            # Fussleisten-Navigation: duenner Rahmen wie im Tool
-            # (actionButton outline.show/lineColor/weight — pbir schema describe)
-            props += [("outline.show", True), ("outline.lineColor", outline),
-                      ("outline.weight", 1)]
-        else:
-            props += [("outline.show", False)]
-        props += [("text.text", text),
-                  ("text.fontSize", st.sz(10) if size is None else size),
-                  ("text.horizontalAlignment", "center"),
-                  ("text.verticalAlignment", "middle")]
-        for prop, value in props:
-            cmds.set_prop(name, prop,
-                          str(value).lower() if isinstance(value, bool) else value)
-            bset(name, prop, value)
+            props = pill_props(text=text, size=size, fg=fg, active=active,
+                               outline=outline, outline_tr=outline_tr, radius=radius,
+                               active_fill=active_fill)
+        apply(name, props)
         if not active:
             cmds.add("pbir", "visuals", "action", "{page}/%s.Visual" % name,
                      "--type", "PageNavigation", "--target", target)
@@ -1085,6 +1482,9 @@ def build_chrome(nspec: dict, page: dict, st: Style, opt):
         cmds.position(name, "--z", str(Z["button"]))
         bset(name, "__z", Z["button"])
         cmds.note("")
+
+    def pill_width(text: str, font_px: float, pad_px: float) -> int:
+        return max(px(40), px(len(text) * font_px * CHAR_EM + 2 * pad_px + 2))
 
     header = zones.get("header") or {}
     nav_zone = zones.get("nav")
@@ -1115,142 +1515,152 @@ def build_chrome(nspec: dict, page: dict, st: Style, opt):
         nx, ny, nw, nh = rect(nav_zone)
         band("chrome_nav_bg", "Nav-Leiste", nx, ny, nw, nh, st.ink)
         entries = [str(n) for n in (nav_zone.get("pages") or nav_entries)]
-        top = ny + st.px(16)
+        top = ny + px(16)
         if header.get("logo") or (header.get("logoPos") or "none") != "none":
-            size = st.px(40)
+            size = px(40)
             visuals.append(vis("shape", "chrome_logo", "Logo",
-                               nx + st.px(12), ny + st.px(12), size, size))
+                               nx + px(12), ny + px(12), size, size))
             cmds.note("Logo-Platzhalter — durch ein Bild ersetzen:")
             cmds.note('  pbir rm "{page}/chrome_logo.Visual" -f')
             cmds.note('  pbir add visual image "{page}" -n chrome_logo '
                       '-x %d -y %d -w %d -h %d --image "<Pfad zum Logo>"'
-                      % (nx + st.px(12), ny + st.px(12), size, size))
-            for prop, value in (("fill.show", False), ("outline.show", True),
-                                ("outline.lineColor", st.on_ink),
-                                ("text.text", "LOGO"), ("text.fontSize", st.sz(8)),
-                                ("text.fontColor", st.on_ink),
-                                ("text.horizontalAlignment", "center")):
-                cmds.set_prop("chrome_logo", prop,
-                              str(value).lower() if isinstance(value, bool) else value)
-                bset("chrome_logo", prop, value)
+                      % (nx + px(12), ny + px(12), size, size))
+            apply("chrome_logo", [("fill.show", False), ("outline.show", True),
+                                  ("outline.lineColor", st.on_ink),
+                                  ("outline.transparency", 65),
+                                  ("text.show", True), ("text.text", "LOGO"),
+                                  ("text.fontSize", st.pt(10)),
+                                  ("text.fontColor", st.on_ink),
+                                  ("text.horizontalAlignment", "center"),
+                                  ("text.verticalAlignment", "middle")])
             cmds.position("chrome_logo", "--z", str(Z["text"]))
             bset("chrome_logo", "__z", Z["text"])
             cmds.note("")
-            top = ny + st.px(72)
-        step, bh = st.px(48), st.px(40)
+            top = ny + px(72)
+        step, bh = px(48), px(40)
         for i, entry in enumerate(entries):
-            nav_button("chrome_nav_%d" % (i + 1), entry, nx + st.px(8), top + i * step,
-                       max(32, nw - st.px(16)), bh, entry,
-                       active=(entry == page["name"]), fg=st.on_ink)
+            nav_button("chrome_nav_%d" % (i + 1), entry, nx + px(8), top + i * step,
+                       max(32, nw - px(16)), bh, entry,
+                       active=(entry == page["name"]), fg=st.on_ink, size=st.pt(11.5),
+                       outline=st.on_ink, outline_tr=65, radius=px(6))
         nav_entries = []  # im Kopfband nicht noch einmal
 
     # ---- Kopfband -------------------------------------------------------- #
+    # Kitchen (mockup-kitchen.html .zone.header): Flex-Zeile, Rand 16 px, Abstand
+    # 14 px, alles senkrecht mittig: [Burger] [Logo links] [Titel/Untertitel]
+    # [Nav rechts] [Logo rechts]. Titel 17 px fett, Untertitel 11 px mit 70 %.
     if header:
         hx, hy, hw, hh = rect(header)
         band("chrome_header_bg", "Kopfband", hx, hy, hw, hh, st.header_bg)
         if st.header_rule:
-            visuals.append(vis("shape", "chrome_header_rule", "Kopfband-Unterkante",
-                               hx, hy + hh - 1, hw, 1))
-            cmds.note("Kopfband-Unterkante (heller Kopfband-Stil braucht eine Trennlinie)")
-            for prop, value in (("fill.show", True),
-                                ("fill.fillColor", st.header_rule),
-                                ("outline.show", False)):
-                cmds.set_prop("chrome_header_rule", prop,
-                              str(value).lower() if isinstance(value, bool) else value)
-                bset("chrome_header_rule", prop, value)
-            cmds.position("chrome_header_rule", "--z", str(Z["bg"] + 1))
-            bset("chrome_header_rule", "__z", Z["bg"] + 1)
-            cmds.note("")
+            rule_line("chrome_header_rule", "Kopfband-Unterkante", hx, hy + hh - 1, hw, 1)
 
-        text_left = hx + st.px(16)
+        pad, gap = px(16), px(14)
+        text_left = hx + pad
 
-        # Burger-Button fuer das Overlay-Filterpanel
+        # Burger-Button fuer das Overlay-Filterpanel (Kitchen: 32 x 32, drei Striche)
         filt = zones.get("filter") or {}
         burger = bool(header.get("burger")) or filt.get("mode") == "burger"
         if burger:
-            bw, bh = st.px(84), st.px(28)
+            bw = bh = min(px(32), max(16, hh - px(8)))
             by = hy + (hh - bh) // 2
             visuals.append(vis("actionButton", "chrome_burger", "Filter-Menü",
                                text_left, by, bw, bh))
             cmds.note("Burger-Button — oeffnet das Filter-Overlay ueber ein Lesezeichen")
-            for prop, value in (("fill.show", True), ("fill.fillColor", st.accent),
-                                ("outline.show", False),
-                                ("text.text", "☰ Filter"),
-                                ("text.fontSize", st.sz(10)),
-                                ("text.fontColor", st.on_ink),
-                                ("text.horizontalAlignment", "center"),
-                                ("text.verticalAlignment", "middle")):
-                cmds.set_prop("chrome_burger", prop,
-                              str(value).lower() if isinstance(value, bool) else value)
-                bset("chrome_burger", prop, value)
+            apply("chrome_burger", [("fill.show", False), ("outline.show", True),
+                                    ("outline.lineColor", st.header_fg),
+                                    ("outline.transparency", st.burger_outline_tr),
+                                    ("outline.weight", 1),
+                                    ("shape.tileShape", "rectangleRounded"),
+                                    ("shape.rectangleRoundedCurve", px(4)),
+                                    ("text.show", True), ("text.text", "☰"),
+                                    ("text.fontSize", st.pt(16)),
+                                    ("text.fontColor", st.header_fg),
+                                    ("text.horizontalAlignment", "center"),
+                                    ("text.verticalAlignment", "middle")])
             cmds.position("chrome_burger", "--z", str(Z["button"]))
             bset("chrome_burger", "__z", Z["button"])
             cmds.note("")
-            text_left += bw + st.px(12)
+            text_left += bw + gap
 
         logo_pos = header.get("logoPos")
         if logo_pos is None:
             logo_pos = "left" if header.get("logo") else "none"
+        logo_w, logo_h = px(88), min(px(30), max(16, hh - px(8)))
         if logo_pos != "none" and not nav_zone:
-            logo_h = min(st.px(32), max(16, hh - st.px(24)))
-            logo_w = st.px(120)
             logo_y = hy + (hh - logo_h) // 2
-            logo_x = (hx + hw - st.px(16) - logo_w) if logo_pos == "right" else text_left
+            logo_x = (hx + hw - pad - logo_w) if logo_pos == "right" else text_left
             visuals.append(vis("shape", "chrome_logo", "Logo",
                                logo_x, logo_y, logo_w, logo_h))
-            cmds.note("Logo-Platzhalter — durch ein Bild ersetzen:")
+            cmds.note("Logo-Platzhalter (Kitchen: gestrichelter Kasten 88 x 30 px; "
+                      "Power BI kennt keinen gestrichelten Umriss) — durch ein Bild "
+                      "ersetzen:")
             cmds.note('  pbir rm "{page}/chrome_logo.Visual" -f')
             cmds.note('  pbir add visual image "{page}" -n chrome_logo '
                       '-x %d -y %d -w %d -h %d --image "<Pfad zum Logo>"'
                       % (logo_x, logo_y, logo_w, logo_h))
-            for prop, value in (("fill.show", False), ("outline.show", True),
-                                ("outline.lineColor", st.header_fg),
-                                ("text.text", "LOGO"), ("text.fontSize", st.sz(8)),
-                                ("text.fontColor", st.header_fg),
-                                ("text.horizontalAlignment", "center")):
-                cmds.set_prop("chrome_logo", prop,
-                              str(value).lower() if isinstance(value, bool) else value)
-                bset("chrome_logo", prop, value)
+            apply("chrome_logo", [("fill.show", False), ("outline.show", True),
+                                  ("outline.lineColor", st.header_fg),
+                                  ("outline.transparency", st.logo_outline_tr),
+                                  ("outline.weight", 1),
+                                  ("shape.tileShape", "rectangleRounded"),
+                                  ("shape.rectangleRoundedCurve", px(4)),
+                                  ("text.show", True), ("text.text", "LOGO"),
+                                  ("text.fontSize", st.pt(10)),
+                                  ("text.fontColor", st.logo_ink),
+                                  ("text.horizontalAlignment", "center"),
+                                  ("text.verticalAlignment", "middle")])
             cmds.position("chrome_logo", "--z", str(Z["text"]))
             bset("chrome_logo", "__z", Z["text"])
             cmds.note("")
             if logo_pos == "left":
-                text_left = logo_x + logo_w + st.px(16)
+                text_left = logo_x + logo_w + gap
 
-        # Nav-Buttons rechtsbuendig im Kopfband
-        right = hx + hw - st.px(16)
+        # Nav-Pillen rechtsbuendig im Kopfband (Kitchen .nav span: 11,5 px,
+        # Polster 5/12 px, Rahmen 1 px, Radius 4 px, Abstand 6 px)
+        right = hx + hw - pad
         if logo_pos == "right" and not nav_zone:
-            right -= st.px(120) + st.px(16)
+            right -= logo_w + gap
         if nav_entries:
-            bw, gap = st.px(112), st.px(8)
-            bh = min(st.px(32), max(st.px(24), hh - st.px(16)))
+            gap_n = px(6)
+            bh = min(px(11.5 * LINE + 12), max(px(16), hh - px(8)))
             by = hy + (hh - bh) // 2
-            block = len(nav_entries) * bw + (len(nav_entries) - 1) * gap
-            start = max(text_left + st.px(160), right - block)
-            for i, entry in enumerate(nav_entries):
-                nav_button("chrome_nav_%d" % (i + 1), entry,
-                           start + i * (bw + gap), by, bw, bh, entry,
-                           active=(entry == page["name"]), fg=st.header_fg)
-            right = start - st.px(16)
+            widths = [pill_width(e, 11.5, 12) for e in nav_entries]
+            block = sum(widths) + gap_n * (len(widths) - 1)
+            start = max(text_left + px(160), right - block)
+            x = start
+            for i, (entry, bw) in enumerate(zip(nav_entries, widths)):
+                nav_button("chrome_nav_%d" % (i + 1), entry, x, by, bw, bh, entry,
+                           active=(entry == page["name"]), fg=st.header_fg,
+                           size=st.pt(11.5), outline=st.header_fg,
+                           outline_tr=st.nav_outline_tr, radius=px(4),
+                           active_fill=st.nav_active)
+                x += bw + gap_n
+            right = start - gap
 
         title = header.get("title") or page["name"] or ""
         subtitle = header.get("subtitle") or ""
-        text_w = max(st.px(120), right - text_left)
-        if title and subtitle and hh >= st.px(48):
-            label("chrome_header_title", "Kopfband-Titel", text_left, hy + st.px(6),
-                  text_w, st.px(26), title, size=st.sz(16), color=st.header_fg, bold=True)
+        text_w = max(px(120), right - text_left)
+        th, sh = px(17 * LINE), px(11 * LINE)
+        if title and subtitle and hh >= th + sh:
+            top = hy + (hh - th - sh) // 2
+            label("chrome_header_title", "Kopfband-Titel", text_left, top,
+                  text_w, th, title, size=st.pt(17), color=st.header_fg, bold=True)
             label("chrome_header_subtitle", "Kopfband-Untertitel", text_left,
-                  hy + st.px(32), text_w, max(st.px(14), hh - st.px(38)), subtitle,
-                  size=st.sz(10), color=st.header_muted)
+                  top + th, text_w, sh, subtitle,
+                  size=st.pt(11), color=st.header_muted)
         elif title:
             label("chrome_header_title", "Kopfband-Titel", text_left,
-                  hy + (hh - st.px(28)) // 2, text_w, st.px(28), title,
-                  size=st.sz(16), color=st.header_fg, bold=True)
+                  hy + (hh - th) // 2, text_w, th, title,
+                  size=st.pt(17), color=st.header_fg, bold=True)
             if subtitle:
                 notes.append("Kopfband ist zu niedrig fuer einen Untertitel — "
                              "'%s' nicht platziert." % subtitle)
 
     # ---- Filter-Panel ---------------------------------------------------- #
+    # Kitchen (.zone.filter): Flaeche #ECEBE5, Linie #E3E1D8 zur Inhaltsseite,
+    # Ueberschrift 11 px Versalien grau (h4, also fett), Hinweis 9,5 px grau,
+    # Slicer als weisse Kaesten mit Rahmen #D9D6CC.
     filt = zones.get("filter")
     if filt:
         fx, fy, fw, fh = rect(filt)
@@ -1261,83 +1671,91 @@ def build_chrome(nspec: dict, page: dict, st: Style, opt):
         z_bt = Z["overlayButton"] if overlay else Z["button"]
         band("chrome_filter_bg", "Filter-Panel", fx, fy, fw, fh, st.panel,
              z=z_bg, rounded=overlay)
-        fl = filter_layout(nspec)
-        if not fl["new"]:
+        if not overlay:
             if mode == "top":
-                label("chrome_filter_title", "Filter-Überschrift", fx + st.px(8), fy,
-                      st.px(56), fh, "Filter", size=st.sz(11), color=st.ink, bold=True,
-                      z=z_tx)
+                rule_line("chrome_filter_rule", "Filter-Leiste Unterkante",
+                          fx, fy + fh - 1, fw, 1)
+            elif mode == "left":
+                rule_line("chrome_filter_rule", "Filter-Panel Kante",
+                          fx + fw - 1, fy, 1, fh)
             else:
-                label("chrome_filter_title", "Filter-Überschrift", fx + st.px(8),
-                      fy + st.px(8), fw - st.px(16), st.px(24), "Filter",
-                      size=st.sz(11), color=st.ink, bold=True, z=z_tx)
-        else:
-            # Tool 0.4.4: Ueberschrift frei oder aus, dazu ein Hinweistext —
-            # beides als Shape mit Text wie die uebrigen Chrome-Texte.
-            if fl["heading"]:
-                label("chrome_filter_title", "Filter-Überschrift", *fl["title"],
-                      fl["heading"], size=st.sz(11), color=st.ink, bold=True,
-                      z=z_tx)
-            else:
-                notes.append("Filterbereich ohne Überschrift (`zones.filter.heading: "
-                             "null`) — es entsteht kein `chrome_filter_title`.")
-            if fl["text"]:
-                label("chrome_filter_text", "Filter-Hinweistext", *fl["textRect"],
-                      fl["text"], size=st.fsz(9.5), color=st.muted,
-                      valign="middle" if mode == "top" else "top", z=z_tx)
-                if mode != "top" and len(fl["text"]) > 240:
-                    notes.append("Der Hinweistext im Filterbereich ist lang (%d Zeichen) "
-                                 "— `chrome_filter_text` ist auf höchstens sechs Zeilen "
-                                 "bemessen; in Desktop gegenlesen." % len(fl["text"]))
+                rule_line("chrome_filter_rule", "Filter-Panel Kante", fx, fy, 1, fh)
+        fl = filter_layout(nspec)
+        if fl["heading"]:
+            label("chrome_filter_title", "Filter-Überschrift", *fl["title"],
+                  fl["heading"].upper(), size=st.pt(11), color=st.muted, bold=True,
+                  z=z_tx)
+        elif fl["new"]:
+            notes.append("Filterbereich ohne Überschrift (`zones.filter.heading: "
+                         "null`) — es entsteht kein `chrome_filter_title`.")
+        if fl["text"]:
+            label("chrome_filter_text", "Filter-Hinweistext", *fl["textRect"],
+                  fl["text"], size=st.pt(9.5), color=st.muted,
+                  valign="middle" if mode == "top" else "top", z=z_tx)
+            if mode != "top" and len(fl["text"]) > 240:
+                notes.append("Der Hinweistext im Filterbereich ist lang (%d Zeichen) "
+                             "— `chrome_filter_text` ist auf höchstens sechs Zeilen "
+                             "bemessen; in Desktop gegenlesen." % len(fl["text"]))
         if mode == "top":
             notes.append("Filter als Leiste oben: die Slicer stehen nebeneinander "
-                         "(%d px breit, Abstand %d px)." % (st.px(160), st.px(8)))
+                         "(%d px breit, Abstand %d px)." % (px(160), px(8)))
 
         if overlay or filt.get("collapsible"):
-            cw = st.px(28)
+            cw = px(28)
             visuals.append(vis("actionButton", "chrome_filter_close",
-                               "Filter schließen", fx + fw - cw - st.px(8),
-                               fy + st.px(8), cw, st.px(24)))
+                               "Filter schließen", fx + fw - cw - px(8),
+                               fy + px(8), cw, px(24)))
             cmds.note("Schliessen-Button des Panels — Ziel ist das Lesezeichen "
                       "'Filter schliessen' (siehe navigation.md)")
-            for prop, value in (("fill.show", False), ("outline.show", False),
-                                ("text.text", "✕"),
-                                ("text.fontSize", st.sz(11)),
-                                ("text.fontColor", st.ink),
-                                ("text.horizontalAlignment", "center"),
-                                ("text.verticalAlignment", "middle")):
-                cmds.set_prop("chrome_filter_close", prop,
-                              str(value).lower() if isinstance(value, bool) else value)
-                bset("chrome_filter_close", prop, value)
+            apply("chrome_filter_close", [("fill.show", False), ("outline.show", False),
+                                          ("text.show", True), ("text.text", "✕"),
+                                          ("text.fontSize", st.pt(14)),
+                                          ("text.fontColor", st.muted),
+                                          ("text.horizontalAlignment", "center"),
+                                          ("text.verticalAlignment", "middle")])
             cmds.position("chrome_filter_close", "--z", str(z_bt))
             bset("chrome_filter_close", "__z", z_bt)
             cmds.note("")
 
         if overlay:
+            # Grundzustand „zu": alle Panel-Elemente ausgeblendet. `pbir batch`
+            # kennt kein isHidden (`set` lehnt is_hidden ab) -> `pbir visuals hide`
+            # in analysis-commands.sh. Lesezeichen und Button-Aktionen bleiben in
+            # navigation.md (der Zustand eines Lesezeichens fuellt sich erst in Desktop).
+            hide = panel_visual_names(nspec, page)
+            for c in (cmds, acts):
+                c.note("Filter-Overlay: Grundzustand ausgeblendet")
+                for n in hide:
+                    c.add("pbir", "visuals", "hide", "{page}/%s.Visual" % n)
+                c.note("")
             notes.append("Filter-Overlay: Panel, Ueberschrift, Schliessen-Button und "
-                         "Slicer liegen ueber dem Inhalt und sind im Grundzustand "
-                         "ausgeblendet. Lesezeichen und Button-Aktionen stehen in "
-                         "navigation.md.")
+                         "Slicer liegen ueber dem Inhalt und werden ausgeblendet "
+                         "angelegt (`pbir visuals hide` in analysis-commands.sh). "
+                         "Lesezeichen und Button-Aktionen stehen in navigation.md.")
         elif filt.get("collapsible"):
             notes.append("Filter-Panel ist als ausklappbar markiert: zwei Lesezeichen "
                          "(Panel ein/aus) — Rezept in navigation.md.")
 
-        n_slicers = len(filt.get("slicers") or [])
-        off_y = fl["origin"][1] - fy if fl["new"] else st.px(40)
-        off_x = fl["origin"][0] - fx if fl["new"] else st.px(8)
-        if mode != "top" and n_slicers and off_y + n_slicers * st.px(64) > fh:
-            notes.append("%d Slicer passen rechnerisch nicht in das %d px hohe "
-                         "Filter-Panel (%d + n*%d px)."
-                         % (n_slicers, fh, off_y, st.px(64)))
-        if mode == "top" and n_slicers and off_x + n_slicers * st.px(168) > fw:
-            notes.append("%d Slicer passen rechnerisch nicht in die %d px breite "
-                         "Filter-Leiste (%d + n*%d px)."
-                         % (n_slicers, fw, off_x, st.px(168)))
+        rects = slicer_rects(nspec)
+        if rects:
+            last = rects[-1]
+            if mode != "top" and last[1] + last[3] > fy + fh:
+                notes.append("%d Slicer passen rechnerisch nicht in das %d px hohe "
+                             "Filter-Panel (letzter endet bei y %d, Panel bei %d)."
+                             % (len(rects), fh, last[1] + last[3], fy + fh))
+            if mode == "top" and last[0] + last[2] > fx + fw:
+                notes.append("%d Slicer passen rechnerisch nicht in die %d px breite "
+                             "Filter-Leiste (letzter endet bei x %d)."
+                             % (len(rects), fw, last[0] + last[2]))
 
     # ---- Fussleiste ------------------------------------------------------ #
+    # Kitchen (.zone.footer): Band ohne eigene Fuellung, Linie oben #E3E1D8,
+    # Text 10 px grau, Rand 16 px; Nav-Pillen 9,5 px, Polster 3/9, Radius 3.
     footer = zones.get("footer")
     if footer:
         gx, gy, gw, gh = rect(footer)
+        band("chrome_footer_bg", "Fußleiste", gx, gy, gw, gh, st.footer_bg)
+        rule_line("chrome_footer_rule", "Fußleiste Oberkante", gx, gy, gw, 1)
         text = footer.get("text") or ""
         # Tool 0.4.3: Seitennavigation rechtsbuendig in der Fussleiste, kleiner als
         # im Kopfband (Schrift 9,5 px x Skalierung, Abstand 5 px, Rand rechts
@@ -1345,24 +1763,23 @@ def build_chrome(nspec: dict, page: dict, st: Style, opt):
         # (`chrome_nav_<i>`), damit navigation.md und Lesezeichen gleich bleiben.
         nav_w = 0
         if footer_entries:
-            nfs = st.fsz(9.5)
-            gap = st.px(5)
-            bh = max(12, min(gh - st.px(4), st.px(20)))
+            gap = px(5)
+            bh = max(12, min(gh - px(4), px(9.5 * LINE + 8)))
             by = gy + (gh - bh) // 2
-            widths = [max(st.px(48), st.px(len(e) * 9.5 * 0.56 + 16))
-                      for e in footer_entries]
+            widths = [pill_width(e, 9.5, 9) for e in footer_entries]
             block = sum(widths) + gap * (len(widths) - 1)
-            x = gx + gw - st.px(16) - block
+            x = gx + gw - px(16) - block
             for i, (entry, bw) in enumerate(zip(footer_entries, widths)):
                 nav_button("chrome_nav_%d" % (i + 1), entry, x, by, bw, bh, entry,
-                           active=(entry == page["name"]), fg=st.ink,
-                           size=nfs, outline=st.tile_border)
+                           active=(entry == page["name"]), fg=st.footer_nav_ink,
+                           size=st.pt(9.5), outline=st.ink, outline_tr=70,
+                           radius=px(3))
                 x += bw + gap
-            nav_w = block + st.px(16)
+            nav_w = block + px(12)
         if text:
-            label("chrome_footer_text", "Fußleiste", gx + st.px(16), gy,
-                  max(st.px(40), gw - st.px(32) - nav_w), gh, text,
-                  size=st.sz(9), color=st.muted)
+            label("chrome_footer_text", "Fußleisten-Text", gx + px(16), gy + 1,
+                  max(px(40), gw - px(32) - nav_w), gh - 1, text,
+                  size=st.pt(10), color=st.muted)
     if nav_pos == "footer" and not footer:
         notes.append('Seitennavigation steht auf `navPosition: "footer"`, die '
                      "Fußleiste ist aber aus — es entstehen keine Nav-Buttons. "
@@ -1372,7 +1789,7 @@ def build_chrome(nspec: dict, page: dict, st: Style, opt):
         notes.append('Seitennavigation in der Fußleiste (`navPosition: "footer"`): '
                      "%d Buttons `chrome_nav_*` rechtsbündig, Schrift %s pt; "
                      "das Kopfband bleibt ohne Nav." % (len(footer_entries),
-                                                       st.fsz(9.5)))
+                                                       st.pt(9.5)))
 
     return visuals, cmds, acts, notes, batch_props
 
@@ -1392,12 +1809,13 @@ def build_text_tiles(nspec: dict, page: dict, st: Style, cmds: Commands,
         content = (v.get("content") or "").strip()
         is_button = v.get("kind") == "button"
         vtype = "actionButton" if is_button else "shape"
-        visuals.append(vis(vtype, name, v.get("title") or "", x, y, w, h))
+        visuals.append(vis(vtype, name, v.get("title") or display_name(v), x, y, w, h))
         cmds.note("%s-Kachel „%s\" — Text als %s "
                   "(eine Textbox bliebe per CLI leer)"
                   % ("Button" if is_button else "Text", v.get("title") or name, vtype))
         props = [("fill.show", True if is_button else False),
                  ("outline.show", False),
+                 ("text.show", True),          # bei shape/actionButton sonst aus
                  ("text.text", content or (v.get("title") or "")),
                  ("text.fontSize", st.sz(11 if not is_button else 10)),
                  ("text.fontColor", st.on_ink if is_button else st.ink),
@@ -1406,6 +1824,7 @@ def build_text_tiles(nspec: dict, page: dict, st: Style, cmds: Commands,
         if is_button:
             props.insert(1, ("fill.fillColor", st.accent))
         for prop, value in props:
+            prop = state_key(vtype, prop)
             cmds.set_prop(name, prop,
                           str(value).lower() if isinstance(value, bool) else value)
             batch_props.setdefault(name, {})[prop] = value
@@ -1426,16 +1845,45 @@ def build_text_tiles(nspec: dict, page: dict, st: Style, cmds: Commands,
     return visuals, notes
 
 
+def slicer_look(st: Style, visual_type: str):
+    """Kitchen-Slicer-Kasten (.zone.filter .sl): weiss, Rahmen #D9D6CC, Radius 4,
+    Schrift 10,5 px #374151. Der Feldname steht nur einmal: Slicer-Kopf an,
+    Container-Titel aus (Deploy 4 zeigte beide). Verifiziert mit `pbir schema
+    describe slicer header|items` und `pbir batch` am Testbed."""
+    props = [("title.show", False),
+             ("background.show", True), ("background.color", st.slicer_bg),
+             ("background.transparency", 0),
+             ("border.show", True), ("border.color", st.slicer_border),
+             ("border.width", 1), ("border.radius", st.px(4)),
+             ("dropShadow.show", False)]
+    if visual_type == "slicer":
+        props += [("header.show", True), ("header.textSize", st.pt(10.5)),
+                  ("header.fontColor", st.slicer_ink), ("header.bold", False),
+                  ("items.textSize", st.pt(10.5)), ("items.fontColor", st.slicer_ink)]
+    return props
+
+
 def add_slicer_formatting(nspec: dict, page: dict, cmds: Commands,
-                          batch_props: dict):
-    """Slicer-Art (Tool 0.4.4) -> data.mode / general.orientation / Suche.
+                          batch_props: dict, st=None):
+    """Slicer-Art (Tool 0.4.4) -> data.mode / general.orientation / Suche, dazu
+    (mit `st`) die Kitchen-Optik des Slicer-Kastens.
 
     Liefert Hinweise fuer checklist.md. Aeltere Specs ohne `type` bekommen
-    nichts gesetzt (der Slicer bleibt, wie pbir ihn anlegt).
+    keine Slicer-Art gesetzt (der Slicer bleibt, wie pbir ihn anlegt).
     """
     filt = (nspec["zones"] or {}).get("filter") or {}
     names = slicer_names(nspec, page)
     notes = []
+    if st is not None and filt.get("slicers"):
+        cmds.note("Slicer im Kitchen-Kasten: Rahmen %s, Kopf an, Container-Titel aus"
+                  % st.slicer_border)
+        for i, s_ in enumerate(filt.get("slicers") or []):
+            vtype = SLICER_VISUAL_TYPE.get(slicer_type(s_) or "", "slicer")
+            for prop, value in slicer_look(st, vtype):
+                cmds.set_prop(names[i], prop,
+                              str(value).lower() if isinstance(value, bool) else value)
+                batch_props.setdefault(names[i], {})[prop] = value
+        cmds.note("")
     for i, s_ in enumerate(filt.get("slicers") or []):
         t = slicer_type(s_)
         if not t:
@@ -1529,6 +1977,137 @@ def add_tile_formatting(cmds: Commands, st: Style, names, batch_props: dict) -> 
     cmds.note("")
 
 
+# Format-Objekte je nativem Typ, verifiziert mit `pbir schema describe <typ>
+# <objekt>` (pbir 0.9.32): legend.show; valueAxis.show/gridlineShow/gridlineStyle
+# (solid|dashed|dotted|custom); labels.show/fontSize/color; dataPoint.fill und bei
+# Saeulen/Balken/Ringen borderShow/borderColor/borderSize; waterfallChart
+# sentimentColors.increaseFill/decreaseFill/totalFill. Die Selektor-Syntax
+# `dataPoint.field(<Tabelle.Kennzahl>).fill` nimmt `pbir batch` an (Probe am Testbed:
+# selector.metadata = queryRef der Kennzahl).
+_BARS = frozenset({"legend", "axis", "labels", "fill", "border"})
+NATIVE_LOOK = {
+    "clusteredColumnChart": _BARS, "clusteredBarChart": _BARS, "columnChart": _BARS,
+    "barChart": _BARS, "lineClusteredColumnComboChart": _BARS,
+    "lineChart": frozenset({"legend", "axis", "labels", "fill"}),
+    "areaChart": frozenset({"legend", "axis", "labels", "fill"}),
+    "waterfallChart": frozenset({"legend", "axis", "labels", "sentiment"}),
+    "donutChart": frozenset({"legend", "labels", "fill", "border"}),
+    "pieChart": frozenset({"legend", "labels", "fill", "border"}),
+    "treemap": frozenset({"legend", "labels", "fill"}),
+}
+# Kitchen-Typen mit Power-BI-Optik (Skizze: Legende, gepunktetes Gitter, Datenfarben
+# aus nativePalette). Alle uebrigen Diagramm-Typen sind IBCS-Skizzen: keine Legende,
+# keine Wertachse, kein Gitter, Werte an den Datenpunkten, Szenariofarben.
+CLASSIC_KINDS = frozenset({"ncolumn", "nbar", "nline", "ndonut", "pie", "treemap",
+                           "area", "scatter", "map", "decomp", "gauge", "card",
+                           "multirow", "matrix"})
+CK_ROLE_SCENARIO = {"actual": "AC", "previousYear": "PY", "plan": "PL",
+                    "forecast": "FC", "benchmark": "PY"}
+
+
+def scenario_of_fields(v: dict) -> dict:
+    """ref -> Szenario (AC/PY/PL/FC) fuer die Kennzahlen einer Kachel. Referenzen
+    wie bei ChartKitchen ueber den Feldnamen bzw. das Szenario der Kachel."""
+    roles, _ = ck_roles_for(v)
+    out = {}
+    for role, refs in roles.items():
+        scen = CK_ROLE_SCENARIO.get(role)
+        if scen:
+            for r in refs:
+                out.setdefault(r, scen)
+    return out
+
+
+def native_look(v: dict, item: dict, st: Style, nspec: dict):
+    """(Eigenschaft, Wert)-Paare fuer die Optik eines nativen Visuals aus der Spec."""
+    vtype = item["visual_type"]
+    caps = NATIVE_LOOK.get(vtype, frozenset())
+    props = []
+    if not title_shown(v):
+        # Kitchen zeigt keinen Kachelkopf: Titel ausblenden (Text bleibt fuer den
+        # Auswahlbereich stehen)
+        props.append(("title.show", False))
+    if not caps:
+        return props
+    classic = v.get("kind") in CLASSIC_KINDS and v.get("engine") == "native"
+    measure_kind = {f.get("ref"): f.get("kind") for fl in (v.get("roles") or {}).values()
+                    for f in fl or []}
+    bound = [r for refs in (item.get("fields") or {}).values()
+             for r in (refs if isinstance(refs, list) else [refs])]
+    if classic:
+        if "axis" in caps:
+            props.append(("valueAxis.gridlineStyle", "dotted"))
+        pal = NATIVE_PALETTES.get(st.native_palette or "")
+        if pal and "fill" in caps and "Series" not in (item.get("fields") or {}):
+            colors = pal["dark" if st.dark_mode else "light"]
+            measures = [r for r in bound if measure_kind.get(r) == "measure"]
+            for i, ref in enumerate(measures):
+                props.append(("dataPoint.field(%s).fill" % ref, colors[i % len(colors)]))
+        return props
+    # IBCS-Skizze
+    if "legend" in caps:
+        props.append(("legend.show", False))
+    if "axis" in caps:
+        props += [("valueAxis.show", False), ("valueAxis.gridlineShow", False)]
+    if "labels" in caps:
+        shown = drawn(v).get("labels")
+        # Kitchen 0.5.5: `display.drawn.labels` sagt, ob die Skizze Werte zeigt (kleine
+        # Kacheln zeigen keine); ohne Angabe gilt die IBCS-Regel: Werte an.
+        props += [("labels.show", shown if isinstance(shown, bool) else True),
+                  ("labels.color", st.scen["AC"])]
+        ts = st.typo(v)
+        if ts:
+            props.append(("labels.fontSize", ts["chartPt"]))
+    lower = (v.get("analysis") or {}).get("polarity") == "lower"
+    if "sentiment" in caps:
+        props += [("sentimentColors.increaseFill", st.bad if lower else st.good),
+                  ("sentimentColors.decreaseFill", st.good if lower else st.bad),
+                  ("sentimentColors.totalFill", st.scen["AC"])]
+    if "fill" in caps:
+        scen = scenario_of_fields(v)
+        for ref in bound:
+            if measure_kind.get(ref) != "measure" or ref not in scen:
+                continue      # Spalten projiziert pbir als Sum(...) — Selektor ungeprueft
+            s_ = scen[ref]
+            sel = "dataPoint.field(%s)" % ref
+            if s_ == "PL":
+                if "border" in caps:
+                    props += [(sel + ".fill", st.scen["PLfill"]),
+                              (sel + ".borderShow", True),
+                              (sel + ".borderColor", st.scen["PLline"]),
+                              (sel + ".borderSize", 1)]
+                else:
+                    props.append((sel + ".fill", st.scen["line2"]))
+            else:
+                props.append((sel + ".fill", st.scen[s_]))
+    return props
+
+
+def add_native_look(cmds: Commands, st: Style, nspec: dict, page: dict, items,
+                    batch_props: dict) -> None:
+    by_id = {v["id"]: v for v in page["visuals"]}
+    wrote = False
+    for item in items:
+        v = by_id.get(item["name"])
+        if not v or is_text_tile(v):
+            continue
+        props = native_look(v, item, st, nspec)
+        if not props:
+            continue
+        if not wrote:
+            cmds.note("Optik aus dem Kitchen: IBCS-Skizzen ohne Legende, Wertachse und "
+                      "Gitter, mit Werten und Szenariofarben (AC %s, PY %s, PL Umriss); "
+                      "Power-BI-Klassiker mit gepunktetem Gitter"
+                      % (st.scen["AC"], st.scen["PY"]))
+            wrote = True
+        for prop, value in props:
+            cmds.set_prop(item["name"], prop,
+                          str(value).lower() if isinstance(value, bool) else value)
+            batch_props.setdefault(item["name"], {})[prop] = value
+    if wrote:
+        cmds.note("")
+
+
 # --------------------------------------------------------------------------- #
 # Analyse-Angaben (Spec v3)
 # --------------------------------------------------------------------------- #
@@ -1557,9 +2136,11 @@ def analysis_actions(nspec: dict, page: dict, built_names, lang: str):
             engine = v.get("engine")
             if not smf:
                 todo(v, "SM_NO_FIELD", tr["todo_sm_no_field"])
+            elif engine == "ck" and ck_mode_for(v) in CK_MULTIPLES_MODES:
+                pass        # ChartKitchen zeichnet das Raster selbst (Rolle `multiples`)
             elif engine in ("ck", "deneb", "custom"):
                 todo(v, "SM_NOT_NATIVE", tr["todo_sm_not_native"]
-                     % ("Ein ChartKitchen-Visual" if engine == "ck"
+                     % ("Der ChartKitchen-Modus `%s`" % ck_mode_for(v) if engine == "ck"
                         else "Deneb" if engine == "deneb" else "Das Custom Visual"))
             elif vtype and vtype not in SMALL_MULTIPLES_TYPES:
                 todo(v, "SM_NO_BUCKET", tr["todo_sm_no_bucket"]
@@ -1595,8 +2176,7 @@ def analysis_actions(nspec: dict, page: dict, built_names, lang: str):
         # --- Polaritaet ---------------------------------------------------- #
         if a.get("polarity") == "lower":
             if v.get("engine") == "ck":
-                todo(v, "CK_INVERT", "ChartKitchen-Slot: `chart.invert = true` setzen "
-                                     "(kleiner = besser).")
+                pass        # steht als chart.invert in chartkitchen-slots.json (objects)
             elif in_report:
                 todo(v, "POLARITY", tr["todo_polarity"]
                      + (" (aus dem Kennzahlnamen abgeleitet)" if a.get("polarityAuto") else ""))
@@ -1629,7 +2209,13 @@ def analysis_actions(nspec: dict, page: dict, built_names, lang: str):
                  "(%s das selbst)." % (sort.get("by"), sort.get("dir"), where))
 
         # --- Top N --------------------------------------------------------- #
-        if a.get("topN"):
+        if a.get("topN") and v.get("engine") == "ck":
+            if ck_mode_for(v) not in CK_TOPN_MODES:
+                todo(v, "TOPN_CK_MODE",
+                     "Top %s: ChartKitchen wertet `chart.topN` nur in den Struktur-Modi "
+                     "(bars, catbridge, table, dumbbell, cards) aus, hier `%s`."
+                     % (a["topN"], ck_mode_for(v)))
+        elif a.get("topN"):
             cat = lead_category(v)
             meas = lead_measure(v)
             if in_report and cat and meas:
@@ -1646,26 +2232,35 @@ def analysis_actions(nspec: dict, page: dict, built_names, lang: str):
                      "nativen Visual — hier nicht beides vorhanden." % a["topN"])
 
         # --- Anzeigeeinheiten / Dezimalstellen ------------------------------ #
-        du, dec = a.get("displayUnits"), a.get("decimals")
+        du, dec, _unit = tile_numbers(v)       # display.numbers (0.5.5) vor analysis
         if (du or dec is not None) and in_report:
             if vtype in NO_LABELS:
                 todo(v, "DISPLAY_UNITS",
                      "Anzeigeeinheit/Dezimalstellen: `%s` kennt keine Datenbeschriftung "
                      "— Spalten- bzw. Kartenformat in Desktop pruefen." % vtype)
             else:
-                props = {}
+                # Ohne Datenbeschriftung waeren Einheiten und Stellen unsichtbar
+                props = {"labels.show": True}
                 if du in DISPLAY_UNITS:
                     props["labels.labelDisplayUnits"] = DISPLAY_UNITS[du]
                 if dec is not None:
                     props["labels.labelPrecision"] = int(dec)
                 label_props[v["id"]] = props
                 cmds.note("Anzeigeeinheiten fuer %s" % v["id"])
+                cmds.add("pbir", "set", "%s.labels.show" % path, "--value", "true")
+                # `pbir visuals labels --labelDisplayUnits Millions` (und 1000000)
+                # bricht in 0.9.32 ab („Expected integer, got str") — `pbir set` mit
+                # der Zahl funktioniert (am Testbed geprueft)
                 if du in DISPLAY_UNITS:
-                    cmds.add("pbir", "visuals", "labels", path,
-                             "--labelDisplayUnits", DISPLAY_UNITS_CLI[du])
+                    cmds.add("pbir", "set", "%s.labels.labelDisplayUnits" % path,
+                             "--value", str(DISPLAY_UNITS[du]))
                 if dec is not None:
-                    cmds.add("pbir", "visuals", "labels", path,
-                             "--labelPrecision", str(int(dec)))
+                    cmds.add("pbir", "set", "%s.labels.labelPrecision" % path,
+                             "--value", str(int(dec)))
+        elif (du or dec is not None) and (
+                v.get("engine") == "ck"
+                or custom_visual_info(v.get("customVisual") or {})[0] == "ibcsKpiCard"):
+            pass        # labels.displayUnits/decimals stehen fertig im Slot bzw. visual.json
         elif du or dec is not None:
             where = ("im Format-Bereich des Custom Visuals (Desktop)"
                      if v.get("engine") == "custom"
@@ -1686,18 +2281,24 @@ def analysis_actions(nspec: dict, page: dict, built_names, lang: str):
         if a.get("timeGrain"):
             todo(v, "TIME_GRAIN", tr["todo_timegrain"] % a["timeGrain"])
         if a.get("cumulative"):
-            todo(v, "CUMULATIVE", tr["todo_cumulative"])
+            if v.get("engine") != "ck":
+                todo(v, "CUMULATIVE", tr["todo_cumulative"])
+            elif ck_mode_for(v) not in CK_CUMULATIVE_MODES:
+                todo(v, "CUMULATIVE_CK_MODE",
+                     "Kumuliert (YTD): ChartKitchen kumuliert selbst, aber nur in den "
+                     "Modi columns, line und table — hier `%s`." % ck_mode_for(v))
         if a.get("scaleGroup"):
             todo(v, "SCALE_GROUP", tr["todo_scalegroup"] % a["scaleGroup"])
-        if a.get("message"):
+        if a.get("message") and v.get("engine") != "ck":
             todo(v, "MESSAGE", tr["todo_message"] % (a["message"], v.get("title") or ""))
-        # Nur bewusst gesetzte Basen melden — `auto` ist ein Vorschlag, keine Entscheidung
-        if a.get("deltaBasis") and not a.get("deltaBasisAuto") and v.get("engine") == "ck":
-            todo(v, "DELTA_BASIS",
-                 "Δ-Basis %s%s -> ChartKitchen-Rolle `%s` belegen."
-                 % (a["deltaBasis"], " (auto)" if a.get("deltaBasisAuto") else "",
-                    "previousYear" if a["deltaBasis"] == "PY" else
-                    "forecast" if a["deltaBasis"] == "FC" else "plan"))
+        # Δ-Basis, Polaritaet, Einheiten, Kumulierung & Co. stehen bei ChartKitchen
+        # fertig in chartkitchen-slots.json (`objects`). Was dort nicht aufgeht
+        # (Basis ohne passende Rolle, FC), meldet der Slot als Warnung.
+        if v.get("nativeDropped") and v.get("engine") == "ck":
+            todo(v, "CK_NO_NATIVE",
+                 "Kein natives Ersatzvisual (%s). Bis ChartKitchen im Bericht ist, steht "
+                 "ein Platzhalter; nativ nur mit einer Δ-Kennzahl ([AC] − [Referenz]) "
+                 "im Modell." % v["nativeDropped"])
 
         # --- Untertitel aus der Spec ---------------------------------------- #
         if (v.get("subtitle") or "").strip() and in_report:
@@ -1744,15 +2345,24 @@ def analysis_actions(nspec: dict, page: dict, built_names, lang: str):
 # --------------------------------------------------------------------------- #
 # Slots fuer ChartKitchen und Deneb
 # --------------------------------------------------------------------------- #
+BASIS_CK_ROLE = {"PY": "previousYear", "PL": "plan", "BU": "plan", "FC": "forecast",
+                 "AC": "actual"}
+
+
 def ck_roles_for(v: dict):
-    """Mockup-Rollen -> ChartKitchen-Rollen. Gibt (Mapping, Warnungen) zurueck."""
-    import re
+    """Mockup-Rollen -> ChartKitchen-Rollen. Gibt (Mapping, Warnungen) zurueck.
+
+    Referenzfelder (`ref`, `goal`) werden nach ihrem Szenario zugeordnet, nicht nach
+    der Reihenfolge: erst der Feldname (PY/VJ/Vorjahr -> previousYear, PL/Plan/BU/
+    Budget -> plan, FC/Forecast -> forecast), dann das Szenario der Kachel, dann
+    plan/previousYear/benchmark. Was danach keinen freien Platz hat, bleibt ungebunden
+    und wird gemeldet."""
     warn = []
     roles = v.get("roles") or {}
     scenario = v.get("scenario") or ""
-    tokens = [t for t in re.split(r"[/,\s]+", scenario) if t in ("PY", "PL", "BU")]
-    ref_targets = ["plan" if t in ("PL", "BU") else "previousYear" for t in tokens]
-    for cand in ("plan", "previousYear"):
+    tokens = [t for t in re.split(r"[/,\s]+", scenario) if t in ("PY", "PL", "BU", "FC")]
+    ref_targets = [BASIS_CK_ROLE[t] for t in tokens]
+    for cand in ("plan", "previousYear", "benchmark"):
         if cand not in ref_targets:
             ref_targets.append(cand)
 
@@ -1764,10 +2374,7 @@ def ck_roles_for(v: dict):
             # ChartKitchen 1.47: KPI-Zeitfeld -> trend, Scatter -> xValue/actual/bubbleSize
             out.setdefault(by_kind[key], []).extend(refs)
             continue
-        if key == "ref":
-            for i, r in enumerate(refs):
-                target = ref_targets[i] if i < len(ref_targets) else "benchmark"
-                out.setdefault(target, []).append(r)
+        if key in ("ref", "goal"):
             continue
         if key in CK_ROLE_UNSUPPORTED:
             warn.append("Rolle '%s' (%s) hat keine ChartKitchen-Entsprechung — Typ "
@@ -1781,8 +2388,37 @@ def ck_roles_for(v: dict):
             target = "multiples"
         out.setdefault(target, []).extend(refs)
 
+    # Referenzen: zuerst die Felder mit eindeutigem Namen, dann der Rest
+    ref_fields = [(key, f) for key in ("goal", "ref") for f in roles.get(key) or []]
+    if v.get("kind") == "colline" and roles.get("ref"):
+        # Saeulen + Linie einer ZWEITEN Kennzahl (Kitchen-Skizze): die Linie ist
+        # `lineMeasure`, keine Referenz (FIDELITY Luecke 15)
+        first = roles["ref"][0]
+        out["lineMeasure"] = [first["ref"]]
+        ref_fields = [(k_, f) for k_, f in ref_fields if f is not first]
+    pending = []
+    for key, f in ref_fields:
+        name = f.get("name") or split_ref(f.get("ref", ""))[1]
+        role = BASIS_CK_ROLE.get(basis_of_name(name))
+        if role is None:
+            pending.append((key, f))
+        elif role in out:
+            warn.append("Referenzfeld %s (Szenario %s) nicht gebunden: ChartKitchen-Rolle "
+                        "'%s' ist schon mit %s belegt." % (f["ref"], basis_of_name(name),
+                                                          role, ", ".join(out[role])))
+        else:
+            out[role] = [f["ref"]]
+    for key, f in pending:
+        cands = ["plan"] if key == "goal" else ref_targets
+        role = next((c for c in cands if c not in out), None)
+        if role is None:
+            warn.append("Referenzfeld %s nicht gebunden: Szenario aus dem Namen nicht "
+                        "erkennbar und keine passende ChartKitchen-Rolle frei." % f["ref"])
+            continue
+        out[role] = [f["ref"]]
+
     for role, refs in out.items():
-        if len(refs) > 1 and role != "colgroup":
+        if len(refs) > 1 and role not in ("colgroup", "category"):
             warn.append("ChartKitchen-Rolle '%s' ist max. 1 Feld, hier %d: %s."
                         % (role, len(refs), ", ".join(refs)))
     return out, warn
@@ -1793,14 +2429,19 @@ def ck_contract_warnings(v: dict, orientation, roles: dict):
     warn = []
     kind = v.get("kind")
     scenario = v.get("scenario") or ""
-    if orientation in ("waterfall", "pnl") and "rowType" not in roles:
-        warn.append("Modus `%s` braucht die Rolle `rowType` (sum/delta je Zeile). "
+    # `waterfall` braucht KEIN rowType: ohne die Rolle zeichnet ChartKitchen einen
+    # Beitrags-Wasserfall mit Σ, mit gebundener Referenz eine Varianz-Bruecke
+    # (ibcsInspiredChartDeck/src/visual.ts -> buildWaterfall). Nur die GuV braucht es.
+    if orientation == "pnl" and "rowType" not in roles:
+        warn.append("Modus `pnl` braucht die Rolle `rowType` (sum/delta je Zeile). "
                     "Das Mockup kennt die Rolle nicht — Spalte im Modell bereitstellen "
-                    "und im Visual binden, sonst bleibt die Bruecke leer." % orientation)
-    if kind == "colline":
-        warn.append("Typ `colline`: die zweite Kennzahl gehoert in `lineMeasure` "
-                    "(nur `orientation=columns`), nicht in `plan`/`previousYear`. "
-                    "Mapping vor dem Binden korrigieren.")
+                    "und im Visual binden, sonst fehlen die Zwischensummen.")
+    if kind == "colline" and "lineMeasure" not in roles:
+        warn.append("Typ `colline` ohne zweite Kennzahl: `lineMeasure` bleibt leer.")
+    if kind == "sparktable":
+        warn.append("Typ `sparktable`: ChartKitchen `table` zeichnet keine Sparkline je "
+                    "Zeile; die Zeitrolle wird zweite Ebene der Kategorie. Sparkline nur "
+                    "nativ (Tabelle → Sparklines in Desktop) oder als eigenes Visual.")
     if "lineMeasure" in roles and orientation != "columns":
         warn.append("`lineMeasure` gibt es nur bei `orientation=columns`, hier `%s`."
                     % orientation)
@@ -1837,17 +2478,175 @@ def ck_chart_props(v: dict) -> dict:
     return out
 
 
-def build_slots(page: dict, nspec=None):
+# Kitchen `analysis.displayUnits` -> ChartKitchen `labels.displayUnits`
+# (capabilities.json: auto | none | k | m | b)
+CK_DISPLAY_UNITS = {"none": "none", "K": "k", "M": "m", "B": "b",
+                    "k": "k", "m": "m", "b": "b"}
+# Kitchen Δ-Basis -> (chart.comparisonMode, benoetigte ChartKitchen-Rolle)
+CK_COMPARISON = {"PY": ("py", "previousYear"), "PL": ("plan", "plan"),
+                 "BU": ("plan", "plan")}
+# ChartKitchen-Schriften in px bei Faktor 1 (settings.ts: labels.fontSize 10,
+# categoryAxis.fontSize 10; visual.ts drawTitleBlock: IBCS-Titel
+# `Math.round(12 * fontK)` px — so auch im kompilierten 1.43.0.0-Paket, frueher
+# stand hier faelschlich 15). Wirksam ist jeweils Groesse x Preset x
+# fontScale/100 (visual.ts -> fontK bzw. kf).
+CK_LABEL_BASE_PX = 10
+CK_TITLE_BASE_PX = 12
+
+
+def desktop_objects(settings: dict) -> dict:
+    """{"objekt.eigenschaft": Wert} -> `visual.objects` in der Form, die Desktop
+    schreibt: {objekt: [{"properties": {eigenschaft: Literal}}]}. Farben (Schluessel
+    endet auf Color) als {"solid": {"color": Literal}}."""
+    objects = {}
+    for key, value in settings.items():
+        obj, prop = key.split(".", 1)
+        props = objects.setdefault(obj, [{"properties": {}}])[0]["properties"]
+        props[prop] = _solid(value) if prop.endswith("Color") else _lit(value)
+    return objects
+
+
+def ck_fonts(nspec: dict, v: dict) -> dict:
+    """Schrift-Einstellungen fuer ChartKitchen aus den Kitchen-Groessen der Kachel.
+
+    Der Faktor (Preset `compact` x fontScale/100) wird so gewaehlt, dass der
+    IBCS-Titel die Kitchen-Titelgroesse trifft; Wert- und Achsenbeschriftung
+    bekommen dann ihre eigene Groesse (labels.fontSize, categoryAxis.fontSize =
+    Kitchen-px / Faktor). Quelle: `display.fontPx` (0.5.5), sonst design.typography,
+    sonst 12/9 px x k."""
+    ts = tile_type_sizes(nspec, v)
+    k = float(nspec["design"].get("fontScale") or 1)
+    title_px = ts["titlePx"] if ts else 12.0 * k
+    label_px = ts["chartPx"] if ts else 9.0 * k
+    axis_px = ts.get("axisPx", label_px) if ts else label_px
+    scale = max(50, min(300, int(round(100.0 * title_px / CK_TITLE_BASE_PX))))
+    kf = scale / 100.0
+    return {"labels.fontPreset": "compact", "labels.fontScale": scale,
+            "labels.fontSize": max(6, min(24, int(round(label_px / kf)))),
+            "categoryAxis.fontSize": max(6, min(24, int(round(axis_px / kf))))}
+
+
+def ck_objects(v: dict, orientation, roles: dict, nspec: dict):
+    """Alle ChartKitchen-Einstellungen einer Kachel aus der Spec.
+
+    Gibt (settings, warnings) zurueck; settings ist flach {"objekt.eigenschaft": Wert}
+    (lesbar, fuer Tests und Doku), desktop_objects() macht daraus `visual.objects`.
+    Namen und Enum-Werte aus der capabilities.json in
+    ibcsInspiredChartDeck/dist/chartKitchenByDatenWG*.1.43.0.0.pbiviz.
+    """
+    a = v.get("analysis") or {}
+    d = nspec["design"]
+    warn = []
+    out = {"chart.orientation": orientation}
+
+    # Δ-Basis -> comparisonMode; nur, wenn die passende Rolle gebunden ist
+    basis = a.get("deltaBasis")
+    mode = "auto"
+    if basis in CK_COMPARISON:
+        want, role = CK_COMPARISON[basis]
+        if role in roles:
+            mode = want
+        else:
+            warn.append("Δ-Basis %s: die ChartKitchen-Rolle `%s` ist nicht gebunden — "
+                        "`comparisonMode` bleibt `auto` (PL, sonst PY)." % (basis, role))
+    elif basis == "FC":
+        warn.append("Δ-Basis FC: ChartKitchen vergleicht nicht AC gegen FC "
+                    "(`fcrev` heisst FC gegen Vorprognose). `comparisonMode` bleibt "
+                    "`auto`; FC wird schraffiert gezeichnet.")
+    out["chart.comparisonMode"] = mode
+
+    dr = drawn(v)
+    # Kitchen 0.5.5: gezeichnete Δ-Ebenen (`display.drawn.delta`) gewinnen vor der
+    # Auswahl `deltaKind` — Messlatte ist das Kitchen-Bild
+    kinds = set(dr["delta"] if isinstance(dr.get("delta"), list)
+                else (a.get("deltaKind") or []))
+    if v.get("kind") == "absvar":
+        kinds = {"abs"}
+    elif v.get("kind") == "relvar":
+        kinds = {"rel"}
+    elif v.get("kind") == "bridge":
+        # S.bridge zeichnet keine Δ-Ebene: die Bruecken-Saeulen SIND die Δ (in
+        # der Varianz-Bruecke unterdrueckt ChartKitchen die abs-Ebene ohnehin,
+        # Δ% kaeme als zusaetzliche Pin-Reihe dazu)
+        kinds = set()
+    out["chart.showAbsoluteVariance"] = "abs" in kinds
+    out["chart.showRelativeVariance"] = "rel" in kinds
+    out["chart.invert"] = a.get("polarity") == "lower"
+
+    if a.get("topN") and orientation in CK_TOPN_MODES:
+        out["chart.topN"] = max(0, min(50, int(a["topN"])))
+    if a.get("cumulative") and orientation in CK_CUMULATIVE_MODES:
+        # ChartKitchen kumuliert selbst (YTD) — keine YTD-Kennzahl im Modell noetig
+        out["chart.cumulative"] = True
+        out["chart.cumulativeKind"] = "ytd"
+    # Das Kitchen zeigt keine In-Chart-Buttons und keinen Vorschlags-Chip
+    out["chart.chartButtons"] = False
+    out["chart.smartStart"] = False
+
+    if isinstance(dr.get("total"), bool):
+        out["chart.showTotal"] = dr["total"]
+
+    du, dec, _unit = tile_numbers(v)
+    out["labels.displayUnits"] = CK_DISPLAY_UNITS.get(du, "auto") if du else "auto"
+    # Kitchen „auto" zeigt 0 Stellen (Skizze), die ChartKitchen-Vorgabe waere 1
+    out["labels.decimals"] = max(0, min(3, int(dec))) if dec is not None else 0
+    if isinstance(dr.get("labels"), bool):
+        out["labels.show"] = dr["labels"]
+    out.update(ck_fonts(nspec, v))
+
+    out["colors.appearance"] = "dark" if d.get("darkMode") else "light"
+    out["colors.goodColor"] = d["varianceColors"]["good"]
+    out["colors.badColor"] = d["varianceColors"]["bad"]
+
+    # Kopf. Der IBCS-Kopf von ChartKitchen 1.43 haengt an den Titel IMMER
+    # „ in <Einheit> · <Zeitraum>: AC vs. PL, PY" an (drawTitleBlock; einen
+    # Schalter dafuer gibt es in capabilities.json nicht: ibcsTitle kennt nur
+    # show/kpi/period/message/autoMessage/footer/filterFooter, und ein leerer
+    # Zeitraum wird bei Saeulen aus erster/letzter Kategorie gebildet). Das Kitchen
+    # zeigt im Kachelkopf nur Titel und Untertitel (.tile .t-head; Einheit nur an
+    # der Zahl von kpi/card). Damit der Bericht aussieht wie das Kitchen, bleibt der
+    # IBCS-Kopf aus und der Container-Titel uebernimmt — Groesse, Gewicht und Farbe
+    # wie im Kitchen (build_slots -> container_objects(kitchen_head=...)).
+    # Ausnahme Kernaussage (analysis.message): die kann nur der IBCS-Kopf zeigen,
+    # dann steht er wie bisher (Titel als KPI, Untertitel als Zeitraum).
+    title = visible_title(v)
+    sub = str(v.get("subtitle") or "").strip()
+    msg = a.get("message")
+    msg = msg.strip() if isinstance(msg, str) else ""
+    if title:
+        out["ibcsTitle.kpi"] = title
+    if msg:
+        out["ibcsTitle.show"] = bool(title or sub or msg)
+        if sub:
+            out["ibcsTitle.period"] = sub
+        out["ibcsTitle.message"] = msg
+        warn.append("Kernaussage gesetzt: ChartKitchen zeigt sie im IBCS-Kopf, der "
+                    "an den Titel Einheit, Zeitraum und Szenarien („· Jan – Dez: AC "
+                    "vs. PL\") anhaengt — das Kitchen zeigt nur den Titel.")
+    else:
+        out["ibcsTitle.show"] = False
+    return out, warn
+
+
+def ck_native_head(settings: dict) -> bool:
+    """True, wenn der Container-Titel den Kachelkopf zeigt (IBCS-Kopf aus)."""
+    return not settings.get("ibcsTitle.show")
+
+
+def build_slots(page: dict, nspec=None, st=None):
     ck, deneb, warn = [], [], []
     for v in page["visuals"]:
         base = {"id": v["id"], "stableId": v.get("stableId"), "page": page["name"],
-                "title": v.get("title", ""), "subtitle": v.get("subtitle", ""),
+                "title": visible_title(v) if v.get("engine") == "ck"
+                else v.get("title", ""),
+                "titleText": v.get("title", ""), "titleShown": title_shown(v),
+                "subtitle": v.get("subtitle", ""),
                 "kind": v.get("kind"), "label": v.get("label"), "rect": v.get("rect"),
                 "scenario": v.get("scenario"), "notes": v.get("notes", ""),
                 "analysis": v.get("analysis"), "workshop": v.get("workshop"),
                 "mockupRoles": {k: [f["ref"] for f in fl]
                                 for k, fl in (v.get("roles") or {}).items()}}
-        ts = type_sizes(nspec, v) if nspec else None
+        ts = tile_type_sizes(nspec, v) if nspec else None
         if ts:
             # Tool 0.4.3: Schriftgroessen fuer den Slot (ChartKitchen/Deneb setzen
             # sie im eigenen Format-Bereich — pt fuer Titel, px fuer das Spec).
@@ -1856,7 +2655,7 @@ def build_slots(page: dict, nspec=None):
                                   "tileScale": ts["tile"]}
         if v.get("engine") == "ck":
             roles, w = ck_roles_for(v)
-            orientation = v.get("chartKitchenMode") or CK_ORIENTATION.get(v.get("kind"))
+            orientation = ck_mode_for(v)
             if not orientation:
                 w.append("Kein ChartKitchen-Modus (chart.orientation) fuer Typ `%s` — "
                          "Deneb oder natives Visual waehlen." % v.get("kind"))
@@ -1872,8 +2671,37 @@ def build_slots(page: dict, nspec=None):
                          "orientation": orientation,
                          "chartProps": chart_props,
                          "chartKitchenRoles": roles,
-                         "nativeFallback": v.get("native"),
+                         "nativeFallback": None if v.get("nativeDropped")
+                         else v.get("native"),
                          "warnings": w})
+            if v.get("nativeDropped"):
+                slot["nativeFallbackDropped"] = v["nativeDropped"]
+            if (v.get("chartKitchenMode") and orientation
+                    and v["chartKitchenMode"] != orientation):
+                slot["orientationFrom"] = v["chartKitchenMode"]
+            if nspec is not None and orientation:
+                settings, ow = ck_objects(v, orientation, roles, nspec)
+                w += ow
+                # Tool 0.6.0: gewaehlte ChartKitchen-Optionen auch als fertige Einstellung
+                for pk, pv in ck_chart_props(v).items():
+                    settings.setdefault("chart." + pk, pv)
+                slot["ckSettings"] = settings
+                slot["objects"] = desktop_objects(settings)
+            if st is not None:
+                # fuer den Live-Runner: repliziertes ChartKitchen-Visual (pbir kann
+                # Custom Visuals nicht formatieren, der Container steht in visual.json).
+                # Ohne Kernaussage ist der IBCS-Kopf aus (ck_objects) und der
+                # Container-Titel zeigt Titel/Untertitel wie das Kitchen; mit
+                # Kernaussage zeichnet ChartKitchen den Kopf selbst und der
+                # Container behaelt den Text nur fuer den Auswahlbereich.
+                native = ck_native_head(slot.get("ckSettings") or {})
+                head = (tile_type_sizes(nspec, v) if nspec is not None else None) \
+                    or (st.typo(v) if hasattr(st, "typo") else None) \
+                    or {"titlePt": st.pt(12), "subPt": st.pt(9.5)}
+                slot["container"] = container_objects(
+                    v, st, hide_titles=not native,
+                    kitchen_head=head if native else None)
+                slot["z"] = Z["content"]
             ck.append(slot)
             warn.extend("[%s / %s] %s" % (page["name"], v["id"], m) for m in w)
         elif v.get("engine") == "deneb":
@@ -1911,6 +2739,9 @@ def panel_visual_names(nspec: dict, page: dict):
         return []
     fl = filter_layout(nspec)
     names = ["chrome_filter_bg"]
+    mode = filt.get("mode") or filt.get("side")
+    if not (filt.get("overlay") or mode == "burger"):
+        names.append("chrome_filter_rule")          # Kante gehoert zum Panel
     if fl["heading"]:
         names.append("chrome_filter_title")
     if fl["text"]:
@@ -2037,7 +2868,9 @@ def build_navigation_md(nspec: dict, report: str) -> str:
             by = int(cr.get("y", 72)) + 8
             L.append('pbir add visual actionButton "%s/%s.Page" -n chrome_back '
                      '-x %d -y %d -w 90 -h 28' % (rep, target, bx, by))
-            L.append('pbir set "%s/%s.Page/chrome_back.Visual.text.text" '
+            L.append('pbir set "%s/%s.Page/chrome_back.Visual.text.show" '
+                     '--value true' % (rep, target))
+            L.append('pbir set "%s/%s.Page/chrome_back.Visual.text.default.text" '
                      '--value "← Zurück"' % (rep, target))
             L.append('pbir set "%s/%s.Page/chrome_back.Visual.fill.fillColor" '
                      '--value "#FFFFFF"' % (rep, target))
@@ -2746,11 +3579,15 @@ def build_commands_md(nspec: dict, report: str, out_dir: Path, per_page,
                   "# Text-/Button-Kacheln (als shape/actionButton, nicht als textbox)",
                   'pbir add visual "%s" --from-json "%s/%s/text-visuals.json"'
                   % (page_path, o, e["dir"])]
+        if e["page_bg"]:
+            L += ["",
+                  "# Seitenhintergrund (kann `pbir batch` nicht — nur als CLI-Aufruf)",
+                  'pbir pages background "%s" --color "%s" --transparency 0'
+                  % (page_path, e["page_bg"])]
+        else:
+            L += ["",
+                  "# Seitenhintergrund bleibt wie im Bericht (design.sourceReport)"]
         L += ["",
-              "# Seitenhintergrund (kann `pbir batch` nicht — nur als CLI-Aufruf)",
-              'pbir pages background "%s" --color "%s" --transparency 0'
-              % (page_path, e["page_bg"]),
-              "",
               "# Hauptweg: alle uebrigen Setzungen in EINEM Lauf (Texte, Farben,",
               "#           Kachel-Container, Anzeigeeinheiten, z-Order)",
               'pbir batch validate "%s/%s/chrome-batch.json"' % (o, e["dir"]),
@@ -2846,7 +3683,10 @@ def build_commands_md(nspec: dict, report: str, out_dir: Path, per_page,
             L.append('pbir add visual shape "%s" -n "%s_slot" -x %s -y %s -w %s -h %s '
                      '-t "ChartKitchen: %s"'
                      % (pp, s["id"], r["x"], r["y"], r["w"], r["h"], s["kind"]))
-            L.append('pbir set "%s/%s_slot.Visual.text.text" --value "ChartKitchen: %s · %s"'
+            L.append('pbir set "%s/%s_slot.Visual.text.show" --value true'
+                     % (pp, s["id"]))
+            L.append('pbir set "%s/%s_slot.Visual.text.default.text" '
+                     '--value "ChartKitchen: %s · %s"'
                      % (pp, s["id"], s["kind"], s["title"]))
         L += ["```", ""]
 
@@ -2931,6 +3771,11 @@ def build_theme_fragment(nspec: dict, st: Style) -> dict:
                      "chrome-batch.json."
                      % (ts["scale"], ts["k"], ts["titlePx"], ts["titlePt"],
                         ts["subPx"], ts["subPt"], ts["chartPx"], ts["chartPt"]))
+    pal = NATIVE_PALETTES.get(d.get("nativePalette") or "")
+    if pal:
+        # Datenfarben der nativen Skizzen (design.nativePalette); `pbi` = Power-BI-
+        # Standard, dafuer schreibt der Skill nichts
+        extra["dataColors"] = list(pal["dark" if st.dark_mode else "light"])
     return dict({
         "name": "%s · Mockup-Fragment" % (nspec["meta"].get("name") or "Mockup"),
         "$comment": ("Kachel-Optik und Farben aus `design` als Theme-Fragment. In ein "
@@ -2941,7 +3786,10 @@ def build_theme_fragment(nspec: dict, st: Style) -> dict:
                      "Akzentfarbe %s steckt in Nav-Buttons und Burger. "
                      "good/bad kommen aus der Varianz-Palette `%s`%s."
                      % (st.page_bg, st.accent, st.palette,
-                        " (dunkler Modus)" if st.dark_mode else "")) + typo_note,
+                        " (dunkler Modus)" if st.dark_mode else "")) + typo_note
+        + (" design.sourceReport: Die Gestaltung stammt aus dem Bericht. Seiten und "
+           "Kacheln aus dem Bericht behalten Hintergrund und Kachelstil; vor dem Mergen "
+           "mit dem Theme des Berichts vergleichen." if design_from_report(nspec) else ""),
         # Farbrollen des Themes: Hintergrund = Seitenhintergrund, Vordergrund = Ink,
         # good/bad = Varianzfarben (Abweichung positiv/negativ), tableAccent = Akzent.
         "background": st.page_bg,
@@ -2950,8 +3798,31 @@ def build_theme_fragment(nspec: dict, st: Style) -> dict:
         "good": st.good,
         "bad": st.bad,
         "neutral": st.muted,
-        "visualStyles": {"*": {"*": star}},
+        # Seite und Umgebung: ohne `outspace` leitet Desktop die Flaeche um die
+        # Seite aus der dunklen Vordergrundfarbe ab (Live-Lauf 02.10.2026:
+        # dunkelblauer Rand). Farbe = Buehne des Kitchens (#EAE8E1, ueberschreibbar
+        # mit design.stageBackground). Gleiche Schluessel wie
+        # `pbir theme set-formatting "<Report>" "page.*.outspace.color"`.
+        "visualStyles": {"*": {"*": star},
+                         "page": {"*": {
+                             "outspace": [{"color": {"solid": {"color": stage_color(nspec, st)}},
+                                           "transparency": 0}],
+                             "background": [{"color": {"solid": {"color": st.page_bg}},
+                                             "transparency": 0}]}}},
     }, **extra)
+
+
+# Buehne des Kitchens (mockup-kitchen.html: .stage auf --bg mit Punktraster) als
+# Umgebung der Berichtsseite; dunkler Modus: Seitenhintergrund um 35 % abgedunkelt.
+KITCHEN_STAGE = "#EAE8E1"
+
+
+def stage_color(nspec: dict, st) -> str:
+    d = nspec.get("design") or {}
+    c = d.get("stageBackground") or (d.get("colors") or {}).get("stage")
+    if isinstance(c, str) and re.match(r"^#[0-9A-Fa-f]{6}$", c):
+        return c.upper()
+    return mix(st.page_bg, "#000000", 0.35) if st.dark_mode else KITCHEN_STAGE
 
 
 # --------------------------------------------------------------------------- #
@@ -3039,12 +3910,13 @@ def build_plan(nspec: dict, report: str, out_dir: Path, per_page, model_name: st
                   % (page_path, o, e["dir"])],
                  page=e["name"],
                  idempotent="wie oben", delta="delta-batch.json")
-        step("background:%s" % e["dir"], "page_background",
-             ['pbir pages background "%s" --color "%s" --transparency 0'
-              % (page_path, e["page_bg"])],
-             page=e["name"],
-             idempotent="Setzt eine feste Farbe — beliebig oft ausfuehrbar.",
-             delta="unveraendert im zweiten Lauf")
+        if e["page_bg"]:
+            step("background:%s" % e["dir"], "page_background",
+                 ['pbir pages background "%s" --color "%s" --transparency 0'
+                  % (page_path, e["page_bg"])],
+                 page=e["name"],
+                 idempotent="Setzt eine feste Farbe — beliebig oft ausfuehrbar.",
+                 delta="unveraendert im zweiten Lauf")
         step("format:%s" % e["dir"], "batch",
              ['pbir batch validate "%s/%s/chrome-batch.json"' % (o, e["dir"]),
               'pbir batch plan "%s/%s/chrome-batch.json" --root "%s"' % (o, e["dir"], report),
@@ -3125,6 +3997,14 @@ def build_plan(nspec: dict, report: str, out_dir: Path, per_page, model_name: st
            for z_ in ("header", "footer")):
         extra["navigation"] = {"position": nav_position(nspec["zones"] or {}),
                                "footer": footer_nav_entries(nspec["zones"] or {})}
+    if design_from_report(nspec):
+        # Befund B2 (Demo-Test 02.10.2026): Gestaltung stammt aus dem Bericht. Fuer diese
+        # Seiten und Kacheln gibt es keinen Hintergrund- und keinen Kachelstil-Schritt.
+        extra["reportStyle"] = {
+            "sourceReport": True,
+            "pages": [e["name"] for e in per_page if e["keep_style"]],
+            "visuals": [{"page": e["name"], "visual": vid}
+                        for e in per_page for vid in e["kept_visuals"]]}
     return dict({
         "generated": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
         "tool": "mockup_to_pbir.py",
@@ -3223,7 +4103,8 @@ def build_acceptance(nspec: dict, report: str, per_page, st: Style) -> dict:
                              "rect": {"x": r["x"], "y": r["y"], "w": r["w"], "h": r["h"]},
                              "role": "custom", "optional": True,
                              "fields": dict(s["buckets"])})
-        pages.append({"name": e["name"], "background": st.page_bg,
+        # None: Seitenhintergrund bleibt wie im Bericht (design.sourceReport)
+        pages.append({"name": e["name"], "background": e["page_bg"],
                       "canvas": {"width": nspec["canvas"].get("width"),
                                  "height": nspec["canvas"].get("height")},
                       "visuals": expected})
@@ -3265,6 +4146,11 @@ def build_chrome_batch(nspec: dict, page: dict, report: str, st: Style,
         z = props.pop("__z", None)
         if z is not None:
             props["position.z"] = z
+        # Formen und Buttons (Chrome, Text-Kacheln) bekommen beim Anlegen ihren Namen als Container-Titel.
+        # Der bleibt für den Auswahlbereich, wird aber ausgeblendet, sonst verdrängt er den eigentlichen Text.
+        if props and (name.startswith("chrome_") or "text.text" in props
+                      or "text.default.text" in props):
+            props.setdefault("title.show", False)
         if props:
             b.set("%s/%s.Visual" % (page_sel, name), props, stem="format")
     for name, props in sorted(label_props.items()):
@@ -3327,10 +4213,13 @@ def main() -> int:
     p.add_argument("--on-ink", dest="on_ink", default="#FFFFFF", help="Textfarbe auf Ink")
     p.add_argument("--muted-on-ink", dest="muted_on_ink", default="#C8CDD4",
                    help="Untertitelfarbe im dunklen Kopfband")
-    p.add_argument("--panel", default="#F1F3F5", help="Fläche des Filter-Panels")
-    p.add_argument("--muted", default="#6B7280", help="Textfarbe der Fußleiste")
-    p.add_argument("--tile-border", dest="tile_border", default="#E5E7EB",
+    p.add_argument("--panel", default=None, help="Fläche des Filter-Panels")
+    p.add_argument("--muted", default=None, help="Textfarbe der Fußleiste")
+    p.add_argument("--tile-border", dest="tile_border", default=None,
                    help="Rahmenfarbe der Kacheln (tileStyle 'border')")
+    p.add_argument("--rule", default=None,
+                   help="Linienfarbe (Kopfband hell, Filterbereich, Fußleiste; "
+                        "Vorgabe: design.colors.rule, sonst Kitchen #E3E1D8)")
     p.add_argument("--ck-fallback", action="store_true",
                    help="ChartKitchen-Slots zusätzlich als natives Ersatzvisual in "
                         "pbir-visuals.json aufnehmen (nur wenn die Spec ein natives "
@@ -3422,16 +4311,22 @@ def main() -> int:
         text_visuals, text_notes = build_text_tiles(nspec, page, st, cmds, acts,
                                                     batch_props, lang)
         notes += text_notes
-        ck_slots, deneb_slots, slot_warn = build_slots(page, nspec)
+        ck_slots, deneb_slots, slot_warn = build_slots(page, nspec, st)
         custom_slots, custom_warn = build_custom_visuals(nspec, page, st)
 
         slicers = slicer_names(nspec, page)
         content_names = ([i["name"] for i in pbir_visuals if i["name"] not in slicers]
                          + [i["name"] for i in text_visuals])
-        add_tile_formatting(cmds, st, content_names, batch_props)
+        # design.sourceReport: eingelesene Kacheln behalten Flaeche, Rahmen und Schatten
+        # aus dem Bericht; neue Kacheln bekommen die (aus dem Bericht uebernommene) Gestaltung
+        kept = {v["id"] for v in page["visuals"] if keeps_report_style(nspec, visual=v)}
+        add_tile_formatting(cmds, st, [n for n in content_names if n not in kept],
+                            batch_props)
         for name, props in add_typography(cmds, st, page, content_names).items():
             batch_props.setdefault(name, {}).update(props)
-        notes += add_slicer_formatting(nspec, page, cmds, batch_props)
+        add_native_look(cmds, st, nspec, page,
+                        [i for i in pbir_visuals if i["name"] not in slicers], batch_props)
+        notes += add_slicer_formatting(nspec, page, cmds, batch_props, st)
         if content_names:
             cmds.note("Inhalt ueber die Chrome-Flaechen legen "
                       "(--from-json vergibt immer z=0)")
@@ -3491,11 +4386,15 @@ def main() -> int:
 
         custom_index = [{k: v for k, v in slot.items() if k != "visualJson"}
                         for slot in custom_slots]
+        # Die drei --from-json-Dateien mit \u-Escapes: `pbir add visual --from-json`
+        # (0.9.32) liest die Datei als cp1252 — UTF-8-Umlaute wuerden zu „FuÃŸleiste"
+        # (am Testbed nachgestellt; eine BOM lehnt pbir ab). JSON-Escapes sind reines
+        # ASCII und kommen in jedem Fall richtig an. `pbir batch` liest UTF-8 korrekt.
         files = [
-            ("pbir-visuals.json", json.dumps(pbir_visuals, ensure_ascii=False, indent=2) + "\n"),
+            ("pbir-visuals.json", json.dumps(pbir_visuals, ensure_ascii=True, indent=2) + "\n"),
             ("custom-visuals.json", json.dumps(custom_index, ensure_ascii=False, indent=2) + "\n"),
-            ("text-visuals.json", json.dumps(text_visuals, ensure_ascii=False, indent=2) + "\n"),
-            ("chrome-visuals.json", json.dumps(chrome_visuals, ensure_ascii=False, indent=2) + "\n"),
+            ("text-visuals.json", json.dumps(text_visuals, ensure_ascii=True, indent=2) + "\n"),
+            ("chrome-visuals.json", json.dumps(chrome_visuals, ensure_ascii=True, indent=2) + "\n"),
             ("chrome-batch.json", chrome_batch.dump()),
             ("delta-batch.json", delta_batch.dump()),
             ("chrome-commands.sh", sh_head + cmds.render("sh", page_expr_sh)),
@@ -3527,8 +4426,10 @@ def main() -> int:
         all_chrome_notes += notes
         all_slot_warn += slot_warn
         all_custom_warn += custom_warn
+        keep_bg = keeps_report_style(nspec, page=page)
         per_page.append({"name": page["name"], "dir": pdir, "question": page.get("question"),
-                         "page_bg": st.page_bg,
+                         "page_bg": None if keep_bg else st.page_bg,
+                         "keep_style": keep_bg, "kept_visuals": sorted(kept),
                          "pbir": pbir_visuals, "text": text_visuals,
                          "chrome": chrome_visuals, "ck": ck_slots, "deneb": deneb_slots,
                          "custom": custom_slots,

@@ -1,0 +1,133 @@
+{
+  "contract": 1,
+  "seq": 8,
+  "specHash": "a36a94d6",
+  "createdAt": "2026-10-02T00:32:12.108+02:00",
+  "client": "MockupKitchen 0.5.5",
+  "scale": 1,
+  "pages": [
+    {
+      "id": "b9awald",
+      "name": "IBCS Testbed",
+      "file": "IBCS Testbed.png",
+      "png": "kitchen/8/IBCS Testbed.png",
+      "width": 1920,
+      "height": 1080,
+      "pbir": {
+        "page": "pageIBCS"
+      },
+      "zones": {
+        "header": {
+          "x": 0,
+          "y": 0,
+          "w": 1920,
+          "h": 84
+        },
+        "footer": {
+          "x": 0,
+          "y": 1045,
+          "w": 1920,
+          "h": 35
+        },
+        "filter": {
+          "x": 1620,
+          "y": 84,
+          "w": 300,
+          "h": 961
+        },
+        "content": {
+          "x": 15,
+          "y": 99,
+          "w": 1590,
+          "h": 931
+        }
+      }
+    }
+  ],
+  "tiles": {
+    "kt3hgu9": {
+      "page": "IBCS Testbed",
+      "id": "mk_kt3hgu9",
+      "kind": "bridge",
+      "title": "Umsatz Ist",
+      "displayName": "Umsatz Ist",
+      "rect": {
+        "x": 15,
+        "y": 99,
+        "w": 787,
+        "h": 457
+      },
+      "body": {
+        "x": 40,
+        "y": 153,
+        "w": 737,
+        "h": 365
+      },
+      "headH": 36,
+      "footH": 27
+    },
+    "4vb2vkn": {
+      "page": "IBCS Testbed",
+      "id": "mk_4vb2vkn",
+      "kind": "columns",
+      "title": "Umsatz je Monat",
+      "displayName": "Umsatz je Monat",
+      "rect": {
+        "x": 817,
+        "y": 99,
+        "w": 787,
+        "h": 457
+      },
+      "body": {
+        "x": 842,
+        "y": 153,
+        "w": 737,
+        "h": 365
+      },
+      "headH": 36,
+      "footH": 27
+    },
+    "529iu5b": {
+      "page": "IBCS Testbed",
+      "id": "mk_529iu5b",
+      "kind": "bars",
+      "title": "Umsatz je Region",
+      "displayName": "Umsatz je Region",
+      "rect": {
+        "x": 15,
+        "y": 571,
+        "w": 787,
+        "h": 458
+      },
+      "body": {
+        "x": 40,
+        "y": 625,
+        "w": 737,
+        "h": 366
+      },
+      "headH": 36,
+      "footH": 27
+    },
+    "4qyvuuj": {
+      "page": "IBCS Testbed",
+      "id": "mk_4qyvuuj",
+      "kind": "bridge",
+      "title": "Abweichung je Kategorie",
+      "displayName": "Abweichung je Kategorie",
+      "rect": {
+        "x": 817,
+        "y": 571,
+        "w": 787,
+        "h": 458
+      },
+      "body": {
+        "x": 842,
+        "y": 625,
+        "w": 737,
+        "h": 366
+      },
+      "headH": 36,
+      "footH": 27
+    }
+  }
+}

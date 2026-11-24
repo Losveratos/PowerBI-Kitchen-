@@ -1,0 +1,2 @@
+#!/usr/bin/env sh
+exec "${FAKE_TE_PYTHON:-python3}" "$(dirname "$0")/fake_te.py" "$@"

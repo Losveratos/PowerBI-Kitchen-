@@ -11,47 +11,102 @@
       "set": {
         "shape.tileShape": "rectangle",
         "fill.show": true,
-        "fill.fillColor": "#F1F3F5",
+        "fill.fillColor": "#ECEBE5",
         "outline.show": false,
-        "position.z": 0
+        "position.z": 0,
+        "title.show": false
       },
       "continue_on_error": true
     },
     {
       "id": "format-2",
       "op": "set",
-      "select": "Detail Produktlinie.Page/chrome_filter_title.Visual",
+      "select": "Detail Produktlinie.Page/chrome_filter_rule.Visual",
       "set": {
-        "fill.show": false,
+        "shape.tileShape": "rectangle",
+        "fill.show": true,
+        "fill.fillColor": "#E3E1D8",
         "outline.show": false,
-        "text.text": "Filter",
-        "text.fontSize": 11,
-        "text.fontColor": "#0F1E2E",
-        "text.horizontalAlignment": "left",
-        "text.verticalAlignment": "middle",
-        "text.bold": true,
-        "position.z": 4
+        "position.z": 1,
+        "title.show": false
       },
       "continue_on_error": true
     },
     {
       "id": "format-3",
       "op": "set",
-      "select": "Detail Produktlinie.Page/chrome_footer_text.Visual",
+      "select": "Detail Produktlinie.Page/chrome_filter_title.Visual",
       "set": {
         "fill.show": false,
         "outline.show": false,
-        "text.text": "Stand: <datum> · Quelle: DWH · Kontakt: Controlling",
-        "text.fontSize": 9,
-        "text.fontColor": "#6B7280",
-        "text.horizontalAlignment": "left",
-        "text.verticalAlignment": "middle",
-        "position.z": 4
+        "text.show": true,
+        "text.default.text": "FILTER",
+        "text.default.fontSize": 8.5,
+        "text.default.fontColor": "#6B7280",
+        "text.default.horizontalAlignment": "left",
+        "text.default.verticalAlignment": "middle",
+        "text.default.leftMargin": 0,
+        "text.default.rightMargin": 0,
+        "text.default.topMargin": 0,
+        "text.default.bottomMargin": 0,
+        "text.default.bold": true,
+        "position.z": 4,
+        "title.show": false
       },
       "continue_on_error": true
     },
     {
       "id": "format-4",
+      "op": "set",
+      "select": "Detail Produktlinie.Page/chrome_footer_bg.Visual",
+      "set": {
+        "shape.tileShape": "rectangle",
+        "fill.show": true,
+        "fill.fillColor": "#EEF1F5",
+        "outline.show": false,
+        "position.z": 0,
+        "title.show": false
+      },
+      "continue_on_error": true
+    },
+    {
+      "id": "format-5",
+      "op": "set",
+      "select": "Detail Produktlinie.Page/chrome_footer_rule.Visual",
+      "set": {
+        "shape.tileShape": "rectangle",
+        "fill.show": true,
+        "fill.fillColor": "#E3E1D8",
+        "outline.show": false,
+        "position.z": 1,
+        "title.show": false
+      },
+      "continue_on_error": true
+    },
+    {
+      "id": "format-6",
+      "op": "set",
+      "select": "Detail Produktlinie.Page/chrome_footer_text.Visual",
+      "set": {
+        "fill.show": false,
+        "outline.show": false,
+        "text.show": true,
+        "text.default.text": "Stand: <datum> · Quelle: DWH · Kontakt: Controlling",
+        "text.default.fontSize": 7.5,
+        "text.default.fontColor": "#6B7280",
+        "text.default.horizontalAlignment": "left",
+        "text.default.verticalAlignment": "middle",
+        "text.default.leftMargin": 0,
+        "text.default.rightMargin": 0,
+        "text.default.topMargin": 0,
+        "text.default.bottomMargin": 0,
+        "position.z": 4,
+        "title.show": false
+      },
+      "continue_on_error": true
+    },
+    {
+      "id": "format-7",
       "op": "set",
       "select": "Detail Produktlinie.Page/chrome_header_bg.Visual",
       "set": {
@@ -59,142 +114,153 @@
         "fill.show": true,
         "fill.fillColor": "#FFFFFF",
         "outline.show": false,
-        "position.z": 0
-      },
-      "continue_on_error": true
-    },
-    {
-      "id": "format-5",
-      "op": "set",
-      "select": "Detail Produktlinie.Page/chrome_header_rule.Visual",
-      "set": {
-        "fill.show": true,
-        "fill.fillColor": "#E5E7EB",
-        "outline.show": false,
-        "position.z": 1
-      },
-      "continue_on_error": true
-    },
-    {
-      "id": "format-6",
-      "op": "set",
-      "select": "Detail Produktlinie.Page/chrome_header_subtitle.Visual",
-      "set": {
-        "fill.show": false,
-        "outline.show": false,
-        "text.text": "in T€ · YTD 2026",
-        "text.fontSize": 10,
-        "text.fontColor": "#6B7280",
-        "text.horizontalAlignment": "left",
-        "text.verticalAlignment": "middle",
-        "position.z": 4
-      },
-      "continue_on_error": true
-    },
-    {
-      "id": "format-7",
-      "op": "set",
-      "select": "Detail Produktlinie.Page/chrome_header_title.Visual",
-      "set": {
-        "fill.show": false,
-        "outline.show": false,
-        "text.text": "Management Report",
-        "text.fontSize": 16,
-        "text.fontColor": "#0F1E2E",
-        "text.horizontalAlignment": "left",
-        "text.verticalAlignment": "middle",
-        "text.bold": true,
-        "position.z": 4
+        "position.z": 0,
+        "title.show": false
       },
       "continue_on_error": true
     },
     {
       "id": "format-8",
       "op": "set",
-      "select": "Detail Produktlinie.Page/chrome_logo.Visual",
+      "select": "Detail Produktlinie.Page/chrome_header_rule.Visual",
       "set": {
-        "fill.show": false,
-        "outline.show": true,
-        "outline.lineColor": "#0F1E2E",
-        "text.text": "LOGO",
-        "text.fontSize": 8,
-        "text.fontColor": "#0F1E2E",
-        "text.horizontalAlignment": "center",
-        "position.z": 4
+        "shape.tileShape": "rectangle",
+        "fill.show": true,
+        "fill.fillColor": "#E3E1D8",
+        "outline.show": false,
+        "position.z": 1,
+        "title.show": false
       },
       "continue_on_error": true
     },
     {
       "id": "format-9",
       "op": "set",
-      "select": "Detail Produktlinie.Page/chrome_nav_1.Visual",
+      "select": "Detail Produktlinie.Page/chrome_header_subtitle.Visual",
       "set": {
         "fill.show": false,
-        "text.fontColor": "#0F1E2E",
         "outline.show": false,
-        "text.text": "Übersicht",
-        "text.fontSize": 10,
-        "text.horizontalAlignment": "center",
-        "text.verticalAlignment": "middle",
-        "position.z": 5
+        "text.show": true,
+        "text.default.text": "in T€ · YTD 2026",
+        "text.default.fontSize": 8.5,
+        "text.default.fontColor": "#57626D",
+        "text.default.horizontalAlignment": "left",
+        "text.default.verticalAlignment": "middle",
+        "text.default.leftMargin": 0,
+        "text.default.rightMargin": 0,
+        "text.default.topMargin": 0,
+        "text.default.bottomMargin": 0,
+        "position.z": 4,
+        "title.show": false
       },
       "continue_on_error": true
     },
     {
       "id": "format-10",
       "op": "set",
-      "select": "Detail Produktlinie.Page/chrome_nav_2.Visual",
+      "select": "Detail Produktlinie.Page/chrome_header_title.Visual",
       "set": {
-        "fill.show": true,
-        "fill.fillColor": "#C25A2D",
-        "text.fontColor": "#FFFFFF",
+        "fill.show": false,
         "outline.show": false,
-        "text.text": "Detail Produktlinie",
-        "text.fontSize": 10,
-        "text.horizontalAlignment": "center",
-        "text.verticalAlignment": "middle",
-        "position.z": 5
+        "text.show": true,
+        "text.default.text": "Management Report",
+        "text.default.fontSize": 13,
+        "text.default.fontColor": "#0F1E2E",
+        "text.default.horizontalAlignment": "left",
+        "text.default.verticalAlignment": "middle",
+        "text.default.leftMargin": 0,
+        "text.default.rightMargin": 0,
+        "text.default.topMargin": 0,
+        "text.default.bottomMargin": 0,
+        "text.default.bold": true,
+        "position.z": 4,
+        "title.show": false
       },
       "continue_on_error": true
     },
     {
       "id": "format-11",
       "op": "set",
-      "select": "Detail Produktlinie.Page/mk_btn01.Visual",
+      "select": "Detail Produktlinie.Page/chrome_logo.Visual",
       "set": {
-        "fill.show": true,
-        "fill.fillColor": "#C25A2D",
-        "outline.show": false,
-        "text.text": "← Übersicht",
-        "text.fontSize": 10,
-        "text.fontColor": "#FFFFFF",
-        "text.horizontalAlignment": "center",
-        "text.verticalAlignment": "middle",
-        "background.show": true,
-        "background.color": "#FFFFFF",
-        "background.transparency": 0,
-        "border.show": false,
-        "dropShadow.show": true,
-        "dropShadow.preset": "BottomRight",
-        "dropShadow.color": "#0F1E2E",
-        "dropShadow.transparency": 85,
-        "border.radius": 12,
-        "position.z": 10
+        "fill.show": false,
+        "outline.show": true,
+        "outline.lineColor": "#0F1E2E",
+        "outline.transparency": 60,
+        "outline.weight": 1,
+        "shape.tileShape": "rectangleRounded",
+        "shape.rectangleRoundedCurve": 4,
+        "text.show": true,
+        "text.default.text": "LOGO",
+        "text.default.fontSize": 7.5,
+        "text.default.fontColor": "#6F7882",
+        "text.default.horizontalAlignment": "center",
+        "text.default.verticalAlignment": "middle",
+        "position.z": 4,
+        "title.show": false
       },
       "continue_on_error": true
     },
     {
       "id": "format-12",
       "op": "set",
-      "select": "Detail Produktlinie.Page/mk_p6km182.Visual",
+      "select": "Detail Produktlinie.Page/chrome_nav_1.Visual",
       "set": {
         "fill.show": false,
+        "outline.show": true,
+        "outline.lineColor": "#0F1E2E",
+        "outline.transparency": 70,
+        "outline.weight": 1,
+        "text.default.fontColor": "#0F1E2E",
+        "shape.default.tileShape": "rectangleRounded",
+        "shape.default.rectangleRoundedCurve": 4,
+        "text.show": true,
+        "text.default.text": "Übersicht",
+        "text.default.fontSize": 8.5,
+        "text.default.horizontalAlignment": "center",
+        "text.default.verticalAlignment": "middle",
+        "position.z": 5,
+        "title.show": false
+      },
+      "continue_on_error": true
+    },
+    {
+      "id": "format-13",
+      "op": "set",
+      "select": "Detail Produktlinie.Page/chrome_nav_2.Visual",
+      "set": {
+        "fill.show": true,
+        "fill.fillColor": "#C25A2D",
+        "outline.show": true,
+        "outline.lineColor": "#C25A2D",
+        "outline.weight": 1,
+        "text.default.fontColor": "#FFFFFF",
+        "shape.default.tileShape": "rectangleRounded",
+        "shape.default.rectangleRoundedCurve": 4,
+        "text.show": true,
+        "text.default.text": "Detail Produktlinie",
+        "text.default.fontSize": 8.5,
+        "text.default.horizontalAlignment": "center",
+        "text.default.verticalAlignment": "middle",
+        "position.z": 5,
+        "title.show": false
+      },
+      "continue_on_error": true
+    },
+    {
+      "id": "format-14",
+      "op": "set",
+      "select": "Detail Produktlinie.Page/mk_btn01.Visual",
+      "set": {
+        "fill.show": true,
+        "fill.fillColor": "#C25A2D",
         "outline.show": false,
-        "text.text": "Detail: gewählte Produktlinie",
-        "text.fontSize": 11,
-        "text.fontColor": "#0F1E2E",
-        "text.horizontalAlignment": "left",
-        "text.verticalAlignment": "top",
+        "text.show": true,
+        "text.default.text": "← Übersicht",
+        "text.default.fontSize": 10,
+        "text.default.fontColor": "#FFFFFF",
+        "text.default.horizontalAlignment": "center",
+        "text.default.verticalAlignment": "middle",
         "background.show": true,
         "background.color": "#FFFFFF",
         "background.transparency": 0,
@@ -204,24 +270,82 @@
         "dropShadow.color": "#0F1E2E",
         "dropShadow.transparency": 85,
         "border.radius": 12,
-        "position.z": 10
+        "position.z": 10,
+        "title.show": false
       },
       "continue_on_error": true
     },
     {
-      "id": "format-13",
+      "id": "format-15",
+      "op": "set",
+      "select": "Detail Produktlinie.Page/mk_p6km182.Visual",
+      "set": {
+        "fill.show": false,
+        "outline.show": false,
+        "text.show": true,
+        "text.default.text": "Detail: gewählte Produktlinie",
+        "text.default.fontSize": 11,
+        "text.default.fontColor": "#0F1E2E",
+        "text.default.horizontalAlignment": "left",
+        "text.default.verticalAlignment": "top",
+        "background.show": true,
+        "background.color": "#FFFFFF",
+        "background.transparency": 0,
+        "border.show": false,
+        "dropShadow.show": true,
+        "dropShadow.preset": "BottomRight",
+        "dropShadow.color": "#0F1E2E",
+        "dropShadow.transparency": 85,
+        "border.radius": 12,
+        "position.z": 10,
+        "title.show": false
+      },
+      "continue_on_error": true
+    },
+    {
+      "id": "format-16",
       "op": "set",
       "select": "Detail Produktlinie.Page/mk_slicer_Region_p2.Visual",
       "set": {
+        "title.show": false,
+        "background.show": true,
+        "background.color": "#FFFFFF",
+        "background.transparency": 0,
+        "border.show": true,
+        "border.color": "#D9D6CC",
+        "border.width": 1,
+        "border.radius": 4,
+        "dropShadow.show": false,
+        "header.show": true,
+        "header.textSize": 8,
+        "header.fontColor": "#374151",
+        "header.bold": false,
+        "items.textSize": 8,
+        "items.fontColor": "#374151",
         "position.z": 10
       },
       "continue_on_error": true
     },
     {
-      "id": "format-14",
+      "id": "format-17",
       "op": "set",
       "select": "Detail Produktlinie.Page/mk_slicer_Year_p2.Visual",
       "set": {
+        "title.show": false,
+        "background.show": true,
+        "background.color": "#FFFFFF",
+        "background.transparency": 0,
+        "border.show": true,
+        "border.color": "#D9D6CC",
+        "border.width": 1,
+        "border.radius": 4,
+        "dropShadow.show": false,
+        "header.show": true,
+        "header.textSize": 8,
+        "header.fontColor": "#374151",
+        "header.bold": false,
+        "items.textSize": 8,
+        "items.fontColor": "#374151",
         "position.z": 10
       },
       "continue_on_error": true

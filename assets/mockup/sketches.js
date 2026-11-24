@@ -46,7 +46,15 @@
          cats:['Nord','Süd',…],                     // Kategorienamen statt c.t.cat
          values:[Number,…],                         // Hauptszenario (AC), values[i] ↔ cats[i]
          refValues:[Number,…],                      // Bezug (PY/PL nach deltaBasis), nur mit values
-         nativePalette:'pbi'|'neutral'|'kitchen' }  // Datenfarben nativ, Default 'pbi'
+         nativePalette:'pbi'|'neutral'|'kitchen',   // Datenfarben nativ, Default 'pbi'
+         // Ehrlich zur Bindung (AUDIT-DEPLOY4, Ursache 6; Regel in app.js effScen)
+         noRef:Boolean,                             // keine Referenz gebunden: kein Bezug, keine Δ-Ebene,
+                                                    // auch bei Typen, die sonst auf PL zurückfallen
+         catNames:['1','2',…],                      // nur Namen der Kategorien/Facetten (z. B. numerischer
+                                                    // Schlüssel), ohne den Eigene-Daten-Modus von o.cats
+         report:Boolean }                           // data-mk-drawn am <svg>: was tatsächlich gezeichnet
+                                                    // wurde (Bezüge, Marke, Δ-Ebenen, Beschriftung, Σ, FC,
+                                                    // Einheit, Schriftgrade in px) — liest der Export
 
    Eigene Daten:
    - Anzahl Kategorien = Länge von o.cats (ohne cats: Länge von o.values),
@@ -326,6 +334,7 @@
       x = a / u[i][0]; d = x < 100 ? 1 : 0;
       if (i > 0 && +x.toFixed(d) >= 1000) { i--; x = a / u[i][0]; d = 1; }
       // „20,0 Tsd." → „20 Tsd." (wie kompakte Zahlformate)
+      drew(c, 'unit', String(u[i][1]).trim());
       return { num: lbl(c, v < 0 ? -x : x, d).replace(/[.,]0$/, ''), suf: u[i][1] };
     }
     return { num: lbl(c, v, c.vdec || 0), suf: '' };
@@ -526,8 +535,12 @@
       C: C, lang: lang, t: L10N[lang],
       unit: (o.unit == null) ? '' : String(o.unit),
       anti: !!o.antiPattern,
-      vAbs: v.abs !== false,
-      vRel: v.rel !== false,
+      noRef: !!o.noRef,
+      vAbs: v.abs !== false && !o.noRef,
+      vRel: v.rel !== false && !o.noRef,
+      drawn: { refs: [], marker: [], delta: [], basis: null, labels: null, sum: false, fc: false, unit: '', spark: false },
+      // Verlaufslinie (kpi): true/false aus der Bindung des Zeitfelds, undefined = Platzhalter-Skizze (nichts gebunden)
+      spark: (o.spark === true || o.spark === false) ? o.spark : undefined,
       dense: !!o.dense,
       o: o,
       rnd: mulberry32(o.seed == null ? 1 : o.seed)
@@ -546,6 +559,7 @@
     c.uv = numList(o.values);
     c.ur = c.uv ? numList(o.refValues) : null;
     if (c.uc) c.cat = c.uc;
+    else if (strList(o.catNames)) c.cat = strList(o.catNames);
     c.real = !!c.uv;
     c.vdec = c.uv ? decOf(c.uv.concat(c.ur || [])) : 0;
     c.lab =(!c.small && W >= 170 * c.lk && H >= 90 * c.lk);
@@ -569,11 +583,30 @@
     return s;
   }
 
+  /* Was die Skizze tatsächlich zeichnet (für o.report). Die Bausteine melden
+     sich selbst: Bezugsflächen/-linien (refs), Dreieck-Marken (marker),
+     Δ-Ebenen (delta: abs/rel, basis), Wertbeschriftung (labels), Σ, FC-Anteil,
+     gezeigte Einheit.                                                       */
+  function drew(c, key, val) {
+    var d = c && c.drawn; if (!d) return;
+    if (key === 'labels') { d.labels = !!d.labels || !!val; return; }
+    if (key === 'sum' || key === 'fc' || key === 'spark') { d[key] = true; return; }
+    if (key === 'basis' || key === 'unit') { if (val && !d[key]) d[key] = String(val); return; }
+    if (val && d[key].indexOf(val) < 0) d[key].push(val);
+  }
+  function drawnAttr(c) {
+    var d = c.drawn;
+    var o = { refs: d.refs, marker: d.marker, delta: d.delta, basis: d.basis, labels: d.labels == null ? !!c.lab : d.labels,
+              sum: d.sum, fc: d.fc, unit: d.unit || null, small: !!c.small, spark: !!d.spark,
+              fontPx: { label: n(c.fs * c.k), axis: n(c.fsA * c.k), title: n(c.fsT * c.k) } };
+    return ' data-mk-drawn="' + esc(JSON.stringify(o)).replace(/"/g, '&quot;') + '"';
+  }
+
   function wrap(c, body) {
     if (c.anti) body += antiLayer(c);
     var g = c.k === 1 ? body : '<g transform="scale(' + c.k + ')">' + body + '</g>';
     return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ' + c.ow + ' ' + c.oh +
-           '" width="100%" height="100%" font-family="' + FONT + '">' + g + '</svg>';
+           '" width="100%" height="100%" font-family="' + FONT + '"' + (c.o && c.o.report ? drawnAttr(c) : '') + '>' + g + '</svg>';
   }
 
   function area(c, o) {
@@ -664,15 +697,17 @@
       defs: '<defs>' + pat(id, c.C.ac) + pat(id + 'g', c.C.good) + pat(id + 'b', c.C.bad) + '</defs>'
     };
   }
-  function fcFill(c, hh, px) { return (hh && n(px) >= 4) ? 'url(#' + hh.id + ')' : c.C.fcc; }
+  function fcFill(c, hh, px) { drew(c, 'fc'); return (hh && n(px) >= 4) ? 'url(#' + hh.id + ')' : c.C.fcc; }
   // Forecast-Abweichung: farbige Schraffur, bei zu kleinen Flächen aufgehellt
   function dFill(c, hh, d, px) {
+    drew(c, 'fc');
     var good = dcol(c, d) === c.C.good;
     return (hh && n(px) >= 3) ? 'url(#' + (good ? hh.g : hh.b) + ')' : mix(dcol(c, d), c.C.paper, 0.45);
   }
 
   // Referenzfläche je Szenario
   function refShape(c, x, y, w, h, kind, hh) {
+    drew(c, 'refs', kind);
     if (kind === 'PY') return rect(x, y, w, h, c.C.py);
     if (kind === 'FC') return rect(x, y, w, h, fcFill(c, hh, Math.min(w, h)), c.C.ac, 0.8);
     return rect(x, y, w, h, c.C.plf, c.C.pls, 1);
@@ -916,6 +951,7 @@
       if (parts.length > 3) { parts.pop(); }
       if (xR - tw('x'.repeat(richLen(parts)), size) < xL) return '';
     }
+    if (total != null) drew(c, 'sum');
     return rich(xR, y, parts, size, 'end');
   }
 
@@ -934,10 +970,12 @@
   function markFill(c, kind) { return kind === 'PY' ? c.C.py : c.C.plf; }
   function markLine(c, kind) { return kind === 'PY' ? mix(c.C.py, c.C.ink, 0.25) : c.C.pls; }
   function triRight(c, x, y, s, kind) {
+    drew(c, 'marker', kind || 'PY');
     s = Math.max(1.4, n(s));
     return polygonEl([[x, y], [x - s, y - s * 0.8], [x - s, y + s * 0.8]], markFill(c, kind || 'PY'), markLine(c, kind || 'PY'), 0.7);
   }
   function triDown(c, x, y, s, kind) {
+    drew(c, 'marker', kind || 'PY');
     s = Math.max(1.4, n(s));
     return polygonEl([[x, y], [x - s * 0.8, y - s], [x + s * 0.8, y - s]], markFill(c, kind || 'PY'), markLine(c, kind || 'PY'), 0.7);
   }
@@ -985,6 +1023,7 @@
     var showLbl = opt.labels !== false && c.lab && sl.length &&
                   sl[0].step >= c.fs * 2.4 && h >= c.fs * 3.6 &&
                   (!c.real || sl[0].step >= vmaxW(c, d, c.fs, dvlbl) + 2);
+    drew(c, 'delta', 'abs'); drew(c, 'basis', kind); drew(c, 'labels', showLbl);
     var lh = showLbl ? c.fs * 1.4 : c.fs * 0.15;
     var m = maxOf(d) * 1.04;
     var s = sc(-m, m, y + h - lh, y + lh), zero = s(0), b = '', i;
@@ -1013,6 +1052,7 @@
     var kind = opt.kind || c.basis || 'PL';
     var showLbl = opt.labels !== false && c.lab && sl.length &&
                   sl[0].step >= c.fs * 3 && h >= c.fs * 3.8;
+    drew(c, 'delta', 'rel'); drew(c, 'basis', kind); drew(c, 'labels', showLbl);
     var r = clamp(sl[0].step * 0.07, 1.3, 2.7);
     var lh = showLbl ? c.fs * 1.3 + r : r + 0.6;
     var m = maxOf(d) * 1.04;
@@ -1044,6 +1084,7 @@
     var wmax = 0, i;
     for (i = 0; i < d.length; i++) wmax = Math.max(wmax, tw(dvlbl(c, d[i]), c.fs));
     var showLbl = opt.labels !== false && c.lab && rows[0].step >= c.fs * 1.1 && w >= wmax * 2 + c.fs * 3;
+    drew(c, 'delta', 'abs'); drew(c, 'basis', kind); drew(c, 'labels', showLbl);
     var lw = showLbl ? wmax + 3 : 0;
     var m = maxOf(d) * 1.04;
     var s = sc(-m, m, x + lw, x + w - lw), zero = s(0), b = '';
@@ -1070,6 +1111,7 @@
     var wmax = 0, i;
     for (i = 0; i < d.length; i++) wmax = Math.max(wmax, tw(plbl(c, d[i]), c.fs));
     var showLbl = opt.labels !== false && c.lab && rows[0].step >= c.fs * 1.1 && w >= wmax * 2 + c.fs * 3;
+    drew(c, 'delta', 'rel'); drew(c, 'basis', kind); drew(c, 'labels', showLbl);
     var r = clamp(rows[0].step * 0.13, 1.2, 2.6);
     var lw = showLbl ? wmax + r + 3 : r + 0.5;
     var m = maxOf(d) * 1.04;
@@ -1096,6 +1138,7 @@
     var step = gm.step, pw = gm.pw, rw = gm.rw, dx = gm.dx;
     var showLbl = opt.labels !== false && c.lab &&
                   step >= Math.max(c.fs * 2.4, (c.real ? vmaxW(c, ac) : tw(lbl(c, maxOf(ac), 0), c.fs)) + 3) && P.h >= c.fs * 4.2;
+    drew(c, 'labels', showLbl);
     var lh = showLbl ? c.fs * 1.35 : c.fs * 0.2;
     var sec = (opt.sec !== false && c.sec && rf) ? derive(c, ac, 0.88, 1.12) : null;
     var mx = opt.max || Math.max(maxOf(ac), rf ? maxOf(rf) : 0, sec ? maxOf(sec) : 0) * 1.03;
@@ -1215,6 +1258,9 @@
       var sA = sum(ac), sR = sum(rf);
       b += sumBadge(c, c.x0 + tw(withDelta ? 'ΔPL %' : scenCap(c, kind), c.fsT) + 12, c.x1, capY, sA, sA - sR,
                     sR ? (sA - sR) / Math.abs(sR) * 100 : 0, kind);
+    } else if (c.w >= 300) {
+      // ohne Referenz: nur Σ AC (ChartKitchen zeigt die Summe auch dann, chart.showTotal)
+      b += sumBadge(c, c.x0 + tw(scenCap(c, null), c.fsT) + 12, c.x1, capY, sum(ac), 0, null, null);
     }
     b += colBlock(c, P, ac, rf, kind, hh, sl).body;
     b += fcSplit(c, sl, c.y0 + (withDelta ? 0 : capH), P.y + P.h);
@@ -1258,13 +1304,14 @@
   S.kombi = function (w, h, o) {
     var c = ctx(w, h, o), hh = hatch(c), b = hh.defs;
     var cnt = kcnt(c, c.small ? 4 : (c.dense ? 12 : 6), capN(c, 4, 16));
-    var kind = refKind(c) || 'PL';
-    var ac = useVals(c, series(c, cnt, 72, 26)), rf = useRef(c, derive(c, ac, 0.86, 1.14));
+    // Ohne gebundene Referenz (o.noRef) nur Säulen, sonst wie bisher PL als Rückfall
+    var kind = refKind(c) || (c.noRef ? null : 'PL');
+    var ac = useVals(c, series(c, cnt, 72, 26)), rf = kind ? useRef(c, derive(c, ac, 0.86, 1.14)) : null;
     var labH = c.lab ? c.fsA + 5 : 0, capH = c.lab ? c.fsT + 4 : 0, i;
     var sl = slots(c.x0, c.iw, cnt, 0.3);
-    var gm = colGeom(c, sl, kind, true);
+    var gm = colGeom(c, sl, kind, !!rf);
     if (c.small) {
-      if (!c.vAbs && !c.vRel) {
+      if (!kind || (!c.vAbs && !c.vRel)) {
         b += colBlock(c, { x: c.x0, y: c.y0, w: c.iw, h: c.ih - labH }, ac, rf, kind, hh, sl).body;
         return wrap(c, b);
       }
@@ -1276,8 +1323,8 @@
       return wrap(c, b);
     }
     var parts = [], keys = [];
-    if (c.vRel) { parts.push(24); keys.push('rel'); }
-    if (c.vAbs) { parts.push(26); keys.push('abs'); }
+    if (kind && c.vRel) { parts.push(24); keys.push('rel'); }
+    if (kind && c.vAbs) { parts.push(26); keys.push('abs'); }
     parts.push(keys.length ? 56 : 100); keys.push('col');
     var bd = bands(c.y0, c.ih - labH, parts, c.fs * 0.5), P = null;
     for (i = 0; i < keys.length; i++) {
@@ -1294,10 +1341,12 @@
         b += colBlock(c, P, ac, rf, kind, hh, sl).body;
       }
     }
-    if (c.w >= 300) {
+    if (c.w >= 300 && kind) {
       var sA = sum(ac), sR = sum(rf);
       b += sumBadge(c, c.x0 + tw('Δ' + kind + ' %', c.fsT) + 12, c.x1, c.y0 + c.fsT * 0.85, sA, sA - sR,
                     sR ? (sA - sR) / Math.abs(sR) * 100 : 0, kind);
+    } else if (c.w >= 300) {
+      b += sumBadge(c, c.x0 + tw(scenCap(c, null), c.fsT) + 12, c.x1, c.y0 + c.fsT * 0.85, sum(ac), 0, null, null);
     }
     b += fcSplit(c, sl, c.y0 + capH, P.y + P.h);
     b += monLabels(c, sl, c.y1 - 0.5, c.uc ? c.cat : undefined);
@@ -1391,12 +1440,15 @@
       if (sec) ps.push([sl[i].cx, s(sec[i])]);
     }
     b += baseH(c, P.x, P.x + P.w, yZ, 'AC', fcX(c, sl));
-    if (sec) b += polyline(ps, c.sec === 'PY' ? c.C.py : c.C.hair, c.small ? 0.9 : 1.1, '1.5 2');
+    if (sec) { drew(c, 'marker', c.sec); b += polyline(ps, c.sec === 'PY' ? c.C.py : c.C.hair, c.small ? 0.9 : 1.1, '1.5 2'); }
+    drew(c, 'labels', showV);
     if (rf) {
+      drew(c, 'refs', kind);
       b += kind === 'PY' ? polyline(pr, c.C.py, c.small ? 1.3 : 1.8)
                          : polyline(pr, c.C.ink, c.small ? 0.8 : 1, '4 2.5');
     }
     var fcAt = fcStart(c, cnt), sw = c.small ? 1.4 : 1.8;
+    if (fcAt < cnt) drew(c, 'fc');
     if (fcAt <= 0) b += polyline(pa, c.C.ac, sw, '4 2.5');
     else if (fcAt < cnt) {
       b += polyline(pa.slice(0, fcAt), c.C.ac, sw);
@@ -1965,6 +2017,7 @@
     var rg = rowGeom(c, rw, kind, !!rf);
     var wv = (c.real ? vmaxW(c, ac) : tw(lbl(c, maxOf(ac), 0), c.fs)) + 4;
     var showV = opt.labels !== false && c.lab && rw[0].step >= c.fs * 1.05;
+    drew(c, 'labels', showV);
     var mx = Math.max(maxOf(ac), rf ? maxOf(rf) : 0, sec ? maxOf(sec) : 0) * 1.02;
     var allFC = (c.main === 'FC');
     var sp = span(ac, rf, sec), s;
@@ -2023,6 +2076,7 @@
     var A = arrange(c, ac, rf, [sec]);
     if (A) { ac = A.ac; rf = A.rf; sec = A.more[0]; cnt = A.n; }
     var dOn = !!rf && c.lab && (c.vAbs || c.vRel), dRel = dOn && c.vRel, i;
+    if (dOn) { drew(c, 'delta', dRel ? 'rel' : 'abs'); drew(c, 'basis', kind); }
     var dv = [];
     for (i = 0; i < cnt && rf; i++) dv.push(dRel ? n(rf[i] ? (ac[i] - rf[i]) / Math.abs(rf[i]) * 100 : 0) : n(ac[i] - rf[i]));
     var dW = 0;
@@ -2157,7 +2211,7 @@
       var xa = s(ac[i]), cy = rw[i].cy;
       var col = rf ? dcol(c, ac[i] - rf[i]) : c.C.ac;
       if (rf) {
-        var xr = s(rf[i]);
+        var xr = s(rf[i]); drew(c, 'refs', kind);
         b += ln(xr, cy, xa, cy, mix(col, c.C.paper, 0.4), r * 0.9);
         b += circ(xr, cy, r, c.C.paper, c.C.ink, 1);
       }
@@ -2249,7 +2303,7 @@
   S.table = function (w, h, o) {
     var c = ctx(w, h, o), b = '';
     var rows = kcnt(c, c.small ? 3 : (c.dense ? 8 : 5), c.small ? 3 : Math.max(3, Math.min(20, Math.floor((c.ih - c.fsT - 6) / (c.fs * 1.3)) - 1)));
-    var kind = refKind(c) || 'PL';
+    var kind = refKind(c) || (c.noRef ? null : 'PL');
     var ac = [], rf = [], d = [], rel = [], sec = [], i;
     for (i = 0; i < rows; i++) {
       var a = (c.uc && rows > 6) ? n(80 * (1 - i / (rows + 3)) + c.rnd() * 8) : n(80 - i * 11 + c.rnd() * 10), p = n(a * (0.86 + c.rnd() * 0.24));
@@ -2269,7 +2323,10 @@
     var lab = c.lab && rh >= c.fs * 1.25;
     var wide = lab && c.w >= 330;
     var sAC = sum(ac), sRF = sum(rf), dS = n(sAC - sRF), relS = n(sRF ? dS / Math.abs(sRF) * 100 : 0);
-    var dOn = c.vAbs, rOn = c.vRel;
+    var dOn = c.vAbs && !!kind, rOn = c.vRel && !!kind;
+    if (dOn) { drew(c, 'delta', 'abs'); drew(c, 'basis', kind); }
+    if (rOn) { drew(c, 'delta', 'rel'); drew(c, 'basis', kind); }
+    drew(c, 'labels', lab); if (lab) drew(c, 'sum');
     // Spalten (Anteile von P.w)
     var nameR = P.x + P.w * (wide ? 0.17 : 0.3);
     var acR = P.x + P.w * (wide ? 0.27 : 0.46);
@@ -2306,7 +2363,7 @@
     if (lab) {
       var hy = P.y + headH - 4;
       b += txt(acR, hy, c.main, c.fsT, c.C.sub, 'end');
-      if (wide) b += txt(cellX, hy, c.main + ' · ' + kind + (c.sec ? ' · ' + c.sec : ''), c.fsT, c.C.sub, 'start');
+      if (wide) b += txt(cellX, hy, c.main + (kind ? ' · ' + kind + (c.sec ? ' · ' + c.sec : '') : ''), c.fsT, c.C.sub, 'start');
       if (dOn) b += txt(wide ? dX - 3 : dA, hy, 'Δ' + kind, c.fsT, c.C.sub, wide ? 'end' : 'middle');
       if (rOn) {
         var hwR = tw('Δ' + kind + ' %', c.fsT) / 2;
@@ -2331,15 +2388,15 @@
         // echte Werte: In-Zellen-Balken mit Nulllinie (auch negativ)
         var sp2 = bold ? cSpS : cSp, kx = cellW / (((sp2.hi - sp2.lo) || 1) * 1.05), zx = cellX - sp2.lo * 1.05 * kx;
         var xp = zx + p * kx, xa2 = zx + a * kx;
-        s += rect(Math.min(zx, xp), cy - bh * 0.62, Math.max(0.8, Math.abs(xp - zx)), bh * 1.24, c.C.plf, c.C.pls, 0.9);
+        if (kind) { drew(c, 'refs', kind); s += rect(Math.min(zx, xp), cy - bh * 0.62, Math.max(0.8, Math.abs(xp - zx)), bh * 1.24, c.C.plf, c.C.pls, 0.9); }
         s += rect(Math.min(zx, xa2), cy - bh / 2, Math.max(0.8, Math.abs(xa2 - zx)), bh, c.C.ac);
-        if (pv != null) s += triDown(c, clamp(zx + pv * kx, cellX, cellX + cellW), cy - bh * 0.62, clamp(bh * 0.55, 1.6, 3.6), 'PY');
+        if (pv != null && kind) s += triDown(c, clamp(zx + pv * kx, cellX, cellX + cellW), cy - bh * 0.62, clamp(bh * 0.55, 1.6, 3.6), 'PY');
       } else if (wide) {
-        var mxr = bold ? Math.max(sAC, sRF) * 1.05 : mxAC;
+        var mxr = bold ? Math.max(sAC, kind ? sRF : 0) * 1.05 : mxAC;
         var wP = cellW * p / mxr, wA2 = cellW * a / mxr;
-        s += rect(cellX, cy - bh * 0.62, Math.max(0.8, wP), bh * 1.24, c.C.plf, c.C.pls, 0.9);
+        if (kind) { drew(c, 'refs', kind); s += rect(cellX, cy - bh * 0.62, Math.max(0.8, wP), bh * 1.24, c.C.plf, c.C.pls, 0.9); }
         s += rect(cellX, cy - bh / 2, Math.max(0.8, wA2), bh, c.C.ac);
-        if (pv != null) s += triDown(c, cellX + Math.min(cellW, cellW * pv / mxr), cy - bh * 0.62, clamp(bh * 0.55, 1.6, 3.6), 'PY');
+        if (pv != null && kind) s += triDown(c, cellX + Math.min(cellW, cellW * pv / mxr), cy - bh * 0.62, clamp(bh * 0.55, 1.6, 3.6), 'PY');
       }
       if (dOn) {
         var xx = sD(dv);
@@ -2624,7 +2681,7 @@
           var badge = (dd.rf && (c.vRel || c.vAbs)) ? (c.vRel ? plbl(c, dp) : dvlbl(c, sv - sr)) : '';
           var bw2 = badge ? tw(badge, c.fs) + 4 : 0;
           b += txt(px, py + c.fsT * 0.85, fit(c, (k2 === 0 && !own ? 'Σ ' : '') + c.cat[k2 % c.cat.length], cw - bw2, c.fsT), c.fsT, c.C.ink, 'start', '600');
-          if (badge && cw >= bw2 + c.fsT * 3) b += txt(px + cw, py + c.fsT * 0.85, badge, c.fs, dcol(c, dp), 'end', '600');
+          if (badge && cw >= bw2 + c.fsT * 3) { drew(c, 'delta', c.vRel ? 'rel' : 'abs'); drew(c, 'basis', kind); b += txt(px + cw, py + c.fsT * 0.85, badge, c.fs, dcol(c, dp), 'end', '600'); }
         }
         var sl = slots(P.x, P.w, per, 0.3);
         b += colBlock(c, P, dd.v, dd.rf, kind, hh, sl, gLo < 0 ? { labels: false, max: gHi * 1.03, min: gLo } : { labels: false, max: mx * 1.03 }).body;
@@ -2637,12 +2694,15 @@
   S.sparktable = function (w, h, o) {
     var c = ctx(w, h, o), b = '';
     var rows = kcnt(c, c.small ? 2 : (c.dense ? 7 : 5), capR(c, 2, 13, 2, 16));
-    var kind = refKind(c) || 'PL';
+    var kind = refKind(c) || (c.noRef ? null : 'PL');
     var P = area(c, {});
     var headH = c.lab ? c.fsT + 6 : 0;
     var rh = (P.h - headH) / rows;
     var lab = c.lab && rh >= c.fs * 1.4;
-    var dOn = c.vRel || c.vAbs, dRel = c.vRel;
+    var dOn = !!kind && (c.vRel || c.vAbs), dRel = c.vRel;
+    if (dOn) { drew(c, 'delta', dRel ? 'rel' : 'abs'); drew(c, 'basis', kind); }
+    if (kind) drew(c, 'refs', kind);
+    drew(c, 'labels', lab);
     var labW = lab ? Math.min(P.w * 0.24, tw('Service', c.fs) + 6) : P.w * 0.2;
     var numW = lab ? tw('000,0', c.fs) + 6 : 0;
     var valW = dOn ? (lab ? tw('+00%', c.fs) + 8 : P.w * 0.14) : 0;
@@ -2674,7 +2734,7 @@
       var pts = sparkPts(c, 12, spX, y + rh * 0.18, spW, rh * 0.64);
       var rp = [], k2;
       for (k2 = 0; k2 < pts.length; k2++) rp.push([pts[k2][0], clamp(pts[k2][1] + (c.rnd() - 0.3) * rh * 0.2, y + rh * 0.15, y + rh * 0.85)]);
-      b += polyline(rp, c.C.py, 1, kind === 'PY' ? null : '2 1.5');
+      if (kind) b += polyline(rp, c.C.py, 1, kind === 'PY' ? null : '2 1.5');
       b += polyline(pts, c.C.ac, 1.3);
       b += circ(pts[11][0], pts[11][1], 1.6, c.C.ac);
       var d = dRel ? n((c.rnd() - 0.42) * 20) : n((c.rnd() - 0.42) * 30);
@@ -3035,6 +3095,7 @@
     var P = area(c, { left: labW, top: labH });
     var cw = P.w / cols, ch = P.h / rows, i, j;
     var showV = c.lab && cw >= tw('+00', c.fs) + 2 && ch >= c.fs * 1.4;
+    drew(c, 'labels', showV);
     for (i = 0; i < rows; i++) {
       for (j = 0; j < cols; j++) {
         var v = Math.sin(i * 1.7 + j * 0.6) * 0.6 + (c.rnd() - 0.5) * 0.8;
@@ -3042,9 +3103,13 @@
         var a = Math.min(0.9, Math.abs(v) * 0.9 + 0.08);
         var neutral = Math.abs(v) < 0.12;
         var fill = neutral ? c.C.wash : mix(c.C.paper, dcol(c, v), a);
+        if (c.noRef) {
+          // ohne Referenz keine Abweichungsfarben: AC als Grauwert (Wert 0…1), Beschriftung ohne Vorzeichen
+          a = Math.min(0.85, (v + 1) / 2 * 0.8 + 0.06); neutral = false; fill = mix(c.C.paper, c.C.ac, a);
+        } else { drew(c, 'delta', 'abs'); drew(c, 'basis', c.basis || 'PL'); }
         var x = P.x + cw * j, y = P.y + ch * i;
         b += rect(x + 0.5, y + 0.5, Math.max(0.8, cw - 1), Math.max(0.8, ch - 1), fill);
-        if (showV) b += txt(x + cw / 2, y + ch / 2 + c.fs * 0.34, dlbl(c, v * 12), c.fs, a > 0.55 && !neutral ? c.C.paper : c.C.ink, 'middle');
+        if (showV) b += txt(x + cw / 2, y + ch / 2 + c.fs * 0.34, c.noRef ? lbl(c, (v + 1) * 40, 0) : dlbl(c, v * 12), c.fs, a > 0.55 && !neutral ? c.C.paper : c.C.ink, 'middle');
       }
       if (c.lab) b += rowLabel(c, P.x - 4, P.y + ch * i + ch / 2, c.cat[i % c.cat.length], labW - 4);
     }
@@ -3094,7 +3159,7 @@
   S.tree = function (w, h, o) {
     var c = ctx(w, h, o), b = '';
     var kids = kcnt(c, c.small ? 2 : 3, c.small ? 2 : Math.max(2, Math.min(8, Math.floor(c.ih / 16))));
-    var kind = refKind(c) || 'PL';
+    var kind = refKind(c) || (c.noRef ? null : 'PL');
     var P = area(c, {});
     var bw = Math.min(P.w * 0.36, 96), bh = Math.min(P.h / kids * 0.78, c.lab ? c.fs * 3.6 : 22);
     var rx = P.x, ry = P.y + P.h / 2 - bh / 2;
@@ -3102,13 +3167,15 @@
     var step = P.h / kids;
     function node(x, y, name, v, d, root2) {
       var s = rrect(x, y, bw, bh, 2, c.C.paper, root2 ? c.C.ink : c.C.edge, 1);
-      var col = dcol(c, d);
+      // ohne Referenz: neutraler Streifen, keine Δ-Zeile
+      var col = kind ? dcol(c, d) : c.C.ac;
       s += rect(x, y + 2, 2, bh - 4, col);
       if (c.lab && bh >= c.fs * 2.6) {
+        drew(c, 'labels', true);
         s += txt(x + 5, y + c.fs * 1.1, fit(c, name, bw - 8), c.fs, c.C.sub, 'start');
         s += txt(x + 5, y + c.fs * 2.35, fit(c, vlbl(c, v, 1), bw - 8, c.fs * 1.1), c.fs * 1.1, c.C.ink, 'start', '700');
         var dl = dvlbl(c, d) + ' Δ' + kind;
-        if (bh >= c.fs * 3.4) s += txt(x + 5, y + c.fs * 3.35, fit(c, dl, bw - 8), c.fs * 0.9, col, 'start', '600');
+        if (kind && bh >= c.fs * 3.4) { drew(c, 'delta', 'abs'); drew(c, 'basis', kind); s += txt(x + 5, y + c.fs * 3.35, fit(c, dl, bw - 8), c.fs * 0.9, col, 'start', '600'); }
       } else {
         s += ghost(c, x + 5, y + bh * 0.28, bw * 0.45, Math.max(1.2, bh * 0.12));
         s += rect(x + 5, y + bh * 0.56, Math.max(1, bw * 0.6), Math.max(1.4, bh * 0.16), c.C.ac);
@@ -3179,7 +3246,7 @@
     var P = area(c, {});
     // Ohne Referenz im Szenario (z. B. KPI gegen FC) trägt die übergebene Δ-Basis das Label (Review B13)
     var wantK = String(o && o.deltaBasis != null ? o.deltaBasis : '').toUpperCase();
-    var kind = refKind(c) || (SCEN_OK[wantK] && wantK !== 'AC' ? wantK : '') || 'PL';
+    var kind = c.noRef ? null : (refKind(c) || (SCEN_OK[wantK] && wantK !== 'AC' ? wantK : '') || 'PL');
     var d = n((c.rnd() - 0.35) * 18);
     var vv = Math.round((40 + c.rnd() * 900) * 10) / 10;
     var dAbs = n(vv * d / 100);
@@ -3190,7 +3257,7 @@
       if (rk != null) { dAbs = n(vv - rk); d = rk ? n((vv - rk) / Math.abs(rk) * 100) : 0; }
       else dAbs = n(vv * d / 100);
     }
-    var col = dcol(c, d);
+    var col = kind ? dcol(c, d) : c.C.ac;
     var card = P.w >= 40 && P.h >= 26;
     var accW = clamp(P.w * 0.018, 2, 4);
     if (o && o.noMeasure) return wrap(c, kpiEmpty(c, P, card, accW));
@@ -3220,20 +3287,27 @@
     var padY = card ? Math.min(10, P.h * 0.08) : 0;
     var blockH = titleH + big * 0.95 + dRowH;
     var spare = P.h - padY * 2 - blockH;
+    // Ehrlich zur Bindung (B3): ohne gebundenes Zeitfeld keine Verlaufslinie (o.spark false), Desktop zeigt dann auch keine.
+    // o.spark undefined = Platzhalter-Skizze ohne jede Bindung, dort bleibt die Linie als Beispiel.
     // o.trend (ChartKitchen chart.cardTrendChart): 'off' = kein Verlauf, 'columns' = Säulen; ohne Angabe Sparkline wie bisher
     var trend = (o && o.trend != null) ? String(o.trend) : '';
-    var sparkOn = spare >= 18 && iw >= 50 && !c.small && trend !== 'off';
+    var sparkOn = c.spark !== false && spare >= 18 && iw >= 50 && !c.small && trend !== 'off';
     var T = P.y + padY + (sparkOn ? 0 : Math.max(0, spare / 2));
     if (titleH) b += txt(L, T + tFs * 0.85, fit(c, kpiLabel, iw, tFs), tFs, c.C.sub, 'start');
     var yBig = T + titleH + big * 0.8;
     b += '<text x="' + n(L) + '" y="' + n(yBig) + '" font-size="' + n(big) + '" font-weight="700" fill="' + c.C.ink + '">' +
          esc(num) + '<tspan font-size="' + n(big * 0.72) + '" font-weight="600">' + esc(uStr) + '</tspan></text>';
+    drew(c, 'unit', String(uStr).trim()); drew(c, 'labels', true);
     if (dOn) {
       var yD = yBig + big * 0.15 + dFs + 3;
       if (yD <= P.y + P.h - 1) {
         if (tw('x'.repeat(richLen(dParts)), dFs) > iw) dParts[1][0] = c.vRel ? plbl(c, d) : dvlbl(c, dAbs);
         if (tw('x'.repeat(richLen(dParts)), dFs) > iw) dParts.shift();
-        if (tw('x'.repeat(richLen(dParts)), dFs) <= iw) b += rich(L, yD, dParts, dFs, 'start');
+        if (tw('x'.repeat(richLen(dParts)), dFs) <= iw) {
+          b += rich(L, yD, dParts, dFs, 'start'); drew(c, 'basis', kind);
+          if (c.vAbs && (c.vRel ? dParts[dParts.length - 1][0].indexOf('·') >= 0 : true)) drew(c, 'delta', 'abs');
+          if (c.vRel) drew(c, 'delta', 'rel');
+        }
       }
     }
     if (sparkOn && trend === 'columns') {
@@ -3248,6 +3322,7 @@
       b += polygonEl(pts.concat([[L + iw - 3, sy + sh], [L, sy + sh]]), c.C.wash);
       b += polyline(pts, c.C.py, 1.3);
       b += circ(pts[11][0], pts[11][1], 2, c.C.ac);
+      drew(c, 'spark', true);
     }
     return wrap(c, b);
   };
@@ -4121,8 +4196,12 @@
       return wrap(c, b);
     }
     b += arc(0, v, c.C.pbi[0]);
-    var ta = Math.PI + t * Math.PI;
-    b += ln(cx + (r - th - 1) * Math.cos(ta), cy + (r - th - 1) * Math.sin(ta), cx + (r + 0.5) * Math.cos(ta), cy + (r + 0.5) * Math.sin(ta), c.C.nTitle, 1.6);
+    // Zielmarke nur mit Bezug (B3, Ehrlichkeitsregel): Kennzahl ohne gebundenes Ziel zeigt in Desktop keine Zielnadel
+    if (!c.noRef) {
+      var ta = Math.PI + t * Math.PI;
+      b += ln(cx + (r - th - 1) * Math.cos(ta), cy + (r - th - 1) * Math.sin(ta), cx + (r + 0.5) * Math.cos(ta), cy + (r + 0.5) * Math.sin(ta), c.C.nTitle, 1.6);
+      drew(c, 'refs', refKind(c) || 'PL');
+    }
     if (showV) {
       var fsv = Math.min(c.fsV || 99, clamp(r * 0.42, 8, 26 * c.fk));
       if (c.uv) fsv = Math.min(fsv, Math.max(6, (r - th) * 1.8 / Math.max(1, gTxt.length * CW)));
@@ -4206,7 +4285,7 @@
     var fs = ft * fk * k, gap = 8 * k, lh = fs + 3 * k;
     var cw = (w - gap * (cols - 1)) / cols, ch = (h - gap * (rows - 1)) / rows;
     var ink = /^#[0-9a-fA-F]{6}$/.test(String(o.ink || '')) ? o.ink : (o.dark ? '#E0E0E0' : '#404040');
-    var out = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ' + w + ' ' + h + '" width="100%" height="100%" font-family="' + FONT + '">';
+    var out = '', rep = '';
     for (var i = 0; i < cntN; i++) {
       var cx = (i % cols) * (cw + gap), cy = Math.floor(i / cols) * (ch + gap);
       var iw = Math.max(20, cw), ih = Math.max(12, ch - lh);
@@ -4217,6 +4296,7 @@
       }
       var s = root.MK_SKETCH(kind, iw, ih, io);
       var open = /^<svg\b[^>]*>/.exec(s); if (!open) continue;
+      if (o.report && !rep) { var dm = /\sdata-mk-drawn="[^"]*"/.exec(open[0]); if (dm) rep = dm[0]; }
       var vb = /viewBox="([^"]*)"/.exec(open[0]);
       var inner = s.slice(open[0].length, s.lastIndexOf('</svg>'));
       var tt = String(lab[i % lab.length]);
@@ -4227,7 +4307,8 @@
       out += '<text x="' + n(cx + 2 * k) + '" y="' + n(cy + fs) + '" font-size="' + n(fs) + '" font-weight="600" fill="' + ink + '">' + esc(tt) + '</text>';
       out += '<svg x="' + n(cx) + '" y="' + n(cy + lh) + '" width="' + n(cw) + '" height="' + n(Math.max(1, ch - lh)) + '" viewBox="' + (vb ? vb[1] : '0 0 ' + iw + ' ' + ih) + '" preserveAspectRatio="none">' + inner + '</svg>';
     }
-    return out + '</svg>';
+    // o.report: was die erste Teilskizze zeichnet, steht am äußeren <svg> (alle Teilskizzen haben dieselben Optionen)
+    return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ' + w + ' ' + h + '" width="100%" height="100%" font-family="' + FONT + '"' + rep + '>' + out + '</svg>';
   };
 
   root.MK_SKETCH_KEYS = (function () {
