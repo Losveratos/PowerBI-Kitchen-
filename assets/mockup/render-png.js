@@ -6,17 +6,22 @@
 
      window.MK_PNG.pageSvg(pageId, opts)   -> String (vollstaendiges <svg>)
      window.MK_PNG.pagePng(pageId, opts)   -> Promise<Blob> (image/png)
+     window.MK_PNG.renderPage(pageId, opts) -> Promise<{blob, w, h, tiles, zones}> (PNG + Lage je Kachel)
      window.MK_PNG.allPagesPng(opts)       -> Promise<[{page, blob, fileName}]>
      window.MK_PNG.download(blob, fileName)
 
    opts = {
-     scale:      2,      // nur pagePng/allPagesPng: Aufloesungsfaktor
+     scale:      2,      // nur pagePng/renderPage/allPagesPng: Aufloesungsfaktor
      background: null,   // Farbe statt Seitenhintergrund; 'transparent' = keiner
      chips:      true,   // Rollen-Chips in der Kachelfusszeile
+     chipSpace:  false,  // Fusszeile als Flaeche behalten, auch wenn chips aus sind (Skizze so gross wie im Tool)
      badges:     false,  // Engine-Badges (PBI/CK/Deneb) oben rechts
      notes:      true,   // Notiz-Symbol, wenn die Kachel eine Notiz hat
+     compare:    false,  // Vergleichsbild fuer den Runner: chips/badges/notes aus, chipSpace an (live.js, Deploy)
      seedBase:   0       // verschiebt die Demo-Daten aller Kacheln
    }
+   renderPage().tiles = { <stableId>: { rect, body, headH, footH } } in Seiten-px (Massstab 1), siehe
+   mockup-live/CONTRACT.md, „Kitchen-Bild". Die Skizzen-Optionen kommen aus MK.sketchOpts (wie der Bildschirm).
 
    Grundsaetze
    - Das SVG ist eigenstaendig: keine externen Fonts (System-Stack), keine
@@ -140,12 +145,15 @@
   }
   function norm(o) {
     o = o || {};
+    // compare: Vergleichsbild für den Runner (Deploy) — ohne Chips, Badges und Notizen, Fußzeile aber als Fläche (chipSpace)
+    var cmp = o.compare === true;
     return {
       scale: o.scale == null ? 2 : Math.max(0.25, Math.min(8, +o.scale || 2)),
       background: o.background == null ? null : o.background,
-      chips: o.chips !== false,
-      badges: o.badges === true,
-      notes: o.notes !== false,
+      chips: cmp ? false : o.chips !== false,
+      chipSpace: cmp || o.chipSpace === true,
+      badges: cmp ? false : o.badges === true,
+      notes: cmp ? false : o.notes !== false,
       seedBase: (+o.seedBase || 0) | 0
     };
   }
@@ -197,7 +205,8 @@
       dark: !!ti.dark,
       palette: d.palette || 'teal',
       pad: Math.round((S.spacing ? S.spacing.pad : 8) * k),
-      cat: (M.catalog && M.catalog.byId) || {}
+      cat: (M.catalog && M.catalog.byId) || {},
+      layout: {}
     };
 
     /* Seitenhintergrund */
@@ -207,6 +216,7 @@
     /* Zonen */
     if (z.nav) body += navRail(ctx, z.nav);
     if (z.header) body += headerZone(ctx, z);
+    if (z.chips) body += chipsZone(ctx, z.chips);
     if (z.footer) body += footerZone(ctx, z.footer);
     if (z.filter) body += filterZone(ctx, z.filter);
 
@@ -226,7 +236,7 @@
       '<title>' + esc((S.name || 'Mockup') + (p.name ? ' · ' + p.name : '')) + '</title>' +
       defs + body + '</svg>';
 
-    return { svg: svg, page: p, w: W, h: H };
+    return { svg: svg, page: p, w: W, h: H, layout: ctx.layout, zones: z };
   }
 
   /* --------------------------------------------------------- Navigationsleiste */
@@ -253,6 +263,22 @@
         fill: light ? 'rgba(15,30,46,.6)' : 'rgba(255,255,255,.75)'
       });
   }
+  /* Chip-Zeile der gespeicherten Filter (ab 0.7.0), wie auf der Zeichenfläche: Beschriftung, dann je Filter eine Pille */
+  function chipsZone(ctx, z) {
+    var k = ctx.k, S = ctx.S, out = '', x = z.x + 16 * k, cy = z.y + z.h / 2, fs = 10.5 * k, h = 20 * k;
+    var cap = (window.MK_I18N ? window.MK_I18N.tl(S.lang, 'app.chipCap') : 'Filter').toUpperCase();
+    out += tx(x, cy + 9.5 * k * MID, cap, { size: 9.5 * k, fill: '#6B7280' }); x += textW(cap, 9.5 * k) + 10 * k;
+    (S.views || []).forEach(function (v) {
+      var label = v.name || (window.MK_I18N ? window.MK_I18N.tl(S.lang, 'app.viewUnnamed') : '');
+      var w = textW(label, fs) + 34 * k; if (x + w > z.x + z.w - 16 * k) return;
+      out += rc(x, cy - h / 2, w, h, { r: h / 2, fill: '#FFFFFF', stroke: ctx.accent, sw: 1 });
+      out += '<circle cx="' + nm(x + 11 * k) + '" cy="' + nm(cy) + '" r="' + nm(3 * k) + '" fill="' + ctx.accent + '"/>';
+      out += tx(x + 18 * k, cy + fs * MID, label, { size: fs, fill: '#0F1E2E' });
+      out += tx(x + w - 10 * k, cy + 9 * k * MID, '✕', { size: 9 * k, anchor: 'middle', fill: '#8A8F98' });
+      x += w + 6 * k;
+    });
+    return out;
+  }
   function headerZone(ctx, zones) {
     var z = zones.header, k = ctx.k, c = ctx.c.header, d = ctx.d, S = ctx.S;
     var style = d.header || 'light', light = style === 'light';
@@ -265,11 +291,12 @@
     var x = z.x + padX;
 
     /* Burger, wenn das Filter-Panel als Bookmark-Menue gedacht ist */
-    if (ctx.c.filter && ctx.c.filter.on && ctx.c.filter.side === 'burger') {
+    var navBurger = ctx.S.chrome && ctx.S.chrome.navPos === 'burger';
+    if ((ctx.c.filter && ctx.c.filter.on && ctx.c.filter.side === 'burger') || navBurger) {
       var bs = 32 * k;
       out += rc(x, cy - bs / 2, bs, bs, { r: 4 * k, stroke: light ? 'rgba(15,30,46,.3)' : 'rgba(255,255,255,.4)', sw: 1 });
       for (var i = -1; i <= 1; i++) out += ln(x + 7 * k, cy + i * 6 * k, x + bs - 7 * k, cy + i * 6 * k, fg, 2 * k);
-      var n = (ctx.c.filter.fields || []).length;
+      var n = ctx.c.filter && ctx.c.filter.on && ctx.c.filter.side === 'burger' ? (ctx.c.filter.fields || []).length : 0;
       if (n) {
         var bw = textW(String(n), 9 * k, null, true) + 10 * k, bh = 13 * k;
         out += rc(x + bs - bw + 6 * k, cy - bs / 2 - 6 * k, bw, bh, { r: bh / 2, fill: ctx.accent }) +
@@ -287,7 +314,9 @@
 
     var navPos = (ctx.S.chrome && ctx.S.chrome.navPos) || (c.navOn === false ? 'off' : 'header');
     var names = navPos !== 'header' ? [] : (c.navAuto ? S.pages.map(function (pg) { return pg.name; }) : (c.nav || []).slice());
-    var cur = c.navAuto ? ctx.p.name : names[0];
+    var famP = (mk().viewFamily ? mk().viewFamily(ctx.p) : { root: ctx.p, members: [ctx.p] });
+    if (c.navAuto && navPos === 'header') names = S.pages.filter(function (pg) { return !pg.role || pg.role === 'nav'; }).map(function (pg) { return pg.name; });
+    var cur = c.navAuto ? famP.root.name : names[0];
     var navW = 0, items = [];
     if (names.length) {
       var fs = 11.5 * k, bh2 = Math.round(fs * LH + 10 * k + 2), g2 = 6 * k;
@@ -320,6 +349,20 @@
     var top = cy - blockH / 2;
     out += tx(x, top + tfs * ASC, title, { size: tfs, weight: 600, fill: fg });
     if (c.sub) out += tx(x, top + tfs * LH + sfs * ASC, fit(c.sub, maxW, sfs), { size: sfs, fill: fg, opacity: 0.7 });
+    /* Ansichten-Schalter (Seiten mit viewOf) rechts neben dem Titelblock */
+    if (famP.members.length > 1) {
+      var vfs = 11.5 * k, vh = Math.round(vfs * LH + 10 * k), vx = x + Math.max(textW(title, tfs, 600), c.sub ? textW(c.sub, sfs) : 0) + 18 * k;
+      var vItems = famP.members.map(function (m) { var lab = m.viewLabel || m.name; return { t: lab, w: Math.round(textW(lab, vfs) + 24 * k), act: m.id === ctx.p.id }; });
+      var vW = vItems.reduce(function (a, it) { return a + it.w; }, 0);
+      if (vx + vW <= rightX) {
+        out += rc(vx, cy - vh / 2, vW, vh, { r: 7 * k, stroke: light ? 'rgba(15,30,46,.28)' : 'rgba(255,255,255,.4)', sw: 1 });
+        vItems.forEach(function (it) {
+          if (it.act) out += rc(vx, cy - vh / 2, it.w, vh, { r: 7 * k, fill: style === 'accent' ? '#0F1E2E' : ctx.accent });
+          out += tx(vx + it.w / 2, cy + vfs * MID, it.t, { size: vfs, anchor: 'middle', fill: it.act ? '#FFFFFF' : fg });
+          vx += it.w;
+        });
+      }
+    }
     return out;
   }
 
@@ -330,6 +373,19 @@
     /* Seitennavigation in der Fussleiste (rechts), wenn so eingestellt */
     var navPos = (S.chrome && S.chrome.navPos) || (c.header.navOn === false ? 'off' : 'header');
     var navW = 0;
+    if (navPos === 'tabs') {
+      /* Tab-Leiste unten (Handy-Format): gleich breite Tabs mit Symbol und Name, aktive Seite in Akzentfarbe */
+      var tn = (c.header.navAuto ? S.pages.filter(function (pg) { return !pg.role || pg.role === 'nav'; }).map(function (pg) { return pg.name; }) : (c.header.nav || []).slice()).slice(0, 5);
+      var tw = z.w / Math.max(1, tn.length), tfs = 10.5 * k, ic = 18 * k;
+      var tout = rc(z.x, z.y, z.w, z.h, { fill: ctx.tileBg }) + ln(z.x, z.y + 0.5, z.x + z.w, z.y + 0.5, '#E3E1D8', 1);
+      tn.forEach(function (nme, i) {
+        var act = nme === ctx.p.name, cx = z.x + tw * (i + 0.5), col = act ? ctx.accent : '#6B7280', top = z.y + (z.h - ic - 4 * k - tfs) / 2;
+        if (act) tout += rc(cx - tw * 0.28, z.y, tw * 0.56, 2.5 * k, { fill: ctx.accent });
+        tout += rc(cx - ic / 2, top, ic, ic, { r: 5 * k, stroke: col, sw: 1.5 * k });
+        tout += tx(cx, top + ic + 4 * k + tfs * 0.8, nme, { size: tfs, anchor: 'middle', fill: col });
+      });
+      return tout;
+    }
     if (navPos === 'footer') {
       var names = c.header.navAuto ? S.pages.map(function (pg) { return pg.name; }) : (c.header.nav || []).slice();
       var nfs = 9.5 * k, bh = Math.round(nfs * LH + 6 * k), g = 5 * k, items = [];
@@ -443,22 +499,25 @@
     var def = ctx.cat[v.kind] || {};
     var tiny = r.h < 70 * k || r.w < 110 * k;
     var link = v.link ? ctx.S.pages.filter(function (pg) { return pg.id === v.link; })[0] : null;
+    // Chips wie auf dem Bildschirm; o.chips steuert nur das Zeichnen. Mit o.chipSpace (Vergleichsbild) bleibt die Fußzeile
+    // als Fläche stehen, damit die Skizze genau so groß ist wie im Tool (gleiche Beschriftungsschwellen).
     var chips = [];
-    if (o.chips) {
-      (def.roles || []).forEach(function (role) {
-        // Status live wie im Tool (Review B2, B3): fehlt im Modell = rot, passt nicht zum Szenario = gelb
-        var mm = mk().refMismatch ? mk().refMismatch(v) : null;
-        ((v.roles || {})[role.key] || []).forEach(function (fl, fi) {
-          var st = mk().fieldStatus ? mk().fieldStatus(fl) : (fl.isNew ? 'new' : 'model');
-          chips.push({ t: fl.name, kind: st === 'missing' ? 'missing' : (mm && mm.roleKey === role.key && mm.idx === fi ? 'warn' : (st === 'new' ? 'new' : 'plain')) });
-        });
+    (def.roles || []).forEach(function (role) {
+      // Status live wie im Tool (Review B2, B3): fehlt im Modell = rot, passt nicht zum Szenario = gelb
+      var mm = mk().refMismatch ? mk().refMismatch(v) : null;
+      ((v.roles || {})[role.key] || []).forEach(function (fl, fi) {
+        var st = mk().fieldStatus ? mk().fieldStatus(fl) : (fl.isNew ? 'new' : 'model');
+        chips.push({ t: fl.name, kind: st === 'missing' ? 'missing' : (mm && mm.roleKey === role.key && mm.idx === fi ? 'warn' : (st === 'new' ? 'new' : 'plain')) });
       });
-      if (link) chips.push({ t: '↗ ' + link.name, kind: 'link' });
-    }
+    });
+    // Vorgesehene, aber ungebundene Bezüge („PL ?", gestrichelt), wie im Tool
+    if (mk().placeholderChips) mk().placeholderChips(v).forEach(function (pc) { chips.push({ t: pc.t, kind: 'ph' }); });
+    if (link) chips.push({ t: '↗ ' + link.name, kind: 'link' });
     var hasNote = !!(o.notes && v.notes);
     var hasBadge = o.badges && !tiny;
     var headH = (v.title || v.sub) ? (tiny ? 18 : 24) * k : 0;
-    var footH = (chips.length && !tiny) ? 18 * k : 0;
+    var footH = (chips.length && !tiny && (o.chips || o.chipSpace)) ? 18 * k : 0;
+    if (!o.chips) chips = [];
     // Kernaussage als Botschaftszeile unter dem Kopf, Masse wie im Tool (tileHtml: msgH)
     var ty0 = (mk().typo ? mk().typo() : { scale: 1, title: 12, sub: 9.5, chart: 9 });
     var msg = String((v.analysis || {}).message || '').replace(/^\s+|\s+$/g, '');
@@ -480,8 +539,10 @@
       var reserve = (hasBadge || hasNote) ? 58 * k : 12 * k;
       var availW = Math.max(10, r.x + r.w - 1 - ip - reserve - tx0);
       var base = r.y + 1 + ip + 6 * k + tfs * ASC;
-      var title = fit(v.title || def.label || v.kind, availW, tfs, 600);
-      out += tx(tx0, base, title, { size: tfs, weight: 600, fill: ctx.ink });
+      // KPI-Kachel: der Titel ist die Beschriftung der Karte (kleiner, ruhiger), wie auf der Zeichenfläche
+      var kpiHead = v.kind === 'kpi' || v.kind === 'card', tW = kpiHead ? 500 : 600, tS = kpiHead ? tfs * 0.86 : tfs;
+      var title = fit(v.title || def.label || v.kind, availW, tS, tW);
+      out += tx(tx0, base, title, { size: tS, weight: tW, fill: kpiHead ? '#5B6472' : ctx.ink });
       if (v.sub && !tiny) {
         var used = textW(title, tfs, 600) + 6 * k;
         // Untertitel wie im Canvas (.t-sub): Schriftfarbe der Kachel mit 70 % Deckkraft
@@ -501,28 +562,40 @@
     var by = r.y + 1 + ip + headH + msgH + 2;
     var bottom = r.y + r.h - 1 - ip - footH - 4;
     if (by + bh > bottom) by = Math.max(r.y + 1 + ip + headH + msgH, bottom - bh);
-    var sopt = {
-      scenario: mk().sketchScenario ? mk().sketchScenario(v) : (def.plain ? 'AC' : v.scenario), seed: (seedOf(leaf.node.id) + o.seedBase) % 1000,
-      label: v.sub || '', scale: k, lang: ctx.S.lang, content: v.content || '',
-      palette: ctx.palette, ink: ctx.ink, dark: ctx.dark, paper: ctx.tileBg,
-      fontScale: (mk().typo ? mk().typo().scale : 1) * ((v.typo && v.typo.scale) || 1), fonts: { label: mk().typo ? mk().typo().chart : 9 },
-      antiPattern: !!(mk().anti && mk().anti[v.kind]),
-      nativePalette: (ctx.d && ctx.d.nativePalette) || 'neutral'
-    };
-    if (mk().samplesOpt) { try { Object.assign(sopt, mk().samplesOpt(v)); } catch (e) { /* ohne Beispielwerte */ } }
-    // ChartKitchen-Optionen (Trend der KPI-Karte, Ausrichtung der Brücke, Quadranten) wie auf der Zeichenfläche
-    if (mk().ckSketchOpt) { try { Object.assign(sopt, mk().ckSketchOpt(v)); } catch (e) { /* ohne Optionen */ } }
+    // Optionen aus derselben Quelle wie der Bildschirm (MK.sketchOpts): Szenario nach Bindung, Basis, Schrift, Farben, Beispielwerte
+    var sopt;
+    if (mk().sketchOpts) {
+      sopt = mk().sketchOpts(v, leaf.node.id);
+      sopt.seed = ((+sopt.seed || 0) + o.seedBase) % 1000;
+    } else {
+      sopt = {
+        scenario: mk().sketchScenario ? mk().sketchScenario(v) : (def.plain ? 'AC' : v.scenario), seed: (seedOf(leaf.node.id) + o.seedBase) % 1000,
+        label: v.sub || '', scale: k, lang: ctx.S.lang, content: v.content || '',
+        palette: ctx.palette, ink: ctx.ink, dark: ctx.dark, paper: ctx.tileBg,
+        fontScale: (mk().typo ? mk().typo().scale : 1) * ((v.typo && v.typo.scale) || 1), fonts: { label: mk().typo ? mk().typo().chart : 9 },
+        antiPattern: !!(mk().anti && mk().anti[v.kind]),
+        nativePalette: (ctx.d && ctx.d.nativePalette) || 'neutral'
+      };
+      if (mk().samplesOpt) { try { Object.assign(sopt, mk().samplesOpt(v)); } catch (e) { /* ohne Beispielwerte */ } }
+      // ChartKitchen-Optionen (Trend der KPI-Karte, Ausrichtung der Brücke, Quadranten) wie auf der Zeichenfläche
+      if (mk().ckSketchOpt) { try { Object.assign(sopt, mk().ckSketchOpt(v)); } catch (e) { /* ohne Optionen */ } }
+    }
     // Leere Pflichtrolle Kennzahl (KPI, Karte, Tacho): „?" statt Zahl (Review R16)
     sopt.noMeasure = (def.roles || []).some(function (rl) { return rl.key === 'indicator' && rl.req; }) && !((v.roles || {}).indicator || []).length;
     try {
       var an = mk().analysisOf ? mk().analysisOf(v) : null;
       if (an) {
-        sopt.polarity = an.polarity; sopt.deltaBasis = an.deltaBasis; sopt.unit = an.unit; sopt.small = !!an.smallMultiples;
+        sopt.small = !!an.smallMultiples;
         sopt.sort = an.sort; sopt.topN = an.topN;          // Sortierung und Top-N wirken auf die Skizze (Review R7)
-        sopt.variance = { abs: (an.deltaKind || []).indexOf('abs') >= 0, rel: (an.deltaKind || []).indexOf('rel') >= 0 };
+        if (!mk().sketchOpts) {
+          sopt.polarity = an.polarity; sopt.deltaBasis = an.deltaBasis; sopt.unit = an.unit;
+          sopt.variance = { abs: (an.deltaKind || []).indexOf('abs') >= 0, rel: (an.deltaKind || []).indexOf('rel') >= 0 };
+        }
       }
     } catch (e) { /* Analyse optional */ }
     out += sketchAt(def.sketch || v.kind, bx, by, bw, bh, sopt, P);
+    // Lage je Kachel für tiles.json (Vergleich Kitchen gegen Desktop, mockup-live/CONTRACT.md)
+    if (ctx.layout) ctx.layout[leaf.node.id] = { rect: { x: r.x, y: r.y, w: r.w, h: r.h }, body: { x: nm(bx), y: nm(by), w: nm(bw), h: nm(bh) }, headH: nm(headH), footH: nm(footH) };
 
     /* Fusszeile mit Rollen-Chips */
     if (footH) {
@@ -534,12 +607,13 @@
         if (cx2 + w2 > limit) return;
         out += rc(cx2, cy2 - ch / 2, w2, ch, c2.kind === 'new'
           ? { r: 3 * k, fill: '#FFFFFF', stroke: ctx.accent, sw: 1, dash: nm(2.5 * k) + ' ' + nm(2 * k) }
+          : c2.kind === 'ph' ? { r: 3 * k, fill: ctx.dark ? '#1E2733' : '#FFFFFF', stroke: '#8A919C', sw: 1, dash: nm(2.5 * k) + ' ' + nm(2 * k) }
           : c2.kind === 'missing' ? { r: 3 * k, fill: '#FDECEA', stroke: '#B8392F', sw: 1 }
           : c2.kind === 'warn' ? { r: 3 * k, fill: '#FFF7E6', stroke: '#B7791F', sw: 1, dash: nm(2.5 * k) + ' ' + nm(2 * k) }
           : { r: 3 * k, fill: c2.kind === 'link' ? (ctx.dark ? '#28405E' : '#E3ECFA') : (ctx.dark ? '#2A3646' : '#F1F0EA') });
         out += tx(cx2 + 5 * k, cy2 + cfs * MID, c2.t, {
           size: cfs, mono: true,
-          fill: c2.kind === 'new' ? ctx.accent : c2.kind === 'missing' ? '#B8392F' : c2.kind === 'warn' ? '#7A4B00' : (c2.kind === 'link' ? (ctx.dark ? '#9CC0F5' : '#1F5FBF') : (ctx.dark ? '#C9D1DB' : '#475569'))
+          fill: c2.kind === 'new' ? ctx.accent : c2.kind === 'ph' ? (ctx.dark ? '#AEB6C0' : '#6B7280') : c2.kind === 'missing' ? '#B8392F' : c2.kind === 'warn' ? '#7A4B00' : (c2.kind === 'link' ? (ctx.dark ? '#9CC0F5' : '#1F5FBF') : (ctx.dark ? '#C9D1DB' : '#475569'))
         });
         cx2 += w2 + 3 * k;
       });
@@ -604,6 +678,19 @@
     return svgToPng(r.svg, w, h);
   }
 
+  /* Seite als PNG plus Lage der Kacheln (für den Bildvergleich beim Deploy, live.js → mockup/kitchen/<seq>/).
+     -> Promise<{ blob, w, h, tiles: { <stableId>: { rect, body, headH, footH } }, zones }>
+     Rechtecke in Seiten-px (Massstab 1 der PBIR-Seite), unabhaengig von opts.scale. */
+  function renderPage(pageId, opts) {
+    var o = norm(opts);
+    var M = mk(), S = M.state;
+    var w = Math.round(S.canvas.w * o.scale), h = Math.round(S.canvas.h * o.scale);
+    var r = build(pageId, opts, w, h);
+    return svgToPng(r.svg, w, h).then(function (blob) {
+      return { blob: blob, w: w, h: h, page: r.page, tiles: r.layout, zones: r.zones };
+    });
+  }
+
   function allPagesPng(opts) {
     var M = mk(), pages = M.state.pages.slice();
     var out = [];
@@ -631,6 +718,7 @@
   root.MK_PNG = {
     pageSvg: pageSvg,
     pagePng: pagePng,
+    renderPage: renderPage,
     allPagesPng: allPagesPng,
     download: download,
     // Zusatz, praktisch fuer Tests und Vorschauen

@@ -13,27 +13,27 @@
     "name": "chrome_logo",
     "title": "Logo",
     "x": 24,
-    "y": 18,
-    "width": 180,
-    "height": 48
+    "y": 19,
+    "width": 132,
+    "height": 45
   },
   {
     "visual_type": "shape",
     "name": "chrome_header_title",
     "title": "Kopfband-Titel",
-    "x": 228,
-    "y": 9,
-    "width": 1668,
-    "height": 39
+    "x": 177,
+    "y": 11,
+    "width": 1719,
+    "height": 37
   },
   {
     "visual_type": "shape",
     "name": "chrome_header_subtitle",
     "title": "Kopfband-Untertitel",
-    "x": 228,
+    "x": 177,
     "y": 48,
-    "width": 1668,
-    "height": 27
+    "width": 1719,
+    "height": 24
   },
   {
     "visual_type": "shape",
@@ -46,47 +46,74 @@
   },
   {
     "visual_type": "shape",
+    "name": "chrome_filter_rule",
+    "title": "Filter-Panel Kante",
+    "x": 1620,
+    "y": 84,
+    "width": 1,
+    "height": 960
+  },
+  {
+    "visual_type": "shape",
     "name": "chrome_filter_title",
-    "title": "Filter-Überschrift",
-    "x": 1632,
-    "y": 96,
-    "width": 276,
-    "height": 36
+    "title": "Filter-\u00dcberschrift",
+    "x": 1635,
+    "y": 102,
+    "width": 270,
+    "height": 24
   },
   {
     "visual_type": "shape",
     "name": "chrome_filter_text",
     "title": "Filter-Hinweistext",
-    "x": 1632,
-    "y": 144,
-    "width": 276,
-    "height": 43
+    "x": 1635,
+    "y": 138,
+    "width": 270,
+    "height": 39
+  },
+  {
+    "visual_type": "shape",
+    "name": "chrome_footer_bg",
+    "title": "Fu\u00dfleiste",
+    "x": 0,
+    "y": 1044,
+    "width": 1920,
+    "height": 36
+  },
+  {
+    "visual_type": "shape",
+    "name": "chrome_footer_rule",
+    "title": "Fu\u00dfleiste Oberkante",
+    "x": 0,
+    "y": 1044,
+    "width": 1920,
+    "height": 1
   },
   {
     "visual_type": "actionButton",
     "name": "chrome_nav_1",
-    "title": "Übersicht",
-    "x": 1720,
+    "title": "\u00dcbersicht",
+    "x": 1704,
     "y": 1047,
-    "width": 96,
+    "width": 104,
     "height": 30
   },
   {
     "visual_type": "actionButton",
     "name": "chrome_nav_2",
     "title": "Detail",
-    "x": 1824,
+    "x": 1816,
     "y": 1047,
-    "width": 72,
+    "width": 80,
     "height": 30
   },
   {
     "visual_type": "shape",
     "name": "chrome_footer_text",
-    "title": "Fußleiste",
+    "title": "Fu\u00dfleisten-Text",
     "x": 24,
-    "y": 1044,
-    "width": 1672,
-    "height": 36
+    "y": 1045,
+    "width": 1662,
+    "height": 35
   }
 ]

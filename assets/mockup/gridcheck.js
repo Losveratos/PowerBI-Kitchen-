@@ -180,7 +180,37 @@
     return { n: Object.keys(tiles).length, values: sizes.length ? uniqSorted(sizes).join('/') : '', edges: edges };
   }
 
-  var api = { check: check, snap: snap, marginFix: marginFix, regressions: regressions, treeToGrid: treeToGrid, treeShape: treeShape, equalizeNearGroups: equalizeNearGroups, tracksNear: tracksNear, TOL: TOL };
+  // ---- Rastermodus (pixelgrid.js) ------------------------------------------------
+  // Prüft fertige Rechtecke gegen ein Raster lat = MK_PIXELGRID.zones(...) (Rastermodus): liegt jede Kante auf einer Linie j/n bzw.
+  // j/2n (linke/obere Kante auf L, rechte/untere auf L - g)? Gemeldet werden nur knappe Fehltreffer (1..TOL px), weit
+  // entfernte Kanten sind freie Linien (1/5 ist erlaubt). Dazu: Kachel außerhalb des Inhaltsbereichs, Außenkante knapp
+  // nicht bündig mit dem Inhaltsrand. rects: [{x, y, w, h, id?}]. Liefert { ok, findings } wie check().
+  function checkLattice(rects, lat) {
+    var f = []; if (!rects || !rects.length || !lat) return { ok: true, findings: f };
+    var PGm = root.MK_PIXELGRID || (typeof require === 'function' ? require('./pixelgrid.js') : null);
+    var c = lat.content, g = lat.g;
+    var Lx = PGm.lines(lat, 'x'), Ly = PGm.lines(lat, 'y');
+    function miss(v, list, off) { var best = null; list.forEach(function (L) { var d = v - (L - off); if (best === null || Math.abs(d) < Math.abs(best)) best = d; }); return best; }
+    var off = [];
+    rects.forEach(function (r, i) {
+      var id = r.id != null ? r.id : i;
+      if (r.x < c.x || r.y < c.y || r.x + r.w > c.x + c.w || r.y + r.h > c.y + c.h) f.push({ code: 'OUTSIDE_CONTENT', level: 'warn', id: id, rect: [r.x, r.y, r.w, r.h], content: [c.x, c.y, c.w, c.h] });
+      [['x', r.x, Lx, 0], ['x', r.x + r.w, Lx, g], ['y', r.y, Ly, 0], ['y', r.y + r.h, Ly, g]].forEach(function (e, j) {
+        var d = miss(e[1], e[2], e[3]);
+        if (d !== 0 && Math.abs(d) <= TOL) off.push({ id: id, axis: e[0], edge: ['left', 'right', 'top', 'bottom'][j], value: e[1], delta: d });
+      });
+    });
+    if (off.length) f.push({ code: 'OFF_LATTICE', level: 'warn', n: off.length, edges: off });
+    // Bündigkeit: die äußersten Kanten sollen auf dem Inhaltsrand liegen, wenn sie ihm schon nahe sind (bis 2·g)
+    var minX = Math.min.apply(null, rects.map(function (r) { return r.x; })), maxX = Math.max.apply(null, rects.map(function (r) { return r.x + r.w; }));
+    var minY = Math.min.apply(null, rects.map(function (r) { return r.y; })), maxY = Math.max.apply(null, rects.map(function (r) { return r.y + r.h; }));
+    var sides = [];
+    [['left', minX - c.x], ['right', c.x + c.w - maxX], ['top', minY - c.y], ['bottom', c.y + c.h - maxY]].forEach(function (s) { if (s[1] !== 0 && Math.abs(s[1]) <= 2 * g) sides.push({ side: s[0], delta: s[1] }); });
+    if (sides.length) f.push({ code: 'NOT_FLUSH', level: 'warn', sides: sides });
+    return { ok: !f.some(function (x) { return x.level === 'warn'; }), findings: f };
+  }
+
+  var api = { check: check, snap: snap, marginFix: marginFix, regressions: regressions, treeToGrid: treeToGrid, treeShape: treeShape, equalizeNearGroups: equalizeNearGroups, tracksNear: tracksNear, checkLattice: checkLattice, TOL: TOL };
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
   root.MK_GRIDCHECK = api;
 })(typeof window !== 'undefined' ? window : globalThis);

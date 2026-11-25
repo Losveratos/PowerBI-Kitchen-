@@ -35,10 +35,10 @@
     "visual_type": "slicer",
     "name": "p2_slicer1_Year",
     "title": "Year",
-    "x": 1088,
-    "y": 96,
-    "width": 184,
-    "height": 56,
+    "x": 1090,
+    "y": 92,
+    "width": 180,
+    "height": 76,
     "fields": {
       "Values": "DimDate.Year"
     }
@@ -47,10 +47,10 @@
     "visual_type": "slicer",
     "name": "p2_slicer2_Region",
     "title": "Region",
-    "x": 1088,
-    "y": 160,
-    "width": 184,
-    "height": 56,
+    "x": 1090,
+    "y": 175,
+    "width": 180,
+    "height": 76,
     "fields": {
       "Values": "DimRegion.Region"
     }

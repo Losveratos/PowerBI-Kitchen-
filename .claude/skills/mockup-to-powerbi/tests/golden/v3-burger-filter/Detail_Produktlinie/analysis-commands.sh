@@ -7,6 +7,13 @@
 # Nav-Button 'Übersicht' -> Seite 'Übersicht'
 pbir visuals action "Test.Report/Detail Produktlinie.Page/chrome_nav_1.Visual" --type PageNavigation --target "Übersicht"
 
+# Filter-Overlay: Grundzustand ausgeblendet
+pbir visuals hide "Test.Report/Detail Produktlinie.Page/chrome_filter_bg.Visual"
+pbir visuals hide "Test.Report/Detail Produktlinie.Page/chrome_filter_title.Visual"
+pbir visuals hide "Test.Report/Detail Produktlinie.Page/chrome_filter_close.Visual"
+pbir visuals hide "Test.Report/Detail Produktlinie.Page/mk_slicer_Year_p2.Visual"
+pbir visuals hide "Test.Report/Detail Produktlinie.Page/mk_slicer_Region_p2.Visual"
+
 # Notiz/Workshop-Status als Annotation im Bericht ablegen
 pbir add annotation "Test.Report/Detail Produktlinie.Page/mk_p6km182.Visual" --text "Drill-through-Ziel. Titel zeigt den gefilterten Wert (SELECTEDVALUE)." --author mockup-to-powerbi --category Documentation
 # Vorauswahl im Slicer „Year" = 2026

@@ -1,0 +1,1459 @@
+{
+ "meta": {
+  "tool": "MockupKitchen byDatenWG",
+  "version": "0.6.0",
+  "specVersion": 3,
+  "specHash": "fidelityb1",
+  "name": "Treue-Testfall B1",
+  "lang": "de",
+  "exportedAt": "2026-10-01T08:00:00.000Z",
+  "skill": "mockup-to-powerbi"
+ },
+ "report": {
+  "name": "Treue-Testfall B1",
+  "audience": "Controlling",
+  "purpose": "Übergabe Kitchen → Power BI prüfen",
+  "decision": "",
+  "participants": "",
+  "version": "0.6",
+  "dataDate": ""
+ },
+ "canvas": {
+  "width": 1920,
+  "height": 1080,
+  "preset": "1920x1080",
+  "uiScale": 1.5
+ },
+ "spacing": {
+  "margin": 15,
+  "gutter": 15,
+  "tilePadding": 12
+ },
+ "design": {
+  "nativePalette": "kitchen",
+  "cornerRadius": 12,
+  "tileStyle": "border",
+  "pageBackground": "#F4F4F1",
+  "tileBackground": "#FFFFFF",
+  "headerStyle": "light",
+  "accent": "#C25A2D",
+  "variancePalette": "ibcs",
+  "varianceColors": {
+   "good": "#3A9A5B",
+   "bad": "#C8412F"
+  },
+  "colors": {
+   "pageBackground": "#F4F4F1",
+   "tileBackground": "#FFFFFF",
+   "ink": "#0F1E2E",
+   "headerBackground": "#FFFFFF",
+   "headerInk": "#0F1E2E",
+   "panel": "#E9E6DC"
+  },
+  "darkMode": false,
+  "fontScale": 1.5,
+  "typography": {
+   "basis": "1280px",
+   "scale": 1,
+   "title": 12,
+   "sub": 9.5,
+   "chart": 9
+  }
+ },
+ "zones": {
+  "header": {
+   "x": 0,
+   "y": 0,
+   "w": 1920,
+   "h": 84,
+   "style": "light",
+   "logoPos": "left",
+   "title": "Treue-Test",
+   "subtitle": "Werte 2026",
+   "nav": [],
+   "navOn": false,
+   "navPosition": "off",
+   "navAuto": true,
+   "burger": true
+  },
+  "footer": {
+   "x": 0,
+   "y": 1044,
+   "w": 1920,
+   "h": 36,
+   "text": "Fußleiste: Quelle DWH",
+   "nav": [],
+   "navPosition": "off"
+  },
+  "filter": {
+   "x": 1500,
+   "y": 84,
+   "w": 420,
+   "h": 600,
+   "mode": "burger",
+   "side": "burger",
+   "collapsible": false,
+   "heading": "Filter",
+   "text": "Werte in Tsd. EUR",
+   "slicers": [
+    {
+     "table": "DimRegion",
+     "name": "Region",
+     "kind": "column",
+     "ref": "DimRegion.Region",
+     "isNew": false,
+     "default": null,
+     "type": "dropdown"
+    },
+    {
+     "table": "DimProduct",
+     "name": "Category",
+     "kind": "column",
+     "ref": "DimProduct.Category",
+     "isNew": false,
+     "default": null,
+     "type": "list"
+    },
+    {
+     "table": "DimDate",
+     "name": "Year",
+     "kind": "column",
+     "ref": "DimDate.Year",
+     "isNew": false,
+     "default": null,
+     "type": "dropdown"
+    }
+   ]
+  },
+  "content": {
+   "x": 15,
+   "y": 99,
+   "w": 1890,
+   "h": 930
+  }
+ },
+ "pages": [
+  {
+   "id": "p1",
+   "index": 1,
+   "name": "Fidelity",
+   "question": "Kommt das Kitchen-Bild an?",
+   "notes": "",
+   "contentRect": {
+    "x": 15,
+    "y": 99,
+    "w": 1890,
+    "h": 930
+   },
+   "visuals": [
+    {
+     "id": "mk_absvar1",
+     "stableId": "absvar1",
+     "slug": "Δ PY absolut",
+     "page": "Fidelity",
+     "kind": "absvar",
+     "label": "Δ absolut",
+     "engine": "ck",
+     "chartKitchenType": "columns",
+     "chartKitchenMode": "columns",
+     "native": {
+      "type": "clusteredColumnChart",
+      "buckets": {
+       "Category": [
+        {
+         "ref": "DimDate.MonthName",
+         "kind": "column",
+         "isNew": false
+        }
+       ],
+       "Y": [
+        {
+         "ref": "_Measures.AC",
+         "kind": "measure",
+         "isNew": false
+        }
+       ]
+      }
+     },
+     "customVisual": null,
+     "title": "Δ PY absolut",
+     "subtitle": "",
+     "content": "",
+     "scenario": "AC/PY",
+     "analysis": {
+      "polarity": "higher",
+      "polarityAuto": true,
+      "deltaBasis": "PY",
+      "deltaBasisAuto": true,
+      "deltaKind": [
+       "abs",
+       "rel"
+      ],
+      "unit": null,
+      "displayUnits": null,
+      "decimals": null,
+      "sort": null,
+      "topN": null,
+      "timeGrain": null,
+      "cumulative": false,
+      "scaleGroup": null,
+      "message": null,
+      "smallMultiples": null,
+      "fieldParam": null
+     },
+     "workshop": {
+      "priority": null,
+      "status": "open",
+      "openQuestion": false
+     },
+     "typography": null,
+     "rect": {
+      "x": 15,
+      "y": 99,
+      "w": 460,
+      "h": 300
+     },
+     "roles": {
+      "category": [
+       {
+        "table": "DimDate",
+        "name": "MonthName",
+        "kind": "column",
+        "ref": "DimDate.MonthName",
+        "isNew": false
+       }
+      ],
+      "ac": [
+       {
+        "table": "_Measures",
+        "name": "AC",
+        "kind": "measure",
+        "ref": "_Measures.AC",
+        "isNew": false
+       }
+      ],
+      "ref": [
+       {
+        "table": "_Measures",
+        "name": "PY",
+        "kind": "measure",
+        "ref": "_Measures.PY",
+        "isNew": false
+       }
+      ]
+     },
+     "notes": "",
+     "link": null,
+     "warnings": []
+    },
+    {
+     "id": "mk_relvar1",
+     "stableId": "relvar1",
+     "slug": "Δ PY %",
+     "page": "Fidelity",
+     "kind": "relvar",
+     "label": "Δ relativ",
+     "engine": "ck",
+     "chartKitchenType": "columns",
+     "chartKitchenMode": "columns",
+     "native": {
+      "type": "clusteredColumnChart",
+      "buckets": {
+       "Category": [
+        {
+         "ref": "DimDate.MonthName",
+         "kind": "column",
+         "isNew": false
+        }
+       ],
+       "Y": [
+        {
+         "ref": "_Measures.AC",
+         "kind": "measure",
+         "isNew": false
+        }
+       ]
+      }
+     },
+     "customVisual": null,
+     "title": "Δ PY %",
+     "subtitle": "",
+     "content": "",
+     "scenario": "AC/PY",
+     "analysis": {
+      "polarity": "higher",
+      "polarityAuto": true,
+      "deltaBasis": "PY",
+      "deltaBasisAuto": true,
+      "deltaKind": [
+       "abs",
+       "rel"
+      ],
+      "unit": null,
+      "displayUnits": null,
+      "decimals": null,
+      "sort": null,
+      "topN": null,
+      "timeGrain": null,
+      "cumulative": false,
+      "scaleGroup": null,
+      "message": null,
+      "smallMultiples": null,
+      "fieldParam": null
+     },
+     "workshop": {
+      "priority": null,
+      "status": "open",
+      "openQuestion": false
+     },
+     "typography": null,
+     "rect": {
+      "x": 490,
+      "y": 99,
+      "w": 460,
+      "h": 300
+     },
+     "roles": {
+      "category": [
+       {
+        "table": "DimDate",
+        "name": "MonthName",
+        "kind": "column",
+        "ref": "DimDate.MonthName",
+        "isNew": false
+       }
+      ],
+      "ac": [
+       {
+        "table": "_Measures",
+        "name": "AC",
+        "kind": "measure",
+        "ref": "_Measures.AC",
+        "isNew": false
+       }
+      ],
+      "ref": [
+       {
+        "table": "_Measures",
+        "name": "PY",
+        "kind": "measure",
+        "ref": "_Measures.PY",
+        "isNew": false
+       }
+      ]
+     },
+     "notes": "",
+     "link": null,
+     "warnings": []
+    },
+    {
+     "id": "mk_bridge1",
+     "stableId": "bridge1",
+     "slug": "PL → AC je Region",
+     "page": "Fidelity",
+     "kind": "bridge",
+     "label": "Brücke",
+     "engine": "ck",
+     "chartKitchenType": "catbridge",
+     "chartKitchenMode": "catbridge",
+     "native": {
+      "type": "waterfallChart",
+      "buckets": {
+       "Category": [
+        {
+         "ref": "DimRegion.Region",
+         "kind": "column",
+         "isNew": false
+        }
+       ],
+       "Y": [
+        {
+         "ref": "_Measures.AC",
+         "kind": "measure",
+         "isNew": false
+        }
+       ]
+      }
+     },
+     "customVisual": null,
+     "title": "PL → AC je Region",
+     "subtitle": "",
+     "content": "",
+     "scenario": "AC/PL",
+     "analysis": {
+      "polarity": "higher",
+      "polarityAuto": true,
+      "deltaBasis": "PL",
+      "deltaBasisAuto": true,
+      "deltaKind": [
+       "abs",
+       "rel"
+      ],
+      "unit": null,
+      "displayUnits": null,
+      "decimals": null,
+      "sort": null,
+      "topN": null,
+      "timeGrain": null,
+      "cumulative": false,
+      "scaleGroup": null,
+      "message": null,
+      "smallMultiples": null,
+      "fieldParam": null
+     },
+     "workshop": {
+      "priority": null,
+      "status": "open",
+      "openQuestion": false
+     },
+     "typography": null,
+     "rect": {
+      "x": 965,
+      "y": 99,
+      "w": 460,
+      "h": 300
+     },
+     "roles": {
+      "category": [
+       {
+        "table": "DimRegion",
+        "name": "Region",
+        "kind": "column",
+        "ref": "DimRegion.Region",
+        "isNew": false
+       }
+      ],
+      "ac": [
+       {
+        "table": "_Measures",
+        "name": "AC",
+        "kind": "measure",
+        "ref": "_Measures.AC",
+        "isNew": false
+       }
+      ],
+      "ref": [
+       {
+        "table": "_Measures",
+        "name": "PL",
+        "kind": "measure",
+        "ref": "_Measures.PL",
+        "isNew": false
+       }
+      ]
+     },
+     "notes": "",
+     "link": null,
+     "warnings": []
+    },
+    {
+     "id": "mk_heat1",
+     "stableId": "heat1",
+     "slug": "Region × Kategorie",
+     "page": "Fidelity",
+     "kind": "heatmap",
+     "label": "Heatmap",
+     "engine": "native",
+     "chartKitchenType": null,
+     "chartKitchenMode": null,
+     "native": {
+      "type": "pivotTable",
+      "buckets": {
+       "Rows": [
+        {
+         "ref": "DimRegion.Region",
+         "kind": "column",
+         "isNew": false
+        }
+       ],
+       "Columns": [
+        {
+         "ref": "DimProduct.Category",
+         "kind": "column",
+         "isNew": false
+        }
+       ],
+       "Values": [
+        {
+         "ref": "_Measures.AC",
+         "kind": "measure",
+         "isNew": false
+        }
+       ]
+      }
+     },
+     "customVisual": null,
+     "title": "Region × Kategorie",
+     "subtitle": "",
+     "content": "",
+     "scenario": "AC/PY",
+     "analysis": {
+      "polarity": "higher",
+      "polarityAuto": true,
+      "deltaBasis": null,
+      "deltaBasisAuto": true,
+      "deltaKind": [
+       "abs",
+       "rel"
+      ],
+      "unit": null,
+      "displayUnits": null,
+      "decimals": null,
+      "sort": null,
+      "topN": null,
+      "timeGrain": null,
+      "cumulative": false,
+      "scaleGroup": null,
+      "message": null,
+      "smallMultiples": null,
+      "fieldParam": null
+     },
+     "workshop": {
+      "priority": null,
+      "status": "open",
+      "openQuestion": false
+     },
+     "typography": null,
+     "rect": {
+      "x": 1440,
+      "y": 99,
+      "w": 460,
+      "h": 300
+     },
+     "roles": {
+      "category": [
+       {
+        "table": "DimRegion",
+        "name": "Region",
+        "kind": "column",
+        "ref": "DimRegion.Region",
+        "isNew": false
+       }
+      ],
+      "subcategory": [
+       {
+        "table": "DimProduct",
+        "name": "Category",
+        "kind": "column",
+        "ref": "DimProduct.Category",
+        "isNew": false
+       }
+      ],
+      "ac": [
+       {
+        "table": "_Measures",
+        "name": "AC",
+        "kind": "measure",
+        "ref": "_Measures.AC",
+        "isNew": false
+       }
+      ],
+      "ref": [
+       {
+        "table": "_Measures",
+        "name": "PY",
+        "kind": "measure",
+        "ref": "_Measures.PY",
+        "isNew": false
+       }
+      ]
+     },
+     "notes": "",
+     "link": null,
+     "warnings": []
+    },
+    {
+     "id": "mk_spark1",
+     "stableId": "spark1",
+     "slug": "Produkte",
+     "page": "Fidelity",
+     "kind": "sparktable",
+     "label": "Tabelle mit Sparklines",
+     "engine": "ck",
+     "chartKitchenType": "table",
+     "chartKitchenMode": "table",
+     "native": {
+      "type": "tableEx",
+      "buckets": {
+       "Values": [
+        {
+         "ref": "DimProduct.Product",
+         "kind": "column",
+         "isNew": false
+        },
+        {
+         "ref": "_Measures.AC",
+         "kind": "measure",
+         "isNew": false
+        }
+       ]
+      }
+     },
+     "customVisual": null,
+     "title": "Produkte",
+     "subtitle": "",
+     "content": "",
+     "scenario": "AC/PL",
+     "analysis": {
+      "polarity": "higher",
+      "polarityAuto": true,
+      "deltaBasis": "PL",
+      "deltaBasisAuto": true,
+      "deltaKind": [
+       "abs",
+       "rel"
+      ],
+      "unit": null,
+      "displayUnits": null,
+      "decimals": null,
+      "sort": null,
+      "topN": null,
+      "timeGrain": null,
+      "cumulative": false,
+      "scaleGroup": null,
+      "message": null,
+      "smallMultiples": null,
+      "fieldParam": null
+     },
+     "workshop": {
+      "priority": null,
+      "status": "open",
+      "openQuestion": false
+     },
+     "typography": null,
+     "rect": {
+      "x": 15,
+      "y": 414,
+      "w": 460,
+      "h": 300
+     },
+     "roles": {
+      "rows": [
+       {
+        "table": "DimProduct",
+        "name": "Product",
+        "kind": "column",
+        "ref": "DimProduct.Product",
+        "isNew": false
+       }
+      ],
+      "category": [
+       {
+        "table": "DimDate",
+        "name": "MonthName",
+        "kind": "column",
+        "ref": "DimDate.MonthName",
+        "isNew": false
+       }
+      ],
+      "ac": [
+       {
+        "table": "_Measures",
+        "name": "AC",
+        "kind": "measure",
+        "ref": "_Measures.AC",
+        "isNew": false
+       }
+      ],
+      "ref": [
+       {
+        "table": "_Measures",
+        "name": "PL",
+        "kind": "measure",
+        "ref": "_Measures.PL",
+        "isNew": false
+       }
+      ]
+     },
+     "notes": "",
+     "link": null,
+     "warnings": []
+    },
+    {
+     "id": "mk_tree1",
+     "stableId": "tree1",
+     "slug": "AC je Region",
+     "page": "Fidelity",
+     "kind": "tree",
+     "label": "Baum",
+     "engine": "native",
+     "chartKitchenType": null,
+     "chartKitchenMode": null,
+     "native": {
+      "type": "decompositionTreeVisual",
+      "buckets": {
+       "Analyze": [
+        {
+         "ref": "_Measures.AC",
+         "kind": "measure",
+         "isNew": false
+        }
+       ],
+       "ExplainBy": [
+        {
+         "ref": "DimRegion.Region",
+         "kind": "column",
+         "isNew": false
+        }
+       ]
+      }
+     },
+     "customVisual": null,
+     "title": "AC je Region",
+     "subtitle": "",
+     "content": "",
+     "scenario": "AC/PY",
+     "analysis": {
+      "polarity": "higher",
+      "polarityAuto": true,
+      "deltaBasis": null,
+      "deltaBasisAuto": true,
+      "deltaKind": [
+       "abs",
+       "rel"
+      ],
+      "unit": null,
+      "displayUnits": null,
+      "decimals": null,
+      "sort": null,
+      "topN": null,
+      "timeGrain": null,
+      "cumulative": false,
+      "scaleGroup": null,
+      "message": null,
+      "smallMultiples": null,
+      "fieldParam": null
+     },
+     "workshop": {
+      "priority": null,
+      "status": "open",
+      "openQuestion": false
+     },
+     "typography": null,
+     "rect": {
+      "x": 490,
+      "y": 414,
+      "w": 460,
+      "h": 300
+     },
+     "roles": {
+      "category": [
+       {
+        "table": "DimRegion",
+        "name": "Region",
+        "kind": "column",
+        "ref": "DimRegion.Region",
+        "isNew": false
+       }
+      ],
+      "ac": [
+       {
+        "table": "_Measures",
+        "name": "AC",
+        "kind": "measure",
+        "ref": "_Measures.AC",
+        "isNew": false
+       }
+      ],
+      "ref": [
+       {
+        "table": "_Measures",
+        "name": "PY",
+        "kind": "measure",
+        "ref": "_Measures.PY",
+        "isNew": false
+       }
+      ]
+     },
+     "notes": "",
+     "link": null,
+     "warnings": []
+    },
+    {
+     "id": "mk_kpi1",
+     "stableId": "kpi1",
+     "slug": "Umsatz",
+     "page": "Fidelity",
+     "kind": "kpi",
+     "label": "KPI-Kachel (IBCS)",
+     "engine": "ck",
+     "chartKitchenType": "kpi",
+     "chartKitchenMode": "cards",
+     "native": {
+      "type": "card",
+      "buckets": {
+       "Values": [
+        {
+         "ref": "_Measures.AC",
+         "kind": "measure",
+         "isNew": false
+        }
+       ]
+      }
+     },
+     "customVisual": null,
+     "title": "Umsatz",
+     "subtitle": "in Tsd. EUR",
+     "content": "",
+     "scenario": null,
+     "analysis": {
+      "polarity": "higher",
+      "polarityAuto": true,
+      "deltaBasis": "PY",
+      "deltaBasisAuto": false,
+      "deltaKind": [
+       "abs",
+       "rel"
+      ],
+      "unit": null,
+      "displayUnits": "K",
+      "decimals": 1,
+      "sort": null,
+      "topN": null,
+      "timeGrain": null,
+      "cumulative": false,
+      "scaleGroup": null,
+      "message": null,
+      "smallMultiples": null,
+      "fieldParam": null
+     },
+     "workshop": {
+      "priority": null,
+      "status": "open",
+      "openQuestion": false
+     },
+     "typography": null,
+     "rect": {
+      "x": 965,
+      "y": 414,
+      "w": 460,
+      "h": 300
+     },
+     "roles": {
+      "indicator": [
+       {
+        "table": "_Measures",
+        "name": "AC",
+        "kind": "measure",
+        "ref": "_Measures.AC",
+        "isNew": false
+       }
+      ],
+      "goal": [
+       {
+        "table": "_Measures",
+        "name": "PY",
+        "kind": "measure",
+        "ref": "_Measures.PY",
+        "isNew": false
+       }
+      ],
+      "category": [
+       {
+        "table": "DimDate",
+        "name": "MonthName",
+        "kind": "column",
+        "ref": "DimDate.MonthName",
+        "isNew": false
+       }
+      ]
+     },
+     "notes": "",
+     "link": null,
+     "warnings": []
+    },
+    {
+     "id": "mk_bars1",
+     "stableId": "bars1",
+     "slug": "AC vs PL je Region",
+     "page": "Fidelity",
+     "kind": "bars",
+     "label": "Balken",
+     "engine": "ck",
+     "chartKitchenType": "bars",
+     "chartKitchenMode": "bars",
+     "native": {
+      "type": "clusteredBarChart",
+      "buckets": {
+       "Category": [
+        {
+         "ref": "DimRegion.Region",
+         "kind": "column",
+         "isNew": false
+        }
+       ],
+       "Y": [
+        {
+         "ref": "_Measures.AC",
+         "kind": "measure",
+         "isNew": false
+        },
+        {
+         "ref": "_Measures.PL",
+         "kind": "measure",
+         "isNew": false
+        }
+       ]
+      }
+     },
+     "customVisual": null,
+     "title": "AC vs PL je Region",
+     "subtitle": "",
+     "content": "",
+     "scenario": "AC/PL",
+     "analysis": {
+      "polarity": "higher",
+      "polarityAuto": true,
+      "deltaBasis": "PL",
+      "deltaBasisAuto": false,
+      "deltaKind": [
+       "abs"
+      ],
+      "unit": null,
+      "displayUnits": "M",
+      "decimals": 1,
+      "sort": null,
+      "topN": 3,
+      "timeGrain": null,
+      "cumulative": false,
+      "scaleGroup": null,
+      "message": "Süd unter Plan",
+      "smallMultiples": null,
+      "fieldParam": null
+     },
+     "workshop": {
+      "priority": null,
+      "status": "open",
+      "openQuestion": false
+     },
+     "typography": null,
+     "rect": {
+      "x": 1440,
+      "y": 414,
+      "w": 460,
+      "h": 300
+     },
+     "roles": {
+      "category": [
+       {
+        "table": "DimRegion",
+        "name": "Region",
+        "kind": "column",
+        "ref": "DimRegion.Region",
+        "isNew": false
+       }
+      ],
+      "ac": [
+       {
+        "table": "_Measures",
+        "name": "AC",
+        "kind": "measure",
+        "ref": "_Measures.AC",
+        "isNew": false
+       }
+      ],
+      "ref": [
+       {
+        "table": "_Measures",
+        "name": "PL",
+        "kind": "measure",
+        "ref": "_Measures.PL",
+        "isNew": false
+       }
+      ]
+     },
+     "notes": "",
+     "link": null,
+     "warnings": [],
+     "titleShown": true,
+     "displayName": "AC vs PL je Region",
+     "display": {
+      "scenarios": [
+       "AC",
+       "PL"
+      ],
+      "refSource": "bound",
+      "placeholders": [],
+      "deltaBasis": "PL",
+      "deltaBasisSource": "explicit",
+      "drawn": {
+       "refs": [
+        "PL"
+       ],
+       "marker": [],
+       "delta": [
+        "abs"
+       ],
+       "deltaBasis": "PL",
+       "labels": true,
+       "total": false,
+       "forecast": false,
+       "unit": "M",
+       "reduced": false
+      },
+      "numbers": {
+       "displayUnits": "M",
+       "decimals": 1,
+       "unitText": null
+      },
+      "fontPx": {
+       "title": 18,
+       "subtitle": 14.25,
+       "label": 13.5,
+       "axis": 12
+      },
+      "fontPt": {
+       "title": 13.5,
+       "subtitle": 10.5,
+       "label": 10,
+       "axis": 9
+      }
+     }
+    },
+    {
+     "id": "mk_col1",
+     "stableId": "col1",
+     "slug": "Säulen (AC vs Referenz)",
+     "page": "Fidelity",
+     "kind": "columns",
+     "label": "Säulen (AC vs Referenz)",
+     "engine": "ck",
+     "chartKitchenType": "columns",
+     "chartKitchenMode": "columns",
+     "native": {
+      "type": "clusteredColumnChart",
+      "buckets": {
+       "Category": [
+        {
+         "ref": "DimDate.MonthName",
+         "kind": "column",
+         "isNew": false
+        }
+       ],
+       "Y": [
+        {
+         "ref": "_Measures.Kosten",
+         "kind": "measure",
+         "isNew": false
+        },
+        {
+         "ref": "_Measures.PY",
+         "kind": "measure",
+         "isNew": false
+        },
+        {
+         "ref": "_Measures.PL",
+         "kind": "measure",
+         "isNew": false
+        }
+       ]
+      }
+     },
+     "customVisual": null,
+     "title": "Säulen (AC vs Referenz)",
+     "subtitle": "",
+     "content": "",
+     "scenario": "AC/PY/PL",
+     "analysis": {
+      "polarity": "lower",
+      "polarityAuto": true,
+      "deltaBasis": "PY",
+      "deltaBasisAuto": true,
+      "deltaKind": [
+       "abs",
+       "rel"
+      ],
+      "unit": null,
+      "displayUnits": null,
+      "decimals": null,
+      "sort": null,
+      "topN": null,
+      "timeGrain": null,
+      "cumulative": true,
+      "scaleGroup": null,
+      "message": null,
+      "smallMultiples": null,
+      "fieldParam": null
+     },
+     "workshop": {
+      "priority": null,
+      "status": "open",
+      "openQuestion": false
+     },
+     "typography": null,
+     "rect": {
+      "x": 15,
+      "y": 729,
+      "w": 460,
+      "h": 300
+     },
+     "roles": {
+      "category": [
+       {
+        "table": "DimDate",
+        "name": "MonthName",
+        "kind": "column",
+        "ref": "DimDate.MonthName",
+        "isNew": false
+       }
+      ],
+      "ac": [
+       {
+        "table": "_Measures",
+        "name": "Kosten",
+        "kind": "measure",
+        "ref": "_Measures.Kosten",
+        "isNew": false
+       }
+      ],
+      "ref": [
+       {
+        "table": "_Measures",
+        "name": "PY",
+        "kind": "measure",
+        "ref": "_Measures.PY",
+        "isNew": false
+       },
+       {
+        "table": "_Measures",
+        "name": "PL",
+        "kind": "measure",
+        "ref": "_Measures.PL",
+        "isNew": false
+       }
+      ]
+     },
+     "notes": "",
+     "link": null,
+     "warnings": []
+    },
+    {
+     "id": "mk_wfk1",
+     "stableId": "wfk1",
+     "slug": "Beiträge je Kategorie",
+     "page": "Fidelity",
+     "kind": "wfkombi",
+     "label": "Wasserfall + Varianz",
+     "engine": "ck",
+     "chartKitchenType": "waterfall",
+     "chartKitchenMode": "waterfall",
+     "native": null,
+     "customVisual": null,
+     "title": "Beiträge je Kategorie",
+     "subtitle": "",
+     "content": "",
+     "scenario": "AC/PL",
+     "analysis": {
+      "polarity": "higher",
+      "polarityAuto": true,
+      "deltaBasis": "PL",
+      "deltaBasisAuto": true,
+      "deltaKind": [
+       "abs",
+       "rel"
+      ],
+      "unit": null,
+      "displayUnits": null,
+      "decimals": null,
+      "sort": null,
+      "topN": null,
+      "timeGrain": null,
+      "cumulative": false,
+      "scaleGroup": null,
+      "message": null,
+      "smallMultiples": null,
+      "fieldParam": null
+     },
+     "workshop": {
+      "priority": null,
+      "status": "open",
+      "openQuestion": false
+     },
+     "typography": null,
+     "rect": {
+      "x": 490,
+      "y": 729,
+      "w": 460,
+      "h": 300
+     },
+     "roles": {
+      "category": [
+       {
+        "table": "DimProduct",
+        "name": "Category",
+        "kind": "column",
+        "ref": "DimProduct.Category",
+        "isNew": false
+       }
+      ],
+      "ac": [
+       {
+        "table": "_Measures",
+        "name": "AC",
+        "kind": "measure",
+        "ref": "_Measures.AC",
+        "isNew": false
+       }
+      ],
+      "ref": [
+       {
+        "table": "_Measures",
+        "name": "PL",
+        "kind": "measure",
+        "ref": "_Measures.PL",
+        "isNew": false
+       }
+      ]
+     },
+     "notes": "",
+     "link": null,
+     "warnings": []
+    },
+    {
+     "id": "mk_ncol1",
+     "stableId": "ncol1",
+     "slug": "Umsatz und Kosten",
+     "page": "Fidelity",
+     "kind": "ncolumn",
+     "label": "Säulen (nativ)",
+     "engine": "native",
+     "chartKitchenType": null,
+     "chartKitchenMode": null,
+     "native": {
+      "type": "clusteredColumnChart",
+      "buckets": {
+       "Category": [
+        {
+         "ref": "DimRegion.Region",
+         "kind": "column",
+         "isNew": false
+        }
+       ],
+       "Y": [
+        {
+         "ref": "_Measures.Umsatz",
+         "kind": "measure",
+         "isNew": false
+        },
+        {
+         "ref": "_Measures.Kosten",
+         "kind": "measure",
+         "isNew": false
+        }
+       ]
+      }
+     },
+     "customVisual": null,
+     "title": "Umsatz und Kosten",
+     "subtitle": "",
+     "content": "",
+     "scenario": null,
+     "analysis": {
+      "polarity": "higher",
+      "polarityAuto": true,
+      "deltaBasis": null,
+      "deltaBasisAuto": true,
+      "deltaKind": [
+       "abs",
+       "rel"
+      ],
+      "unit": null,
+      "displayUnits": null,
+      "decimals": null,
+      "sort": null,
+      "topN": null,
+      "timeGrain": null,
+      "cumulative": false,
+      "scaleGroup": null,
+      "message": null,
+      "smallMultiples": null,
+      "fieldParam": null
+     },
+     "workshop": {
+      "priority": null,
+      "status": "open",
+      "openQuestion": false
+     },
+     "typography": null,
+     "rect": {
+      "x": 965,
+      "y": 729,
+      "w": 460,
+      "h": 300
+     },
+     "roles": {
+      "category": [
+       {
+        "table": "DimRegion",
+        "name": "Region",
+        "kind": "column",
+        "ref": "DimRegion.Region",
+        "isNew": false
+       }
+      ],
+      "values": [
+       {
+        "table": "_Measures",
+        "name": "Umsatz",
+        "kind": "measure",
+        "ref": "_Measures.Umsatz",
+        "isNew": false
+       },
+       {
+        "table": "_Measures",
+        "name": "Kosten",
+        "kind": "measure",
+        "ref": "_Measures.Kosten",
+        "isNew": false
+       }
+      ]
+     },
+     "notes": "",
+     "link": null,
+     "warnings": []
+    },
+    {
+     "id": "mk_kombi1",
+     "stableId": "kombi1",
+     "slug": "Säulen + Δ absolut + Δ %",
+     "page": "Fidelity",
+     "kind": "kombi",
+     "label": "Säulen + Δ absolut + Δ %",
+     "engine": "ck",
+     "chartKitchenType": "columns",
+     "chartKitchenMode": "columns",
+     "native": {
+      "type": "clusteredColumnChart",
+      "buckets": {
+       "Category": [
+        {
+         "ref": "DimDate.MonthName",
+         "kind": "column",
+         "isNew": false
+        }
+       ],
+       "Y": [
+        {
+         "ref": "_Measures.AC",
+         "kind": "measure",
+         "isNew": false
+        },
+        {
+         "ref": "_Measures.PY",
+         "kind": "measure",
+         "isNew": false
+        },
+        {
+         "ref": "_Measures.PL",
+         "kind": "measure",
+         "isNew": false
+        }
+       ]
+      }
+     },
+     "customVisual": null,
+     "title": "",
+     "subtitle": "",
+     "content": "",
+     "scenario": "AC/PL",
+     "analysis": {
+      "polarity": "higher",
+      "polarityAuto": true,
+      "deltaBasis": "PL",
+      "deltaBasisAuto": true,
+      "deltaKind": [
+       "abs",
+       "rel"
+      ],
+      "unit": null,
+      "displayUnits": null,
+      "decimals": null,
+      "sort": null,
+      "topN": null,
+      "timeGrain": null,
+      "cumulative": false,
+      "scaleGroup": null,
+      "message": null,
+      "smallMultiples": null,
+      "fieldParam": null
+     },
+     "workshop": {
+      "priority": null,
+      "status": "open",
+      "openQuestion": false
+     },
+     "typography": null,
+     "rect": {
+      "x": 1440,
+      "y": 729,
+      "w": 460,
+      "h": 300
+     },
+     "roles": {
+      "category": [
+       {
+        "table": "DimDate",
+        "name": "MonthName",
+        "kind": "column",
+        "ref": "DimDate.MonthName",
+        "isNew": false
+       }
+      ],
+      "ac": [
+       {
+        "table": "_Measures",
+        "name": "AC",
+        "kind": "measure",
+        "ref": "_Measures.AC",
+        "isNew": false
+       }
+      ],
+      "ref": [
+       {
+        "table": "_Measures",
+        "name": "PY",
+        "kind": "measure",
+        "ref": "_Measures.PY",
+        "isNew": false
+       },
+       {
+        "table": "_Measures",
+        "name": "PL",
+        "kind": "measure",
+        "ref": "_Measures.PL",
+        "isNew": false
+       }
+      ]
+     },
+     "notes": "",
+     "link": null,
+     "warnings": [],
+     "titleShown": false,
+     "displayName": "Monate",
+     "display": {
+      "drawn": {
+       "labels": false,
+       "total": true,
+       "delta": [],
+       "reduced": true
+      }
+     }
+    }
+   ],
+   "layoutTree": null
+  }
+ ],
+ "links": [],
+ "model": {
+  "source": "PBI-IBCS-Testbed",
+  "tables": [
+   "DimDate",
+   "DimProduct",
+   "DimRegion",
+   "_Measures"
+  ]
+ },
+ "fields": [],
+ "newFields": [],
+ "issues": []
+}

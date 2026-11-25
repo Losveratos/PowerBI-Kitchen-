@@ -41,10 +41,10 @@
           "name": "chrome_logo",
           "type": "shape",
           "rect": {
-            "x": 1144,
-            "y": 12,
-            "w": 120,
-            "h": 32
+            "x": 1176,
+            "y": 13,
+            "w": 88,
+            "h": 30
           },
           "role": "chrome",
           "fields": {}
@@ -53,10 +53,10 @@
           "name": "chrome_nav_1",
           "type": "actionButton",
           "rect": {
-            "x": 896,
-            "y": 12,
-            "w": 112,
-            "h": 32
+            "x": 917,
+            "y": 13,
+            "w": 86,
+            "h": 29
           },
           "role": "chrome",
           "fields": {}
@@ -65,10 +65,10 @@
           "name": "chrome_nav_2",
           "type": "actionButton",
           "rect": {
-            "x": 1016,
-            "y": 12,
-            "w": 112,
-            "h": 32
+            "x": 1009,
+            "y": 13,
+            "w": 153,
+            "h": 29
           },
           "role": "chrome",
           "fields": {}
@@ -78,9 +78,9 @@
           "type": "shape",
           "rect": {
             "x": 16,
-            "y": 6,
-            "w": 864,
-            "h": 26
+            "y": 7,
+            "w": 887,
+            "h": 25
           },
           "role": "chrome",
           "fields": {}
@@ -91,8 +91,8 @@
           "rect": {
             "x": 16,
             "y": 32,
-            "w": 864,
-            "h": 18
+            "w": 887,
+            "h": 16
           },
           "role": "chrome",
           "fields": {}
@@ -110,13 +110,49 @@
           "fields": {}
         },
         {
+          "name": "chrome_filter_rule",
+          "type": "shape",
+          "rect": {
+            "x": 1064,
+            "y": 56,
+            "w": 1,
+            "h": 640
+          },
+          "role": "chrome",
+          "fields": {}
+        },
+        {
           "name": "chrome_filter_title",
           "type": "shape",
           "rect": {
-            "x": 1072,
-            "y": 64,
-            "w": 200,
+            "x": 1074,
+            "y": 68,
+            "w": 196,
+            "h": 16
+          },
+          "role": "chrome",
+          "fields": {}
+        },
+        {
+          "name": "chrome_footer_bg",
+          "type": "shape",
+          "rect": {
+            "x": 0,
+            "y": 696,
+            "w": 1280,
             "h": 24
+          },
+          "role": "chrome",
+          "fields": {}
+        },
+        {
+          "name": "chrome_footer_rule",
+          "type": "shape",
+          "rect": {
+            "x": 0,
+            "y": 696,
+            "w": 1280,
+            "h": 1
           },
           "role": "chrome",
           "fields": {}
@@ -126,9 +162,9 @@
           "type": "shape",
           "rect": {
             "x": 16,
-            "y": 696,
+            "y": 697,
             "w": 1248,
-            "h": 24
+            "h": 23
           },
           "role": "chrome",
           "fields": {}
@@ -185,10 +221,10 @@
           "name": "mk_slicer_Year_p1",
           "type": "slicer",
           "rect": {
-            "x": 1072,
-            "y": 96,
-            "w": 200,
-            "h": 56
+            "x": 1074,
+            "y": 92,
+            "w": 196,
+            "h": 76
           },
           "role": "slicer",
           "fields": {
@@ -201,10 +237,10 @@
           "name": "mk_slicer_Region_p1",
           "type": "slicer",
           "rect": {
-            "x": 1072,
-            "y": 160,
-            "w": 200,
-            "h": 56
+            "x": 1074,
+            "y": 175,
+            "w": 196,
+            "h": 76
           },
           "role": "slicer",
           "fields": {
@@ -329,10 +365,10 @@
           "name": "chrome_logo",
           "type": "shape",
           "rect": {
-            "x": 1144,
-            "y": 12,
-            "w": 120,
-            "h": 32
+            "x": 1176,
+            "y": 13,
+            "w": 88,
+            "h": 30
           },
           "role": "chrome",
           "fields": {}
@@ -341,10 +377,10 @@
           "name": "chrome_nav_1",
           "type": "actionButton",
           "rect": {
-            "x": 896,
-            "y": 12,
-            "w": 112,
-            "h": 32
+            "x": 917,
+            "y": 13,
+            "w": 86,
+            "h": 29
           },
           "role": "chrome",
           "fields": {}
@@ -353,10 +389,10 @@
           "name": "chrome_nav_2",
           "type": "actionButton",
           "rect": {
-            "x": 1016,
-            "y": 12,
-            "w": 112,
-            "h": 32
+            "x": 1009,
+            "y": 13,
+            "w": 153,
+            "h": 29
           },
           "role": "chrome",
           "fields": {}
@@ -366,9 +402,9 @@
           "type": "shape",
           "rect": {
             "x": 16,
-            "y": 6,
-            "w": 864,
-            "h": 26
+            "y": 7,
+            "w": 887,
+            "h": 25
           },
           "role": "chrome",
           "fields": {}
@@ -379,8 +415,8 @@
           "rect": {
             "x": 16,
             "y": 32,
-            "w": 864,
-            "h": 18
+            "w": 887,
+            "h": 16
           },
           "role": "chrome",
           "fields": {}
@@ -398,13 +434,49 @@
           "fields": {}
         },
         {
+          "name": "chrome_filter_rule",
+          "type": "shape",
+          "rect": {
+            "x": 1064,
+            "y": 56,
+            "w": 1,
+            "h": 640
+          },
+          "role": "chrome",
+          "fields": {}
+        },
+        {
           "name": "chrome_filter_title",
           "type": "shape",
           "rect": {
-            "x": 1072,
-            "y": 64,
-            "w": 200,
+            "x": 1074,
+            "y": 68,
+            "w": 196,
+            "h": 16
+          },
+          "role": "chrome",
+          "fields": {}
+        },
+        {
+          "name": "chrome_footer_bg",
+          "type": "shape",
+          "rect": {
+            "x": 0,
+            "y": 696,
+            "w": 1280,
             "h": 24
+          },
+          "role": "chrome",
+          "fields": {}
+        },
+        {
+          "name": "chrome_footer_rule",
+          "type": "shape",
+          "rect": {
+            "x": 0,
+            "y": 696,
+            "w": 1280,
+            "h": 1
           },
           "role": "chrome",
           "fields": {}
@@ -414,9 +486,9 @@
           "type": "shape",
           "rect": {
             "x": 16,
-            "y": 696,
+            "y": 697,
             "w": 1248,
-            "h": 24
+            "h": 23
           },
           "role": "chrome",
           "fields": {}
@@ -449,10 +521,10 @@
           "name": "mk_slicer_Year_p2",
           "type": "slicer",
           "rect": {
-            "x": 1072,
-            "y": 96,
-            "w": 200,
-            "h": 56
+            "x": 1074,
+            "y": 92,
+            "w": 196,
+            "h": 76
           },
           "role": "slicer",
           "fields": {
@@ -465,10 +537,10 @@
           "name": "mk_slicer_Region_p2",
           "type": "slicer",
           "rect": {
-            "x": 1072,
-            "y": 160,
-            "w": 200,
-            "h": 56
+            "x": 1074,
+            "y": 175,
+            "w": 196,
+            "h": 76
           },
           "role": "slicer",
           "fields": {

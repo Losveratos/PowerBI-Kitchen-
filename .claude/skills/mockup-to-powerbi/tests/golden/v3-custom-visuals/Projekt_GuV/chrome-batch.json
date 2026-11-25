@@ -7,21 +7,55 @@
     {
       "id": "format",
       "op": "set",
-      "select": "Projekt & GuV.Page/chrome_footer_text.Visual",
+      "select": "Projekt & GuV.Page/chrome_footer_bg.Visual",
       "set": {
-        "fill.show": false,
+        "shape.tileShape": "rectangle",
+        "fill.show": true,
+        "fill.fillColor": "#F7F4EF",
         "outline.show": false,
-        "text.text": "Stand: 5. Werktag · Quelle: DWH",
-        "text.fontSize": 9,
-        "text.fontColor": "#6B7280",
-        "text.horizontalAlignment": "left",
-        "text.verticalAlignment": "middle",
-        "position.z": 4
+        "position.z": 0,
+        "title.show": false
       },
       "continue_on_error": true
     },
     {
       "id": "format-2",
+      "op": "set",
+      "select": "Projekt & GuV.Page/chrome_footer_rule.Visual",
+      "set": {
+        "shape.tileShape": "rectangle",
+        "fill.show": true,
+        "fill.fillColor": "#E3E1D8",
+        "outline.show": false,
+        "position.z": 1,
+        "title.show": false
+      },
+      "continue_on_error": true
+    },
+    {
+      "id": "format-3",
+      "op": "set",
+      "select": "Projekt & GuV.Page/chrome_footer_text.Visual",
+      "set": {
+        "fill.show": false,
+        "outline.show": false,
+        "text.show": true,
+        "text.default.text": "Stand: 5. Werktag · Quelle: DWH",
+        "text.default.fontSize": 7.5,
+        "text.default.fontColor": "#6B7280",
+        "text.default.horizontalAlignment": "left",
+        "text.default.verticalAlignment": "middle",
+        "text.default.leftMargin": 0,
+        "text.default.rightMargin": 0,
+        "text.default.topMargin": 0,
+        "text.default.bottomMargin": 0,
+        "position.z": 4,
+        "title.show": false
+      },
+      "continue_on_error": true
+    },
+    {
+      "id": "format-4",
       "op": "set",
       "select": "Projekt & GuV.Page/chrome_header_bg.Visual",
       "set": {
@@ -29,62 +63,81 @@
         "fill.show": true,
         "fill.fillColor": "#123B4F",
         "outline.show": false,
-        "position.z": 0
-      },
-      "continue_on_error": true
-    },
-    {
-      "id": "format-3",
-      "op": "set",
-      "select": "Projekt & GuV.Page/chrome_header_subtitle.Visual",
-      "set": {
-        "fill.show": false,
-        "outline.show": false,
-        "text.text": "Projekt und Ergebnis",
-        "text.fontSize": 10,
-        "text.fontColor": "#C8CDD4",
-        "text.horizontalAlignment": "left",
-        "text.verticalAlignment": "middle",
-        "position.z": 4
-      },
-      "continue_on_error": true
-    },
-    {
-      "id": "format-4",
-      "op": "set",
-      "select": "Projekt & GuV.Page/chrome_header_title.Visual",
-      "set": {
-        "fill.show": false,
-        "outline.show": false,
-        "text.text": "Rollout 2026",
-        "text.fontSize": 16,
-        "text.fontColor": "#F7FAFC",
-        "text.horizontalAlignment": "left",
-        "text.verticalAlignment": "middle",
-        "text.bold": true,
-        "position.z": 4
+        "position.z": 0,
+        "title.show": false
       },
       "continue_on_error": true
     },
     {
       "id": "format-5",
       "op": "set",
-      "select": "Projekt & GuV.Page/chrome_nav_1.Visual",
+      "select": "Projekt & GuV.Page/chrome_header_subtitle.Visual",
       "set": {
-        "fill.show": true,
-        "fill.fillColor": "#E07B39",
-        "text.fontColor": "#FFFFFF",
+        "fill.show": false,
         "outline.show": false,
-        "text.text": "Projekt & GuV",
-        "text.fontSize": 10,
-        "text.horizontalAlignment": "center",
-        "text.verticalAlignment": "middle",
-        "position.z": 5
+        "text.show": true,
+        "text.default.text": "Projekt und Ergebnis",
+        "text.default.fontSize": 8.5,
+        "text.default.fontColor": "#B2C1C8",
+        "text.default.horizontalAlignment": "left",
+        "text.default.verticalAlignment": "middle",
+        "text.default.leftMargin": 0,
+        "text.default.rightMargin": 0,
+        "text.default.topMargin": 0,
+        "text.default.bottomMargin": 0,
+        "position.z": 4,
+        "title.show": false
       },
       "continue_on_error": true
     },
     {
       "id": "format-6",
+      "op": "set",
+      "select": "Projekt & GuV.Page/chrome_header_title.Visual",
+      "set": {
+        "fill.show": false,
+        "outline.show": false,
+        "text.show": true,
+        "text.default.text": "Rollout 2026",
+        "text.default.fontSize": 13,
+        "text.default.fontColor": "#F7FAFC",
+        "text.default.horizontalAlignment": "left",
+        "text.default.verticalAlignment": "middle",
+        "text.default.leftMargin": 0,
+        "text.default.rightMargin": 0,
+        "text.default.topMargin": 0,
+        "text.default.bottomMargin": 0,
+        "text.default.bold": true,
+        "position.z": 4,
+        "title.show": false
+      },
+      "continue_on_error": true
+    },
+    {
+      "id": "format-7",
+      "op": "set",
+      "select": "Projekt & GuV.Page/chrome_nav_1.Visual",
+      "set": {
+        "fill.show": true,
+        "fill.fillColor": "#E07B39",
+        "outline.show": true,
+        "outline.lineColor": "#E07B39",
+        "outline.weight": 1,
+        "text.default.fontColor": "#FFFFFF",
+        "shape.default.tileShape": "rectangleRounded",
+        "shape.default.rectangleRoundedCurve": 4,
+        "text.show": true,
+        "text.default.text": "Projekt & GuV",
+        "text.default.fontSize": 8.5,
+        "text.default.horizontalAlignment": "center",
+        "text.default.verticalAlignment": "middle",
+        "position.z": 5,
+        "title.show": false
+      },
+      "continue_on_error": true
+    },
+    {
+      "id": "format-8",
       "op": "set",
       "select": "Projekt & GuV.Page/mk_card1.Visual",
       "set": {
@@ -92,7 +145,7 @@
         "background.color": "#FFFFFF",
         "background.transparency": 0,
         "border.show": true,
-        "border.color": "#E5E7EB",
+        "border.color": "#E1DFD6",
         "border.width": 1,
         "dropShadow.show": false,
         "border.radius": 8,

@@ -39,7 +39,8 @@ Zurück-Button auf jeder Drill-Zielseite (Power BI setzt ihn beim Drill automati
 
 ```bash
 pbir add visual actionButton "Test.Report/Detail Produktlinie.Page" -n chrome_back -x 24 -y 80 -w 90 -h 28
-pbir set "Test.Report/Detail Produktlinie.Page/chrome_back.Visual.text.text" --value "← Zurück"
+pbir set "Test.Report/Detail Produktlinie.Page/chrome_back.Visual.text.show" --value true
+pbir set "Test.Report/Detail Produktlinie.Page/chrome_back.Visual.text.default.text" --value "← Zurück"
 pbir set "Test.Report/Detail Produktlinie.Page/chrome_back.Visual.fill.fillColor" --value "#FFFFFF"
 pbir visuals action "Test.Report/Detail Produktlinie.Page/chrome_back.Visual" --type Back
 pbir visuals position "Test.Report/Detail Produktlinie.Page/chrome_back.Visual" --z 24

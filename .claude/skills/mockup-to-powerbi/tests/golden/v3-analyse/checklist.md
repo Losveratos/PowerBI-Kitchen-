@@ -27,8 +27,8 @@ Mockup: **Analyse-Testfall** · specVersion 3 (gelesen als v3) · Hash `testhash
 
 | Seite | Ordner | Fragestellung | native Visuals + Slicer | Text/Button | Chrome | CK | Deneb | Custom |
 |---|---|---|---|---|---|---|---|---|
-| Übersicht | `Ubersicht/` | Liegen wir im Plan? | 4 | 1 | 10 | 6 | 0 | 0 |
-| Detail Produktlinie | `Detail_Produktlinie/` | – | 2 | 2 | 10 | 5 | 0 | 0 |
+| Übersicht | `Ubersicht/` | Liegen wir im Plan? | 4 | 1 | 13 | 6 | 0 | 0 |
+| Detail Produktlinie | `Detail_Produktlinie/` | – | 2 | 2 | 13 | 5 | 0 | 0 |
 
 ## Offene Punkte aus der Spec (`issues`)
 
@@ -47,18 +47,15 @@ Mockup: **Analyse-Testfall** · specVersion 3 (gelesen als v3) · Hash `testhash
 ## ChartKitchen-Rollen-Mapping
 
 - [ ] [Übersicht / mk_kv12rex] `fcFlag` muss die **Zahl** 1/0 liefern, kein Boolean (DimDate.IsForecast pruefen).
-- [ ] [Übersicht / mk_wf01] Modus `waterfall` braucht die Rolle `rowType` (sum/delta je Zeile). Das Mockup kennt die Rolle nicht — Spalte im Modell bereitstellen und im Visual binden, sonst bleibt die Bruecke leer.
 - [ ] [Übersicht / mk_wf01] Szenario `AC/PL/FC` nennt FC, aber weder eine `fcFlag`-Spalte (Zahl 1/0) noch eine `forecast`-Kennzahl ist gebunden. Eines von beidem nachziehen, sonst zeichnet ChartKitchen keinen Forecast.
-- [ ] [Detail Produktlinie / mk_cl01] Typ `colline`: die zweite Kennzahl gehoert in `lineMeasure` (nur `orientation=columns`), nicht in `plan`/`previousYear`. Mapping vor dem Binden korrigieren.
+- [ ] [Übersicht / mk_wf01] Δ-Basis FC: ChartKitchen vergleicht nicht AC gegen FC (`fcrev` heisst FC gegen Vorprognose). `comparisonMode` bleibt `auto`; FC wird schraffiert gezeichnet.
+- [ ] [Detail Produktlinie / mk_cl01] Δ-Basis PY: die ChartKitchen-Rolle `previousYear` ist nicht gebunden — `comparisonMode` bleibt `auto` (PL, sonst PY).
 
 ## Analyse-Angaben ohne direkten pbir-Befehl
 
 Vollständig in [`analysis-todos.md`](analysis-todos.md) — hier nur die Zahl je Code:
 
-- `CK_INVERT`: 1
-- `CUMULATIVE`: 1
-- `DELTA_BASIS`: 2
-- `DISPLAY_UNITS_SLOT`: 1
+- `CUMULATIVE_CK_MODE`: 1
 - `MESSAGE`: 1
 - `POLARITY`: 1
 - `SCALE_GROUP`: 2

@@ -1,4 +1,4 @@
-> Ergebnis eines Designpanels vom 25.09.2026: vier unabhängige Entwürfe (Löser, Workshop-Bedienung, Power-BI-Treue, minimale Änderung), drei Jurys (Pixelgenauigkeit, Bedienbarkeit, Umsetzungsrisiko), ein Angreifer mit Gegenbeispielen. Sieger: Linienraster im Pitch-Raum. Noch nicht umgesetzt.
+> Ergebnis eines Designpanels vom 25.09.2026: vier unabhängige Entwürfe (Löser, Workshop-Bedienung, Power-BI-Treue, minimale Änderung), drei Jurys (Pixelgenauigkeit, Bedienbarkeit, Umsetzungsrisiko), ein Angreifer mit Gegenbeispielen. Sieger: Linienraster im Pitch-Raum. Umgesetzt (20.10.2026): Stufe 1 als `pixelgrid.js` (gemeinsam mit der dwg cli), Schalter „Pixelraster“, `checkLattice()`; Stufe 0 und 2 offen, siehe README.
 
 # Empfehlung: pixelgenaue Verteilung in MockupKitchen
 
@@ -134,4 +134,4 @@ Geprüft über 7 Canvas × 5 Chrome-Varianten × 10 Vorlagen: 0 Kanten-, Spalt- 
   - Desktop speichert nach jedem Anfassen Kommazahlen (3.610 von 6.724 Visuals), die Rastergröße beim Einrasten ist undokumentiert. Dafür gibt es --resnap.
   - Ob Rahmen innen oder außen gezeichnet werden und wie groß der Tastatur-Schritt ist, lässt sich nur per Screenshot-Test in Desktop klären.
 
-Die Prüfskripte liegen in `C:\Users\MICHAE~1\AppData\Local\Temp\claude\C--Users-MichaelTenner-Desktop-Daten-WG-Knowlegde-Kitchen\71120346-b50f-4444-bfdd-53d1d88962e9\scratchpad\pixel\final\`: `final.js`, `tpl2.js` und `sweep.js`. Keine Repo-Datei wurde geändert.
+Die Prüfskripte lagen im Scratchpad der Sitzung unter `<Scratchpad>\pixel\final\`: `final.js`, `tpl2.js` und `sweep.js`. Keine Repo-Datei wurde geändert.

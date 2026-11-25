@@ -105,7 +105,39 @@ Wieder abwärtskompatibel: fehlt ein Schlüssel, baut der Skill genau wie vorher
 | `fields[].expression`, `formatExpression`, `formatDynamic`, `displayFolder`, `formatDescription`, `formatSample`, `formatWish`, `formatWishString`, `daxComment` | 0.5.3 | Aus dem TMDL-Import: DAX-Formel, dynamischer Formatausdruck, Anzeigeordner, Format in Klartext mit Beispiel. Aus dem Workshop: Kommentar zu Berechnung/Beschreibung und gewünschte Darstellung (`formatWishString` ist ein Vorschlag, den der Agent nach Rückfrage per `te` als formatString setzt). Die DAX-Formel ist Information, kein Bauauftrag |
 | `visuals[].samples`, `design.nativePalette` | 0.4.7 | Beispielwerte je Kachel (`categories`, `values`, `refValues`, nur Anschauung) und Farbschema der Skizzen für native Visuals (`neutral`/`pbi`/`kitchen`). Beides ist **kein** Bauauftrag: keine Daten in den Bericht schreiben, Datenfarben regelt das Theme |
 | `zones.filter.slicers[].type` | 0.4.4 / 0.4.6 | Slicer-Art `dropdown` · `list` · `tile` · `between` · `date` · `search` · ab 0.4.6 `relative` · `button` |
+| `design.sourceReport` | 0.6 | nur ohne Live-Helfer: Gestaltung stammt aus dem eingelesenen Bericht, kein Seitenhintergrund und kein Kachelstil für Seiten und Kacheln aus dem Bericht, siehe [`design.sourceReport`](#designsourcereport-gestaltung-aus-dem-bericht) |
 | Issue-Codes `A11Y_*` | 0.4.4 | Befunde der Barrierefreiheits-Prüfung |
+
+### Tool 0.7.0: Zielmodus, gespeicherte Filter (specVersion bleibt 3)
+
+Abwärtskompatibel: fehlt `meta.target`, gilt `pbi`. Der Skill baut weiter nur Power BI; die neuen Angaben sind
+Hinweise für den Bau bzw. für `dwg mockup import`.
+
+| Neu | Wo |
+|---|---|
+| `meta.target` | `pbi` (Vorgabe) · `app` (Fabric App, Rayfin, dwg cli) · `wire` (Wireframe ohne Zielsystem). Zählt nicht zum specHash. Bei `app` und `wire` vor einem Power-BI-Bau nachfragen, ob das gewollt ist |
+| `zones.chips` | Chip-Zeile unter dem Kopfband, nur wenn es gespeicherte Filter gibt: `{x, y, w, h, views[], bookmarks[]}`. `views[]` = `{id, name, filters, parsed[{field, values[]}]}`; `filters` ist Freitext aus dem Workshop (`Region = Nord, West; Year = 2026`), `parsed` die mechanische Zerlegung. Feldnamen sind **nicht** gegen das Modell geprüft. Zählt über `zones` zum specHash |
+| `zones.chips.bookmarks` | nur bei `target: pbi`: je gespeichertem Filter ein Lesezeichen (nur Daten, alle Visuals) plus Schaltfläche in der Chip-Zeile. Der Konverter legt sie **nicht** an; Issue `BOOKMARKS_SAVED_FILTERS` weist darauf hin. Vor dem Bau klären, ob Lesezeichen wirklich gewollt sind (Pflegeaufwand nach jeder Berichtsänderung) |
+| `zones.header.navPosition: "burger"`, `burgerNav`, `burgerPages` | Seitennavigation im Burger-Menü. `nav_position()` liest das als `off` (keine Navigation im Kopfband). Für Power BI: Panel mit Seitennavigator und zwei Lesezeichen, Issue `BOOKMARKS_BURGER_NAV`. `zones.header.burger` bleibt wie bisher das Filter-Panel per Burger |
+| `app` | nur bei `target: app`: `shell{navigation, filterPanel, savedFilters[], crossFilter, resolution}` als Vorgabe an die App-Shell und `notBuildable[{page, id, kind}]` (Kacheln ohne ChartKitchen-Modus und ohne P&L-Visual). Zählt nicht zum specHash |
+| Neue Kachel-Typen (ChartKitchen 1.55 bis 1.57, P&L 1.8.3) | `stockflow` (Modus `stockflow`), `areastack` (`columns` + `stackShape: area`), `cumline` (`line` + `cumulative`, wählbar `cumulativeKind`), `lineidx` (`line` + `lineSeries`, `lineIndex: base100`), `scatpath` und `bubshare` (`scatter`), `ckpnl` (`pnl`), `ckmatrix` (`table` + Rolle `colgroup`), `marimekko` (`bars` + `stackNormalize`, `stackThickness`); P&L-Varianten `pnlmega`, `pnlbs`, `pnltree`, `pnlsankey` als Custom Visual `pnlByDatenWG`. Feste Werte des Typs stehen aufgelöst in `chartKitchenProps`; eine dort gewählte Option geht im Slot vor (z. B. `cumulativeKind: r12` gegen das `ytd` aus `analysis.cumulative`). Ältere `.pbiviz` im Bericht vorher aktualisieren |
+| `visuals[].customVisualProps` | Format-Einstellungen eines Custom Visuals byDatenWG als `{"objekt.eigenschaft": Wert}`: `columns.template` und `columns.templateApplied` (beide gleich, sonst wendet das Visual das Template beim ersten Rendern erneut an), `columns.treeCard`, `state.uiState` (JSON-Text mit der Ansicht `tree` bzw. `sankey`), bei der Bilanz ohne Zeilentyp `statement.stockMode: allStock`. Der Konverter schreibt sie nach `visual.objects` (`custom_visual_props`). Zählt zum specHash, fehlt der Schlüssel, bleibt der Hash wie bisher |
+| Issue-Codes `BOOKMARKS_*`, `APP_SHELL_*`, `APP_NOT_BUILDABLE` | Hinweise zu Lesezeichen (Power BI) bzw. zu dem, was die dwg-Shell heute nicht kann |
+
+### Tool 0.7.2: Firmenfarben (specVersion bleibt 3)
+
+| Neu | Wo |
+|---|---|
+| `design.colors.brand` | `{name, palette[], source, active}`: im Kitchen geladene Firmenfarben (aus einem Power-BI-Theme oder einer Hex-Liste), höchstens acht. `active` sagt, ob das Schema gerade gilt. Kopfband und Akzent stehen wie immer aufgelöst in `design.colors.headerBackground` und `design.accent` |
+| `design.nativePalette: "brand"` | Datenfarben der nativen Visuals = `design.colors.brand.palette`. Der Konverter schreibt sie als `dataColors` ins Theme-Fragment und färbt Reihen nativer Visuals damit (`native_palette()`); ohne Liste bleibt es beim Power-BI-Standard |
+
+### Tool 0.7.1: Handy-Format und Tab-Leiste (specVersion bleibt 3)
+
+| Neu | Wo |
+|---|---|
+| `canvas.base`, `canvas.form` | logische Breite der Basismaße (`uiScale = width / base`, Vorgabe 1280). Das Handy-Format ist 1080 × 1920 mit `base: 400` und `form: "phone"`, also `uiScale` 2,7: Kopfleiste 151 px, Zwischenraum 32 px, Titel rund 32 px. Rechtecke und Schriftgrößen stehen wie immer fertig in der Spec, der Konverter rechnet mit `uiScale` weiter. Zählt nicht zum specHash |
+| `zones.footer.navPosition: "tabs"`, `tabBar`, `nav[]` | Tab-Leiste unten mit bis zu fünf Seiten. `nav_position()` liest das als `off`. In Power BI entspricht das einem Seitennavigator in der Fußleiste; für die App ist es eine Vorgabe an die Shell |
+| `app.shell.resolution: "phone"` | Hinweis für `dwg mockup import`, dass die Seite für das Hochformat entworfen ist |
 
 ### Tool 0.6.0: ChartKitchen 1.47 (specVersion bleibt 3)
 
@@ -199,7 +231,7 @@ diesen alten Hash trägt, bekommt beim nächsten Lauf einmal einen Delta-Lauf.
 | `report` | Berichtskopf, siehe unten |
 | `fields` | Kennzahlen-Steckbriefe (identisch zu `model.usedFields`), siehe unten |
 | `issues` | strukturierte Befunde, siehe unten |
-| `canvas` | `width`, `height`, `preset` (`1280x720` · `1920x1080` · `3840x2160` · `custom`), `uiScale` (1 · 1.5 · 3) |
+| `canvas` | `width`, `height`, `preset` (`1280x720` · `1920x1080` · `3840x2160` · `custom`), `uiScale` (1 · 1.5 · 3); optional `pixel` (Rastermodus, Tool 0.6.2+, siehe unten) |
 | `spacing` | `margin`, `gutter`, `tilePadding` — schon skaliert und in die Rechtecke eingerechnet; `base` hält die HD-Ausgangswerte |
 | `design` | Gestaltungsentscheidungen, siehe unten |
 | `zones` | Chrome + Inhaltsbereich, auf **allen** Seiten gleich, siehe unten |
@@ -208,6 +240,15 @@ diesen alten Hash trägt, bekommt beim nächsten Lauf einmal einen Delta-Lauf.
 | `model` | `source` (Ordnername des Semantikmodells), `tables` (Namen), `usedFields` (alle gebundenen Felder, dedupliziert) |
 | `newFields` | im Mockup neu erfundene Felder: `table`, `name`, `kind`, `ref`, `description`, **`unit`, `target`, `owner`, `source`**, `openQuestion`, `used` |
 | `warnings` | dieselben Befunde wie `issues` (ohne `info`) als fertige Sätze — bleibt für ältere Leser erhalten |
+
+### `canvas.pixel` und `visuals[].cell` (Rastermodus, ab 20.10.2026, specVersion bleibt 3)
+
+Nur wenn im Tool Design > Abstände > „Pixelraster“ an ist (`assets/mockup/pixelgrid.js`, `KONZEPT-PIXELRASTER.md`).
+`canvas.pixel` = `{mode: "lattice", n: 12, pitchX, pitchY, gutter, margins: {l, r, t, b}, exact}`: Spalten- und
+Zeilenschritt in px (Spalte j beginnt bei `contentRect.x + j·pitchX`), Zwischenraum, gelöste Ränder. `visuals[].cell` =
+`{x: [[a, b], [c, d]], y: [...]}`: Anfang und Ende der Kachel als Brüche des Inhalts (Pitch-Raum). Die Rechtecke
+(`rect`) sind schon ganzzahlig und exakt; beide Felder zählen nicht zum `specHash`. Der Skill wertet sie noch nicht aus
+(Toleranz 0, NONINT, `--resnap` sind Stufe 2 des Konzepts); die dwg cli überträgt Seiten damit exakt in ihr Raster.
 
 ## `report` (Berichtskopf, ab v3)
 
@@ -288,13 +329,50 @@ ein Theme (Theme macht der Skill `powerbi-design-framework`).
 | `pageBackground` | Hex | `pbir pages background "<Seite>.Page" --color <Hex> --transparency 0` |
 | `headerStyle` | `light` · `dark` · `accent` | Füllung der Kopfband-Shape: weiß + Trennlinie unten · Ink · Akzentfarbe; Textfarbe entsprechend |
 | `accent` | Hex | aktiver Nav-Button, Burger-Button, Akzentlinie |
-| `fontScale` | = `uiScale` | alle Schriftgrößen multiplizieren (Visual-Titel ≈ 12 · `fontScale` pt, Kopfband-Titel ≈ 16 ·, Fußleiste ≈ 9 ·); `pbir` akzeptiert 6–45 pt |
+| `fontScale` | = `uiScale` | Faktor k für alle Schriftgrößen. Chrome: Kitchen-px × k × 0,75 pt (Kopfband-Titel 17 px, Untertitel 11, Fußleiste 10, Filter-Überschrift 11 — Tabelle in `chrome-build.md`); `pbir` akzeptiert 6–45 pt |
 | `headerStyle: "custom"` | ab 0.4 | Kopfbandfarben kommen aus `colors.headerBackground` / `colors.headerInk`; Trennlinie nur, wenn die Fläche hell ist |
 | `variancePalette` | `teal` · `ibcs` | wählt die Abweichungsfarben: `teal` = `#1E8F9E`/`#D64541`, `ibcs` = `#3A9A5B`/`#C8412F` |
 | `varianceColors` | `{good, bad}` | die konkreten Farben (das Tool schreibt sie passend zur Palette mit); gehen ins Theme-Fragment als `good` / `bad` |
-| `colors` | `{pageBackground, tileBackground, ink, headerBackground, headerInk}` | vollständiger Farbsatz. `ink` ist die Vordergrundfarbe (Theme `foreground`, Titel, Fußleiste), die Kopfbandfarben ersetzen die Herleitung aus `headerStyle` |
+| `colors` | `{pageBackground, tileBackground, ink, headerBackground, headerInk}`, optional `panel`, `rule`, `tileBorder`, `muted`, `slicerBorder`, `slicerBackground`, `slicerInk`, `footerNavInk`, `footerBackground` | vollständiger Farbsatz. `ink` ist die Vordergrundfarbe (Theme `foreground`, Titel), die Kopfbandfarben ersetzen die Herleitung aus `headerStyle`. Die optionalen Chrome-Farben fehlen → Kitchen-Vorgaben (`#ECEBE5`, `#E3E1D8`, `#E1DFD6`, `#6B7280`, `#D9D6CC`, `#FFFFFF`, `#374151`, `#475569`, Seitenhintergrund) |
+| `nativePalette` | `neutral` · `pbi` · `kitchen` | Datenfarben der nativen Klassiker: `dataColors` im Theme-Fragment und `dataPoint.field(…).fill` je Kennzahl; `pbi` = Power-BI-Standard, dann nichts |
 | `typography` | ab 0.4.3: `{basis, scale, title, sub, chart}` | Schriftgrößen in px bei 1280 px Breite; wirksam `× scale × fontScale`, im Bericht `× 0,75` in pt. Siehe [Tool 0.4.4](#typografie-designtypography-visualstypography) |
 | `darkMode` | bool | `true`, wenn die Kachelfarbe dunkel ist; steht in `checklist.md` und im Theme-Kommentar. Farben kommen trotzdem aus `colors` — es wird nichts umgerechnet |
+| `sourceReport` | bool, optional (Konverter 0.6, nur ohne Live-Helfer) | `true`: Gestaltung aus dem Bericht übernommen. Seiten mit `pbir.page` bekommen keinen `pbir pages background`, Kacheln mit `pbir.visual` keine Fläche, keinen Rahmen und keinen Schatten. Details unten |
+
+### `design.sourceReport`: Gestaltung aus dem Bericht
+
+Befund B2 aus dem Demo-Test vom 02.10.2026: Ein fertig gestalteter Bericht mit 23
+Seiten wurde eingelesen, eine Seite kam dazu. Der erste Deploy schrieb trotzdem den
+Kitchen-Seitenhintergrund auf alle 23 Seiten und glich den Kachelstil jeder
+eingelesenen Kachel ab. Das verletzt „das PBIP ist die Wahrheit" und macht jede
+Seite zur geänderten Seite.
+
+- **Wer setzt es:** ein Agent, der den Konverter **ohne Live-Helfer** auf eine Spec
+  anwendet, die aus einem fertigen Bericht eingelesen wurde, solange die Gestaltung
+  dort gelten soll. Ändert der Nutzer die Gestaltung bewusst, fällt der Schlüssel weg
+  (oder wird `false`), und der Konverter schreibt die Gestaltung wie bisher überall.
+- **Im Live-Betrieb nicht:** Das Kitchen setzt das Flag nicht, und der Live-Runner
+  liest es nicht. Dort übernimmt das Kitchen beim Einlesen die Gestaltung des
+  Berichts in `design` (Grundlinie `baseline-spec.json`), und der Runner schreibt
+  Seitenhintergrund, Kachelstil und Theme auf eingelesene Seiten nur, wenn `design`
+  von der Grundlinie bzw. dem letzten Deploy abweicht (`mockup-live/CONTRACT.md`,
+  „Abgleich mit dem Bericht" und „Gestaltung aus dem Bericht: gewählte Regel").
+- **Was der Konverter dann weglässt:** für Seiten mit `pbir.page` den Schritt
+  `pbir pages background` (`chrome-commands.sh`, Schritt `background:<Seite>` in
+  `plan.json`, `commands.md`; in `acceptance.json` steht `background: null`); für
+  Kacheln mit `pbir.visual` die Container-Setzungen `background.*`, `border.*`,
+  `dropShadow.*` in `chrome-batch.json` bzw. `chrome-commands.sh` und in den
+  Containern von `chartkitchen-slots.json` und `custom-visuals/<id>.visual.json`.
+  Titel, Untertitel und Bindungen bleiben wie bisher.
+- **Was bleibt:** neue Seiten und neue Kacheln (ohne `pbir`) bekommen Hintergrund und
+  Kachelstil aus `design`; das ist ja die Gestaltung des Berichts. Das Theme-Fragment
+  bleibt, sein `$comment` sagt, dass die Gestaltung aus dem Bericht stammt.
+- **`plan.json`:** `reportStyle: {sourceReport: true, pages: [...], visuals: [{page,
+  visual}]}` nennt, was unberührt bleibt. Der Live-Runner wertet `reportStyle` nicht
+  aus (er entscheidet über den Vergleich mit der Grundlinie).
+- **Spec-Hash:** `sourceReport` zählt im Hash nur, wenn es gesetzt ist (wie in
+  `export.js`). Die Herkunft `pages[].pbir` hält `upgrade()` jetzt in der gehobenen
+  Spec fest; sie zählt nicht im Hash.
 
 > Der Enum-Wert für abgerundete Shapes heißt `rectangleRounded`
 > (nicht `roundedRectangle`) — `pbir set` lehnt den falschen Namen ab und
@@ -354,6 +432,8 @@ schreibt `mockup_to_pbir.py` nach `mockup-out/navigation.md`.
 | `name` | Seitenname in Power BI (`pbir add page -n`) — muss eindeutig sein |
 | `question` | Fragestellung / Kernbotschaft der Seite (ab v3) |
 | `notes` | Zweck der Seite, Freitext aus dem Workshop |
+| `role` | ab Tool 0.6.1: `nav` (Standard, steht in der Navigation), `detail` (Detailseite) oder `drill` (Drillthrough-Ziel). `detail` und `drill` setzt der Konverter in Power BI auf ausgeblendet (`visibility: HiddenInViewMode`); beim Drillthrough-Feld bleibt eine Aufgabe, pbir kann es nicht anlegen. Die Reihenfolge von `pages[]` ist die Seitenreihenfolge. |
+| `hidden` | ab Tool 0.6.1: `true` bei `detail` und `drill` (abgeleitet, nur zur Info) |
 | `contentRect` | Inhaltsbereich dieser Seite (identisch zu `zones.content`, solange das Tool die Zonen global hält) |
 | `visuals` | Kachel-Slots, siehe unten |
 | `layoutTree` | Container-Baum (`split`/`children`/`leaf`) — nur zur Orientierung, maßgeblich sind die Rechtecke |
@@ -379,6 +459,7 @@ wird `pbir pages drillthrough "<Ziel>.Page" --table <Tabelle> --field <Feld>`.
 |---|---|
 | `id` | eindeutiger Name — wird 1:1 der `name` des PBIR-Visuals. Ab v3 `mk_<stableId>` und **stabil**: verschieben, umbenennen oder Typwechsel ändern die ID nicht. Deshalb ist ein zweiter Lauf ein Delta, kein Neubau |
 | `stableId` | die rohe Tool-ID ohne Präfix (ab v3) |
+| `pbir` | optional, ab Tool 0.6: `{ page, visual }` = Ordnernamen im `<Name>.Report`, wenn die Kachel aus dem Projekt eingelesen wurde (Seiten ebenso mit `pbir.page`). Dann wird genau dieses PBIR-Objekt per Delta aktualisiert statt neu angelegt, siehe `mockup-live/CONTRACT.md` |
 | `slug` | ASCII-Kurzform des Titels (ab v3) |
 | `page` | Seitenname (redundant, praktisch beim Filtern) |
 | `kind` | Katalog-Typ (`kombi`, `varint`, `bars`, `kpi`, …) |
@@ -387,7 +468,7 @@ wird `pbir pages drillthrough "<Ziel>.Page" --table <Tabelle> --field <Feld>`.
 | `chartKitchenType` | ChartKitchen-Typ-ID (nur bei `engine: "ck"`, sonst `null`) |
 | `chartKitchenMode` | der `chart.orientation`-Wert aus dem Katalog (ab v3) — **diesen nehmen**, die Tabelle weiter unten ist nur der Ersatz für v1/v2 |
 | `chartKitchenProps` | ab Tool 0.6.0, optional: weitere Properties für das Objekt `chart` (`cardTrendChart`, `cardTrendValue`, `bridgeOrientation`, `scatterQuadrant`), nur bei `engine: "ck"` — siehe [ChartKitchen-Optionen](#chartkitchen-optionen-visualschartkitchenprops-tool-060) |
-| `content` | Text einer Text- oder Button-Kachel (ab v3). Wird als `shape`/`actionButton` mit `text.text` gebaut, **nicht** als Textbox |
+| `content` | Text einer Text- oder Button-Kachel (ab v3). Wird als `shape`/`actionButton` mit `text.default.text` gebaut (Text-Formatierung im Zustand `default`, siehe chrome-build.md), **nicht** als Textbox |
 | `analysis` | Analyse-Entscheidungen, siehe unten (ab v3) |
 | `workshop` | `{priority: must\|should\|could\|null, status: open\|agreed\|approved, openQuestion: bool}` (ab v3) — landet als Annotation am Visual und in der Doku |
 | `native` | `{ type, buckets }` — natives Power-BI-Visual und die fertig gemappten pbir-Datenrollen. Wird **auch bei `engine: "ck"`** befüllt, sofern der Typ ein natives Gegenstück hat → brauchbar als Ersatzvisual |
@@ -618,13 +699,13 @@ Das Skript schlägt vor, die Referenz-Instanz entscheidet.
 | `category` | `category` | bei `kind: "kpi"` stattdessen **`trend`** (ab ChartKitchen 1.47, Tool 0.6.0): das Zeitfeld macht die Karte zur Zeitreihe |
 | `rows` | `category` | Tabelle |
 | `series` | `series` | bei `kind: "multiples"` stattdessen `multiples` |
-| `multiples` | `multiples` | ab 0.4.1 — dieselbe Zielrolle wie beim Kachel-Typ `multiples`. **Vorschlag, nicht bestätigt:** ob die gewählte `orientation` daraus wirklich Small Multiples zeichnet, entscheidet die Referenz-Instanz. Der Skill meldet dazu `SM_NOT_NATIVE` |
+| `multiples` | `multiples` | ab 0.4.1 — dieselbe Zielrolle wie beim Kachel-Typ `multiples`. ChartKitchen zeichnet das Raster in `columns`, `bars` und `line` selbst; `SM_NOT_NATIVE` gibt es nur noch für andere Modi, Deneb und Custom Visuals |
 | `subcategory`, `columns` | `colgroup` | nur Tabelle, max. 2 Ebenen |
 | `ac`, `indicator`, `values` | `actual` | |
-| `ref` (1./2. Feld) | `plan` bzw. `previousYear` | Reihenfolge aus `scenario`: `PL`/`BU` → `plan`, `PY` → `previousYear`; überzählige Referenzen → `benchmark` |
+| `ref` (1./2. Feld) | `plan` bzw. `previousYear` | nach dem Szenario im Feldnamen (PY/VJ → `previousYear`, PL/Plan/BU/Budget → `plan`, FC → `forecast`), sonst Reihenfolge aus `scenario`; überzählige Referenzen → `benchmark`. Bei `colline` wird die erste Referenz `lineMeasure` (Säulen + Linie einer zweiten Kennzahl) |
 | `goal` | `plan` | bei Monitoring-Zielwerten ggf. `benchmark` — nachfragen |
 | `fc` | `fcFlag` | **Zahl 1/0**, nicht Boolean |
-| `rowType` | `rowType` | Pflicht bei `orientation` `waterfall` und `pnl` (`sum`/`delta` je Zeile) |
+| `rowType` | `rowType` | Pflicht nur bei `orientation: pnl` (`sum`/`delta` je Zeile). `waterfall` zeichnet ohne die Rolle einen Beitrags-Wasserfall mit Σ bzw. mit gebundener Referenz eine Varianz-Brücke (geprüft in `ibcsInspiredChartDeck/src/visual.ts` → `buildWaterfall`) |
 | `x`, `y`, `size` bei `kind: "scatter"` | `xValue`, `actual`, `bubbleSize` | ab ChartKitchen 1.47 (Tool 0.6.0): Y-Achse = AC, Blasengröße optional |
 | `x`, `y`, `size` (andere Typen), `start`, `end`, `field`, `text` | – | kein Gegenstück; diese Typen kann ChartKitchen nicht |
 
@@ -637,10 +718,34 @@ kennt `trend`, `xValue` und `bubbleSize` noch nicht; maßgeblich sind
 `ibcsInspiredChartDeck/capabilities.json` und der Block „Neu in 1.47" im
 `AGENT-GUIDE.md` des Visuals.
 
+**KPI-Kachel ab Tool 0.7.0 (Entscheidung 24.11.2026):** `kpi` mit Engine `ck` baut der Konverter
+als ChartKitchen `cards`: Kennzahl → `actual`, Referenz nach ihrem Szenario → `plan` bzw.
+`previousYear`, Zeitfeld → `trend`; die Optionen `cardTrendChart` und `cardTrendValue` stehen im Slot.
+Voraussetzung ist ChartKitchen 1.47 oder neuer im Bericht. Der frühere Weg über das Custom Visual
+`ibcsKpiCard` bleibt als Schalter: `mockup_to_pbir.py --kpi-card ibcs` oder die Umgebungsvariable
+`MK_KPI_CARD=ibcs` (`mockup_spec.kpi_card_target()`). Der Live-Runner setzt den Schalter vorerst
+selbst auf `ibcs`, weil Kartengeometrie und Bildvergleich am Desktop damit abgestimmt wurden.
+
 ### Kachel-Typ → `chart.orientation`
 
 > Ab specVersion 3 steht der Wert bereits in `visuals[].chartKitchenMode` — diese
-> Tabelle ist die Rückfallebene für v1/v2 und zum Nachschlagen.
+> Tabelle ist die Rückfallebene für v1/v2 und zum Nachschlagen. Eine bekannte
+> Fehlzuordnung korrigiert der Skill auch gegen die Spec (`CK_MODE_FIX`):
+> `wfint` mit `intwaterfall` wird `catbridge` — `intwaterfall` ist die Zeit-Brücke
+> und zeigte im Deploy 4 bei jeder Region dieselbe Δ% (`mockup-live/AUDIT-DEPLOY4.md`).
+> `bridge` mit `catbridge` wird `waterfall` — die Kitchen-Skizze ist senkrecht
+> (Σ Referenz → Δ je Kategorie → Σ AC als Säulen), `catbridge` zeichnet waagrechte
+> Zeilen (Live-Lauf 8). Der Slot nennt den Spec-Wert dann in `orientationFrom`.
+
+Maßstab ist die Kitchen-Skizze (`assets/mockup/sketches.js`), geprüft gegen
+`ibcsInspiredChartDeck/src/visual.ts` 1.43:
+
+| Kitchen-Typ | Skizze | ChartKitchen-Modus | Was ChartKitchen zeichnet |
+|---|---|---|---|
+| `bridge` | `S.bridge`: senkrechte Säulen Σ Referenz → Δ je Kategorie → Σ AC, Netto-Δ-Plakette | `waterfall` | ohne `rowType`, mit Referenz: Varianz-Brücke (`buildWaterfall`), senkrecht (`renderWaterfall`); eigene Δ-Ebene entfällt, Δ% nur mit `showRelativeVariance` |
+| `wfint` | `S.wfint`: waagrechte Zeilen Σ PL/PY → Kategorien → Σ AC, Δ-Kaskade, Δ%-Pins | `catbridge` | Struktur-Zeilen mit Kaskade und doppelter Abstimmung |
+| `waterfall`, `wfkombi` | senkrechte Beiträge → Σ | `waterfall` | ohne Referenz: Beitrags-Wasserfall mit Σ |
+| `varint` | Zeit-Brücke mit Monatssäulen und Pins | `intwaterfall` | integrierte Zeit-Brücke |
 
 | Typen | `orientation` |
 |---|---|
@@ -650,10 +755,11 @@ kennt `trend`, `xValue` und `bubbleSize` noch nicht; maßgeblich sind
 | `pareto` | `pareto` |
 | `line`, `fan`, `zchart` | `line` |
 | `slope` | `slope` |
-| `varint`, `wfint` | `intwaterfall` |
+| `varint` | `intwaterfall` |
+| `wfint` | `catbridge` (Struktur-Brücke) |
 | `waterfall`, `wfkombi` | `waterfall` |
-| `bridge` | `catbridge` |
-| `kpi` | `cards` |
+| `bridge` | `waterfall` (Varianz-Brücke, senkrecht) |
+| `kpi` | `cards` (ab Tool 0.7.0; das Zeitfeld geht in die Rolle `trend`, nicht in `category`, sonst entstünde je Periode eine Karte). Mit dem Schalter `--kpi-card ibcs` stattdessen das Custom Visual `ibcsKpiCard`, siehe unten |
 | `table`, `sparktable`, `heatmap` | `table` |
 | `scatter` | `scatter` (ab ChartKitchen 1.47, Tool 0.6.0; vorher kein Modus) |
 | `marimekko`, `tree`, `boxplot`, `gantt` | kein Modus → Deneb oder natives Visual |
@@ -686,6 +792,55 @@ Deneb- und Custom-Kacheln bekommen den Block nie; auch die Vorschau-Skizze im
 Tool folgt der Wahl (KPI ohne Zeitfeld ohne Verlauf, Brücke waagerecht bei
 `auto`/`bars`).
 
+### `chartkitchen-slots.json` — fertige Einstellungen (`objects`)
+
+Der Skill legt ChartKitchen-Visuals nicht selbst an (pbir kennt die GUID nicht);
+der Live-Runner bzw. der Mensch schreibt die `visual.json`. Alles, was die Spec
+dafür hergibt, steht je Slot bereit:
+
+| Feld | Inhalt |
+|---|---|
+| `orientation`, `orientationFrom` | wirksamer Modus; `orientationFrom` = abweichender Spec-Wert |
+| `chartKitchenRoles` | Rollen-Vorschlag (Tabelle oben) |
+| `ckSettings` | dieselben Einstellungen flach und lesbar: `{"chart.comparisonMode": "plan", …}` |
+| `objects` | **fertig für `visual.objects`** in Desktop-Form: `{objekt: [{"properties": {eigenschaft: {"expr": {"Literal": {"Value": "'plan'"}}}}}]}`, Farben als `{"solid": {"color": …}}` |
+| `container` | `visualContainerObjects` (Kachel-Fläche, Rahmen, Radius, Schatten); Titel und Untertitel bleiben als Text stehen, sind aber aus — ChartKitchen zeigt sie im eigenen Kopf |
+| `title`, `titleText`, `titleShown` | sichtbarer Titel (`""` = keiner), Titeltext, Kitchen zeigt einen Kopf |
+| `nativeFallback`, `nativeFallbackDropped` | natives Ersatzvisual bzw. warum es keines gibt |
+| `chartProps` | wie bisher `orientation` und `invert` (für ältere Runner) |
+
+Inhalt von `ckSettings`/`objects` (Namen und Enums aus der `capabilities.json` in
+`ibcsInspiredChartDeck/dist/chartKitchenByDatenWG…1.43.0.0.pbiviz`, von
+`tests/run_tests.py` gegengeprüft):
+
+| Einstellung | Quelle in der Spec | Regel |
+|---|---|---|
+| `chart.orientation` | `chartKitchenMode` / Typ | s. o. |
+| `chart.comparisonMode` | `analysis.deltaBasis` (ab 0.5.5 die **wirksame** Basis) | PY → `py`, PL/BU → `plan`, nur wenn die Rolle gebunden ist; sonst und bei FC `auto` mit Warnung (CK kennt kein AC gegen FC) |
+| `chart.showAbsoluteVariance`, `chart.showRelativeVariance` | `display.drawn.delta` (0.5.5), sonst `analysis.deltaKind` | `absvar` immer nur abs, `relvar` nur rel, `bridge` keine (die Brücken-Säulen sind die Δ) |
+| `chart.invert` | `analysis.polarity` | `lower` → `true`, sonst `false` |
+| `chart.topN` | `analysis.topN` | nur in `bars`, `catbridge`, `table`, `dumbbell`, `cards` (max. 50); sonst To-do `TOPN_CK_MODE` |
+| `chart.cumulative`, `chart.cumulativeKind` | `analysis.cumulative` | `true` + `ytd` in `columns`, `line`, `table` — ChartKitchen kumuliert selbst, keine YTD-Kennzahl nötig; sonst To-do `CUMULATIVE_CK_MODE` |
+| `chart.showTotal` | `display.drawn.total` | nur wenn angegeben |
+| `chart.chartButtons`, `chart.smartStart` | – | immer `false` (das Kitchen zeigt keine In-Chart-Buttons und keinen Vorschlags-Chip) |
+| `labels.displayUnits`, `labels.decimals` | `display.numbers` (0.5.5), sonst `analysis` | `none`/`K`/`M` → `none`/`k`/`m`, sonst `auto`; Stellen 0–3, Kitchen „auto" → `0` (die Skizze zeigt keine) |
+| `labels.show` | `display.drawn.labels` | nur wenn angegeben |
+| `labels.fontPreset`, `labels.fontScale` | `display.fontPx.title`, sonst `design.typography` | Preset `compact`, Faktor so, dass der IBCS-Titel (`round(12 × fontK)` px, `drawTitleBlock` in 1.43) die Kitchen-Titelgröße trifft: 18 px → `fontScale` 150; Werte/Achse = Kitchen-px ÷ Faktor |
+| `labels.fontSize`, `categoryAxis.fontSize` | `display.fontPx.label`/`axis`, sonst Diagrammschrift | Kitchen-px ÷ Faktor (6–24) |
+| `colors.appearance` | `design.darkMode` | `dark` bzw. `light` |
+| `colors.goodColor`, `colors.badColor` | `design.varianceColors` | Teal- bzw. IBCS-Palette |
+| `ibcsTitle.show`, `.kpi`, `.period`, `.message` | sichtbarer Titel, `subtitle`, `analysis.message` | Der IBCS-Kopf hängt an den Titel immer „ in <Einheit> · <Zeitraum>: AC vs. PL, PY" an (kein Schalter in 1.43; ein leerer Zeitraum wird bei Säulen aus erster/letzter Kategorie gebildet). Das Kitchen zeigt nur Titel und Untertitel → **ohne Kernaussage** `ibcsTitle.show=false` (`kpi` bleibt gesetzt) und der Container-Titel zeigt den Kopf: `title.fontSize` = `display.fontPt.title`, `bold`, Ink; `subTitle.fontSize` = `display.fontPt.subtitle`, Ink mit 70 % Deckkraft. **Mit Kernaussage** zeichnet ChartKitchen den Kopf (Titel als `kpi`, Untertitel als `period`, Aussage als `message`), Container-Titel aus, Hinweis in den Warnungen |
+
+Für die Analyse-Angaben, die so im Slot stehen, entstehen keine To-dos mehr
+(`CK_INVERT`, `DELTA_BASIS`, `DISPLAY_UNITS_SLOT`, `CUMULATIVE`, `MESSAGE` bei
+ChartKitchen). Was nicht aufgeht, steht als Warnung im Slot.
+
+**Natives Ersatzvisual (`--ck-fallback`).** Für `absvar`, `relvar` und `bridge`
+gibt es keines mehr: ohne Δ-Kennzahl zeigte ein natives Diagramm etwas anderes
+(AC statt Δ, AC-Wasserfall statt Brücke). Es bleibt ein Platzhalter, dazu das
+To-do `CK_NO_NATIVE`. `heatmap` (Matrix) und `sparktable` (Tabelle) nehmen die
+Referenz in `Values` mit, `tree` (Zerlegungsbaum) als `Tooltips`.
+
 Für GuV-Seiten gibt es in ChartKitchen zusätzlich `pnl` (Skill `pnl-report`).
 Ab Tool 0.4 hat das Mockup dafür einen **eigenen Typ** `pnl` — der läuft aber
 nicht über ChartKitchen, sondern über das Custom Visual `pnlByDatenWG`
@@ -712,6 +867,59 @@ tragen den Block:
 |---|---|---|---|
 | `gantt` | `dataKitchenGantt` | `dataKitchenGanttD7C41F0A93E24B6BA1F3C5E8A20D9B44` | `task`, `start`, `end`, `phase`, `projekt`, `progress`, `status`, `owner`, `deps`, `planStart`, `planEnd`, `sort`, `statusDate` |
 | `pnl` | `pnlByDatenWG` | `pnlByDatenWG3F9A7D2C51E64B08A1C4E7F0B92D6358` | `account`, `accountName`, `levels`, `parent`, `sortOrder`, `rowType`, `formulaDef`, `signConvention`, `displayInvert`, `varianceInvert`, `period`, `comment`, `ac`, `py`, `pl`, `fc`, `fcFy`, `plFy` |
+| `kpi` (engine `ck`) | `ibcsKpiCard` | `ibcsKpiCard2771CF65D0C343A19EAB34E43D7B8682` | `category`, `ac`, `py`, `pl`, `fc`, `trend` |
+
+**`kpi` → `ibcsKpiCard` 2.3 (nur noch mit dem Schalter `--kpi-card ibcs` bzw. `MK_KPI_CARD=ibcs`,
+Vorgabe seit Tool 0.7.0 ist ChartKitchen `cards`).** Eine `kpi`-Kachel mit `engine: "ck"` stellt
+`mockup_spec.upgrade()` auf `engine: "custom"` um (`engineSource: "ck"`),
+**nach** dem Spec-Hash, damit der Hash gleich bleibt. Der Live-Runner nutzt
+dieselbe Funktion und sieht die Kachel deshalb ebenfalls als Custom Visual.
+Rollen: `indicator` → `ac`; `goal` (und `ref`) → `py`/`pl`/`fc` nach dem Szenario
+im Feldnamen (ohne Treffer `pl`); die Zeitrolle des Kitchens (`category`,
+„Sparkline") → `trend` — **nicht** `category`, das hieße eine Karte je Monat.
+Die erzeugte `visual.json` trägt fertige `objects`: `display.title`
+(sichtbarer Titel), `display.periodLabel` (Untertitel), `display.comparisonMode`
+(auto/py/plan aus der Δ-Basis), `display.invert`, `display.showSparkline` (nur
+an, wenn `trend` gebunden), `display.showBridge=false` und
+`display.showSecondary=false` (die Skizze zeigt weder Mini-Brücke noch eine zweite
+Bezugszeile), `display.chartButtons=false`, `labels.fontPreset` und
+`display.titleSize` nach der Formel unten, `labels.displayUnits`,
+`labels.decimals`, `colors.goodColor`/`badColor`; der Container-Kopf ist aus (die
+Karte zeichnet Titel und Zeitraum selbst). Build: `ibcsKpiCard/dist/ibcsKpiCard*.2.3.0.0.pbiviz`.
+
+**Kartengröße der Einzelkarte (Befund B3, Demo-Test 02.10.2026, in Desktop zu
+prüfen).** Bis 02.10. stand bei der Einzelkarte immer `compact`. In einer Kachel
+386 × 190 auf einer 1920er-Seite (Titel 18 px) gab das `titleSize` 21,5 und in
+Desktop einen kleinen Kasten „UMSATZ 118M" mitten in der Kachel. Nachgemessen im
+Desktop-Bild (Zoom 0,529): Karte 48 × 38 px = 91 × 72 Seiten-px, Zahl 21 px,
+Titel 18 px. Daraus und aus `ibcsKpiCard/src/visual.ts` (`render`, `buildCard`):
+
+- Desktop übergibt dem Visual das Viewport in **Seiten-px**, der Zoom wirkt erst
+  danach. Viewport `W × H` = Kachel minus Container-Innenabstand (angenommen 5 px je
+  Seite).
+- Skalierung `k = clamp(0,7 … 2,6; min(W/460, H/150)) × Preset` mit compact 1,
+  fullhd 1,5, presentation 2. Die Karte ist **so groß wie ihr Inhalt**
+  (ibcsKpiCard streckt sie nicht) und sitzt mittig in einer Fläche mit 8 px Rand.
+- Inhalt in Karten-Einheiten (Zeilenhöhe 1,33): Höhe = 24 + 1,33 × `titleSize` + 3
+  + 1,33 × 26 (Zahl), mit Bezug (`py`/`pl`) + 8 + 1,33 × 12, mit Sparkline
+  `max(Textblock, 104) + 24`. Breite = 30 + max(Titel, Zahl mit 6 Zeichen
+  + Δ-Pille), mit Sparkline + 142.
+- `display.titleSize` = Kitchen-Titel px ÷ k (Titel so groß wie im Kitchen).
+- **Gewählt wird das größte Preset, bei dem die Karte noch passt:** Höhe höchstens
+  85 % von `H − 16`, Breite höchstens `W − 16`, Zahl (26 × k) nicht größer als in der
+  Skizze (`40 × design.fontScale` px), `titleSize` mindestens 8. Mit `trend` nur
+  Presets mit mindestens 340 Einheiten Breite (`W ÷ k`), sonst fehlt die Sparkline
+  (Live-Lauf 02.10.2026: 960 × 480 mit `fullhd` = 307 Einheiten); mit Bezug
+  mindestens 210, sonst fehlt die Bezugszeile. Passt nichts, bleibt `compact`.
+- Ergebnis bei 386 × 190 und k 1,5: nur Istwert `presentation` (Zahl 42 px, Karte
+  etwa 200 × 125 px), mit Bezug `fullhd` (Zahl 32 px), mit Sparkline `compact`
+  (Zahl 21 px, Sparkline daneben). Ist die Einzelkarte mit `trend` schmaler als
+  248 px, steht ein Hinweis in den Warnungen.
+- **In Desktop zu prüfen:** Container-Innenabstand, Zeilenhöhe und die angenommene
+  Länge der Zahl. Beleg mit einem Screenshot der Seite (Kachel 386 × 190).
+
+Im Kartenraster (`category` gebunden) bleibt das Preset aus k (compact < 1,25 ≤
+fullhd < 1,75 ≤ presentation), Kachelbreite `minTile = 240 × Preset`.
 
 Vollständig stehen die Rollen in der `capabilities.json` des jeweiligen Visuals
 (`dataKitchenGantt/capabilities.json`, `pnlByDatenWG/capabilities.json` im
@@ -726,6 +934,7 @@ Desktop nachgezogen.
 |---|---|
 | `dataKitchenGantt` | `task` **und** `start` |
 | `pnlByDatenWG` | `levels` **oder** `account`, dazu `ac` |
+| `ibcsKpiCard` | `ac` |
 
 ### Warum nicht in `pbir-visuals.json`
 
@@ -921,7 +1130,10 @@ Wohin es geht:
   **Nicht** in `pbir-visuals.json`: `--from-json` erlaubt nur `visual_type,
   name, title, x, y, width, height, fields`; jeder weitere Schlüssel verwirft
   die ganze Datei.
-- **`theme-fragment.json`**: `visualStyles.*.*.title.fontSize` (Titel global)
+- **`theme-fragment.json`**: `visualStyles.page.*.outspace` (Umgebung der Seite,
+  Kitchen-Bühne `#EAE8E1` bzw. `design.stageBackground`) und
+  `visualStyles.page.*.background` (= `design.pageBackground`), je mit
+  `transparency: 0`; dazu `visualStyles.*.*.title.fontSize` (Titel global)
   und `subTitle.fontSize`, dazu `textClasses` — `largeTitle` = Visual-Titel,
   `title` = Achsentitel/Slicer-Kopf und `label` = Werte und Beschriftungen,
   beide aus der Diagrammbeschriftung. `callout` (KPI-Werte) kennt das Mockup
@@ -934,8 +1146,8 @@ Wohin es geht:
 - **`checklist.md`, `plan.json` (`typography`), Workshop-Doku**: die wirksamen
   Größen und die Kacheln mit eigenem Faktor.
 
-> Die Chrome-Texte (Kopfband, Fußleiste, Filter-Überschrift) behalten die
-> bisherige Konvention des Skills: Basiswert × k, **ohne** px→pt-Umrechnung.
+> Die Chrome-Texte (Kopfband, Fußleiste, Filter-Überschrift) folgen seit dem
+> 01.10.2026 derselben Regel: Kitchen-px × k × 0,75 pt (Tabelle in `chrome-build.md`).
 
 ### Filterbereich (`zones.filter.heading`, `text`, `slicers[].type`)
 
@@ -1018,3 +1230,25 @@ Wählt der Mensch im Export „Alle Dateien", legt das Tool je Seite ein
 Seitenbild daneben (Rendering des Mockups, Faktor 2). `mockup_to_docs.py`
 bettet es in die Seitenfolie ein, wenn es im selben Ordner wie die Spec liegt;
 sonst zeichnet es das Wireframe aus nativen Shapes.
+
+
+## Kachel-Anzeige (Kitchen 0.5.5, specVersion bleibt 3)
+
+Quelle: `mockup-live/CONTRACT.md`, Abschnitt „Kachel-Anzeige in der Spec". Alle
+Felder sind optional; ältere Specs laufen wie bisher. Was der Konverter daraus
+macht:
+
+| Feld | Bedeutung | Wirkung im Skill |
+|---|---|---|
+| `title` | **geändert:** sichtbarer Kachelkopf, `""` ohne Kopf | `""` → kein sichtbarer Titel (nativ `title.show=false`, ChartKitchen `ibcsTitle.show=false`, Custom Visual Container-Titel aus) |
+| `titleShown` | Kachel zeigt einen Kopf | gewinnt immer. Ohne Feld (ältere Exporte, dort war `title` = Titel oder Label): Titel gleich Katalog-Label ohne Untertitel gilt als „kein Kopf" — so zeichnete es das Kitchen (`headH = v.title \|\| v.sub`) |
+| `displayName` | Name für Auswahlbereich und Meldungen | Container-Titeltext bzw. `title` in `pbir-visuals.json`, wenn `title` leer ist |
+| `analysis.deltaBasis` | **geändert:** wirksame Basis (PL > BU > PY wie ChartKitchen `auto`), `null` ohne Bezug | → `chart.comparisonMode` bzw. `display.comparisonMode` der KPI-Karte |
+| `analysis.deltaBasisSource`, `deltaBasisRequested` | Herkunft, nicht gezeigte Wahl | nur informativ (`SCENARIO_REF_MISMATCH` kommt aus der Spec) |
+| `display.scenarios`, `refSource`, `placeholders` | gezeigte Szenarien, Herkunft des Bezugs | Platzhalter-Bezüge sind nicht gebunden — es entsteht keiner |
+| `display.drawn.delta` | gezeichnete Δ-Ebenen | `chart.showAbsoluteVariance`/`showRelativeVariance` (vor `deltaKind`) |
+| `display.drawn.labels` | Wertbeschriftung an/aus | ChartKitchen `labels.show`, nativ `labels.show` |
+| `display.drawn.total` | Σ sichtbar | `chart.showTotal` |
+| `display.numbers` | `displayUnits`, `decimals`, `unitText` | vor `analysis.displayUnits`/`decimals`: ChartKitchen `labels.*`, KPI-Karte `labels.*`, nativ `labelDisplayUnits`/`labelPrecision` |
+| `display.fontPx`, `display.fontPt` | `title`, `subtitle`, `label`, `axis` (Faktoren eingerechnet) | Kacheltitel/-untertitel in pt (nativ, Container), ChartKitchen-Schriften (`labels.fontScale`, `labels.fontSize`, `categoryAxis.fontSize`), native `labels.fontSize` |
+

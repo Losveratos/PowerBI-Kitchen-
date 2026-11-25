@@ -20,7 +20,7 @@
       "dir": "Ubersicht",
       "slug": "Ubersicht",
       "visuals": 5,
-      "chrome": 12,
+      "chrome": 14,
       "ck": 4,
       "deneb": 0
     },
@@ -29,7 +29,7 @@
       "dir": "Detail_Produktlinie",
       "slug": "Detail_Produktlinie",
       "visuals": 5,
-      "chrome": 12,
+      "chrome": 14,
       "ck": 2,
       "deneb": 0
     }

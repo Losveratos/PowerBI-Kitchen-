@@ -252,7 +252,7 @@
 
     // --- Mindestschriftgrößen (Leinwand-abhängig, global für den Bericht)
     var canvas = S.canvas || { w: 1280 };
-    var k = clamp((canvas.w || 1280) / 1280, 0.6, 3.2);
+    var k = clamp((canvas.w || 1280) / (canvas.base || 1280), 0.6, 3.2);     // canvas.base: logische Breite (Handy 400)
     var titlePx = round1(12 * k), subPx = round1(9.5 * k);
     if (subPx < 9 || titlePx < 11) {
       findings.push(build(lang, 'A11Y_FONT_MIN', { titlePx: titlePx, subPx: subPx }, 'warn'));
@@ -368,5 +368,8 @@
     }).join('');
   }
 
-  root.MK_A11Y = { contrastRatio: contrastRatio, check: check, summary: summary, guide: guide, renderList: renderList, renderGuide: renderGuide };
+  var api = { contrastRatio: contrastRatio, check: check, summary: summary, guide: guide, renderList: renderList, renderGuide: renderGuide };
+  // Node (dwg cli, Tests): require('./a11y.js') liefert dieselbe API
+  if (typeof module !== 'undefined' && module.exports) module.exports = api;
+  root.MK_A11Y = api;
 })(typeof window !== 'undefined' ? window : (typeof global !== 'undefined' ? global : this));

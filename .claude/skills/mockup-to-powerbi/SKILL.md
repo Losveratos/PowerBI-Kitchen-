@@ -12,9 +12,11 @@ description: >
   mit ihrem Inhalt setzen, Gestaltung aus `design` als Theme-Fragment oder
   Container-Formatierung übernehmen, Analyse-Angaben (Polarität, Sortierung,
   Top-N, Einheiten) umsetzen, Nav-Buttons, Drill-through und Filter-Lesezeichen
-  einrichten, ChartKitchen- und Deneb-Slots vorbereiten, **Custom Visuals**
-  (`dataKitchenGantt` für Gantt-Kacheln, `pnlByDatenWG` für GuV-Kacheln) als
-  fertige `visual.json` einspielen, dann `pbir validate
+  einrichten, ChartKitchen- und Deneb-Slots mit fertigen Einstellungen
+  (`objects`) vorbereiten, **Custom Visuals** (`dataKitchenGantt` für
+  Gantt-Kacheln, `pnlByDatenWG` für GuV-Kacheln und ihre Varianten; `ibcsKpiCard`
+  für KPI-Kacheln nur noch mit dem Schalter `--kpi-card ibcs`, sonst sind KPI-Kacheln
+  ChartKitchen-Slots im Modus `cards`) als fertige `visual.json` einspielen, dann `pbir validate
   --fields`, `te validate --errors-only`, Abnahme-Check, Design-Linter und
   Wireframe. Erzeugt auf Wunsch auch die **Workshop-Doku als Markdown und
   PowerPoint** (deutsch oder englisch, mit den PNG-Seitenbildern) aus demselben
@@ -24,7 +26,9 @@ description: >
   machen", „mach mir aus dem Mockup eine Workshop-Doku / PowerPoint /
   Präsentation", „build my mockup", „mockup to Power BI", „turn my report sketch
   into a PBIP", „apply mockup-spec.json" — auch ohne das Wort „Mockup", wenn die
-  Exportdateien im Projektordner liegen.
+  Exportdateien im Projektordner liegen. Ist das Kitchen live mit dem PBIP
+  verbunden (Ordner `mockup/` mit `deploy-request.json`, Runner, Deploy-Knopf),
+  gilt stattdessen der Skill `mockup-live`.
 ---
 
 # MockupKitchen → Power BI (PBIP/PBIR)
@@ -41,6 +45,17 @@ Zwei Ausgänge: der **Bericht** (Schritte 0–7) und die **Workshop-Doku** samt
 PowerPoint (Schritt 8). Beides kommt aus derselben `mockup-spec.json`; die Doku
 geht auch allein, ohne PBIP.
 
+> **Live-Weg:** Ist das Kitchen per „PBIP verbinden" mit dem Projekt verbunden,
+> baut nicht dieser Ablauf, sondern der Deploy-Runner
+> `mockup-live/agent/live_runner.py` bei jedem Klick auf „Deploy". Er ruft
+> denselben Konverter (`mockup_to_pbir.py --plan`) auf, installiert die
+> Kitchen-Visuals, schreibt per `pbir`, lädt Desktop neu und vergleicht Kitchen
+> gegen Desktop je Kachel. Sitzung fahren: Skill
+> [`mockup-live`](../mockup-live/SKILL.md), Ablauf für Menschen:
+> [`mockup-live/PLAYBOOK.md`](../../../mockup-live/PLAYBOOK.md). Dieser Skill
+> bleibt zuständig für den Konverter selbst, den Weg ohne Live-Verbindung und
+> die Workshop-Doku.
+
 > **Sicherheitsprinzip — „vorbereiten + Plan":** Dieser Skill schreibt **nicht
 > ungefragt** in `*.Report/` oder `*.SemanticModel/`. Er prüft die Spec, gleicht
 > sie gegen das Modell ab, erzeugt alle Bausteine in `mockup-out/`, zeigt einen
@@ -53,7 +68,7 @@ geht auch allein, ohne PBIP.
 - Bericht nur über `pbir`, Modell nur über `te`. **Kein Handeditieren** von
   `visual.json`/`page.json`/TMDL, solange eine CLI es kann.
 - **Keine selbstgebauten Regex-Prüfungen** für TMDL oder PBIR. Feldabgleich über
-  `te list` / `te get`, Strukturprüfung über `pbir validate`, Abnahme über
+  `te ls` / `te get`, Strukturprüfung über `pbir validate`, Abnahme über
   `pbir ls --json` / `pbir cat` (macht `scripts/mockup_verify.py`).
 - Nach jedem Modelleingriff `te validate -m "<Name>.SemanticModel" --errors-only`,
   nach jedem Berichtseingriff `pbir validate "<Name>.Report" --fields`.
@@ -64,7 +79,11 @@ geht auch allein, ohne PBIP.
 - Absolute Pfade verwenden; bei mehreren gleichnamigen Reports im Baum erwischt
   `pbir` sonst den falschen.
 - Power BI Desktop muss **geschlossen** sein. Läuft es mit, überschreibt ein
-  Speichern aus Desktop alles, was hier entsteht.
+  Speichern aus Desktop alles, was hier entsteht. (Im Live-Weg ist Desktop
+  offen; dort regelt der Runner Reload und Neustart, siehe `mockup-live`.)
+- `PYTHONIOENCODING=utf-8` setzen (PowerShell: `$env:PYTHONIOENCODING='utf-8'`),
+  sonst bricht schon `mockup_to_pbir.py --help` auf einer cp1252-Konsole mit
+  `UnicodeEncodeError` ab.
 - **Nie löschen.** Was im Bericht steht, aber nicht mehr im Mockup, wird
   aufgelistet — entfernt es der Mensch.
 
@@ -101,18 +120,30 @@ geht auch allein, ohne PBIP.
    Multiples, Achse per Feldparameter, die nativen Klassiker `ncolumn`/`nbar`/
    `nline`/`ndonut` und `zones.header.navOn`; ab 0.4.3/0.4.4 Typografie,
    Fußleisten-Navigation, Filter-Überschrift/-Hinweis, Slicer-Art und
-   `A11Y_*`-Befunde), 2 = mehrseitig mit
+   `A11Y_*`-Befunde; ab Kitchen 0.5.5 die **Kachel-Anzeige**: `title` ist der
+   sichtbare Kopf oder `""`, dazu `titleShown`, `displayName`, die wirksame
+   Δ-Basis in `analysis.deltaBasis` und der Block `display.*` mit gezeigten
+   Szenarien, gezeichneten Δ-Ebenen, Zahlenformat und Schriftgrößen), 2 = mehrseitig mit
    `design`/`links`, 1 = alte einseitige Fassung. Alle drei werden gelesen; v1/v2 werden intern
    auf v3 gehoben. Eine **höhere** Hauptversion bricht ab — dann ist das Tool
    neuer als der Skill, und Raten wäre falsch. Unterschiede in
-   [`references/spec-format.md`](references/spec-format.md).
-4. **CLIs da?** `pbir --version`, `te --help`. Beide sind Preview; `te` läuft bis
-   30.09.2026.
-5. **ChartKitchen in der Spec?** Wenn `engine == "ck"` vorkommt: gibt es
-   im Report bereits eine **Referenz-Instanz** des Custom Visuals
+   [`references/spec-format.md`](references/spec-format.md), die 0.5.5-Felder
+   im Abschnitt „Kachel-Anzeige".
+4. **CLIs da?** `pbir --version` (0.9.32 oder neuer), `te --version`. Beide sind
+   Preview. Die erste `te`-Preview ist am 30.09.2026 abgelaufen (`te --version`
+   meldet dann *expired*); die neue läuft bis 31.10.2026 und setzt Eigenschaften
+   mit `-p Name=Wert` statt `-q <Eigenschaft> -i <Wert>`. Welche Form gilt, zeigt
+   `te set --help`.
+5. **ChartKitchen in der Spec?** Wenn `engine == "ck"` vorkommt: Der Konverter
+   legt je Kachel einen Slot mit **fertigen Einstellungen** an
+   (`chartkitchen-slots.json` → `objects`, `container`, Rollen; Schritt 6).
+   Daraus baut der Live-Runner die `visual.json` ohne Referenz-Instanz, sobald
+   ChartKitchen im Bericht installiert ist (Weg `mockup-live`). Ohne Live-Weg:
+   gibt es im Report bereits eine **Referenz-Instanz** des Custom Visuals
    (GUID `chartKitchenByDatenWGD9DE0F7AD44D41058672C6FBF6F5A18D`)?
    - ja → replizieren nach
-     [`chartkitchen-report/references/pbir-insertion.md`](../chartkitchen-report/references/pbir-insertion.md)
+     [`chartkitchen-report/references/pbir-insertion.md`](../chartkitchen-report/references/pbir-insertion.md),
+     Einstellungen aus `objects` des Slots übernehmen
    - nein → **nicht raten.** Zwei Möglichkeiten, beide mit dem Menschen klären:
      - **Platzhalter** pro Slot (ein `shape` an der Slot-Position mit Text
        „ChartKitchen: \<Typ\>", Befehle stehen in `mockup-out/commands.md`) und
@@ -121,15 +152,23 @@ geht auch allein, ohne PBIP.
      - **`--ck-fallback`** beim Konverter: dann kommen die ck-Kacheln als
        **natives Ersatzvisual** in `pbir-visuals.json` (nur wo die Spec ein
        natives Gegenstück kennt — `varint`, `wfint`, `marimekko`, `gantt` &c.
-       haben keines). Gut für eine lauffähige erste Fassung, aber es ist nicht
-       IBCS und muss später ersetzt werden.
+       haben keines, `absvar`, `relvar` und `bridge` bewusst nicht mehr, weil
+       ein natives Diagramm ohne Δ-Kennzahl etwas anderes zeigte; dort bleibt
+       ein Platzhalter mit To-do `CK_NO_NATIVE`). Gut für eine lauffähige erste
+       Fassung, aber es ist nicht IBCS und muss später ersetzt werden.
 6. **Custom Visuals in der Spec?** Wenn `engine == "custom"` vorkommt (Kachel-Typ
-   `gantt` → `dataKitchenGantt`, `pnl` → `pnlByDatenWG`): Die `.pbiviz` muss
-   **vor** dem Bauen in den Bericht importiert sein, sonst bleibt die Kachel leer.
-   Builds im Repo: `dataKitchenGantt/dist/*.pbiviz` und `pnlByDatenWG/dist/*.pbiviz`
-   — fehlt einer, im Visual-Ordner `pbiviz package` laufen lassen. `pbir` kann
-   diese Visuals **nicht anlegen**; das Skript schreibt sie als fertige
-   `visual.json` (Schritt 6a).
+   `gantt` → `dataKitchenGantt`, `pnl` und die Varianten `pnlmega`, `pnlbs`, `pnltree`,
+   `pnlsankey` → `pnlByDatenWG`; eine `kpi`-Kachel mit `engine: "ck"` ist seit Tool 0.7.0
+   ein ChartKitchen-Slot im Modus `cards` und wird nur mit `--kpi-card ibcs` von
+   `mockup_spec.upgrade()` auf `custom` mit `ibcsKpiCard` umgestellt): Die `.pbiviz` muss **vor** dem Bauen im Bericht registriert sein,
+   sonst bleibt die Kachel leer. Builds im Repo: `dataKitchenGantt/dist/`,
+   `pnlByDatenWG/dist/`, `ibcsKpiCard/dist/` (2.3) — fehlt einer, im Visual-Ordner
+   `pbiviz package` laufen lassen. Statt Import in Desktop geht bei
+   **geschlossenem** Desktop auch
+   `python mockup-live/agent/visuals_install.py install "<Name>.Report" <gantt|pnl|kpicard|chartkitchen>`
+   (schreibt `CustomVisuals/<guid>/` und den Eintrag in `report.json`, danach
+   `pbir validate "<Name>.Report" --all`). `pbir` kann diese Visuals **nicht
+   anlegen**; das Skript schreibt sie als fertige `visual.json` (Schritt 6a).
 7. **Desktop geschlossen?** Kurz nachfragen, bevor geschrieben wird.
 
 ## Schritt 1 · Spec prüfen und Bausteine erzeugen
@@ -181,11 +220,14 @@ mockup-out/
 Dann **jede** `ref` aus `mockup-out/checklist.md` gegen das Modell prüfen:
 
 ```bash
-te list -m "<Name>.SemanticModel" --paths-only          # Tabellen
-te list -m "<Name>.SemanticModel" Measures --paths-only # Measures
-te list -m "<Name>.SemanticModel" <Tabelle> --paths-only
-te get "<Tabelle>/<Feld>" -m "<Name>.SemanticModel"     # Detail
+te ls -m "<Name>.SemanticModel" --paths-only                 # Tabellen
+te ls Measures -m "<Name>.SemanticModel" --paths-only        # Measures
+te ls "<Tabelle>/*" -m "<Name>.SemanticModel" --paths-only
+te get "<Tabelle>/<Feld>" -m "<Name>.SemanticModel"          # Detail
 ```
+
+Flags ändern sich in der Preview noch; im Zweifel `te ls --help`. Den Abgleich
+als Funktion bietet auch `mockup-live/agent/model_ops.py` (`fields_exist`).
 
 `Table.Field` aus der Spec entspricht `Tabelle/Feld` im te-Pfad.
 
@@ -195,12 +237,18 @@ Fehlende Felder sind von zweierlei Art:
   Workshop und einen DAX-**Vorschlag** samt fertigem `te add`-Befehl. DAX vom
   Menschen bestätigen lassen, **dann** anlegen:
   ```bash
+  # neue Preview (bis 31.10.2026): Eigenschaften mit -p Name=Wert
   te add "_Measures/Deckungsbeitrag" -m "<Name>.SemanticModel" -t Measure \
-    -i "[Umsatz] - [Kosten]" \
-    -q description -i "Umsatz minus variable Kosten" \
-    -q formatString -i "#,##0" --if-not-exists --save
+    -p "expression=[Umsatz] - [Kosten]" \
+    -p "description=Umsatz minus variable Kosten" \
+    -p "formatString=#,##0" --if-not-exists --save
+  # alte Preview: -i "<DAX>" bzw. te set … -q <Eigenschaft> -i <Wert> --save
   te validate -m "<Name>.SemanticModel" --errors-only
   ```
+  Dieselben Ops (anlegen, DAX, Format, Beschreibung, Ordner, Umbenennen) mit
+  Sicherung und Rücksetzen bei neuen Validierungsfehlern bietet
+  `mockup-live/agent/model_ops.py` (`plan`/`apply`, wählt die Befehlsform selbst,
+  siehe `mockup-live/MODEL-OPS.md`).
 - **Nicht markiert, existiert aber trotzdem nicht** (der Mensch hat im Mockup
   einen Namen getippt, den es so nicht gibt — z. B. `DimDate.Month`, während das
   Modell `MonthName`/`MonthNo` hat) → als **offene Entscheidung** vorlegen:
@@ -235,11 +283,13 @@ sich bei Wiederholung verhält (`idempotent`) und was beim zweiten Lauf gilt
 - Analyse je Kachel: Polarität, Sortierung, Top-N, Einheiten — und was davon
   nur als To-do geht (`analysis-todos.md`)
 - Navigation: Nav-Buttons, Drill-through-Ziele mit Drill-Feld, Lesezeichen
-- ChartKitchen-Slots: Anzahl, Typ → `chartKitchenMode`, Referenz-Instanz ja/nein
+- ChartKitchen-Slots: Anzahl, Typ → `chartKitchenMode` (korrigierte Modi mit
+  `orientationFrom`), Weg (Live-Runner, Referenz-Instanz, Platzhalter oder
+  Ersatzvisual), Warnungen aus den Slots
 - Deneb-Slots: Anzahl
-- Custom Visuals: welche (`dataKitchenGantt`, `pnlByDatenWG`), welche `.pbiviz`
-  importiert werden muss, und ob eine Pflichtrolle leer ist (`plan.json` →
-  `issues`, `customVisuals`)
+- Custom Visuals: welche (`dataKitchenGantt`, `pnlByDatenWG`, `ibcsKpiCard`),
+  welche `.pbiviz` registriert werden muss, und ob eine Pflichtrolle leer ist
+  (`plan.json` → `issues`, `customVisuals`)
 - Gestaltung zusätzlich: Varianz-Palette (`teal`/`ibcs`) mit gut/schlecht-Farbe,
   Farbsatz aus `design.colors` (Ink, Kopfband) — beides steht im Theme-Fragment
 - Modelländerungen: jede neue Kennzahl mit DAX-Vorschlag, jeder Umbenennungswunsch
@@ -344,7 +394,7 @@ Zwei Dinge kann `batch` nicht, deshalb stehen sie daneben:
   nicht abbrechen).
 
 **Text- und Button-Kacheln** (`kind: text|button` mit `content`) baut der Skill
-als `shape` bzw. `actionButton` mit echtem `text.text` — **nicht** als Textbox.
+als `shape` bzw. `actionButton` mit echtem Text (`text.default.text`, Selektor `default`) — **nicht** als Textbox.
 Eine Textbox bliebe über die CLI leer (siehe Stolpersteine). Die Tool-Datei
 `pbir-visuals.<Seite>.json` lässt sie ab Tool 0.5.2 weg (ältere Exporte
 enthalten sie noch als `textbox`); nimm in jedem Fall die Dateien aus
@@ -363,17 +413,27 @@ Fragment dorthin — Skill `reports:modifying-theme-json` bzw.
 [`powerbi-design-framework`](../powerbi-design-framework/SKILL.md) — und
 lässt die `background`/`border`/`dropShadow`-Schritte aus `chrome-batch.json`
 weg. Dann steht die Gestaltung an einer Stelle statt an jedem Visual; per Visual
-nur noch Ausnahmen.
+nur noch Ausnahmen. Im Live-Weg registriert der Runner einmalig ein Custom Theme
+`MockupKitchen` (bei geschlossenem Desktop) und setzt danach je Deploy nur
+`pbir theme set-colors`/`set-fonts` aus diesem Fragment.
+
+**Native Visuals in Kitchen-Optik:** `chrome-batch.json` setzt je nativem Visual,
+was die Skizze zeigt: keine Legende, keine Wertachse, kein Gitter, Werte an den
+Datenpunkten, Szenariofarben je Kennzahl über `dataPoint.field(<Kennzahl>).fill`
+(AC dunkel, PY grau, PL weiß mit Umriss), Wasserfall-Farben nach Polarität, kein
+Container-Titel bei Kacheln ohne Kopf. Die nativen Klassiker behalten Legende
+und Gitter. Details: [`chrome-build.md`](references/chrome-build.md).
 
 **Darstellungsvarianten** (Tool 0.4.1) stecken schon in den erzeugten Dateien:
 
 - **Small Multiples** (`analysis.smallMultiples`) gehen in den PBIR-Bucket
   **`Rows`** — verifiziert mit `pbir schema roles clusteredColumnChart` und einer
   Probebindung; `donutChart` lehnt die Rolle ab, und `pivotTable` meint mit
-  `Rows` etwas anderes. Bei ChartKitchen, Deneb und Typen ohne diesen Bucket
-  (`waterfallChart`, `card`, `treemap`, `map` …) wird daraus ein To-do
-  (`SM_NOT_NATIVE` / `SM_NO_BUCKET`): nativ bauen oder ein Raster aus
-  Einzelkacheln. Fehlt das Aufteilungsfeld, steht `SM_NO_FIELD` in
+  `Rows` etwas anderes. ChartKitchen zeichnet das Raster in `columns`, `bars`
+  und `line` selbst (Rolle `multiples`). Bei anderen ChartKitchen-Modi, Deneb,
+  Custom Visuals und Typen ohne diesen Bucket (`waterfallChart`, `card`,
+  `treemap`, `map` …) wird daraus ein To-do (`SM_NOT_NATIVE` / `SM_NO_BUCKET`):
+  nativ bauen oder ein Raster aus Einzelkacheln. Fehlt das Aufteilungsfeld, steht `SM_NO_FIELD` in
   `checklist.md` und `analysis-todos.md`.
 - **Achse per Feldparameter** (`analysis.fieldParam`) heißt: **zuerst das
   Modell.** `model-todos.md` liefert das `te script`-Skript für die berechnete
@@ -393,7 +453,16 @@ nur noch Ausnahmen.
   Visual `title.fontSize`/`subTitle.fontSize` in pt (px × 0,75, auf 0,5) in
   `chrome-batch.json`, im Theme-Fragment dazu `textClasses` (`largeTitle`,
   `title`, `label`). Nicht in `pbir-visuals.json` — `--from-json` kennt keinen
-  Schriftschlüssel.
+  Schriftschlüssel. Ab Kitchen 0.5.5 gewinnen die fertig gerechneten Größen aus
+  `display.fontPx`/`fontPt` der Kachel.
+- **Chrome-Schrift** (Kopfband, Nav-Pillen, Filter-Überschrift und -Hinweis,
+  Slicer, Fußleiste): seit 01.10.2026 dieselbe Regel wie für Kacheltitel,
+  **pt = Kitchen-px × k × 0,75**, auf 0,5 pt gerundet, 6–45 pt. Vorher galt
+  „Basis × k" in pt, rund ein Drittel zu groß. Tabelle der Kitchen-px in
+  [`chrome-build.md`](references/chrome-build.md). Text-Shapes bekommen
+  ausdrücklich `text.show = true` (bei `shape` standardmäßig aus, sonst bleiben
+  Kopfband- und Fußleistentext unsichtbar); Fußleiste mit eigenem Band und
+  Oberlinie, Chrome-Farben aus `design.colors` (Vorgaben: Kitchen-Töne).
 - **Seitennavigation in der Fußleiste** (`navPosition: "footer"`): die
   `chrome_nav_*`-Buttons sitzen rechtsbündig in der Fußzone, Schrift 9,5 × k,
   das Kopfband bleibt ohne Nav.
@@ -411,7 +480,10 @@ nur noch Ausnahmen.
 Untertitel, `notes`/`workshop` → Annotation. Alles andere (Polarität bei nativen
 Visuals, `timeGrain`, `cumulative`, `scaleGroup`, `message`, Sortierung nach Δ)
 steht mit Code und Begründung in `analysis-todos.md` — durchgehen und dem
-Menschen vorlegen, nicht stillschweigend übergehen.
+Menschen vorlegen, nicht stillschweigend übergehen. Bei ChartKitchen-Kacheln
+und der KPI-Karte landen Polarität, Δ-Basis, Einheiten, Kumulation, Top-N und
+Botschaft dagegen als fertige Einstellung im Slot bzw. in der `visual.json`
+(Schritt 6) und erzeugen kein To-do.
 
 `notes` je Visual landet als Annotation im Bericht, damit die Absicht dort bleibt:
 
@@ -445,7 +517,7 @@ Dazu auf jede Drill-Zielseite ein Zurück-Button:
 
 ```bash
 pbir add visual actionButton "<Name>.Report/<Zielseite>.Page" -n chrome_back -x 16 -y 38 -w 90 -h 28
-pbir set "<Name>.Report/<Zielseite>.Page/chrome_back.Visual.text.text" --value "← Zurück"
+pbir set "<Name>.Report/<Zielseite>.Page/chrome_back.Visual.text.default.text" --value "← Zurück"
 pbir visuals action "<Name>.Report/<Zielseite>.Page/chrome_back.Visual" --type Back
 ```
 
@@ -479,53 +551,102 @@ gegenprüfen, ob die Auswahl im Slicer sichtbar ist.
 ## Schritt 6 · ChartKitchen- und Deneb-Slots
 
 `mockup-out/<Seitenslug>/chartkitchen-slots.json` enthält je Slot: `rect`,
-`chartKitchenType`, den `orientation`-Wert **aus der Spec**
-(`visuals[].chartKitchenMode`), `chartProps` (z. B. `invert: true`, wenn die
-Analyse „kleiner = besser" sagt; ab Tool 0.6.0 zusätzlich die Werte aus
-`visuals[].chartKitchenProps`: `cardTrendChart`, `cardTrendValue`,
-`bridgeOrientation`, `scatterQuadrant`), `chartKitchenRoles` (Mockup-Rollen auf den
-ChartKitchen-Feld-Vertrag gemappt; ab ChartKitchen 1.47 geht das Zeitfeld einer
-KPI-Kachel nach `trend`, Scatter nach `xValue`/`actual`/`bubbleSize`), `analysis`,
-`workshop` und — falls vorhanden — einen `nativeFallback`.
+`chartKitchenType`, den wirksamen `orientation`-Wert (aus
+`visuals[].chartKitchenMode`; eine bekannte Fehlzuordnung korrigiert der
+Konverter, z. B. `wfint` mit `intwaterfall` → `catbridge` und `bridge` → `waterfall` (senkrechte Abweichungsbrücke), der Spec-Wert steht
+dann in `orientationFrom`), `chartKitchenRoles` (Mockup-Rollen auf den
+ChartKitchen-Feld-Vertrag gemappt, Bezüge nach dem Szenario im Feldnamen),
+`analysis`, `workshop`, `typography` und — falls vorhanden — einen
+`nativeFallback`. Dazu die **fertigen Einstellungen**:
+
+- `objects`: direkt für `visual.objects` in Desktop-Form (Literale, Farben als
+  `solid`), u. a. `chart.orientation`, `chart.comparisonMode` (aus der wirksamen
+  Δ-Basis: PY → `py`, PL/BU → `plan`, sonst `auto`), `showAbsoluteVariance`/
+  `showRelativeVariance` (aus `display.drawn.delta`), `invert`, `topN`,
+  `cumulative`, `showTotal`, `chartButtons=false`, `smartStart=false`,
+  `labels.displayUnits`/`decimals`/`show`/`fontScale`/`fontSize`,
+  `categoryAxis.fontSize`, `colors.appearance`/`goodColor`/`badColor`,
+  `ibcsTitle.show`/`kpi`/`period`/`message`.
+- `ckSettings`: dieselben Werte flach und lesbar (`{"chart.comparisonMode": "plan", …}`).
+- `container`: Kachel-Fläche, Rahmen, Radius, Schatten; Container-Titel aus,
+  weil ChartKitchen den Kopf selbst zeichnet.
+- `title`, `titleText`, `titleShown`; `chartProps` (nur `orientation`/`invert`,
+  für ältere Runner).
+
+Vollständige Tabelle mit Quelle und Regel je Einstellung:
+[`spec-format.md` → `chartkitchen-slots.json`](references/spec-format.md#chartkitchen-slotsjson--fertige-einstellungen-objects).
+Was so im Slot steht, erzeugt kein To-do mehr (`CK_INVERT`, `DELTA_BASIS`,
+`DISPLAY_UNITS_SLOT`, `CUMULATIVE`, `MESSAGE`).
+
+Ab Tool 0.6.0 kommen die Werte aus `visuals[].chartKitchenProps` dazu
+(`cardTrendChart`, `cardTrendValue`, `bridgeOrientation`, `scatterQuadrant`):
+sie stehen in `chartProps` und als `chart.<Name>` in `objects`/`ckSettings`.
+Ab ChartKitchen 1.47 geht Scatter nach `xValue`/`actual`/`bubbleSize`.
 
 Die `warnings` je Slot sind die Stellen, an denen das Mapping aufpassen muss:
-- **`rowType` fehlt** bei `orientation: waterfall`/`pnl` — ohne die Spalte
-  (`sum`/`delta`) bleibt die Brücke leer. Das Mockup kennt die Rolle nicht.
-- **`colline`** — die zweite Kennzahl gehört in `lineMeasure` (nur bei
-  `orientation: columns`), nicht in `plan`/`previousYear`.
+- **`rowType` fehlt** bei `orientation: pnl` — ohne die Spalte (`sum`/`delta`)
+  bleibt die GuV leer. `waterfall` zeichnet ohne `rowType` einen
+  Beitrags-Wasserfall mit Σ.
+- **Δ-Basis FC** — ChartKitchen kennt kein „AC gegen FC", es bleibt `auto`.
+- **`topN`/`cumulative` in einem Modus, der es nicht kann** — To-do
+  `TOPN_CK_MODE` bzw. `CUMULATIVE_CK_MODE`.
+- **`sparktable`** — `table` zeichnet keine Sparkline je Zeile.
 - **FC im Szenario ohne `fcFlag`/`forecast`** — dann zeichnet ChartKitchen
   keinen Forecast. `fcFlag` muss die **Zahl** 1/0 liefern, kein Boolean.
-- `colgroup` nur bei `orientation: table`, `lineMeasure` nur bei `columns`.
+- `colgroup` nur bei `orientation: table`, `lineMeasure` nur bei `columns`
+  (`colline` legt die erste Referenz dorthin).
 - **`scatter` ohne `xValue`/`actual`** — keine Punktwolke. `trend`, `xValue`,
   `bubbleSize` und `orientation: scatter` gibt es erst ab ChartKitchen **1.47**;
   eine ältere `.pbiviz` im Bericht vorher aktualisieren.
 
+- **Live-Weg (empfohlen):** Der Runner installiert ChartKitchen in den Bericht
+  und baut jede Kachel aus dem Slot (Hülle per `pbir`, dann `visual.json` mit
+  Projektionen, `objects` und `container`). Bei späteren Deploys mischt er die
+  Slot-`objects` je Objekt in die vorhandene `visual.json`: Kitchen-Werte
+  gewinnen, in Desktop gesetzte andere Eigenschaften bleiben.
 - **Mit Referenz-Instanz:** replizieren nach
   [`chartkitchen-report/references/pbir-insertion.md`](../chartkitchen-report/references/pbir-insertion.md),
   Position aus `rect`, Rollennamen ausschließlich aus
-  [`chartkitchen-report/references/field-contract.md`](../chartkitchen-report/references/field-contract.md).
-  Das Rollen-Mapping des Skripts ist ein **Vorschlag** — was die Referenz-Instanz
-  zeigt, gewinnt.
-- **Ohne Referenz-Instanz:** Platzhalter setzen (Befehle in `commands.md`) oder
+  [`chartkitchen-report/references/field-contract.md`](../chartkitchen-report/references/field-contract.md),
+  Einstellungen aus `objects`. Das Rollen-Mapping des Skripts ist ein
+  **Vorschlag** — was die Referenz-Instanz zeigt, gewinnt.
+- **Weder noch:** Platzhalter setzen (Befehle in `commands.md`) oder
   `--ck-fallback` (Schritt 0), und im Abschlussbericht auflisten. Nicht raten.
 - **Deneb-Slots** (`deneb-slots.json`): über den Skill
   [`deploy-to-powerbi`](../deploy-to-powerbi/SKILL.md) bzw. `pbir visuals deneb`.
 
 ### Schritt 6a · Custom Visuals (`engine: "custom"`)
 
-Kacheln vom Typ `gantt` (`dataKitchenGantt`) und `pnl` (`pnlByDatenWG`) sind
-Custom Visuals aus diesem Repo. `pbir` kennt ihre GUIDs nicht
+Kacheln vom Typ `gantt` (`dataKitchenGantt`), `pnl` (`pnlByDatenWG`) und `kpi`
+(`ibcsKpiCard` 2.3) sind Custom Visuals aus diesem Repo. `pbir` kennt ihre GUIDs nicht
 (`Unknown visual type '<GUID>'`), und in einer `--from-json`-Datei reißt so ein
 Eintrag die **ganze Datei** mit. Deshalb stehen sie **nicht** in
 `pbir-visuals.json`, sondern als fertige PBIR-`visual.json` in
 `<Seitenslug>/custom-visuals/` — mit `visual.visualType` = GUID und
 `visual.query.queryState` je Bucket aus `customVisual.buckets`.
 
-1. **`.pbiviz` importieren** (Power BI Desktop → Visualisierungen → … → *Visual
-   aus Datei importieren*). Ohne Import bleibt die Kachel leer, auch wenn die
-   JSON stimmt:
-   `dataKitchenGantt/dist/*.pbiviz`, `pnlByDatenWG/dist/*.pbiviz` — fehlt der
-   Build, im Visual-Ordner `pbiviz package` laufen lassen.
+**KPI-Karte (`ibcsKpiCard`, nur mit dem Schalter `--kpi-card ibcs`):** Rollen `indicator` → `ac`, `goal`/`ref` → `py`/`pl`/`fc`
+nach dem Szenario im Feldnamen (sonst `pl`), die Zeitrolle des Kitchens →
+`trend` (Sparkline), **nicht** `category` (das wäre eine Karte je Monat). Die
+Datei trägt fertige `objects`: `display.title`, `display.periodLabel`,
+`display.comparisonMode`, `display.invert`, `display.showSparkline` (nur mit
+`trend`), `display.showBridge=false`, `display.showSecondary=false`,
+`display.chartButtons=false`, `labels.fontPreset` und `display.titleSize` so, dass
+die Einzelkarte die Kachel füllt (Formel in `references/spec-format.md`, in Desktop
+zu prüfen),
+`labels.displayUnits`/`decimals`, `colors.goodColor`/`badColor`; der
+Container-Kopf ist aus. Gantt und GuV bekommen Bindung und Container, aber noch
+keine eigenen `objects`.
+
+1. **`.pbiviz` registrieren.** Entweder in Desktop importieren
+   (Visualisierungen → … → *Visual aus Datei importieren*) oder bei
+   geschlossenem Desktop mit `mockup-live/agent/visuals_install.py install`
+   (Schritt 0). Ohne Registrierung bleibt die Kachel leer, auch wenn die JSON
+   stimmt: `dataKitchenGantt/dist/*.pbiviz`, `pnlByDatenWG/dist/*.pbiviz`,
+   `ibcsKpiCard/dist/*.2.3.0.0.pbiviz` — fehlt der Build, im Visual-Ordner
+   `pbiviz package` laufen lassen. Nach dem ersten Öffnen zeigt Desktop
+   unter Umständen eine gelbe Leiste zu Custom Visuals; erst nach der Freigabe
+   dort rendern sie.
 2. **Platzhalter + Kopie** — erledigt `custom-commands.sh` je Seite:
    ```bash
    pbir add visual shape "$P" -n "<id>" -x .. -y .. -w .. -h .. -t "<Titel>"
@@ -539,8 +660,8 @@ Eintrag die **ganze Datei** mit. Deshalb stehen sie **nicht** in
    Alternative zu `find`.)
 3. **Pflichtrollen prüfen.** `checklist.md` und `plan.json → issues` melden leere
    Pflichtrollen: `dataKitchenGantt` braucht `task` und `start`, `pnlByDatenWG`
-   braucht `levels` (oder `account`) und `ac`. Ohne sie zeichnet das Visual
-   nichts — im Workshop nachtragen, nicht raten.
+   braucht `levels` (oder `account`) und `ac`, `ibcsKpiCard` braucht `ac`. Ohne
+   sie zeichnet das Visual nichts — im Workshop nachtragen, nicht raten.
 4. **Zweiter Lauf:** nur kopieren, der Platzhalter existiert schon.
    `delta-batch.json` fasst Custom Visuals bewusst nicht an — die neu erzeugte
    `visual.json` enthält Position, Größe, Bindung und Formatierung vollständig.
@@ -650,7 +771,8 @@ an den Skill `anthropic-skills:pptx` geben.
   `mockup-out/`, Doku-Dateien, Ergebnis der Abnahme (`mockup_verify.py`).
 - **Offene Punkte:** leere Pflichtrollen (die Kacheln stehen **nicht** im
   Bericht), leere Pflichtrollen von Custom Visuals (`plan.json → issues`),
-  nicht importierte `.pbiviz`, ChartKitchen-Slots ohne Referenz-Instanz,
+  nicht registrierte `.pbiviz`, ChartKitchen-Slots ohne Referenz-Instanz und
+  ohne Live-Weg,
   Analyse-To-dos, neu
   angelegte Kennzahlen (DAX bestätigt?), nicht aufgelöste Felder, nicht
   bestätigte Steckbriefe, Hinweise aus `checklist.md`.
@@ -667,15 +789,21 @@ an den Skill `anthropic-skills:pptx` geben.
 python .claude/skills/mockup-to-powerbi/tests/run_tests.py
 ```
 
-Golden-Vergleich über acht Fixtures (specVersion 1, 2, 3, Burger-Filter,
-ChartKitchen ohne Referenz-Instanz, voller Analyse-Block, Custom Visuals,
-Darstellungsvarianten aus 0.4.1, Typografie/Filterbereich/Fußleisten-Nav/
-Barrierefreiheit aus 0.4.4), Negativtests der
-Validierung (kaputte Spec, unbekannte Hauptversion, doppelte Seitennamen — je
-einmal mit dem Paket `jsonschema` und einmal mit dem eingebauten Validator) und
-Einheitenprüfungen. Reine Standardbibliothek, kein Power BI nötig. Nach
-**bewussten** Änderungen an den Skripten: `--update`, dann den Diff der Goldens
-ansehen.
+Stand 01.10.2026: **542 Prüfungen**. Golden-Vergleich über neun Fixtures
+(`v1-einseitig`, `v2-zweiseitig`, `v3-analyse`, `v3-burger-filter`,
+`v3-ck-ohne-instanz`, `v3-custom-visuals`, `v3-variants` aus 0.4.1,
+`v3-typo-filter` aus 0.4.4 und `v3-fidelity` mit den Treue-Fixes aus
+`mockup-live/FIDELITY.md` und den 0.5.5-Feldern `title`/`display.*`),
+Negativtests der Validierung (`kaputt.json`, `v4-zukunft.json` für eine
+unbekannte Hauptversion, doppelte Seitennamen — je einmal mit dem Paket
+`jsonschema` und einmal mit dem eingebauten Validator) sowie Einzelprüfungen
+(Einheiten, Chrome-pt-Regel, ChartKitchen-`objects` gegen die
+`capabilities.json` der `.pbiviz`, KPI-Karte, Kachel-Anzeige). Reine
+Standardbibliothek, kein Power BI nötig. Nach **bewussten** Änderungen an den
+Skripten: `--update`, dann den Diff der Goldens ansehen.
+
+Die Tests des Live-Runners liegen getrennt unter `mockup-live/tests/run_tests.py`
+(Attrappen für Bridge, `pbir`-Desktop und `te`, rund 11 Minuten).
 
 ## Stolpersteine (alle real aufgelaufen, pbir 0.9.32)
 
@@ -686,11 +814,11 @@ ansehen.
 | Kachel mit leerer Pflichtrolle | Würde als Visual ohne Bindung importiert oder die Datei killen | Steht **nicht** in `pbir-visuals.json` (wie im Tool) und taucht in `checklist.md` unter „Nicht gebaute Kacheln" auf |
 | `shape.tileShape` = `roundedRectangle` | `Validation error: … not in [...]`, und mit `set -euo pipefail` bricht das ganze Chrome-Skript ab | Der Enum heißt **`rectangleRounded`**; Radius über `shape.rectangleRoundedCurve` |
 | `title` bei einer Textbox | landet im Container-Titel, **nicht** im Textinhalt | Textzeilen und Text-Kacheln als `shape` bauen (siehe `chrome-build.md`) |
-| `pbir set …general.paragraphs` | wird als String-Literal geschrieben statt als Array — die Textbox bleibt leer, `pbir validate` meckert **nicht** | Nicht benutzen. Text über `shape` + `text.text`, oder `pbir add title`/`add subtitle` (schreiben korrekte `paragraphs`, sind aber auf 24 pt/14 pt und (20, 20) fest und müssen per `pbir visuals position` verschoben werden) |
+| `pbir set …general.paragraphs` | wird als String-Literal geschrieben statt als Array — die Textbox bleibt leer, `pbir validate` meckert **nicht** | Nicht benutzen. Text über `shape` + `text.default.text`, oder `pbir add title`/`add subtitle` (schreiben korrekte `paragraphs`, sind aber auf 24 pt/14 pt und (20, 20) fest und müssen per `pbir visuals position` verschoben werden) |
 | Custom Visual per `pbir` anlegen | `pbir add visual <GUID>` und `--from-json` mit einer GUID melden beide `Unknown visual type '<GUID>'`; in `--from-json` fällt die **ganze Datei** aus (auch mit `--rawdog`) | Platzhalter-`shape` anlegen, dann die erzeugte `visual.json` daraufkopieren (`custom-commands.sh`). `pbir validate --fields` und `pbir ls --json` nehmen sie an |
 | `pbir visuals bind` am Custom Visual | `Role 'rowType' not valid for <GUID>. Available: levels, ac` — es gehen nur Rollen, die in der `queryState` schon stehen | Alle Rollen von Anfang an in die `visual.json` schreiben (macht das Skript); Rest in Desktop binden |
 | `visualContainerObjects` von Hand | `title: {...} is not of type 'array'` — `pbir batch`/`set` bricht daran ab | Container-Objekte sind **Arrays** von `{properties: …}`, Zahlen Literale mit D-Suffix (`"12D"`). Das Skript schreibt genau die Form, die `pbir add visual` selbst erzeugt |
-| Custom Visual kopiert, aber leer | die `.pbiviz` ist nicht im Bericht importiert | `dataKitchenGantt/dist/*.pbiviz` bzw. `pnlByDatenWG/dist/*.pbiviz` in Desktop importieren; fehlt der Build: `pbiviz package` |
+| Custom Visual kopiert, aber leer | die `.pbiviz` ist nicht im Bericht registriert, oder Desktop zeigt nach dem Öffnen eine gelbe Leiste zu Custom Visuals | `dataKitchenGantt/dist/`, `pnlByDatenWG/dist/` bzw. `ibcsKpiCard/dist/` in Desktop importieren oder bei geschlossenem Desktop `visuals_install.py install`; gelbe Leiste in Desktop freigeben; fehlt der Build: `pbiviz package` |
 | `pbir add page --no-title` | Option existiert nicht, steht aber im Hilfetext | Seite anlegen, dann `pbir rm "<Seite>.Page/Title.Visual" -f` |
 | `pbir rm visual <pfad>` | „Got unexpected extra argument(s)" | Richtig ist `pbir rm "<pfad>" -f` |
 | z-Order | `--from-json` setzt immer `z = 0`; Chrome-Flächen und Inhalt liegen gleichauf | `pbir visuals position … --z`, im Batch `set` auf `position.z` (beides verifiziert) |
@@ -703,6 +831,10 @@ ansehen.
 | Ein Lesezeichen für mehrere Seiten | funktioniert nicht — ein Lesezeichen hält den Zustand genau einer Seite | Je Seite ein Paar „Filter öffnen · \<Seite\>" / „Filter schließen · \<Seite\>" (erzeugt `navigation.md` automatisch) |
 | Zweiter Lauf | `pbir add visual --from-json` scheitert an vorhandenen Namen (die IDs sind stabil) | `delta-batch.json` laufen lassen: `move`/`resize` plus `bind` mit `clear`+`add` (verifiziert idempotent, keine doppelten Projektionen) |
 | Umlaute in der Konsole | Ausgabe zeigt `Î”`/`Ãœ`, die Dateien sind aber sauberes UTF-8 | Nicht „reparieren". Zum Prüfen die JSON lesen, nicht die Konsole |
+| Umlaute über `--from-json` | `pbir add visual --from-json` liest die Datei unter Windows als cp1252: aus „Fußleiste" wird „FuÃŸleiste" im Auswahlbereich; eine BOM lehnt pbir ab | Der Konverter schreibt `pbir-visuals.json`, `text-visuals.json`, `chrome-visuals.json` als ASCII mit `\u`-Escapes. Eigene Dateien genauso (`ensure_ascii=True`) |
+| Text-Shape ohne Text | Kopfband-Titel, Untertitel und Fußleistentext sind unsichtbar, obwohl `text.text` gesetzt ist | `text.show` ist bei `shape` standardmäßig aus, und Desktop wertet Text-Eigenschaften nur mit Selektor `default` aus. Der Konverter setzt `text.show = true` ohne Selektor und alle übrigen Text-Eigenschaften als `text.default.<prop>` (seit 02.10.2026, in Desktop geprüft) |
+| Chrome-Schrift zu groß | Kopfband und Filter-Überschrift rund ein Drittel größer als im Kitchen | Alte Regel „Basis × k" in pt. Seit 01.10.2026 pt = px × k × 0,75; ältere `mockup-out/` neu erzeugen |
+| `kpi` als ChartKitchen `cards` | mit Monat als Kategorie zwölf Karten statt einer | Seit Tool 0.7.0 geht das Zeitfeld in die Rolle `trend` (ChartKitchen 1.47 oder neuer), eine Karte bleibt eine Karte. Ältere `.pbiviz` im Bericht aktualisieren und alte Ausgaben neu erzeugen; wer `ibcsKpiCard` behalten will, baut mit `--kpi-card ibcs` |
 | Python-Skripte des Design-Frameworks | `UnicodeEncodeError: 'charmap'` auf Windows-Konsolen | `export PYTHONIOENCODING=utf-8` (bzw. `$env:PYTHONIOENCODING='utf-8'`) |
 | `--pages` bei `bulk_restyle.py` / `render_wireframe.py` | erwartet **eine** kommagetrennte Zeichenkette; mehrere Argumente werden nicht als Seitenliste gelesen | `--pages "Seite A,Seite B"` |
 | Überlappende Visuals | `pbir add visual` kennt `--force` gegen Überlappung/Canvas-Rand; bei `--from-json` schlug das Anlegen überlappender Chrome-Elemente **nicht** fehl | Erst ohne `--force` versuchen |
@@ -712,8 +844,9 @@ ansehen.
 ## Leitplanken
 - Nie ungefragt in `*.Report/` oder `*.SemanticModel/` schreiben; `mockup-out/`
   ist der Übergabepunkt, Plan + Freigabe + Backup gehen voraus.
-- Nie ein ChartKitchen-`visual.json` raten. Ohne Referenz-Instanz nur Platzhalter
-  oder `--ck-fallback`.
+- Nie ein ChartKitchen-`visual.json` raten. Gebaut wird es nur aus einer
+  Referenz-Instanz oder aus den fertigen Slot-Daten (`objects`, `container`,
+  Rollen), wie es der Live-Runner tut; sonst Platzhalter oder `--ck-fallback`.
 - Custom Visuals nur über die erzeugte `visual.json` einspielen — nie eine GUID
   in `pbir-visuals.json` schreiben, das killt die ganze Datei. Rollennamen
   ausschließlich aus der `capabilities.json` des Visuals.
@@ -737,8 +870,10 @@ ansehen.
   Barrierefreiheit** (0.4.3/0.4.4)
   — Small Multiples → Bucket `Rows`, Achse per Feldparameter —, Steckbriefe,
   Issues, Rollen-Vokabular, Engines, Rollen → pbir-Buckets, Rollen →
-  ChartKitchen, **Custom Visuals** (GUIDs, Datenrollen, Pflichtrollen,
-  Einspielweg).
+  ChartKitchen samt fertigen `objects` je Slot, **Custom Visuals** (GUIDs,
+  Datenrollen, Pflichtrollen, KPI-Karte, Einspielweg) und die
+  **Kachel-Anzeige** aus Kitchen 0.5.5 (`title`, `titleShown`, `displayName`,
+  `display.*`).
 - [`references/mockup-spec.schema.json`](references/mockup-spec.schema.json) —
   Prüfschema (Draft 2020-12) für `--validate`.
 - [`references/chrome-build.md`](references/chrome-build.md) — wie Kopfband,
@@ -756,3 +891,8 @@ ansehen.
   brauchen nur die Standardbibliothek; `mockup_to_docs.py` zusätzlich
   `python-pptx` für die Folien, `--validate` nutzt `jsonschema`, wenn vorhanden.
 - Tests: `tests/run_tests.py` mit `tests/fixtures/` und `tests/golden/`.
+- Live-Weg: Skill [`mockup-live`](../mockup-live/SKILL.md),
+  [`mockup-live/PLAYBOOK.md`](../../../mockup-live/PLAYBOOK.md) (Sitzung,
+  Stolpersteine), [`mockup-live/CONTRACT.md`](../../../mockup-live/CONTRACT.md)
+  (Dateivertrag, Kachel-Anzeige), [`mockup-live/FIDELITY.md`](../../../mockup-live/FIDELITY.md)
+  (Abgleich Kitchen → Power BI je Einstellung).

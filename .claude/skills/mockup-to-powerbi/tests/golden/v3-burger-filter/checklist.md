@@ -27,8 +27,8 @@ Mockup: **Management Report · Beispiel** · specVersion 3 (gelesen als v3) · H
 
 | Seite | Ordner | Fragestellung | native Visuals + Slicer | Text/Button | Chrome | CK | Deneb | Custom |
 |---|---|---|---|---|---|---|---|---|
-| Übersicht | `Ubersicht/` | Liegen wir im Plan? | 3 | 1 | 12 | 5 | 0 | 0 |
-| Detail Produktlinie | `Detail_Produktlinie/` | – | 2 | 1 | 12 | 4 | 0 | 0 |
+| Übersicht | `Ubersicht/` | Liegen wir im Plan? | 3 | 1 | 14 | 5 | 0 | 0 |
+| Detail Produktlinie | `Detail_Produktlinie/` | – | 2 | 1 | 14 | 4 | 0 | 0 |
 
 ## Offene Punkte aus der Spec (`issues`)
 
@@ -41,7 +41,7 @@ Mockup: **Management Report · Beispiel** · specVersion 3 (gelesen als v3) · H
 
 ## Hinweise aus dem Chrome-Aufbau
 
-- [ ] Filter-Overlay: Panel, Ueberschrift, Schliessen-Button und Slicer liegen ueber dem Inhalt und sind im Grundzustand ausgeblendet. Lesezeichen und Button-Aktionen stehen in navigation.md.
+- [ ] Filter-Overlay: Panel, Ueberschrift, Schliessen-Button und Slicer liegen ueber dem Inhalt und werden ausgeblendet angelegt (`pbir visuals hide` in analysis-commands.sh). Lesezeichen und Button-Aktionen stehen in navigation.md.
 - [ ] Kachel „Detail: gewählte Produktlinie" (mk_p6km182) hat keinen Text — im Bericht steht sonst der Titel. Text im Workshop nachtragen.
 
 ## ChartKitchen-Rollen-Mapping
@@ -52,7 +52,6 @@ Mockup: **Management Report · Beispiel** · specVersion 3 (gelesen als v3) · H
 
 Vollständig in [`analysis-todos.md`](analysis-todos.md) — hier nur die Zahl je Code:
 
-- `CK_INVERT`: 1
 - `POLARITY`: 1
 - `SLICER_DEFAULT`: 2
 

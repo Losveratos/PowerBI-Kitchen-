@@ -27,7 +27,7 @@ Mockup: **Darstellungsvarianten-Testfall** · specVersion 3 (gelesen als v3) · 
 
 | Seite | Ordner | Fragestellung | native Visuals + Slicer | Text/Button | Chrome | CK | Deneb | Custom |
 |---|---|---|---|---|---|---|---|---|
-| Varianten | `Varianten/` | Wo steht der Umsatz je Region und wie entwickelt er sich? | 6 | 0 | 8 | 1 | 0 | 0 |
+| Varianten | `Varianten/` | Wo steht der Umsatz je Region und wie entwickelt er sich? | 6 | 0 | 11 | 1 | 0 | 0 |
 
 ## Offene Punkte aus der Spec (`issues`)
 
@@ -64,7 +64,6 @@ Vollständig in [`analysis-todos.md`](analysis-todos.md) — hier nur die Zahl j
 - `FIELDPARAM_FEW`: 1
 - `FIELDPARAM_SLICER`: 2
 - `FIELDPARAM_SLOT`: 1
-- `SM_NOT_NATIVE`: 1
 - `SM_NO_BUCKET`: 1
 - `SM_NO_FIELD`: 1
 - `TIME_GRAIN`: 1

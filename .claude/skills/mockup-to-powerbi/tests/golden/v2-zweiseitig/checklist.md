@@ -27,8 +27,8 @@ Mockup: **Management Report · Beispiel** · specVersion 2 (gelesen als v3) · H
 
 | Seite | Ordner | Fragestellung | native Visuals + Slicer | Text/Button | Chrome | CK | Deneb | Custom |
 |---|---|---|---|---|---|---|---|---|
-| Übersicht | `Ubersicht/` | – | 4 | 1 | 12 | 4 | 0 | 0 |
-| Detail Produktlinie | `Detail_Produktlinie/` | – | 4 | 1 | 12 | 2 | 0 | 0 |
+| Übersicht | `Ubersicht/` | – | 4 | 1 | 14 | 4 | 0 | 0 |
+| Detail Produktlinie | `Detail_Produktlinie/` | – | 4 | 1 | 14 | 2 | 0 | 0 |
 
 ## Offene Punkte aus der Spec (`issues`)
 
@@ -39,7 +39,7 @@ Mockup: **Management Report · Beispiel** · specVersion 2 (gelesen als v3) · H
 
 ## Hinweise aus dem Chrome-Aufbau
 
-- [ ] Filter-Overlay: Panel, Ueberschrift, Schliessen-Button und Slicer liegen ueber dem Inhalt und sind im Grundzustand ausgeblendet. Lesezeichen und Button-Aktionen stehen in navigation.md.
+- [ ] Filter-Overlay: Panel, Ueberschrift, Schliessen-Button und Slicer liegen ueber dem Inhalt und werden ausgeblendet angelegt (`pbir visuals hide` in analysis-commands.sh). Lesezeichen und Button-Aktionen stehen in navigation.md.
 - [ ] Kachel „Kommentar" (p1_v07_Kommentar) hat keinen Text — im Bericht steht sonst der Titel. Text im Workshop nachtragen.
 - [ ] Kachel „Detail: gewählte Produktlinie" (p2_v01_Detail_gewahlte_Produktlinie) hat keinen Text — im Bericht steht sonst der Titel. Text im Workshop nachtragen.
 

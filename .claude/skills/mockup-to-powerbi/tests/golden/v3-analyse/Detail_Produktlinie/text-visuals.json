@@ -2,7 +2,7 @@
   {
     "visual_type": "shape",
     "name": "mk_p6km182",
-    "title": "Detail: gewählte Produktlinie",
+    "title": "Detail: gew\u00e4hlte Produktlinie",
     "x": 16,
     "y": 72,
     "width": 612,
@@ -11,7 +11,7 @@
   {
     "visual_type": "actionButton",
     "name": "mk_btn01",
-    "title": "Zur Übersicht",
+    "title": "Zur \u00dcbersicht",
     "x": 532,
     "y": 440,
     "width": 200,

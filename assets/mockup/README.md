@@ -3,6 +3,225 @@
 Positionierung (aus dem Review): kein Report-Generator, sondern ein **Anforderungswerkzeug mit deterministischem
 Ausgang**. Der Workshop legt Struktur, Felder und Entscheidungen fest; der Bau ist eine Ableitung.
 
+## Neu in v0.9.0 (25.11.2026, `feat/mockup-kitchen`, PR #78)
+
+- **Arbeitsbereich „Visual einrichten“** (`studio.js`, `MK_STUDIO.open(leafId)`): „Einrichten“ in der Kachel-Leiste
+  öffnet einen ganzseitigen Dialog für genau eine Kachel. Links die Felder des Modells mit Suche, in der Mitte die
+  große Vorschau mit Titel und Untertitel, rechts die Rollen und die Darstellung, unten „Fertig“.
+- **Rollen erklären sich selbst:** jede Rolle zeigt Feldart, Pflicht oder freiwillig, die Höchstzahl und in einem Satz,
+  was sie im Visual bewirkt (Texte aus `tip.role.*`). Eine Rolle anklicken, dann links ein Feld wählen; unpassende
+  Felder treten zurück. Ziehen geht auch. Leere Rollen zeigen bis zu drei Vorschläge, „Felder vorschlagen“ füllt alle.
+- **Darstellung an einer Stelle:** Vergleich (Szenario), Abweichung absolut und in Prozent, Bewertung, Sortierung,
+  Top N, kumuliert, Small Multiples, die ChartKitchen-Optionen des Typs und die Kernaussage. Es erscheinen nur die
+  Schalter, die der Typ hat. Jede Änderung wirkt sofort auf Vorschau und Kachel (ein Rückgängig-Schritt je Änderung).
+- **„Das kann dieses Visual“:** kurze Liste je Umsetzung (ChartKitchen-Modus, P&L byDatenWG, Gantt, nativ, Deneb) mit
+  Etikett „hier einstellbar“, „über Typ ändern“ oder „im Bericht einstellbar“. Das Etikett wird an der Kachel
+  geprüft (`capWhere`), es verspricht also nie einen Schalter, den der Dialog nicht zeigt. Quelle der Liste sind die
+  AGENT-GUIDEs der Visuals; sie ist bewusst kurz und nennt keine Property-Namen.
+- **Typ und Alternativen im Kopf:** „Typ ändern“ öffnet die Typauswahl über dem Arbeitsbereich, die Fassungen einer
+  Kachel sind als Schalter sichtbar, „+ Alternative“ und „Alternative entfernen“ sitzen daneben.
+- Der frühere Zoom auf die Kachel (`MK.focusTile`) bleibt als Rückfall im Code, hat aber keinen Knopf mehr.
+- Nicht geändert: Spec-Format und Skill. Der Arbeitsbereich schreibt dieselben Felder wie der Kachel-Reiter.
+
+## Neu in v0.8.1 (25.11.2026, lokal auf `feat/mockup-kitchen`)
+
+- **Feld-Vorschläge je Rolle** (`suggestFor`, `autoFill` in `appmode.js`): Leere Rollen im Kachel-Reiter zeigen bis zu
+  drei passende Felder aus dem Modell als Knöpfe, ein Klick ordnet zu. Im Einrichten-Modus füllt „Felder vorschlagen“
+  alle leeren Rollen auf einmal (Pflichtrollen immer, freiwillige nur bei klarem Treffer), als ein Rückgängig-Schritt.
+  Die Regeln lesen nur Namen und Feldart: Zeitfelder, Szenario-Kennzahlen (AC, PL, PY, BU, FC nach dem Szenario der
+  Kachel), Dimensionen ohne Schlüssel- und Sortierspalten, FC-Kennzeichen, Zeilentyp.
+- **Visual-Wechsel an einer Kachel** (`v.alts`, `v.altIx`, `addAlt`, `switchAlt`): eine Kachel kann mehrere Fassungen
+  haben, z. B. Balken und Tabelle. „+ Alternative“ im Einrichten-Modus kopiert die Fassung samt Feldern und öffnet die
+  Typauswahl. Der Schalter sitzt oben rechts in der Kachel und ist in der Präsentation klickbar. Bearbeitet wird immer
+  die gezeigte Fassung. Export: `visuals[].switchLabel`, `switchIndex`, `alternatives[]`; Issues
+  `BOOKMARKS_TILE_SWITCH` (Power BI braucht Lesezeichen) bzw. `APP_TILE_SWITCH`.
+- **Nachgezogen:** Ansichten-Schalter im PNG-Export, aktive Hauptseite in der PNG-Navigation, Kopfleiste bis 1640 px
+  enger (bei 1500 px einzeilig), keine Bearbeiten-Knöpfe an der Kachel in der Präsentation.
+- Branch auf `origin/main` vom 25.11. nachgezogen (konfliktfrei).
+
+## Neu in v0.8.0 (25.11.2026, lokal auf `feat/mockup-kitchen`)
+
+Rückmeldung der Nutzer: das Tool ist viel geworden. Diese Fassung macht den Einstieg leichter.
+
+- **Einfach-Modus** (`#btnSimple` in der Kopfleiste, `body.simple`, gemerkt unter `mockupkitchen.simple.v1`, Vorgabe an):
+  blendet aus, was man für die ersten Entwürfe nicht braucht: Reiter Bericht, Typografie, Barrierefreiheit, Pixelraster
+  und Abstände, Seitenleiste links, Feinheiten von Kopfband, Filter und Fußleiste, Engine-Wahl, Varianten,
+  ChartKitchen-Optionen, Workshop-Angaben, Vergleich, TMDL-Knopf (die Ablagefläche links bleibt). Reines CSS in
+  `appmode.js`, nichts geht verloren; der Schalter zeigt alles wieder.
+- **Kachel-Leiste und Einrichten-Modus** (`#tileBar`, `MK.focusTile`/`MK.unfocusTile`): Ein Klick auf eine Kachel zeigt
+  an ihr „Visual wählen“ und „Einrichten“. Einrichten zoomt die Kachel groß in die Mitte, der Rest der Seite tritt
+  zurück; Felder zieht man von links auf die Kachel oder ordnet sie rechts den Rollen zu. „Fertig“ oder Esc führt
+  zurück zum vorigen Zoom.
+- **Farbschema „Klar“** (an IBCS orientiert): dritte Wahl neben Kitchen Basis und Firmenfarben, auch im Dialog „Neu“.
+  Weiße Seite, flache Kacheln ohne Rahmen und Rundung, kein Logo, Akzent in Dunkelgrau, Abweichungen Grün/Rot.
+  Beim Zurückschalten kommen Rahmen, Rundung, Teal/Rot und das Logo wieder.
+- **Ansichten einer Seite** (`p.viewOf`, `p.viewLabel`, `MK.viewFamily`, `MK.addView`, Reiter Seite): mehrere Fassungen
+  derselben Seite, z. B. Diagramm und Tabelle. Im Kopfband erscheint ein Schalter, in der Präsentation ist er
+  klickbar; beim Blättern zählen Ansichten als ihre Hauptseite. Ansichten haben die Rolle `detail`. Export:
+  `pages[].viewGroup`, `viewLabel`, `views[]`, Issues `VIEW_SWITCH` (Power BI: Schaltflächen mit Seitennavigation)
+  bzw. `APP_VIEW_SWITCH` (Vorgabe für die App-Shell).
+- **Essentials-Tour** (`tour.js`, `MK_TOUR.start('essentials'|'app')`, Knopf „Tour“ neben den Vorlagen): zehn Karten
+  mit Spotlight vom Ziel über Vorlagen, Kachel einrichten, Felder, Gestaltung bis Präsentieren und Export; danach
+  wahlweise die kurze App-Tour (Burger-Menü, gespeicherte Filter, Handy-Vorlage, Präsentation). Beim ersten Besuch
+  erscheint unten rechts ein Angebot (`mockupkitchen.tour.v1`). Die Tour ändert nichts am Projekt.
+
+## Neu in v0.7.2 (24.11.2026, lokal auf `feat/mockup-kitchen`)
+
+Zwei Punkte aus dem ersten Test.
+
+- **KPI-Karte mit mehr Inhalt** (`S.kpi` in `sketches.js`): KPI-Kacheln sind breit und flach, die Skizze fiel dort in
+  den Klein-Modus (Zahl 16 px, kein Verlauf, halbe Fläche leer). Neu sind zwei Aufbauten: *flach* (große Zahl mit
+  Einheit, Δ-Zeile, Vergleichsbalken AC gegen Bezug in Szenario-Notation mit Werten, Verlauf rechts) und *hoch* (Zahl,
+  Δ-Zeile, Vergleichsbalken, Verlauf unten). In der Kachel zeichnet die Skizze ohne eigenen Rahmen (`o.bare`), nur der
+  Status-Akzent links bleibt. Der Kacheltitel von `kpi` und `card` ist kleiner und ruhiger (Klasse `k-<kind>` an der
+  Kachel), auch im PNG.
+- **Farbschema** (Reiter Design, `appmode.js`): „Kitchen Basis“ oder „Firmenfarben“. Firmenfarben kommen aus einer
+  Power-BI-Theme-Datei (`dataColors`, `background`, `foreground`, `tableAccent`), aus einer beliebigen Textdatei mit
+  Hex-Werten (CSS, Text) oder aus einer eingefügten Liste. Zustand `design.scheme` und `design.brand { name, colors[],
+  source, head?, accent? }`. Wirkung: Kopfband (erste Farbe, Schrift nach Kontrast), Akzent (erste kräftige Farbe mit
+  mindestens 3:1 auf Weiß), native Visuals (`nativePalette: 'brand'`, Skizzen-Option `nativeColors`). Kopfband und
+  Akzent lassen sich per Klick auf eine Farbe umstellen. Die Szenario-Notation der ChartKitchen-Skizzen bleibt
+  unverändert. Export: `design.colors.brand { name, palette[], source, active }`; der Konverter nimmt die Palette als
+  `dataColors` des Themes und für native Visuals (`native_palette()` in `mockup_to_pbir.py`).
+
+## Neu in v0.7.1 (24.11.2026, lokal auf `feat/mockup-kitchen`)
+
+Vorlagen für das Ziel Fabric App, darunter eine Handy-Vorlage im Hochformat.
+
+- **Fünf neue Vorlagen** (`TEMPLATES` in `catalog.js`, mit Feldbindungen auf das Demo-Modell):
+  `app-phone` (Handy · Übersicht), `app-hub` (Start-Hub), `app-detail` (Übersicht mit Detail-Panel), `app-pnl`
+  (GuV-Cockpit, nur ChartKitchen und P&L) und `app-monthly` (Monatsgespräch). Dazu zwei versteckte Bausteine
+  (`app-phone-trend`, `app-phone-list`, `hidden: true`) für die Zusatzseiten der Handy-Vorlage.
+- **Vorlagen mit Vorgaben** (`setup`): Eine Vorlage kann Canvas, Ziel und Rahmen setzen (`applyTplSetup`), Zusatzseiten
+  anlegen, wenn das Projekt erst eine Seite hat, und ihre Kacheln mit vorhandenen Seiten verknüpfen (`applyTplAfter`,
+  Start-Hub). Der Toast nennt, was gesetzt wurde; Strg+Z nimmt alles in einem Schritt zurück.
+- **Kennzeichen in der Vorlagenauswahl** (`targets`, `form`): Handy, Fabric App, Power BI; das aktuelle Ziel ist
+  hervorgehoben, die Handy-Vorlage zeigt ihre Vorschau im Hochformat.
+- **Handy-Format** (`canvas.base`): 1080 × 1920 mit logischer Breite 400. `ui()` rechnet `Breite / base`, also Faktor
+  2,7 statt 0,84; ohne `base` gilt 1280 wie bisher. `pixelgrid.js` bleibt unberührt, `uiComp()` gleicht Rahmenmaße
+  und Ränder aus. Canvas-Vorgabe „Handy · 1080 × 1920“ (`1080x1920@400`). `a11y.js` prüft Mindestgrößen mit
+  demselben Faktor: die vier Karten der Handy-Vorlage sind 472 × 261 px (Warnschwelle 432 × 243), auch mit Chip-Zeile
+  bleibt es ohne Befund.
+- **Tab-Leiste unten** (`chrome.navPos = 'tabs'`): bis zu fünf Seiten in der Fußleiste, im Entwurf, im PNG und auf der
+  Bühne (Klick wechselt die Seite). Im Hochformat steht die Steuerleiste der Bühne rechts neben der Seite.
+- **Export:** `canvas.base`, `canvas.form`, `zones.footer.navPosition: "tabs"` mit `tabBar`, `app.shell.resolution:
+  "phone"`.
+- **Geprüft:** Pixelraster (`checkLattice`) und `gridcheck` ohne Befund für alle fünf Vorlagen, Felder vollständig
+  gebunden, im Ziel App keine nicht erzeugbaren Kacheln bei Handy, Hub und GuV-Cockpit (Detail-Panel und Monatsgespräch
+  enthalten je eine Text-Kachel für den Kommentar).
+
+## Neu in v0.7.0 (24.11.2026, lokal auf `feat/mockup-kitchen`)
+
+MockupKitchen als Workshop-Werkzeug, Design-Werkzeug und Vorlage für Rayfin-Apps. Hintergrund, Abgleich mit der
+dwg cli und Vorschläge für weitere Funktionen: [`KONZEPT-APPMODUS.md`](KONZEPT-APPMODUS.md).
+
+- **Zielmodus** (`S.target`, Export `meta.target`): Power BI, Fabric App oder Wireframe. Auswahl im Dialog „Neu“,
+  über die Pille oben links und im Reiter Bericht. Fabric App setzt Burger-Menü, Kopfleiste 96 px bei Full HD und das
+  12er-Pixelraster; Wireframe zeichnet in Grautönen. Modul `appmode.js` (`MK_APPMODE.applyTarget`).
+- **Gespeicherte Filter** (`S.views[] = { id, name, filters }`, Reiter Zonen): Chip-Zeile unter dem Kopfband, eigene
+  Zone `chips` (30 px bei 1280). Im Ziel Power BI erscheint der Hinweis „Achtung Lesezeichen“, im Export die Issues
+  `BOOKMARKS_SAVED_FILTERS` und `BOOKMARKS_BURGER_NAV`.
+- **Navigation im Burger-Menü** (`chrome.navPos = 'burger'`), zusätzlich zum Filter-Panel per Burger.
+- **Bühne** (`stage.js`, `MK_STAGE`): Die Präsentation ist klickbar. Burger-Menü mit Seiten, gespeicherten Filtern
+  und Slicern, Chips zum Wegklicken, Querfilter per Klick auf eine Kachel, Sprungziele, Doppelklick vergrößert,
+  Steuerleiste unten, Tasten ← → M F R Esc. Gefiltert wird nur der Startwert der Skizzen (`MK_STAGE.shift`), der
+  Zustand ist flüchtig und steht nicht im Export.
+- **Typauswahl mit Schlagwort-Chips** (`MK_CATALOG.tagIds`, `tagsOf`): Zeit, Struktur, Abweichung, KPI, Tabelle,
+  Anteil, Verteilung, Karte, IBCS-Notation, Nativ, Steuerung, Text und Bild. Im Ziel Fabric App zusätzlich „nur für
+  das Ziel passende“; nicht erzeugbare Typen tragen ⚠ (`def.targets`).
+- **Neue Typen aus ChartKitchen 1.57 und P&L 1.8.3** (63 statt 51): `stockflow`, `areastack`, `cumline`, `lineidx`,
+  `scatpath`, `bubshare`, `ckpnl`, `ckmatrix`, `pnlmega`, `pnlbs`, `pnltree`, `pnlsankey`; `marimekko` hat jetzt den
+  ChartKitchen-Modus `bars`. Feste Voreinstellungen je Typ in `ckFixed` bzw. `cvFixed`, wählbare in `CK_OPTS`.
+- **Export:** `meta.target`, `zones.chips { views, bookmarks }`, `zones.header.burgerNav`, Block `app { shell,
+  notBuildable }`, Issues `APP_SHELL_*`, `APP_NOT_BUILDABLE`. `meta.target` und `app` zählen nicht zum specHash, die
+  Chip-Zeile über `zones` schon. Texte der neuen Teile in `i18n-app.js` (flache Schlüssel, nach `i18n.js` geladen).
+- **KPI als ChartKitchen-Karte:** Der Konverter baut `kpi` mit Engine ChartKitchen als `cards` mit Trend statt als
+  `ibcsKpiCard` (Schalter `--kpi-card ibcs` für den alten Weg). Das passt zur dwg cli, die KPI-Kacheln ebenfalls
+  als ChartKitchen `cards` anlegt.
+- **Für später:** Die dwg-Shell kennt weder Burger-Menü noch gespeicherte Ansichten; der Export nennt beides als
+  Vorgabe. `dwg mockup import` liest `meta.target`, `app` und `zones.chips` noch nicht.
+
+## Stand und Arbeitszweig (24.11.2026)
+
+Der weitere Ausbau von MockupKitchen geschieht auf dem Branch **`feat/mockup-kitchen`**. Er setzt auf `origin/main`
+(69b3ba1) auf und führt drei Stände zusammen, die vorher verstreut lagen:
+
+- `origin/main` mit der dort veröffentlichten 0.6.0 (ChartKitchen 1.47: Streudiagramm mit Engine ChartKitchen,
+  `chartKitchenProps`, selbst gehostete Schriften, gemeinsame Navigation),
+- das lokale `main` mit 0.6.0 live, 0.6.1 und 0.6.2 (Live-/Agent-Modus, `live.js`, `mockup-live/`, Seitenrolle),
+- `feat/mockup-pixelgrid` (Pixelraster als Modul, Abschnitt unten).
+
+Die Versionsnummer **0.6.0 gibt es deshalb zweimal** mit verschiedenem Inhalt (online: ChartKitchen 1.47, lokal: Live-Modus);
+maßgeblich ist jetzt 0.6.2 mit beidem. Entscheidungen beim Zusammenführen:
+
+- Skizzen-Optionen laufen über `MK.sketchOpts()` (lokal); die ChartKitchen-Optionen (`ckSketchOpt`, online) fließen dort ein,
+  Bildschirm, PNG-Export und Vorschau im Kachel-Reiter zeichnen also dasselbe.
+- KPI-Verlauf: die Skizze beachtet beide Schalter, `o.spark` (kein Zeitfeld gebunden) und `o.trend` (Option `cardTrendChart`).
+- Spec-Hash zählt Seitenrolle (≠ nav) und `chartKitchenProps`.
+- Konverter: beim Zusammenführen blieb `kpi` mit Engine ChartKitchen zunächst `ibcsKpiCard`. **Entschieden am
+  24.11.2026:** `kpi` wird als ChartKitchen `cards` mit Rolle `trend` gebaut (ab ChartKitchen 1.47). `ibcsKpiCard`
+  bleibt als Schalter (`--kpi-card ibcs`, `MK_KPI_CARD=ibcs`); der Live-Runner setzt ihn vorerst selbst, bis ein
+  Desktop-Lauf die ChartKitchen-Karte dort bestätigt hat.
+- Nichts davon ist gepusht. Das lokale `main` und `feat/mockup-pixelgrid` bleiben unverändert stehen.
+
+Tests auf diesem Stand: `pixelgrid-test` 49, `gridcheck-test` 8, `a11y-test` 30, `diff-test` 48, `fmtinfo-test` 37,
+Skill `run_tests.py` 620 von 620. Nächster Schritt laut `KONZEPT-PIXELRASTER.md`: Stufe 2 (Einrasten beim Ziehen,
+„Pixelgenau machen“, Skill wertet `canvas.pixel` aus).
+
+## Pixelraster als gemeinsames Modul (20.10.2026)
+
+- **`pixelgrid.js`** setzt Stufe 1 aus `KONZEPT-PIXELRASTER.md` als reines Rechenmodul um: `zones()` (Raster als
+  Standard, `{legacy: true}` = fester Rand wie 0.6.2, byte-gleich, Test über 384 Fälle), `solveMargins()`, `line()`
+  (Ganzzahl-Brüche, BigInt), `place()` und `placeFrac()`, `layout()` (Baum und Grid im Pitch-Raum), `cellOf()` und
+  `transfer()` (Seite pixelgenau in eine andere Auflösung), `slicerStack()`, `inside()`, `lines()`, `pixelBlock()`,
+  Chrome-Vorlagen `MOCKUP_CHROME` und `DWG_CHROME`. Typen in `pixelgrid.d.ts`. Die API folgt der ersten dwg-Fassung
+  (`dwg/layout/pixelgrid.mjs` der Showcase-Runde), damit deren Aufrufer und Tests unverändert bleiben.
+- **Eine Quelle für zwei Werkzeuge:** MockupKitchen lädt die Datei per `<script>` vor `gridcheck.js` und `app.js`
+  (`window.MK_PIXELGRID`). Die dwg cli (Repo Fabric-Apps-Demo) erzeugt daraus mit `dwg mockup build` ihr ES-Modul
+  `dwg/layout/pixelgrid.mjs` (Inhalt unverändert plus Export-Zeilen) und holt `gridcheck.js`, `a11y.js` und den
+  Konverter des Skills `mockup-to-powerbi` nach `dwg/mockup/vendor/`. Warum hier: MockupKitchen ist ein Browser-Tool
+  ohne Build und kann nichts aus dem dwg-Repo laden; dwg hat schon den Weg „aus dem Kitchen-Repo bauen“ (`dwg visuals
+  build`) und prüft per Manifest, dass niemand die geholten Dateien von Hand ändert. Änderungen also nur hier.
+- **Rastermodus im Tool:** Design > Abstände > „Pixelraster“ (aus · 12er-Raster). Mit Raster lösen sich die Ränder
+  (Basis 18), die Lesezeile zeigt Rand, Zwischenraum, Spalten- und Zeilenschritt; die Rand-Eingabe ruht. Zustand
+  `S.pixel = {mode: 'lattice', n: 12}`, Export `canvas.pixel` und `visuals[].cell` (Brüche), beides ohne Einfluss auf
+  den specHash. Standardprojekt FHD: KPIs 27/423/819/1215, 378 × 167, Hauptzeile 1038 + 510 wie im Konzept.
+- **`gridcheck.checkLattice(rects, lat)`:** Befunde `OFF_LATTICE` (Kante 1 bis 3 px neben einer Linie j/12 bzw. j/24),
+  `NOT_FLUSH` (Außenkante knapp nicht am Inhaltsrand), `OUTSIDE_CONTENT`. Freie Linien wie 1/5 bleiben erlaubt.
+- **Tests:** `node assets/mockup/pixelgrid-test.js` (alle Tabellenwerte aus Abschnitt 3, Sweep 320 bis 4000 px),
+  `node assets/mockup/gridcheck-test.js`. `a11y.js` exportiert für Node zusätzlich per `module.exports`.
+- **Offen (Stufe 2):** Einrasten beim Ziehen, Split-Dialog mit „±1 px“-Badge, Mindestgröße 48k, „Pixelgenau machen“
+  mit Gewichten aus den sichtbaren Pixeln (ohne das verschiebt das Einschalten Kacheln um bis zu 6 px), Skill-Seite
+  (Toleranz 0, NONINT, `--resnap`).
+
+## Neu in v0.6.2 (stabiler Stand)
+
+Führt den Live-Zweig (v0.6.0, v0.6.1) mit den Punkten aus dem Persona-Review (v0.5.5, v0.5.6) zusammen.
+
+- **Seiten sortieren (v0.6.1, Kundenfeedback):** Reiter in der Seitenleiste per Ziehen umstellen; im Reiter „Seite" eine
+  Liste „Alle Seiten" zum Ziehen, mit ↑/↓ für die Tastatur.
+- **Seitenrolle:** je Seite *Navigation* (Standard), *Detailseite* oder *Drillthrough*. Detail- und Drillthrough-Seiten
+  stehen nicht in Kopfband-, Fußleisten- und linker Navigation, tragen ein Abzeichen am Reiter und werden vom Skill in
+  Power BI ausgeblendet (`visibility: HiddenInViewMode`). Export: `pages[].role` und `pages[].hidden`, Brief-Hinweis je
+  Seite, Prüfung `DRILL_NO_SOURCE`. Der PBIR-Import liest ausgeblendete Seiten als Detail-, Drillthrough-Bindungen als
+  Drillthrough-Seite. Im Spec-Hash zählt die Rolle nur, wenn sie vom Standard abweicht (gleiche Regel in `export.js`
+  und `mockup_spec.py`, im Browser gegen Python nachgerechnet).
+- **Zusammengeführt:** Botschaftszeile, Sortierung, Top-N und leere Kennzahl laufen über `tileGeom`/`sketchOpts`, damit
+  Bildschirm, PNG, Vergleichsbild (Live) und Export-Analyse gleich rechnen. TMDL-Import: Modellname aus
+  `database.tmdl`/`model.tmdl`, dann Projektname (Live), dann `*.SemanticModel`-Ordner, sonst Abfrage.
+
+## Neu in v0.6 für alle (auch ohne Live-Modus)
+
+Die Live-Oberfläche erscheint nur mit `?live=1` (Schalter, siehe `mockup-live/BETA.md`). Für alle Nutzerinnen und Nutzer
+geändert hat sich nur, was die Skizze ehrlicher macht (Praxistest 02.10.2026, Befund B3):
+
+- **KPI-Kachel (`kpi`):** Die Verlaufslinie erscheint nur, wenn das Zeitfeld (Rolle „Zeit (Sparkline)") gebunden ist. Ist
+  nur die Hauptkennzahl gebunden, gibt es keine Linie, so wie Desktop es zeigt. Ohne jede Bindung bleibt die
+  Platzhalter-Skizze mit Linie. Ohne gebundenen Bezug gibt es weiter keine Δ-Zeile.
+- **Tacho (`gauge`):** Die Zielnadel erscheint nur mit gebundenem Ziel.
+- **Spec:** neues Feld `display.drawn.sparkline` (`true`/`false`); der Konverter setzt daraus `showSparkline` der
+  KPI-Karte (`ibcsKpiCard`).
+
 ## Neu in v0.4 (erstes Nutzer-Feedback)
 
 - **Skizzen:** Δ-Ebene in `varint` als echte kumulierte Brücke (`deltaBridge()`, Verbinder, Labels, Σ-Spalte); Balkenbreiten
@@ -84,6 +303,9 @@ Datei (file://) funktioniert ebenfalls.
 | `catalog.js` | Visual-Katalog: 47 Typen (ChartKitchen, native PBI, Custom Visuals Gantt/P&L), Datenrollen, Engines, Mapping auf pbir- und Custom-Visual-Buckets, fünf Demo-Modelle, Seitenvorlagen mit Feldbindungen |
 | `sketches.js` | SVG-Skizzen je Typ, `MK_SKETCH(kind, w, h, {scenario, seed, variance, dense, label, scale, polarity, lang, unit, palette, ink, dark, paper})`, Farben je Aufruf aus `theme(o)` |
 | `app.js` | Zustand v2 (Seiten, Design, Chrome), Container-Split-Layout → Canvas-Pixel, Skalierung (`ui = canvas.w / 1280`), Drag-and-drop, TMDL-Parser (BOM-fest), Inspector, Undo |
+| `studio.js` | Arbeitsbereich „Visual einrichten“ (ab 0.9.0): ganzseitiger Dialog je Kachel mit Feldern, Vorschau, Rollen, Darstellung und „Das kann dieses Visual“ |
+| `pixelgrid.js` | Pixelraster: Zonen, Ränder, Linien, Kacheln aus Brüchen; gemeinsam mit der dwg cli (Test `pixelgrid-test.js`) |
+| `gridcheck.js` | Raster prüfen und ausrichten, `checkLattice()` für den Rastermodus (Test `gridcheck-test.js`) |
 | `export.js` | `mockup-spec.json` (specVersion 2), `AGENT-BRIEF.md`, `WORKSHOP-DOKU.md`, `pbir-visuals.<Seite>.json`, Prompt; Speichern/Öffnen als `.mockup.json` |
 | `sketches-test.html` | Testblatt: alle Skizzen in drei Größen und Skalierungen, meldet NaN/undefined |
 

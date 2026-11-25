@@ -1,0 +1,47 @@
+relationship 0fce59de-f49b-49bd-abb2-ab6214ac7b82
+	fromColumn: FactActuals.Date
+	toColumn: DimDate.Date
+
+relationship a1d5b2ae-5447-4257-8250-a27938cbab99
+	fromColumn: FactActuals.ProductKey
+	toColumn: DimProduct.ProductKey
+
+relationship 338cdafa-2f45-4729-a717-d74d8c210981
+	fromColumn: FactActuals.RegionKey
+	toColumn: DimRegion.RegionKey
+
+relationship 2990290a-7b87-496e-b446-e1cff9040c96
+	fromColumn: FactPlan.Date
+	toColumn: DimDate.Date
+
+relationship 8e3b06dd-d32c-4d13-b56c-2f4351d8ce03
+	fromColumn: FactPlan.ProductKey
+	toColumn: DimProduct.ProductKey
+
+relationship cdd3fce0-80b2-4310-bd03-6e3e74917901
+	fromColumn: FactPlan.RegionKey
+	toColumn: DimRegion.RegionKey
+
+relationship 16db94a7-d7e7-492a-a2b5-8daafcc69f0a
+	fromColumn: FactBudget.Date
+	toColumn: DimDate.Date
+
+relationship aa4085b5-db50-4e9d-80db-a3ba4bb6e8de
+	fromColumn: FactBudget.ProductKey
+	toColumn: DimProduct.ProductKey
+
+relationship e801f97e-f14c-46f2-b4a0-efba5dcc0be0
+	fromColumn: FactBudget.RegionKey
+	toColumn: DimRegion.RegionKey
+
+relationship 244eff07-4d1a-4c58-89ab-6f992f855a0b
+	fromColumn: FactForecast.Date
+	toColumn: DimDate.Date
+
+relationship c1ad2e7f-3a58-46b4-bc22-370a5df78c48
+	fromColumn: FactForecast.ProductKey
+	toColumn: DimProduct.ProductKey
+
+relationship 42198d03-7fad-462b-9679-2de1f7819224
+	fromColumn: FactForecast.RegionKey
+	toColumn: DimRegion.RegionKey

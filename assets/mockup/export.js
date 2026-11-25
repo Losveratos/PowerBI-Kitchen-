@@ -76,14 +76,24 @@
   function buildSpec() {
     const S = MK.state; const c = S.chrome; const d = S.design; const k = MK.ui();
     const L = S.lang || I18N.lang; const T = (key, vars) => TL(L, key, vars);
-    const z = MK.zones(); const issues = []; const links = [];
+    const z = MK.zones(); const issues = []; const links = []; const target0 = (MK.TARGETS || []).includes(S.target) ? S.target : 'pbi';
     const issue = (level, code, text, page, visual) => issues.push({ level, code, text, page: page || null, visual: visual || null });
     const fieldOut = f => Object.assign({ table: f.table, name: f.name, kind: f.kind, ref: fieldRef(f) }, liveFlags(f));
+    // Visual-Wechsel an einer Kachel (ab 0.8.1): die gezeigte Fassung steht wie immer in der Kachel, die anderen in alternatives[]
+    const altOut = (v, pageName, id, title) => {
+      const alts = v.alts || []; if (!alts.length) return {};
+      const lab = a => a.altLabel || (CAT.byId[a.kind] || {}).label || a.kind;
+      issue(target0 === 'pbi' ? 'warn' : 'info', target0 === 'pbi' ? 'BOOKMARKS_TILE_SWITCH' : 'APP_TILE_SWITCH', T(target0 === 'pbi' ? 'exp.issue.tileSwitchPbi' : 'exp.issue.tileSwitchApp', { t: title, n: alts.length + 1 }), pageName, id);
+      return { switchLabel: lab(v), switchIndex: v.altIx || 0, alternatives: alts.map(a => { const d = CAT.byId[a.kind] || {}; const r = {}; Object.keys(a.roles || {}).forEach(k => { r[k] = (a.roles[k] || []).map(f => f.table + '.' + f.name); }); return { label: lab(a), kind: a.kind, engine: a.engine, chartKitchenMode: a.engine === 'ck' ? (d.ckMode || null) : null, title: a.title || '', roles: r }; }) };
+    };
     const pages = S.pages.map((p, pi) => {
       const all = MK.computeAll(p);
       const visuals = all.leaves.filter(l => l.node.visual).map(l => {
         const v = l.node.visual; const def = CAT.byId[v.kind] || { label: v.kind, roles: [], native: null, ck: null, ckMode: null };
-        const roles = {}; const vw = []; const id = 'mk_' + l.node.id; const title = v.title || def.label;
+        // title = sichtbarer Kachelkopf, '' wenn die Kachel keinen zeigt (AUDIT-DEPLOY4: sonst schreibt der Runner einen Titel, den das
+        // Kitchen nie zeigte). Der Kopf erscheint mit eigenem Titel oder Untertitel; ohne eigenen Titel steht dann das Katalog-Label dort.
+        // displayName = Name für Meldungen, Brief und Auswahlbereich (eigener Titel, sonst Katalog-Label), label = Katalog-Label.
+        const roles = {}; const vw = []; const id = 'mk_' + l.node.id; const titleShown = !!(v.title || v.sub); const title = v.title || def.label;
         CAT.rolesFor(def, v).forEach(r => { const list = v.roles[r.key] || []; if (list.length) roles[r.key] = list.map(fieldOut); if (r.req && !list.length) { vw.push(T('exp.issue.roleEmptyShort', { r: r.label })); issue(v.engine === 'native' ? 'error' : 'warn', 'ROLE_EMPTY', T('exp.issue.roleEmpty', { r: r.label }), p.name, id); } });
         if (MK.anti[v.kind]) { vw.push(def.note || T('exp.issue.antiShort')); issue('warn', 'ANTI_PATTERN', T('exp.issue.anti', { label: def.label, note: def.note || T('exp.issue.antiFallback') }), p.name, id); }
         if (v.engine === 'ck' && !def.ckMode) { vw.push(T('exp.issue.ckNoModeShort')); issue('error', 'CK_NO_MODE', T('exp.issue.ckNoMode', { label: def.label }), p.name, id); }
@@ -112,31 +122,41 @@
         const hasRef = def.roles.some(r => r.key === 'ref' || r.key === 'goal'); const hasMeasure = def.roles.some(r => r.kind === 'measure');
         // ChartKitchen-Optionen (ab 0.6.0, ChartKitchen 1.47): nur bei engine ck und nur, wenn der Typ welche kennt; sonst fehlt der Schlüssel (Hash bleibt)
         const ckProps = CAT.ckPropsOf ? CAT.ckPropsOf(v) : null;
+        // Format-Einstellungen eines Custom Visuals byDatenWG (ab 0.7.0, P&L Statement: Template, Ansicht, Karten-Art); fehlt, wenn der Typ keine kennt
+        const cvProps = CAT.cvPropsOf ? CAT.cvPropsOf(v) : null;
         return {
           id, stableId: l.node.id, slug: slug(title), page: p.name, kind: v.kind, label: def.label, engine: v.engine,
-          chartKitchenType: v.engine === 'ck' ? def.ck : null, chartKitchenMode: v.engine === 'ck' ? def.ckMode : null, ...(ckProps ? { chartKitchenProps: ckProps } : {}), native,
+          chartKitchenType: v.engine === 'ck' ? def.ck : null, chartKitchenMode: v.engine === 'ck' ? def.ckMode : null, ...(ckProps ? { chartKitchenProps: ckProps } : {}), ...(cvProps ? { customVisualProps: cvProps } : {}), native,
           customVisual: cvBuckets ? { name: def.customVisual.name, guid: def.customVisual.guid, buckets: cvBuckets } : null,
-          title, subtitle: v.sub || '', content: v.content || '', scenario: def.roles.some(r => r.key === 'ref') ? v.scenario : null,
-          analysis: { polarity: hasMeasure ? an.polarity : null, polarityAuto: hasMeasure ? an.polarityAuto : false, deltaBasis: hasRef ? an.deltaBasis : null, deltaBasisAuto: hasRef ? an.deltaBasisAuto : false, deltaKind: hasRef ? an.deltaKind : [], unit: an.unit || null, displayUnits: an.displayUnits === 'auto' ? null : an.displayUnits, decimals: an.decimals, sort: an.sort, topN: an.topN, timeGrain: an.timeGrain, cumulative: an.cumulative, scaleGroup: an.scaleGroup || null, message: an.message || null,
+          title: titleShown ? title : '', titleShown, displayName: title, subtitle: v.sub || '', content: v.content || '', scenario: def.roles.some(r => r.key === 'ref') ? v.scenario : null,
+          // deltaBasis = wirksame Basis (gegen die die Skizze rechnet, null ohne gezeigten Bezug); gewählt, aber nicht gezeigt: deltaBasisRequested
+          analysis: { polarity: hasMeasure ? an.polarity : null, polarityAuto: hasMeasure ? an.polarityAuto : false, deltaBasis: hasRef ? an.deltaBasis : null, deltaBasisAuto: hasRef ? an.deltaBasisAuto : false, deltaBasisSource: hasRef ? (an.deltaBasisSource || null) : null, deltaBasisRequested: hasRef ? (an.deltaBasisRequested || null) : null, deltaKind: hasRef ? an.deltaKind : [], unit: an.unit || null, displayUnits: an.displayUnits === 'auto' ? null : an.displayUnits, decimals: an.decimals, sort: an.sort, topN: an.topN, timeGrain: an.timeGrain, cumulative: an.cumulative, scaleGroup: an.scaleGroup || null, message: an.message || null,
             smallMultiples: an.smallMultiples ? { field: (v.roles.multiples || [])[0] ? fieldRef(v.roles.multiples[0]) : null } : null,
             fieldParam: an.fieldParam ? { name: an.fieldParamName || 'Achse', role: 'category', fields: (v.roles.category || []).map(fieldRef) } : null },
+          display: displayOf(l, v, an),
           workshop: { priority: v.priority || null, status: v.status || 'open', openQuestion: !!v.openQuestion },
           typography: v.typo && v.typo.scale ? { scale: v.typo.scale } : null,
           samples: MK.samplesOf ? MK.samplesOf(v) : null,
           interaction: { drillDown: !!(v.interaction || {}).drillDown, crossFilter: (v.interaction || {}).crossFilter !== false, drillThrough: target && v.kind !== 'button' ? { pageId: target.id, pageName: target.name, field: cat ? fieldRef(cat) : null } : null },
-          rect: l.rect, roles, notes: v.notes || '', link: target ? { pageId: target.id, pageName: target.name } : null, warnings: vw,
+          rect: l.rect, ...(l.cell ? { cell: l.cell } : {}), roles, ...altOut(v, p.name, id, title), notes: v.notes || '', link: target ? { pageId: target.id, pageName: target.name } : null, warnings: vw,
+          // Herkunft aus dem Projekt (MK_PBIR): der Runner aktualisiert dieses PBIR-Visual per Delta statt ein neues anzulegen (CONTRACT.md)
+          pbir: pbirOf(v.pbir, true),
         };
       });
       all.leaves.filter(l => !l.node.visual).forEach(l => issue('warn', 'EMPTY_TILE', T('exp.issue.emptyTile', { x: l.rect.x, y: l.rect.y, w: l.rect.w, h: l.rect.h }), p.name));
       if (!(p.question || '').trim()) issue('info', 'PAGE_NO_QUESTION', T('exp.issue.pageNoQuestion'), p.name);
-      return { id: p.id, index: pi + 1, name: p.name, question: p.question || '', notes: p.notes || '', contentRect: all.zones.content, visuals, layoutTree: stripTree(p.layout) };
+      const role = MK.roleOf(p);
+      // Ansichten einer Seite (ab 0.8.0): Schalter im Kopfband; viewGroup = ID der Hauptseite
+      const vf = MK.viewFamily ? MK.viewFamily(p) : null; const vOut = vf && vf.members.length > 1 ? { viewGroup: vf.root.id, viewLabel: p.viewLabel || p.name, views: vf.members.map(m => ({ id: m.id, name: m.name, label: m.viewLabel || m.name })) } : {};
+      if (vf && vf.members.length > 1 && vf.root === p) issue('info', target0 === 'app' ? 'APP_VIEW_SWITCH' : 'VIEW_SWITCH', T(target0 === 'app' ? 'exp.issue.appViewSwitch' : 'exp.issue.viewSwitch', { n: vf.members.length }), p.name);
+      return Object.assign(vOut, { id: p.id, index: pi + 1, name: p.name, role, hidden: role !== 'nav', pbir: pbirOf(p.pbir, false), question: p.question || '', notes: p.notes || '', contentRect: all.zones.content, visuals, layoutTree: stripTree(p.layout) });
     });
     const zonesOut = {};
     Object.keys(z).forEach(key => { zonesOut[key] = Object.assign({}, z[key]); });
     const navPos = MK.navPosOf(c), navList = MK.navNames(c); const navNames = navPos === 'header' ? navList : [];
-    if (z.header) Object.assign(zonesOut.header, { style: d.header, logoPos: c.header.logoPos, title: c.header.title, subtitle: c.header.sub, nav: navNames, navOn: navPos === 'header', navPosition: navPos, navAuto: !!c.header.navAuto, burger: c.filter.on && c.filter.side === 'burger' });
+    if (z.header) Object.assign(zonesOut.header, { style: d.header, logoPos: c.header.logoPos, title: c.header.title, subtitle: c.header.sub, nav: navNames, navOn: navPos === 'header', navPosition: navPos, navAuto: !!c.header.navAuto, burger: c.filter.on && c.filter.side === 'burger' }, navPos === 'burger' ? { burgerNav: true, burgerPages: navList } : {});
     if (z.nav) zonesOut.nav.pages = S.pages.map(p => p.name);
-    if (z.footer) { zonesOut.footer.text = c.footer.text; zonesOut.footer.nav = navPos === 'footer' ? navList : []; zonesOut.footer.navPosition = navPos; }
+    if (z.footer) { zonesOut.footer.text = c.footer.text; zonesOut.footer.nav = (navPos === 'footer' || navPos === 'tabs') ? navList.slice(0, navPos === 'tabs' ? 5 : navList.length) : []; zonesOut.footer.navPosition = navPos; if (navPos === 'tabs') zonesOut.footer.tabBar = true; }
     const slicers = (c.filter.fields || []).map(f => Object.assign(fieldOut(f), { default: f.default || null, type: f.type || 'dropdown' }));
     slicers.filter(f => f.missing).forEach(f => issue('error', 'FIELD_NOT_IN_MODEL', T('exp.issue.slicerNotInModel', { f: f.ref })));
     if (c.filter.on) {
@@ -147,6 +167,24 @@
       if (mode === 'burger' || c.filter.collapsible) fl.bookmarks = [{ name: T('exp.bm.open'), showsPanel: true }, { name: T('exp.bm.close'), showsPanel: false }];
       zonesOut.filter = fl;
       if (navNames.length > 5 && z.header) issue('warn', 'NAV_OVERFLOW', T('exp.issue.navOverflow', { n: navNames.length }));
+    }
+    // Gespeicherte Filter (Chip-Zeile unter dem Kopfband): Name plus „Feld = Wert, Wert" je Filter, soweit lesbar zerlegt
+    const target = (MK.TARGETS || []).includes(S.target) ? S.target : 'pbi';
+    const views = (S.views || []).map(v => ({ id: v.id, name: v.name || '', filters: v.filters || '', parsed: String(v.filters || '').split(/;|\n/).map(x => x.trim()).filter(Boolean).map(x => { const i = x.indexOf('='); return i < 0 ? { field: x, values: [] } : { field: x.slice(0, i).trim(), values: x.slice(i + 1).split(',').map(y => y.trim()).filter(Boolean) }; }) }));
+    if (zonesOut.chips) { zonesOut.chips.views = views; if (target === 'pbi') zonesOut.chips.bookmarks = views.map(v => ({ name: v.name, filters: v.filters })); }
+    if (target === 'pbi') {
+      if (views.length) issue('warn', 'BOOKMARKS_SAVED_FILTERS', T('exp.issue.bookmarksViews', { n: views.length }));
+      if (navPos === 'burger') issue('warn', 'BOOKMARKS_BURGER_NAV', T('exp.issue.bookmarksBurger'));
+    }
+    // Ziel Fabric App: was die dwg-Shell heute noch nicht kann, steht als Vorgabe (Wunsch) im Block app und als Hinweis in issues
+    let appOut = null;
+    if (target === 'app') {
+      const fits = def => def && (def.targets ? def.targets.includes('app') : (!!def.ckMode || !!(def.customVisual && def.customVisual.name === 'pnlByDatenWG')));
+      const notBuildable = [];
+      pages.forEach(p => p.visuals.forEach(v => { if (!fits(CAT.byId[v.kind])) { notBuildable.push({ page: p.name, id: v.id, kind: v.kind }); issue('warn', 'APP_NOT_BUILDABLE', T('exp.issue.appNotBuildable', { t: v.displayName || v.title || v.label, k: v.kind }), p.name, v.id); } }));
+      if (views.length) issue('info', 'APP_SHELL_SAVED_FILTERS', T('exp.issue.appShellViews', { n: views.length }));
+      if (MK.burgerOn && MK.burgerOn(c)) issue('info', 'APP_SHELL_BURGER', T('exp.issue.appShellBurger'));
+      appOut = { shell: { navigation: navPos, filterPanel: c.filter.on ? c.filter.side : 'off', savedFilters: views, crossFilter: true, resolution: S.canvas.base && S.canvas.base < 1280 ? 'phone' : S.canvas.w === 1920 && S.canvas.h === 1080 ? 'fullhd' : S.canvas.w === 1280 && S.canvas.h === 720 ? 'hd' : 'custom' }, notBuildable };
     }
     // Felder: alle gebundenen Felder mit Modell-Definition und Steckbrief
     const used = new Map();
@@ -172,14 +210,18 @@
     if (MK.a11yFindings) MK.a11yFindings().forEach(f => issue(f.level, f.code, f.text + (f.hint ? ' (' + f.hint + ')' : ''), f.page, f.visual ? 'mk_' + f.visual : null));
     if (!S.report.audience) issue('info', 'REPORT_NO_AUDIENCE', T('exp.issue.noAudience'));
     if (!S.report.decision) issue('info', 'REPORT_NO_DECISION', T('exp.issue.noDecision'));
+    // Drillthrough-Seite ohne Kachel, die auf sie springt
+    pages.filter(p => p.role === 'drill' && !pages.some(q => q.visuals.some(v => v.link && v.link.pageId === p.id))).forEach(p => issue('info', 'DRILL_NO_SOURCE', T('exp.issue.drillNoSource', { p: p.name }), p.name));
     // specHash wird unten aus der fertigen Spec gerechnet; der Platzhalter hält die Schlüsselreihenfolge in meta
     const spec = {
-      meta: { tool: TOOL, version: VER, specVersion: SPEC_VERSION, specHash: '', name: S.name, lang: L, exportedAt: new Date().toISOString(), skill: 'mockup-to-powerbi' },
+      meta: { tool: TOOL, version: VER, specVersion: SPEC_VERSION, specHash: '', name: S.name, lang: L, exportedAt: new Date().toISOString(), skill: 'mockup-to-powerbi', target },
       report: Object.assign({ name: S.name }, S.report),
-      canvas: { width: S.canvas.w, height: S.canvas.h, preset: S.canvas.preset, uiScale: +k.toFixed(3) },
+      // Rastermodus (pixelgrid.js): Schritt, Zwischenraum und Ränder; cell je Kachel = Brüche im Pitch-Raum. Zählt nicht zum specHash.
+      canvas: Object.assign({ width: S.canvas.w, height: S.canvas.h, preset: S.canvas.preset, uiScale: +k.toFixed(3) }, S.canvas.base && S.canvas.base !== 1280 ? { base: S.canvas.base, form: 'phone' } : {}, MK.lattice && MK.lattice() ? { pixel: window.MK_PIXELGRID.pixelBlock(MK.lattice()) } : {}),
       spacing: { margin: Math.round(S.spacing.margin * k), gutter: Math.round(S.spacing.gutter * k), tilePadding: Math.round(S.spacing.pad * k), base: { margin: S.spacing.margin, gutter: S.spacing.gutter, tilePadding: S.spacing.pad } },
-      design: { nativePalette: d.nativePalette || 'neutral', cornerRadius: Math.round(d.radius * k), tileStyle: d.tile, pageBackground: MK.pageBgOf(d), tileBackground: d.tileBg || '#FFFFFF', headerStyle: d.header, accent: d.accent, variancePalette: d.palette || 'teal', varianceColors: (d.palette || 'teal') === 'ibcs' ? { good: '#3A9A5B', bad: '#C8412F' } : { good: '#1E8F9E', bad: '#D64541' }, colors: { pageBackground: MK.pageBgOf(d), tileBackground: d.tileBg || '#FFFFFF', ink: d.ink || '#0F1E2E', headerBackground: d.header === 'custom' ? d.headerBg : (d.header === 'dark' ? '#0F1E2E' : d.header === 'accent' ? d.accent : '#FFFFFF'), headerInk: d.header === 'custom' ? d.headerInk : (d.header === 'light' ? '#0F1E2E' : '#FFFFFF') }, darkMode: MK.isDark(d.tileBg), fontScale: +k.toFixed(3), typography: Object.assign({ basis: '1280px' }, MK.typo()) },
+      design: { nativePalette: d.nativePalette || 'neutral', cornerRadius: Math.round(d.radius * k), tileStyle: d.tile, pageBackground: MK.pageBgOf(d), tileBackground: d.tileBg || '#FFFFFF', headerStyle: d.header, accent: d.accent, variancePalette: d.palette || 'teal', varianceColors: (d.palette || 'teal') === 'ibcs' ? { good: '#3A9A5B', bad: '#C8412F' } : { good: '#1E8F9E', bad: '#D64541' }, colors: { pageBackground: MK.pageBgOf(d), tileBackground: d.tileBg || '#FFFFFF', ink: d.ink || '#0F1E2E', headerBackground: d.header === 'custom' ? d.headerBg : (d.header === 'dark' ? '#0F1E2E' : d.header === 'accent' ? d.accent : '#FFFFFF'), headerInk: d.header === 'custom' ? d.headerInk : (d.header === 'light' ? '#0F1E2E' : '#FFFFFF'), ...(d.brand && d.brand.colors && d.brand.colors.length ? { brand: { name: d.brand.name || '', palette: d.brand.colors.slice(0, 8), source: d.brand.source || 'list', active: d.scheme === 'brand' } } : {}) }, darkMode: MK.isDark(d.tileBg), fontScale: +k.toFixed(3), typography: Object.assign({ basis: '1280px' }, MK.typo()) },
       zones: zonesOut, pages, links,
+      ...(appOut ? { app: appOut } : {}),
       model: { source: S.model.source || null, tables: S.model.tables.map(t => t.name), usedFields: fields },
       fields, newFields, issues,
       warnings: issues.filter(i => i.level !== 'info').map(i => (i.page ? TL(L, 'exp.brief.openPage', { p: i.page }) + ': ' : '') + i.text),
@@ -188,10 +230,41 @@
     // Die JSON-Rundreise sorgt dafür, dass genau das zählt, was die Datei schreibt (undefined fällt weg, NaN wird null);
     // so lässt sich der Hash aus der Spec allein nachrechnen.
     const core = JSON.parse(JSON.stringify({ canvas: { width: spec.canvas.width, height: spec.canvas.height }, design: spec.design, zones: spec.zones,
-      pages: spec.pages.map(p => ({ name: p.name, question: p.question, visuals: p.visuals.map(v => ({ id: v.id, kind: v.kind, engine: v.engine, title: v.title, content: v.content, rect: v.rect, roles: v.roles, analysis: v.analysis, link: v.link, chartKitchenProps: v.chartKitchenProps })) })),
+      pages: spec.pages.map(p => Object.assign(p.role && p.role !== 'nav' ? { role: p.role } : {}, { name: p.name, question: p.question, visuals: p.visuals.map(v => ({ id: v.id, kind: v.kind, engine: v.engine, title: v.title, content: v.content, rect: v.rect, roles: v.roles, analysis: v.analysis, link: v.link, chartKitchenProps: v.chartKitchenProps, customVisualProps: v.customVisualProps })) })),
       fields: spec.fields.map(noDoc), newFields: spec.newFields.map(noDoc), links: spec.links }));
     spec.meta.specHash = fnv(canon(core));
     return spec;
+  }
+  /* Was die Kachel zeigt, als ausdrückliche Felder (mockup-live/CONTRACT.md, „Kachel-Anzeige"). Messlatte ist das Kitchen-Bild
+     (PLAN-V2, Paket B): der Konverter soll nachbauen können, was die Skizze zeichnet, nicht was das Szenario-Menü sagt.
+     Quellen: MK.effScen (Bindung vor Auswahl) und die Skizze selbst (MK.sketchInfo liest data-mk-drawn in derselben Größe wie
+     auf dem Bildschirm). Typen ohne Referenz- und Zielrolle tragen nie eine Δ-Ebene (ihre Skizzen-Δ sind Beiträge, kein Vergleich). */
+  function displayOf(l, v, an) {
+    const e = MK.effScen ? MK.effScen(v) : null; const info = MK.sketchInfo ? MK.sketchInfo(l.node, l.rect) : null;
+    const dr = (info && info.drawn) || null; const cmp = !!(e && e.roleKey);
+    const ty = MK.typo(); const f = ty.scale * MK.tileScale(v) * MK.ui(); const r1 = x => Math.round(x * 10) / 10;
+    const px = { title: r1(ty.title * f), subtitle: r1(ty.sub * f), label: dr && dr.fontPx ? r1(dr.fontPx.label) : r1(ty.chart * f), axis: dr && dr.fontPx ? r1(dr.fontPx.axis) : r1(ty.chart * f) };
+    return {
+      scenarios: e ? e.scenarios : ['AC'],
+      refSource: e ? e.source : null,
+      placeholders: e ? e.placeholders : [],
+      deltaBasis: an.deltaBasis || null,
+      deltaBasisSource: an.deltaBasisSource || null,
+      drawn: dr ? {
+        refs: dr.refs || [], marker: dr.marker || [], delta: cmp ? (dr.delta || []) : [], deltaBasis: cmp ? (dr.basis || null) : null,
+        labels: !!dr.labels, total: !!dr.sum, forecast: !!dr.fc, unit: dr.unit || null, reduced: !!dr.small,
+        sparkline: !!dr.spark,   // kpi: Verlaufslinie nur mit gebundenem Zeitfeld (B3) → ibcsKpiCard showSparkline
+      } : null,
+      numbers: { displayUnits: an.displayUnits || 'auto', decimals: an.decimals == null ? null : an.decimals, unitText: an.unit || null },
+      fontPx: px,
+      fontPt: { title: r1(px.title * 0.75), subtitle: r1(px.subtitle * 0.75), label: r1(px.label * 0.75), axis: r1(px.axis * 0.75) },
+    };
+  }
+  // Zuordnung zu bestehenden PBIR-Objekten (mockup-live/CONTRACT.md): Seiten { page }, Visuals { page, visual }. Ohne Herkunft fehlt der Schlüssel.
+  function pbirOf(o, visual) {
+    if (!o || typeof o.page !== 'string' || !o.page) return undefined;
+    if (!visual) return { page: o.page };
+    return typeof o.visual === 'string' && o.visual ? { page: o.page, visual: o.visual } : undefined;
   }
   function bucketsFor(def, v) {
     const b = {}; if (!def.native) return b;
@@ -234,6 +307,19 @@
     return parts.join(' · ');
   }
 
+  // Kurzzeile „Zeigt: AC · PL · PY (gebunden) · ΔPL abs + rel · Beschriftung an · Σ" für den Brief (nur Typen mit Bezug)
+  function displayLine(ds, L) {
+    if (!ds || !ds.refSource) return '';
+    const T = (k, v) => TL(L, k, v); const dr = ds.drawn || {};
+    const parts = [ds.scenarios.join(' · ') + ' (' + T('exp.disp.src.' + ds.refSource) + ')'];
+    if (ds.deltaBasis && (dr.delta || []).length) parts.push('Δ' + ds.deltaBasis + ' ' + dr.delta.join(' + ') + (ds.deltaBasisSource === 'auto' ? T('exp.an.auto') : ''));
+    else parts.push(T('exp.disp.noDelta'));
+    if (ds.placeholders && ds.placeholders.length) parts.push(T('exp.disp.unbound', { b: ds.placeholders.join(', ') }));
+    parts.push(T(dr.labels ? 'exp.disp.labelsOn' : 'exp.disp.labelsOff', { px: ds.fontPx.label, pt: ds.fontPt.label }));
+    if (dr.total) parts.push('Σ');
+    return parts.join(' · ');
+  }
+
   // ------------------------------------------------------------------ Agent-Brief
   // v0.5.3: Abschnitt „Definitionen und Kommentare" (DAX aus dem TMDL-Import, Format in Klartext, Workshop-Rückmeldung).
   // DAX kommt aus der unveränderten Spec (raw): im Codeblock wären die Markdown-Escapes von mdSafe falsch.
@@ -265,6 +351,11 @@
     const OPEN = T('exp.open');
     out.push(`# AGENT-BRIEF · ${spec.meta.name}`, '', B('head', { tool: spec.meta.tool, ver: spec.meta.version, date: spec.meta.exportedAt.slice(0, 10), sv: spec.meta.specVersion, hash: spec.meta.specHash, lang: spec.meta.lang }), '');
     out.push(B('hReport'), '', `- **${B('audience')}:** ${rp.audience || OPEN}`, `- **${B('purpose')}:** ${rp.purpose || OPEN}`, `- **${B('decision')}:** ${rp.decision || OPEN}`, `- **${B('version')}:** ${rp.version || '0.1'} · **${B('dataDate')}:** ${rp.dataDate || OPEN}`, '');
+    // Ziel des Entwurfs und gespeicherte Filter (ab 0.7.0)
+    { const tg = spec.meta.target || 'pbi'; out.push(T('exp.brief.target', { t: T('target.' + tg) }) + ' ' + T('exp.brief.target_' + tg), '');
+      const vws = (z.chips && z.chips.views) || [];
+      if (vws.length) { out.push(T('exp.brief.hViews'), '', ...vws.map(v => `- **${v.name || T('app.viewUnnamed')}**${v.filters ? ': `' + v.filters + '`' : ''}`), '', T('exp.brief.views_' + tg), ''); }
+      if (z.header && z.header.burgerNav) out.push(T('exp.brief.burgerNav_' + tg), ''); }
     out.push(B('hCanvas'), '',
       B('cPages', { n: spec.pages.length, w: spec.canvas.width, h: spec.canvas.height, s: spec.canvas.uiScale }),
       B('cSpacing', { m: spec.spacing.margin, g: spec.spacing.gutter, p: spec.spacing.tilePadding }),
@@ -291,17 +382,22 @@
     spec.pages.forEach(p => {
       out.push('', B('hPage', { i: p.index, name: p.name }), '');
       if (p.question) out.push(B('pQuestion', { q: p.question }), ''); if (p.notes) out.push(B('pNotes', { n: p.notes }), '');
+      if (p.role === 'detail') out.push(B('pRoleDetail'), '');
+      if (p.role === 'drill') { const src = spec.pages.filter(q => q.visuals.some(v => v.link && v.link.pageId === p.id)).map(q => q.name); out.push(B('pRoleDrill', { src: src.length ? B('pRoleSrc', { list: src.join(', ') }) : '' }), ''); }
       if (!p.visuals.length) out.push(B('pEmpty'));
       p.visuals.forEach((v, i) => {
-        out.push(`### ${p.index}.${i + 1} ${v.title} \`${v.id}\``, '',
+        out.push(`### ${p.index}.${i + 1} ${v.displayName || v.title} \`${v.id}\``, '',
           B('vType', { label: v.label, kind: v.kind, engine: ENGINE[v.engine] }) + (v.chartKitchenMode ? B('vCkMode', { m: v.chartKitchenMode }) : '') + (v.native ? B('vNative', { t: v.kind === 'text' ? 'shape' : v.native.type }) : ''),
           B('vPos', { rect: r(v.rect), id: v.stableId }));
+        if (v.titleShown === false) out.push(B('vNoTitle'));
         if (v.subtitle) out.push(B('vSub', { s: v.subtitle }));
         if (v.content) out.push(B('vText', { t: v.content }));
         if (v.scenario) out.push(B('vScenario', { s: v.scenario }));
+        { const ds = displayLine(v.display, L); if (ds) out.push(B('vDisplay', { d: ds })); }
         const roleLines = Object.keys(v.roles).map(key => `  - ${roleLabel(v.kind, key)}: ${v.roles[key].map(f => `\`${f.ref}\`${f.isNew ? B('vNew') : ''}${f.missing ? ` ${T('exp.missing')}` : ''}`).join(', ')}`);
         out.push(roleLines.length ? B('vRoles') : B('vRolesNone'), ...roleLines);
         // ChartKitchen-Optionen und abweichende Rollen-Zuordnung ab 1.47 (Zeitfeld der KPI → trend, Scatter → xValue/actual/bubbleSize)
+        if (v.customVisualProps) out.push(T('exp.brief.vCvProps', { list: Object.keys(v.customVisualProps).map(k => `\`${k}\` = \`${v.customVisualProps[k]}\``).join(' · ') }));
         if (v.chartKitchenProps) out.push(B('vCkProps', { list: Object.keys(v.chartKitchenProps).map(k => `\`chart.${k}\` = \`${v.chartKitchenProps[k]}\``).join(' · ') }));
         if (v.engine === 'ck' && v.kind === 'kpi' && (v.roles.category || []).length) out.push(B('vCkTrend', { f: v.roles.category[0].ref }));
         if (v.engine === 'ck' && v.kind === 'scatter') out.push(B('vCkScatter', { b: (v.roles.size || []).length ? B('vCkBubble') : '' }));
@@ -356,12 +452,13 @@
     spec.pages.forEach(p => {
       out.push(D('hPage', { i: p.index, name: p.name }), '', D('pQuestion', { q: p.question || FILL }), '');
       if (p.notes) out.push(D('pNotes', { n: p.notes }), '');
+      if (p.role && p.role !== 'nav') out.push(D('pRole', { r: T('pgl.' + p.role) }), '');
       if (p.visuals.length) {
         out.push(D('table'), D('tableSep'));
         p.visuals.forEach((v, i) => {
           const fields = Object.keys(v.roles).map(key => `${roleLabel(v.kind, key)}: ${v.roles[key].map(f => f.name + (f.isNew ? ` ${T('exp.new')}` : '') + (f.missing ? ` ${T('exp.missing')}` : '')).join(', ')}`).join('; ') || '–';
           const an = Object.keys(v.roles).length && v.kind !== 'slicer' ? [v.analysis.polarity === 'lower' ? D('anLower') : '', v.analysis.sort ? D('anSort', { by: v.analysis.sort.by }) : '', v.analysis.topN ? D('anTop', { n: v.analysis.topN }) : '', v.analysis.unit || ''].filter(Boolean).join(', ') || '–' : '–';
-          out.push(row(`| ${p.index}.${i + 1} | ${v.title}${v.subtitle ? ` (${v.subtitle})` : ''}${v.analysis.message ? `<br>_${v.analysis.message}_` : ''} | ${v.label}${v.scenario ? `, ${v.scenario}` : ''}${v.engine === 'ck' ? ', ChartKitchen' : ''} | ${fields} | ${an} | ${v.workshop.priority ? T('exp.pri.' + v.workshop.priority) : '–'} | ${T('exp.status.' + v.workshop.status)} | ${[v.content ? D('txtPrefix', { t: v.content }) : '', v.notes, v.link ? `→ ${v.link.pageName}` : ''].filter(Boolean).join(' · ') || '–'} |`));
+          out.push(row(`| ${p.index}.${i + 1} | ${v.displayName || v.title}${v.subtitle ? ` (${v.subtitle})` : ''}${v.analysis.message ? `<br>_${v.analysis.message}_` : ''} | ${v.label}${v.scenario ? `, ${v.scenario}` : ''}${v.engine === 'ck' ? ', ChartKitchen' : ''} | ${fields} | ${an} | ${v.workshop.priority ? T('exp.pri.' + v.workshop.priority) : '–'} | ${T('exp.status.' + v.workshop.status)} | ${[v.content ? D('txtPrefix', { t: v.content }) : '', v.notes, v.link ? `→ ${v.link.pageName}` : ''].filter(Boolean).join(' · ') || '–'} |`));
         });
       } else out.push(D('pEmpty'));
       out.push('');
@@ -374,7 +471,7 @@
     if (spec.newFields.length) { out.push(D('hNew'), '', D('newTable'), D('newSep')); spec.newFields.forEach(f => out.push(row(`| ${f.name} | ${f.kind === 'measure' ? T('exp.measureLong') : T('exp.dimension')} | ${f.table} | ${f.description || FILL} | ${f.unit || '–'} | ${f.target || '–'} | ${f.owner || '–'} | ${f.source || '–'} | ${f.openQuestion || '–'} |`))); out.push(''); }
     const open = [];
     spec.newFields.forEach(f => { if (f.openQuestion) open.push(`${f.name}: ${f.openQuestion}`); });
-    spec.pages.forEach(p => p.visuals.forEach(v => { if (v.workshop.openQuestion) open.push(`${p.name} / ${v.title}: ${v.notes || D('openQNoText')}`); }));
+    spec.pages.forEach(p => p.visuals.forEach(v => { if (v.workshop.openQuestion) open.push(`${p.name} / ${v.displayName || v.title}: ${v.notes || D('openQNoText')}`); }));
     spec.issues.filter(i => i.level !== 'info').forEach(i => open.push(withPage(i, L)));
     spec.fields.filter(f => f.note).forEach(f => open.push(`${f.ref}: ${f.note}`));
     out.push(D('hOpen'), '', ...(open.length ? open.map(o => `- [ ] ${o}`) : [D('openNone')]), '');

@@ -19,7 +19,7 @@
       "dir": "Varianten",
       "slug": "Varianten",
       "visuals": 6,
-      "chrome": 8,
+      "chrome": 11,
       "ck": 1,
       "deneb": 0
     }
@@ -195,13 +195,6 @@
       "visual": "mk_wf1",
       "title": "Ergebnisbruecke",
       "text": "Small Multiples nach `DimRegion.Region`: `waterfallChart` kennt die PBIR-Rolle `Rows` nicht. Anderen Visualtyp waehlen oder ein Raster aus Einzelkacheln bauen."
-    },
-    {
-      "code": "SM_NOT_NATIVE",
-      "page": "Varianten",
-      "visual": "mk_ck1",
-      "title": "AC/PL je Monat",
-      "text": "Small Multiples: Ein ChartKitchen-Visual hat keinen Small-Multiples-Bucket. Als natives Visual bauen oder als Raster aus einer Kachel je Auspraegung."
     },
     {
       "code": "FIELDPARAM_SLOT",

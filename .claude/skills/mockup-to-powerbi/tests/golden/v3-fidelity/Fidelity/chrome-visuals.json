@@ -1,0 +1,119 @@
+[
+  {
+    "visual_type": "shape",
+    "name": "chrome_header_bg",
+    "title": "Kopfband",
+    "x": 0,
+    "y": 0,
+    "width": 1920,
+    "height": 84
+  },
+  {
+    "visual_type": "shape",
+    "name": "chrome_header_rule",
+    "title": "Kopfband-Unterkante",
+    "x": 0,
+    "y": 83,
+    "width": 1920,
+    "height": 1
+  },
+  {
+    "visual_type": "actionButton",
+    "name": "chrome_burger",
+    "title": "Filter-Men\u00fc",
+    "x": 24,
+    "y": 18,
+    "width": 48,
+    "height": 48
+  },
+  {
+    "visual_type": "shape",
+    "name": "chrome_logo",
+    "title": "Logo",
+    "x": 93,
+    "y": 19,
+    "width": 132,
+    "height": 45
+  },
+  {
+    "visual_type": "shape",
+    "name": "chrome_header_title",
+    "title": "Kopfband-Titel",
+    "x": 246,
+    "y": 11,
+    "width": 1650,
+    "height": 37
+  },
+  {
+    "visual_type": "shape",
+    "name": "chrome_header_subtitle",
+    "title": "Kopfband-Untertitel",
+    "x": 246,
+    "y": 48,
+    "width": 1650,
+    "height": 24
+  },
+  {
+    "visual_type": "shape",
+    "name": "chrome_filter_bg",
+    "title": "Filter-Panel",
+    "x": 1500,
+    "y": 84,
+    "width": 420,
+    "height": 600
+  },
+  {
+    "visual_type": "shape",
+    "name": "chrome_filter_title",
+    "title": "Filter-\u00dcberschrift",
+    "x": 1515,
+    "y": 102,
+    "width": 342,
+    "height": 24
+  },
+  {
+    "visual_type": "shape",
+    "name": "chrome_filter_text",
+    "title": "Filter-Hinweistext",
+    "x": 1515,
+    "y": 138,
+    "width": 390,
+    "height": 20
+  },
+  {
+    "visual_type": "actionButton",
+    "name": "chrome_filter_close",
+    "title": "Filter schlie\u00dfen",
+    "x": 1866,
+    "y": 96,
+    "width": 42,
+    "height": 36
+  },
+  {
+    "visual_type": "shape",
+    "name": "chrome_footer_bg",
+    "title": "Fu\u00dfleiste",
+    "x": 0,
+    "y": 1044,
+    "width": 1920,
+    "height": 36
+  },
+  {
+    "visual_type": "shape",
+    "name": "chrome_footer_rule",
+    "title": "Fu\u00dfleiste Oberkante",
+    "x": 0,
+    "y": 1044,
+    "width": 1920,
+    "height": 1
+  },
+  {
+    "visual_type": "shape",
+    "name": "chrome_footer_text",
+    "title": "Fu\u00dfleisten-Text",
+    "x": 24,
+    "y": 1045,
+    "width": 1872,
+    "height": 35
+  }
+]

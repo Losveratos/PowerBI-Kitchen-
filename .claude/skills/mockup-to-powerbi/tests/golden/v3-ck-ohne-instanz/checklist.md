@@ -27,7 +27,7 @@ Mockup: **Nur ChartKitchen** · specVersion 3 (gelesen als v3) · Hash `ckhash` 
 
 | Seite | Ordner | Fragestellung | native Visuals + Slicer | Text/Button | Chrome | CK | Deneb | Custom |
 |---|---|---|---|---|---|---|---|---|
-| Übersicht | `Ubersicht/` | Liegen wir im Plan? | 4 | 0 | 11 | 5 | 0 | 0 |
+| Übersicht | `Ubersicht/` | Liegen wir im Plan? | 4 | 0 | 13 | 5 | 0 | 0 |
 
 ## Offene Punkte aus der Spec (`issues`)
 
@@ -44,7 +44,7 @@ Mockup: **Nur ChartKitchen** · specVersion 3 (gelesen als v3) · Hash `ckhash` 
 
 ## Hinweise aus dem Chrome-Aufbau
 
-- [ ] Filter-Overlay: Panel, Ueberschrift, Schliessen-Button und Slicer liegen ueber dem Inhalt und sind im Grundzustand ausgeblendet. Lesezeichen und Button-Aktionen stehen in navigation.md.
+- [ ] Filter-Overlay: Panel, Ueberschrift, Schliessen-Button und Slicer liegen ueber dem Inhalt und werden ausgeblendet angelegt (`pbir visuals hide` in analysis-commands.sh). Lesezeichen und Button-Aktionen stehen in navigation.md.
 
 ## ChartKitchen-Rollen-Mapping
 
@@ -54,7 +54,6 @@ Mockup: **Nur ChartKitchen** · specVersion 3 (gelesen als v3) · Hash `ckhash` 
 
 Vollständig in [`analysis-todos.md`](analysis-todos.md) — hier nur die Zahl je Code:
 
-- `CK_INVERT`: 1
 - `SLICER_DEFAULT`: 1
 
 ## Kennzahlen-Steckbrief (`fields`) — gegen das Modell prüfen (`te list`, nicht per Regex)

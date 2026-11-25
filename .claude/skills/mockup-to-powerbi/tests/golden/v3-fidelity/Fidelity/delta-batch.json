@@ -1,0 +1,709 @@
+{
+  "version": 2,
+  "name": "mockup delta · Fidelity",
+  "root": "Test.Report",
+  "stop_on_error": false,
+  "steps": [
+    {
+      "id": "move-mk_heat1",
+      "op": "move",
+      "select": "Fidelity.Page/mk_heat1.Visual",
+      "x": 1440,
+      "y": 99,
+      "continue_on_error": true
+    },
+    {
+      "id": "resize-mk_heat1",
+      "op": "resize",
+      "select": "Fidelity.Page/mk_heat1.Visual",
+      "width": 460,
+      "height": 300,
+      "continue_on_error": true
+    },
+    {
+      "id": "clear-mk_heat1",
+      "op": "bind",
+      "select": "Fidelity.Page/mk_heat1.Visual",
+      "continue_on_error": true,
+      "clear": [
+        "Rows"
+      ]
+    },
+    {
+      "id": "bind-mk_heat1",
+      "op": "bind",
+      "select": "Fidelity.Page/mk_heat1.Visual",
+      "continue_on_error": true,
+      "add": [
+        "Rows:DimRegion.Region"
+      ]
+    },
+    {
+      "id": "clear-mk_heat1-2",
+      "op": "bind",
+      "select": "Fidelity.Page/mk_heat1.Visual",
+      "continue_on_error": true,
+      "clear": [
+        "Columns"
+      ]
+    },
+    {
+      "id": "bind-mk_heat1-2",
+      "op": "bind",
+      "select": "Fidelity.Page/mk_heat1.Visual",
+      "continue_on_error": true,
+      "add": [
+        "Columns:DimProduct.Category"
+      ]
+    },
+    {
+      "id": "clear-mk_heat1-3",
+      "op": "bind",
+      "select": "Fidelity.Page/mk_heat1.Visual",
+      "continue_on_error": true,
+      "clear": [
+        "Values"
+      ]
+    },
+    {
+      "id": "bind-mk_heat1-3",
+      "op": "bind",
+      "select": "Fidelity.Page/mk_heat1.Visual",
+      "continue_on_error": true,
+      "add": [
+        "Values:_Measures.AC",
+        "Values:_Measures.PY"
+      ]
+    },
+    {
+      "id": "move-mk_spark1",
+      "op": "move",
+      "select": "Fidelity.Page/mk_spark1.Visual",
+      "x": 15,
+      "y": 414,
+      "continue_on_error": true
+    },
+    {
+      "id": "resize-mk_spark1",
+      "op": "resize",
+      "select": "Fidelity.Page/mk_spark1.Visual",
+      "width": 460,
+      "height": 300,
+      "continue_on_error": true
+    },
+    {
+      "id": "clear-mk_spark1",
+      "op": "bind",
+      "select": "Fidelity.Page/mk_spark1.Visual",
+      "continue_on_error": true,
+      "clear": [
+        "Values"
+      ]
+    },
+    {
+      "id": "bind-mk_spark1",
+      "op": "bind",
+      "select": "Fidelity.Page/mk_spark1.Visual",
+      "continue_on_error": true,
+      "add": [
+        "Values:DimProduct.Product",
+        "Values:_Measures.AC",
+        "Values:_Measures.PL"
+      ]
+    },
+    {
+      "id": "move-mk_tree1",
+      "op": "move",
+      "select": "Fidelity.Page/mk_tree1.Visual",
+      "x": 490,
+      "y": 414,
+      "continue_on_error": true
+    },
+    {
+      "id": "resize-mk_tree1",
+      "op": "resize",
+      "select": "Fidelity.Page/mk_tree1.Visual",
+      "width": 460,
+      "height": 300,
+      "continue_on_error": true
+    },
+    {
+      "id": "clear-mk_tree1",
+      "op": "bind",
+      "select": "Fidelity.Page/mk_tree1.Visual",
+      "continue_on_error": true,
+      "clear": [
+        "Analyze"
+      ]
+    },
+    {
+      "id": "bind-mk_tree1",
+      "op": "bind",
+      "select": "Fidelity.Page/mk_tree1.Visual",
+      "continue_on_error": true,
+      "add": [
+        "Analyze:_Measures.AC"
+      ]
+    },
+    {
+      "id": "clear-mk_tree1-2",
+      "op": "bind",
+      "select": "Fidelity.Page/mk_tree1.Visual",
+      "continue_on_error": true,
+      "clear": [
+        "ExplainBy"
+      ]
+    },
+    {
+      "id": "bind-mk_tree1-2",
+      "op": "bind",
+      "select": "Fidelity.Page/mk_tree1.Visual",
+      "continue_on_error": true,
+      "add": [
+        "ExplainBy:DimRegion.Region"
+      ]
+    },
+    {
+      "id": "clear-mk_tree1-3",
+      "op": "bind",
+      "select": "Fidelity.Page/mk_tree1.Visual",
+      "continue_on_error": true,
+      "clear": [
+        "Tooltips"
+      ]
+    },
+    {
+      "id": "bind-mk_tree1-3",
+      "op": "bind",
+      "select": "Fidelity.Page/mk_tree1.Visual",
+      "continue_on_error": true,
+      "add": [
+        "Tooltips:_Measures.PY"
+      ]
+    },
+    {
+      "id": "move-mk_bars1",
+      "op": "move",
+      "select": "Fidelity.Page/mk_bars1.Visual",
+      "x": 1440,
+      "y": 414,
+      "continue_on_error": true
+    },
+    {
+      "id": "resize-mk_bars1",
+      "op": "resize",
+      "select": "Fidelity.Page/mk_bars1.Visual",
+      "width": 460,
+      "height": 300,
+      "continue_on_error": true
+    },
+    {
+      "id": "clear-mk_bars1",
+      "op": "bind",
+      "select": "Fidelity.Page/mk_bars1.Visual",
+      "continue_on_error": true,
+      "clear": [
+        "Category"
+      ]
+    },
+    {
+      "id": "bind-mk_bars1",
+      "op": "bind",
+      "select": "Fidelity.Page/mk_bars1.Visual",
+      "continue_on_error": true,
+      "add": [
+        "Category:DimRegion.Region"
+      ]
+    },
+    {
+      "id": "clear-mk_bars1-2",
+      "op": "bind",
+      "select": "Fidelity.Page/mk_bars1.Visual",
+      "continue_on_error": true,
+      "clear": [
+        "Y"
+      ]
+    },
+    {
+      "id": "bind-mk_bars1-2",
+      "op": "bind",
+      "select": "Fidelity.Page/mk_bars1.Visual",
+      "continue_on_error": true,
+      "add": [
+        "Y:_Measures.AC",
+        "Y:_Measures.PL"
+      ]
+    },
+    {
+      "id": "move-mk_col1",
+      "op": "move",
+      "select": "Fidelity.Page/mk_col1.Visual",
+      "x": 15,
+      "y": 729,
+      "continue_on_error": true
+    },
+    {
+      "id": "resize-mk_col1",
+      "op": "resize",
+      "select": "Fidelity.Page/mk_col1.Visual",
+      "width": 460,
+      "height": 300,
+      "continue_on_error": true
+    },
+    {
+      "id": "clear-mk_col1",
+      "op": "bind",
+      "select": "Fidelity.Page/mk_col1.Visual",
+      "continue_on_error": true,
+      "clear": [
+        "Category"
+      ]
+    },
+    {
+      "id": "bind-mk_col1",
+      "op": "bind",
+      "select": "Fidelity.Page/mk_col1.Visual",
+      "continue_on_error": true,
+      "add": [
+        "Category:DimDate.MonthName"
+      ]
+    },
+    {
+      "id": "clear-mk_col1-2",
+      "op": "bind",
+      "select": "Fidelity.Page/mk_col1.Visual",
+      "continue_on_error": true,
+      "clear": [
+        "Y"
+      ]
+    },
+    {
+      "id": "bind-mk_col1-2",
+      "op": "bind",
+      "select": "Fidelity.Page/mk_col1.Visual",
+      "continue_on_error": true,
+      "add": [
+        "Y:_Measures.Kosten",
+        "Y:_Measures.PY",
+        "Y:_Measures.PL"
+      ]
+    },
+    {
+      "id": "move-mk_ncol1",
+      "op": "move",
+      "select": "Fidelity.Page/mk_ncol1.Visual",
+      "x": 965,
+      "y": 729,
+      "continue_on_error": true
+    },
+    {
+      "id": "resize-mk_ncol1",
+      "op": "resize",
+      "select": "Fidelity.Page/mk_ncol1.Visual",
+      "width": 460,
+      "height": 300,
+      "continue_on_error": true
+    },
+    {
+      "id": "clear-mk_ncol1",
+      "op": "bind",
+      "select": "Fidelity.Page/mk_ncol1.Visual",
+      "continue_on_error": true,
+      "clear": [
+        "Category"
+      ]
+    },
+    {
+      "id": "bind-mk_ncol1",
+      "op": "bind",
+      "select": "Fidelity.Page/mk_ncol1.Visual",
+      "continue_on_error": true,
+      "add": [
+        "Category:DimRegion.Region"
+      ]
+    },
+    {
+      "id": "clear-mk_ncol1-2",
+      "op": "bind",
+      "select": "Fidelity.Page/mk_ncol1.Visual",
+      "continue_on_error": true,
+      "clear": [
+        "Y"
+      ]
+    },
+    {
+      "id": "bind-mk_ncol1-2",
+      "op": "bind",
+      "select": "Fidelity.Page/mk_ncol1.Visual",
+      "continue_on_error": true,
+      "add": [
+        "Y:_Measures.Umsatz",
+        "Y:_Measures.Kosten"
+      ]
+    },
+    {
+      "id": "move-mk_kombi1",
+      "op": "move",
+      "select": "Fidelity.Page/mk_kombi1.Visual",
+      "x": 1440,
+      "y": 729,
+      "continue_on_error": true
+    },
+    {
+      "id": "resize-mk_kombi1",
+      "op": "resize",
+      "select": "Fidelity.Page/mk_kombi1.Visual",
+      "width": 460,
+      "height": 300,
+      "continue_on_error": true
+    },
+    {
+      "id": "clear-mk_kombi1",
+      "op": "bind",
+      "select": "Fidelity.Page/mk_kombi1.Visual",
+      "continue_on_error": true,
+      "clear": [
+        "Category"
+      ]
+    },
+    {
+      "id": "bind-mk_kombi1",
+      "op": "bind",
+      "select": "Fidelity.Page/mk_kombi1.Visual",
+      "continue_on_error": true,
+      "add": [
+        "Category:DimDate.MonthName"
+      ]
+    },
+    {
+      "id": "clear-mk_kombi1-2",
+      "op": "bind",
+      "select": "Fidelity.Page/mk_kombi1.Visual",
+      "continue_on_error": true,
+      "clear": [
+        "Y"
+      ]
+    },
+    {
+      "id": "bind-mk_kombi1-2",
+      "op": "bind",
+      "select": "Fidelity.Page/mk_kombi1.Visual",
+      "continue_on_error": true,
+      "add": [
+        "Y:_Measures.AC",
+        "Y:_Measures.PY",
+        "Y:_Measures.PL"
+      ]
+    },
+    {
+      "id": "move-mk_slicer_Region_p1",
+      "op": "move",
+      "select": "Fidelity.Page/mk_slicer_Region_p1.Visual",
+      "x": 1515,
+      "y": 170,
+      "continue_on_error": true
+    },
+    {
+      "id": "resize-mk_slicer_Region_p1",
+      "op": "resize",
+      "select": "Fidelity.Page/mk_slicer_Region_p1.Visual",
+      "width": 390,
+      "height": 78,
+      "continue_on_error": true
+    },
+    {
+      "id": "clear-mk_slicer_Region_p1",
+      "op": "bind",
+      "select": "Fidelity.Page/mk_slicer_Region_p1.Visual",
+      "continue_on_error": true,
+      "clear": [
+        "Values"
+      ]
+    },
+    {
+      "id": "bind-mk_slicer_Region_p1",
+      "op": "bind",
+      "select": "Fidelity.Page/mk_slicer_Region_p1.Visual",
+      "continue_on_error": true,
+      "add": [
+        "Values:DimRegion.Region"
+      ]
+    },
+    {
+      "id": "move-mk_slicer_Category_p1",
+      "op": "move",
+      "select": "Fidelity.Page/mk_slicer_Category_p1.Visual",
+      "x": 1515,
+      "y": 258,
+      "continue_on_error": true
+    },
+    {
+      "id": "resize-mk_slicer_Category_p1",
+      "op": "resize",
+      "select": "Fidelity.Page/mk_slicer_Category_p1.Visual",
+      "width": 390,
+      "height": 141,
+      "continue_on_error": true
+    },
+    {
+      "id": "clear-mk_slicer_Category_p1",
+      "op": "bind",
+      "select": "Fidelity.Page/mk_slicer_Category_p1.Visual",
+      "continue_on_error": true,
+      "clear": [
+        "Values"
+      ]
+    },
+    {
+      "id": "bind-mk_slicer_Category_p1",
+      "op": "bind",
+      "select": "Fidelity.Page/mk_slicer_Category_p1.Visual",
+      "continue_on_error": true,
+      "add": [
+        "Values:DimProduct.Category"
+      ]
+    },
+    {
+      "id": "move-mk_slicer_Year_p1",
+      "op": "move",
+      "select": "Fidelity.Page/mk_slicer_Year_p1.Visual",
+      "x": 1515,
+      "y": 409,
+      "continue_on_error": true
+    },
+    {
+      "id": "resize-mk_slicer_Year_p1",
+      "op": "resize",
+      "select": "Fidelity.Page/mk_slicer_Year_p1.Visual",
+      "width": 390,
+      "height": 78,
+      "continue_on_error": true
+    },
+    {
+      "id": "clear-mk_slicer_Year_p1",
+      "op": "bind",
+      "select": "Fidelity.Page/mk_slicer_Year_p1.Visual",
+      "continue_on_error": true,
+      "clear": [
+        "Values"
+      ]
+    },
+    {
+      "id": "bind-mk_slicer_Year_p1",
+      "op": "bind",
+      "select": "Fidelity.Page/mk_slicer_Year_p1.Visual",
+      "continue_on_error": true,
+      "add": [
+        "Values:DimDate.Year"
+      ]
+    },
+    {
+      "id": "move-chrome_header_bg",
+      "op": "move",
+      "select": "Fidelity.Page/chrome_header_bg.Visual",
+      "x": 0,
+      "y": 0,
+      "continue_on_error": true
+    },
+    {
+      "id": "resize-chrome_header_bg",
+      "op": "resize",
+      "select": "Fidelity.Page/chrome_header_bg.Visual",
+      "width": 1920,
+      "height": 84,
+      "continue_on_error": true
+    },
+    {
+      "id": "move-chrome_header_rule",
+      "op": "move",
+      "select": "Fidelity.Page/chrome_header_rule.Visual",
+      "x": 0,
+      "y": 83,
+      "continue_on_error": true
+    },
+    {
+      "id": "resize-chrome_header_rule",
+      "op": "resize",
+      "select": "Fidelity.Page/chrome_header_rule.Visual",
+      "width": 1920,
+      "height": 1,
+      "continue_on_error": true
+    },
+    {
+      "id": "move-chrome_burger",
+      "op": "move",
+      "select": "Fidelity.Page/chrome_burger.Visual",
+      "x": 24,
+      "y": 18,
+      "continue_on_error": true
+    },
+    {
+      "id": "resize-chrome_burger",
+      "op": "resize",
+      "select": "Fidelity.Page/chrome_burger.Visual",
+      "width": 48,
+      "height": 48,
+      "continue_on_error": true
+    },
+    {
+      "id": "move-chrome_logo",
+      "op": "move",
+      "select": "Fidelity.Page/chrome_logo.Visual",
+      "x": 93,
+      "y": 19,
+      "continue_on_error": true
+    },
+    {
+      "id": "resize-chrome_logo",
+      "op": "resize",
+      "select": "Fidelity.Page/chrome_logo.Visual",
+      "width": 132,
+      "height": 45,
+      "continue_on_error": true
+    },
+    {
+      "id": "move-chrome_header_title",
+      "op": "move",
+      "select": "Fidelity.Page/chrome_header_title.Visual",
+      "x": 246,
+      "y": 11,
+      "continue_on_error": true
+    },
+    {
+      "id": "resize-chrome_header_title",
+      "op": "resize",
+      "select": "Fidelity.Page/chrome_header_title.Visual",
+      "width": 1650,
+      "height": 37,
+      "continue_on_error": true
+    },
+    {
+      "id": "move-chrome_header_subtitle",
+      "op": "move",
+      "select": "Fidelity.Page/chrome_header_subtitle.Visual",
+      "x": 246,
+      "y": 48,
+      "continue_on_error": true
+    },
+    {
+      "id": "resize-chrome_header_subtitle",
+      "op": "resize",
+      "select": "Fidelity.Page/chrome_header_subtitle.Visual",
+      "width": 1650,
+      "height": 24,
+      "continue_on_error": true
+    },
+    {
+      "id": "move-chrome_filter_bg",
+      "op": "move",
+      "select": "Fidelity.Page/chrome_filter_bg.Visual",
+      "x": 1500,
+      "y": 84,
+      "continue_on_error": true
+    },
+    {
+      "id": "resize-chrome_filter_bg",
+      "op": "resize",
+      "select": "Fidelity.Page/chrome_filter_bg.Visual",
+      "width": 420,
+      "height": 600,
+      "continue_on_error": true
+    },
+    {
+      "id": "move-chrome_filter_title",
+      "op": "move",
+      "select": "Fidelity.Page/chrome_filter_title.Visual",
+      "x": 1515,
+      "y": 102,
+      "continue_on_error": true
+    },
+    {
+      "id": "resize-chrome_filter_title",
+      "op": "resize",
+      "select": "Fidelity.Page/chrome_filter_title.Visual",
+      "width": 342,
+      "height": 24,
+      "continue_on_error": true
+    },
+    {
+      "id": "move-chrome_filter_text",
+      "op": "move",
+      "select": "Fidelity.Page/chrome_filter_text.Visual",
+      "x": 1515,
+      "y": 138,
+      "continue_on_error": true
+    },
+    {
+      "id": "resize-chrome_filter_text",
+      "op": "resize",
+      "select": "Fidelity.Page/chrome_filter_text.Visual",
+      "width": 390,
+      "height": 20,
+      "continue_on_error": true
+    },
+    {
+      "id": "move-chrome_filter_close",
+      "op": "move",
+      "select": "Fidelity.Page/chrome_filter_close.Visual",
+      "x": 1866,
+      "y": 96,
+      "continue_on_error": true
+    },
+    {
+      "id": "resize-chrome_filter_close",
+      "op": "resize",
+      "select": "Fidelity.Page/chrome_filter_close.Visual",
+      "width": 42,
+      "height": 36,
+      "continue_on_error": true
+    },
+    {
+      "id": "move-chrome_footer_bg",
+      "op": "move",
+      "select": "Fidelity.Page/chrome_footer_bg.Visual",
+      "x": 0,
+      "y": 1044,
+      "continue_on_error": true
+    },
+    {
+      "id": "resize-chrome_footer_bg",
+      "op": "resize",
+      "select": "Fidelity.Page/chrome_footer_bg.Visual",
+      "width": 1920,
+      "height": 36,
+      "continue_on_error": true
+    },
+    {
+      "id": "move-chrome_footer_rule",
+      "op": "move",
+      "select": "Fidelity.Page/chrome_footer_rule.Visual",
+      "x": 0,
+      "y": 1044,
+      "continue_on_error": true
+    },
+    {
+      "id": "resize-chrome_footer_rule",
+      "op": "resize",
+      "select": "Fidelity.Page/chrome_footer_rule.Visual",
+      "width": 1920,
+      "height": 1,
+      "continue_on_error": true
+    },
+    {
+      "id": "move-chrome_footer_text",
+      "op": "move",
+      "select": "Fidelity.Page/chrome_footer_text.Visual",
+      "x": 24,
+      "y": 1045,
+      "continue_on_error": true
+    },
+    {
+      "id": "resize-chrome_footer_text",
+      "op": "resize",
+      "select": "Fidelity.Page/chrome_footer_text.Visual",
+      "width": 1872,
+      "height": 35,
+      "continue_on_error": true
+    }
+  ]
+}

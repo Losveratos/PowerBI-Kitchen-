@@ -46,7 +46,7 @@ pbir batch run "<out>/Ubersicht/chrome-batch.json" --root "Test.Report"
 bash "<out>/Ubersicht/analysis-commands.sh"
 ```
 
-> Filter-Overlay: Panel, Ueberschrift, Schliessen-Button und Slicer liegen ueber dem Inhalt und sind im Grundzustand ausgeblendet. Lesezeichen und Button-Aktionen stehen in navigation.md.
+> Filter-Overlay: Panel, Ueberschrift, Schliessen-Button und Slicer liegen ueber dem Inhalt und werden ausgeblendet angelegt (`pbir visuals hide` in analysis-commands.sh). Lesezeichen und Button-Aktionen stehen in navigation.md.
 > Kachel „Kommentar" (p1_v07_Kommentar) hat keinen Text — im Bericht steht sonst der Titel. Text im Workshop nachtragen.
 
 ## 2 · Seite „Detail Produktlinie"
@@ -83,7 +83,7 @@ pbir batch run "<out>/Detail_Produktlinie/chrome-batch.json" --root "Test.Report
 bash "<out>/Detail_Produktlinie/analysis-commands.sh"
 ```
 
-> Filter-Overlay: Panel, Ueberschrift, Schliessen-Button und Slicer liegen ueber dem Inhalt und sind im Grundzustand ausgeblendet. Lesezeichen und Button-Aktionen stehen in navigation.md.
+> Filter-Overlay: Panel, Ueberschrift, Schliessen-Button und Slicer liegen ueber dem Inhalt und werden ausgeblendet angelegt (`pbir visuals hide` in analysis-commands.sh). Lesezeichen und Button-Aktionen stehen in navigation.md.
 > Kachel „Detail: gewählte Produktlinie" (p2_v01_Detail_gewahlte_Produktlinie) hat keinen Text — im Bericht steht sonst der Titel. Text im Workshop nachtragen.
 
 ## Zweiter Lauf (Delta)
@@ -112,22 +112,28 @@ Nur über eine vorhandene Referenz-Instanz replizieren — Vorgehen in `.claude/
 ```bash
 # Übersicht · Umsatz (kpi → orientation cards)
 pbir add visual shape "Test.Report/Übersicht.Page" -n "p1_v01_Umsatz_slot" -x 16 -y 72 -w 317 -h 119 -t "ChartKitchen: kpi"
-pbir set "Test.Report/Übersicht.Page/p1_v01_Umsatz_slot.Visual.text.text" --value "ChartKitchen: kpi · Umsatz"
+pbir set "Test.Report/Übersicht.Page/p1_v01_Umsatz_slot.Visual.text.show" --value true
+pbir set "Test.Report/Übersicht.Page/p1_v01_Umsatz_slot.Visual.text.default.text" --value "ChartKitchen: kpi · Umsatz"
 # Übersicht · Deckungsbeitrag (kpi → orientation cards)
 pbir add visual shape "Test.Report/Übersicht.Page" -n "p1_v03_Deckungsbeitrag_slot" -x 669 -y 72 -w 330 -h 119 -t "ChartKitchen: kpi"
-pbir set "Test.Report/Übersicht.Page/p1_v03_Deckungsbeitrag_slot.Visual.text.text" --value "ChartKitchen: kpi · Deckungsbeitrag"
+pbir set "Test.Report/Übersicht.Page/p1_v03_Deckungsbeitrag_slot.Visual.text.show" --value true
+pbir set "Test.Report/Übersicht.Page/p1_v03_Deckungsbeitrag_slot.Visual.text.default.text" --value "ChartKitchen: kpi · Deckungsbeitrag"
 # Übersicht · Marge (kpi → orientation cards)
 pbir add visual shape "Test.Report/Übersicht.Page" -n "p1_v04_Marge_slot" -x 1011 -y 72 -w 253 -h 119 -t "ChartKitchen: kpi"
-pbir set "Test.Report/Übersicht.Page/p1_v04_Marge_slot.Visual.text.text" --value "ChartKitchen: kpi · Marge"
+pbir set "Test.Report/Übersicht.Page/p1_v04_Marge_slot.Visual.text.show" --value true
+pbir set "Test.Report/Übersicht.Page/p1_v04_Marge_slot.Visual.text.default.text" --value "ChartKitchen: kpi · Marge"
 # Übersicht · Umsatz AC/FC vs PL je Monat (varint → orientation intwaterfall)
 pbir add visual shape "Test.Report/Übersicht.Page" -n "p1_v06_Umsatz_AC_FC_vs_PL_je_Monat_slot" -x 810 -y 203 -w 454 -h 233 -t "ChartKitchen: varint"
-pbir set "Test.Report/Übersicht.Page/p1_v06_Umsatz_AC_FC_vs_PL_je_Monat_slot.Visual.text.text" --value "ChartKitchen: varint · Umsatz AC/FC vs PL je Monat"
+pbir set "Test.Report/Übersicht.Page/p1_v06_Umsatz_AC_FC_vs_PL_je_Monat_slot.Visual.text.show" --value true
+pbir set "Test.Report/Übersicht.Page/p1_v06_Umsatz_AC_FC_vs_PL_je_Monat_slot.Visual.text.default.text" --value "ChartKitchen: varint · Umsatz AC/FC vs PL je Monat"
 # Detail Produktlinie · Umsatz (kpi → orientation cards)
 pbir add visual shape "Test.Report/Detail Produktlinie.Page" -n "p2_v02_Umsatz_slot" -x 640 -y 72 -w 306 -h 149 -t "ChartKitchen: kpi"
-pbir set "Test.Report/Detail Produktlinie.Page/p2_v02_Umsatz_slot.Visual.text.text" --value "ChartKitchen: kpi · Umsatz"
+pbir set "Test.Report/Detail Produktlinie.Page/p2_v02_Umsatz_slot.Visual.text.show" --value true
+pbir set "Test.Report/Detail Produktlinie.Page/p2_v02_Umsatz_slot.Visual.text.default.text" --value "ChartKitchen: kpi · Umsatz"
 # Detail Produktlinie · Marge % (kpi → orientation cards)
 pbir add visual shape "Test.Report/Detail Produktlinie.Page" -n "p2_v03_Marge_slot" -x 958 -y 72 -w 306 -h 149 -t "ChartKitchen: kpi"
-pbir set "Test.Report/Detail Produktlinie.Page/p2_v03_Marge_slot.Visual.text.text" --value "ChartKitchen: kpi · Marge %"
+pbir set "Test.Report/Detail Produktlinie.Page/p2_v03_Marge_slot.Visual.text.show" --value true
+pbir set "Test.Report/Detail Produktlinie.Page/p2_v03_Marge_slot.Visual.text.default.text" --value "ChartKitchen: kpi · Marge %"
 ```
 
 ## Verifizieren

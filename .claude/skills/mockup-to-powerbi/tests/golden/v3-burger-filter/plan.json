@@ -20,7 +20,7 @@
       "dir": "Ubersicht",
       "slug": "Ubersicht",
       "visuals": 4,
-      "chrome": 12,
+      "chrome": 14,
       "ck": 5,
       "deneb": 0
     },
@@ -29,7 +29,7 @@
       "dir": "Detail_Produktlinie",
       "slug": "Detail_Produktlinie",
       "visuals": 3,
-      "chrome": 12,
+      "chrome": 14,
       "ck": 4,
       "deneb": 0
     }
@@ -250,13 +250,6 @@
     }
   ],
   "todos": [
-    {
-      "code": "CK_INVERT",
-      "page": "Übersicht",
-      "visual": "mk_5z33e3b",
-      "title": "Umsatz",
-      "text": "ChartKitchen-Slot: `chart.invert = true` setzen (kleiner = besser)."
-    },
     {
       "code": "POLARITY",
       "page": "Übersicht",

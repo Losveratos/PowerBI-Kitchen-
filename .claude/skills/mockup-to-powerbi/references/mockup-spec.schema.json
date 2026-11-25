@@ -54,6 +54,15 @@
         },
         "skill": {
           "type": "string"
+        },
+        "target": {
+          "type": "string",
+          "enum": [
+            "pbi",
+            "app",
+            "wire"
+          ],
+          "description": "Ziel des Entwurfs (ab Tool 0.7.0): pbi = Power BI (Vorgabe, wenn das Feld fehlt), app = Fabric App (Rayfin, dwg cli), wire = Wireframe ohne Zielsystem. Zählt nicht zum specHash."
         }
       }
     },
@@ -129,6 +138,28 @@
           "type": "number",
           "minimum": 0.1,
           "maximum": 8
+        },
+        "base": {
+          "type": "number",
+          "description": "Ab Tool 0.7.1: logische Breite, auf die sich die Basismaße beziehen (uiScale = width / base). Fehlt das Feld, gilt 1280. Das Handy-Format nutzt 400 (1080 px Breite, Faktor 2,7)."
+        },
+        "form": {
+          "type": "string",
+          "enum": ["phone"],
+          "description": "Ab Tool 0.7.1: gesetzt beim Handy-Format (Hochformat mit base 400)."
+        },
+        "pixel": {
+          "description": "Rastermodus (assets/mockup/pixelgrid.js, KONZEPT-PIXELRASTER.md): Spaltenschritt, Zeilenschritt, Zwischenraum und Ränder in px. Fehlt der Block, gilt die bisherige Verteilung.",
+          "type": "object",
+          "properties": {
+            "mode": { "const": "lattice" },
+            "n": { "type": "integer", "minimum": 1 },
+            "pitchX": { "type": "number" },
+            "pitchY": { "type": "number" },
+            "gutter": { "type": "integer", "minimum": 0 },
+            "margins": { "type": "object", "properties": { "l": { "type": "integer" }, "r": { "type": "integer" }, "t": { "type": "integer" }, "b": { "type": "integer" } } },
+            "exact": { "type": "boolean" }
+          }
         }
       }
     },
@@ -231,6 +262,42 @@
             },
             "headerInk": {
               "$ref": "#/$defs/hex"
+            },
+            "panel": {
+              "$ref": "#/$defs/hex",
+              "description": "optional: Filterbereich-Flaeche (Kitchen #ECEBE5)"
+            },
+            "rule": {
+              "$ref": "#/$defs/hex",
+              "description": "optional: Linien: helles Kopfband, Filterbereich, Fussleiste (#E3E1D8)"
+            },
+            "tileBorder": {
+              "$ref": "#/$defs/hex",
+              "description": "optional: Kachelrahmen (#E1DFD6)"
+            },
+            "muted": {
+              "$ref": "#/$defs/hex",
+              "description": "optional: gedaempfter Text (#6B7280)"
+            },
+            "slicerBorder": {
+              "$ref": "#/$defs/hex",
+              "description": "optional: Slicer-Kasten-Rahmen (#D9D6CC)"
+            },
+            "slicerBackground": {
+              "$ref": "#/$defs/hex",
+              "description": "optional: Slicer-Kasten (#FFFFFF)"
+            },
+            "slicerInk": {
+              "$ref": "#/$defs/hex",
+              "description": "optional: Slicer-Schrift (#374151)"
+            },
+            "footerNavInk": {
+              "$ref": "#/$defs/hex",
+              "description": "optional: Fussleisten-Nav (#475569)"
+            },
+            "footerBackground": {
+              "$ref": "#/$defs/hex",
+              "description": "optional: Fussleisten-Band (sonst Seitenhintergrund)"
             }
           }
         },
@@ -244,6 +311,10 @@
             "pbi",
             "kitchen"
           ]
+        },
+        "sourceReport": {
+          "description": "Optional (Konverter 0.6, Befund B2 Demo-Test 02.10.2026, nur ohne Live-Helfer: das Kitchen setzt es nicht, der Live-Runner liest es nicht): true, wenn die Gestaltung beim Einlesen aus dem Bericht uebernommen und seitdem nicht bewusst geaendert wurde. Dann keine Schritte fuer Seitenhintergrund (Seiten mit pbir.page) und Kachelstil (Kacheln mit pbir.visual: Flaeche, Rahmen, Schatten). Neue Seiten und Kacheln bekommen die Gestaltung wie bisher. Fehlt der Schluessel, aendert sich nichts (auch nicht am Spec-Hash).",
+          "type": "boolean"
         }
       }
     },
@@ -267,6 +338,159 @@
         },
         "footer": {
           "$ref": "#/$defs/footerZone"
+        },
+        "chips": {
+          "type": "object",
+          "description": "Chip-Zeile unter dem Kopfband (ab Tool 0.7.0): gespeicherte Filter als Chips. Nur vorhanden, wenn es gespeicherte Filter gibt. In Power BI je Filter ein Lesezeichen plus Schaltfläche (Issue BOOKMARKS_SAVED_FILTERS).",
+          "properties": {
+            "x": {
+              "type": "number"
+            },
+            "y": {
+              "type": "number"
+            },
+            "w": {
+              "type": "number"
+            },
+            "h": {
+              "type": "number"
+            },
+            "views": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  },
+                  "name": {
+                    "type": "string"
+                  },
+                  "filters": {
+                    "type": "string",
+                    "description": "Freitext aus dem Workshop: „Feld = Wert, Wert; Feld = Wert“"
+                  },
+                  "parsed": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "field": {
+                          "type": "string"
+                        },
+                        "values": {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "bookmarks": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "filters": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "app": {
+      "type": "object",
+      "description": "Nur bei meta.target = app (ab Tool 0.7.0): Vorgaben für die App-Shell und Kacheln, die die dwg cli heute nicht aus der Spec erzeugen kann. Zählt nicht zum specHash.",
+      "properties": {
+        "shell": {
+          "type": "object",
+          "properties": {
+            "navigation": {
+              "type": "string",
+              "enum": [
+                "header",
+                "footer",
+                "off",
+                "burger"
+              ]
+            },
+            "filterPanel": {
+              "type": "string"
+            },
+            "savedFilters": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  },
+                  "name": {
+                    "type": "string"
+                  },
+                  "filters": {
+                    "type": "string",
+                    "description": "Freitext aus dem Workshop: „Feld = Wert, Wert; Feld = Wert“"
+                  },
+                  "parsed": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "field": {
+                          "type": "string"
+                        },
+                        "values": {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "crossFilter": {
+              "type": "boolean"
+            },
+            "resolution": {
+              "type": "string",
+              "enum": [
+                "fullhd",
+                "hd",
+                "custom"
+              ]
+            }
+          }
+        },
+        "notBuildable": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "page": {
+                "type": "string"
+              },
+              "id": {
+                "type": "string"
+              },
+              "kind": {
+                "type": "string"
+              }
+            }
+          }
         }
       }
     },
@@ -683,6 +907,27 @@
             "null"
           ]
         },
+        "role": {
+          "description": "Optional (Tool 0.6.1): Rolle der Seite. nav = steht in der Seitennavigation (Standard), detail = Detailseite, drill = Drillthrough-Ziel. detail und drill sind in Power BI ausgeblendet (visibility HiddenInViewMode).",
+          "enum": ["nav", "detail", "drill"]
+        },
+        "hidden": {
+          "description": "Optional (Tool 0.6.1): true, wenn die Seite in Power BI ausgeblendet ist (folgt aus role).",
+          "type": "boolean"
+        },
+        "pbir": {
+          "description": "Optional (Tool 0.6, mockup-live/CONTRACT.md): Seite wurde aus dem Projekt eingelesen. page = Ordnername der Seite in <Name>.Report/definition/pages. Der Runner aktualisiert diese Seite, statt eine neue anzulegen.",
+          "type": "object",
+          "required": [
+            "page"
+          ],
+          "properties": {
+            "page": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        },
         "contentRect": {
           "$ref": "#/$defs/zone"
         },
@@ -712,6 +957,24 @@
         "id": {
           "type": "string",
           "minLength": 1
+        },
+        "pbir": {
+          "description": "Optional (Tool 0.6, mockup-live/CONTRACT.md): Kachel stammt aus dem Projekt. page/visual = Ordnernamen von Seite und Visual. Mit pbir wird das Visual per Delta aktualisiert (Position, Größe, Bindung, Titel), nie neu angelegt; ohne pbir ist es neu.",
+          "type": "object",
+          "required": [
+            "page",
+            "visual"
+          ],
+          "properties": {
+            "page": {
+              "type": "string",
+              "minLength": 1
+            },
+            "visual": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
         },
         "stableId": {
           "type": "string"
@@ -805,14 +1068,23 @@
           ]
         },
         "chartKitchenProps": {
-          "description": "Ab Tool 0.6.0 (ChartKitchen 1.47): Properties fuer das Objekt `chart`, nur bei engine ck und nur bei Typen mit Optionen. Fehlt der Schluessel, gelten die Vorgaben des Visuals.",
+          "description": "Ab Tool 0.6.0 (ChartKitchen 1.47), erweitert in 0.7.0 (ChartKitchen 1.55 bis 1.57): Properties fuer das Objekt `chart`, nur bei engine ck. Feste Werte des Kachel-Typs (z. B. areastack: stackShape = area) und im Workshop gewaehlte Optionen, jeweils aufgeloest. Fehlt der Schluessel, gelten die Vorgaben des Visuals. Erlaubte Namen und Werte: CK_PROPS in mockup_spec.py; unbekannte fallen im Konverter weg. Zaehlt zum specHash.",
           "type": "object",
           "properties": {
             "cardTrendChart": { "enum": ["off", "sparkline", "columns"] },
             "cardTrendValue": { "enum": ["last", "sum"] },
             "bridgeOrientation": { "enum": ["auto", "bars", "columns"] },
-            "scatterQuadrant": { "enum": ["off", "mean", "median"] }
+            "scatterQuadrant": { "enum": ["off", "mean", "median"] },
+            "cumulativeKind": { "enum": ["ytd", "qtd", "r12"] },
+            "stackShape": { "enum": ["columns", "area"] },
+            "lineIndex": { "enum": ["off", "base100"] },
+            "scatterPath": { "enum": ["off", "line"] }
           }
+        },
+        "customVisualProps": {
+          "description": "Ab Tool 0.7.0: Format-Einstellungen eines Custom Visuals byDatenWG als {\"objekt.eigenschaft\": Wert}, heute fuer die P&L-Varianten (pnlmega/pnlbs: columns.template und columns.templateApplied, pnltree: columns.treeCard, pnltree/pnlsankey: state.uiState als JSON-Text). Der Konverter schreibt sie nach visual.objects. Fehlt der Schluessel, gelten die Vorgaben des Visuals. Zaehlt zum specHash.",
+          "type": "object",
+          "additionalProperties": { "type": ["string", "number", "boolean"] }
         },
         "native": {
           "$ref": "#/$defs/native"
@@ -824,7 +1096,8 @@
           "type": [
             "string",
             "null"
-          ]
+          ],
+          "description": "Ab Kitchen 0.5.5 der sichtbare Kachelkopf, \"\" ohne Kopf (vorher Titel oder Katalog-Label). Container-Titel nur, wenn nicht leer."
         },
         "subtitle": {
           "type": [
@@ -886,6 +1159,14 @@
         "rect": {
           "$ref": "#/$defs/rect"
         },
+        "cell": {
+          "description": "Nur im Rastermodus: Lage der Kachel als Brüche [Zähler, Nenner] im Pitch-Raum, x = [Anfang, Ende], y = [Anfang, Ende].",
+          "type": "object",
+          "properties": {
+            "x": { "type": "array", "items": { "type": "array", "items": { "type": "integer" }, "minItems": 2, "maxItems": 2 } },
+            "y": { "type": "array", "items": { "type": "array", "items": { "type": "integer" }, "minItems": 2, "maxItems": 2 } }
+          }
+        },
         "roles": {
           "type": "object"
         },
@@ -905,6 +1186,246 @@
           "type": "array",
           "items": {
             "type": "string"
+          }
+        },
+        "titleShown": {
+          "description": "Ab Kitchen 0.5.5: die Kachel zeigt einen Kopf. Gewinnt vor der Herleitung aus title/label.",
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "displayName": {
+          "description": "Ab Kitchen 0.5.5: Name fuer Auswahlbereich und Meldungen (eigener Titel, sonst Katalog-Label).",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "engineSource": {
+          "description": "Vom Skill gesetzt (mockup_spec.upgrade): Engine vor der Umstellung kpi ck -> custom (ibcsKpiCard). Nicht im Tool-Export.",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "display": {
+          "description": "Ab Kitchen 0.5.5 (mockup-live/CONTRACT.md, Kachel-Anzeige): was die Kachel zeigt. Optional.",
+          "type": [
+            "object",
+            "null"
+          ],
+          "properties": {
+            "scenarios": {
+              "type": [
+                "array",
+                "null"
+              ],
+              "items": {
+                "type": "string"
+              }
+            },
+            "refSource": {
+              "enum": [
+                "bound",
+                "none",
+                "placeholder",
+                null
+              ]
+            },
+            "placeholders": {
+              "type": [
+                "array",
+                "null"
+              ],
+              "items": {
+                "type": "string"
+              }
+            },
+            "deltaBasis": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "enum": [
+                "PL",
+                "PY",
+                "BU",
+                "FC",
+                null
+              ]
+            },
+            "deltaBasisSource": {
+              "enum": [
+                "explicit",
+                "auto",
+                null
+              ]
+            },
+            "drawn": {
+              "type": [
+                "object",
+                "null"
+              ],
+              "properties": {
+                "refs": {
+                  "type": [
+                    "array",
+                    "null"
+                  ],
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "marker": {
+                  "type": [
+                    "array",
+                    "null"
+                  ],
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "delta": {
+                  "type": [
+                    "array",
+                    "null"
+                  ],
+                  "items": {
+                    "enum": [
+                      "abs",
+                      "rel"
+                    ]
+                  }
+                },
+                "deltaBasis": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "labels": {
+                  "type": [
+                    "boolean",
+                    "null"
+                  ]
+                },
+                "total": {
+                  "type": [
+                    "boolean",
+                    "null"
+                  ]
+                },
+                "forecast": {
+                  "type": [
+                    "boolean",
+                    "null"
+                  ]
+                },
+                "unit": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "reduced": {
+                  "type": [
+                    "boolean",
+                    "null"
+                  ]
+                }
+              }
+            },
+            "numbers": {
+              "type": [
+                "object",
+                "null"
+              ],
+              "properties": {
+                "displayUnits": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "decimals": {
+                  "type": [
+                    "integer",
+                    "null"
+                  ]
+                },
+                "unitText": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                }
+              }
+            },
+            "fontPx": {
+              "type": [
+                "object",
+                "null"
+              ],
+              "properties": {
+                "title": {
+                  "type": [
+                    "number",
+                    "null"
+                  ]
+                },
+                "subtitle": {
+                  "type": [
+                    "number",
+                    "null"
+                  ]
+                },
+                "label": {
+                  "type": [
+                    "number",
+                    "null"
+                  ]
+                },
+                "axis": {
+                  "type": [
+                    "number",
+                    "null"
+                  ]
+                }
+              }
+            },
+            "fontPt": {
+              "type": [
+                "object",
+                "null"
+              ],
+              "properties": {
+                "title": {
+                  "type": [
+                    "number",
+                    "null"
+                  ]
+                },
+                "subtitle": {
+                  "type": [
+                    "number",
+                    "null"
+                  ]
+                },
+                "label": {
+                  "type": [
+                    "number",
+                    "null"
+                  ]
+                },
+                "axis": {
+                  "type": [
+                    "number",
+                    "null"
+                  ]
+                }
+              }
+            }
           }
         }
       }
@@ -1004,7 +1525,8 @@
             "BU",
             "FC",
             null
-          ]
+          ],
+          "description": "Ab Kitchen 0.5.5 die wirksame Basis (gegen die die Skizze rechnet), null ohne gezeigten Bezug; -> ChartKitchen chart.comparisonMode."
         },
         "deltaBasisAuto": {
           "type": "boolean"
@@ -1111,6 +1633,28 @@
         },
         "fieldParam": {
           "$ref": "#/$defs/fieldParam"
+        },
+        "deltaBasisSource": {
+          "description": "Ab Kitchen 0.5.5: explicit | auto | null",
+          "enum": [
+            "explicit",
+            "auto",
+            null
+          ]
+        },
+        "deltaBasisRequested": {
+          "description": "Ab Kitchen 0.5.5: gewaehlte, aber nicht gezeigte Basis",
+          "type": [
+            "string",
+            "null"
+          ],
+          "enum": [
+            "PL",
+            "PY",
+            "BU",
+            "FC",
+            null
+          ]
         }
       }
     },

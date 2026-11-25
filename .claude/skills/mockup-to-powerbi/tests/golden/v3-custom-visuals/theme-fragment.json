@@ -26,7 +26,7 @@
             "show": true,
             "color": {
               "solid": {
-                "color": "#E5E7EB"
+                "color": "#E1DFD6"
               }
             },
             "radius": 8
@@ -53,6 +53,30 @@
                 "color": "#1F2933"
               }
             }
+          }
+        ]
+      }
+    },
+    "page": {
+      "*": {
+        "outspace": [
+          {
+            "color": {
+              "solid": {
+                "color": "#EAE8E1"
+              }
+            },
+            "transparency": 0
+          }
+        ],
+        "background": [
+          {
+            "color": {
+              "solid": {
+                "color": "#F7F4EF"
+              }
+            },
+            "transparency": 0
           }
         ]
       }

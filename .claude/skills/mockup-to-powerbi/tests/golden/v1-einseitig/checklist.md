@@ -27,7 +27,7 @@ Mockup: **Management Report · Beispiel** · specVersion 1 (gelesen als v3) · H
 
 | Seite | Ordner | Fragestellung | native Visuals + Slicer | Text/Button | Chrome | CK | Deneb | Custom |
 |---|---|---|---|---|---|---|---|---|
-| Übersicht | `Ubersicht/` | – | 4 | 0 | 10 | 4 | 0 | 0 |
+| Übersicht | `Ubersicht/` | – | 4 | 0 | 13 | 4 | 0 | 0 |
 
 ## Offene Punkte aus der Spec (`issues`)
 

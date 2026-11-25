@@ -20,47 +20,47 @@
   {
     "visual_type": "actionButton",
     "name": "chrome_burger",
-    "title": "Filter-Menü",
+    "title": "Filter-Men\u00fc",
     "x": 16,
-    "y": 14,
-    "width": 84,
-    "height": 28
+    "y": 12,
+    "width": 32,
+    "height": 32
   },
   {
     "visual_type": "shape",
     "name": "chrome_logo",
     "title": "Logo",
-    "x": 1144,
-    "y": 12,
-    "width": 120,
-    "height": 32
+    "x": 1176,
+    "y": 13,
+    "width": 88,
+    "height": 30
   },
   {
     "visual_type": "actionButton",
     "name": "chrome_nav_1",
-    "title": "Übersicht",
-    "x": 1016,
-    "y": 12,
-    "width": 112,
-    "height": 32
+    "title": "\u00dcbersicht",
+    "x": 1076,
+    "y": 13,
+    "width": 86,
+    "height": 29
   },
   {
     "visual_type": "shape",
     "name": "chrome_header_title",
     "title": "Kopfband-Titel",
-    "x": 112,
-    "y": 6,
-    "width": 888,
-    "height": 26
+    "x": 62,
+    "y": 7,
+    "width": 1000,
+    "height": 25
   },
   {
     "visual_type": "shape",
     "name": "chrome_header_subtitle",
     "title": "Kopfband-Untertitel",
-    "x": 112,
+    "x": 62,
     "y": 32,
-    "width": 888,
-    "height": 18
+    "width": 1000,
+    "height": 16
   },
   {
     "visual_type": "shape",
@@ -74,16 +74,16 @@
   {
     "visual_type": "shape",
     "name": "chrome_filter_title",
-    "title": "Filter-Überschrift",
-    "x": 1088,
-    "y": 64,
-    "width": 184,
-    "height": 24
+    "title": "Filter-\u00dcberschrift",
+    "x": 1090,
+    "y": 68,
+    "width": 148,
+    "height": 16
   },
   {
     "visual_type": "actionButton",
     "name": "chrome_filter_close",
-    "title": "Filter schließen",
+    "title": "Filter schlie\u00dfen",
     "x": 1244,
     "y": 64,
     "width": 28,
@@ -91,11 +91,29 @@
   },
   {
     "visual_type": "shape",
-    "name": "chrome_footer_text",
-    "title": "Fußleiste",
-    "x": 16,
+    "name": "chrome_footer_bg",
+    "title": "Fu\u00dfleiste",
+    "x": 0,
     "y": 696,
-    "width": 1248,
+    "width": 1280,
     "height": 24
+  },
+  {
+    "visual_type": "shape",
+    "name": "chrome_footer_rule",
+    "title": "Fu\u00dfleiste Oberkante",
+    "x": 0,
+    "y": 696,
+    "width": 1280,
+    "height": 1
+  },
+  {
+    "visual_type": "shape",
+    "name": "chrome_footer_text",
+    "title": "Fu\u00dfleisten-Text",
+    "x": 16,
+    "y": 697,
+    "width": 1248,
+    "height": 23
   }
 ]

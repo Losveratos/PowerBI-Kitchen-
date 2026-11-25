@@ -1,0 +1,127 @@
+{
+  "contract": 1,
+  "seq": 1,
+  "specHash": "3754f871",
+  "createdAt": "2026-10-02T00:12:13.837+02:00",
+  "client": "MockupKitchen 0.5.5",
+  "scale": 1,
+  "pages": [
+    {
+      "id": "keuadd7",
+      "name": "IBCS Testbed",
+      "file": "IBCS Testbed.png",
+      "png": "kitchen/1/IBCS Testbed.png",
+      "width": 1920,
+      "height": 1080,
+      "pbir": {
+        "page": "pageIBCS"
+      },
+      "zones": {
+        "header": {
+          "x": 0,
+          "y": 0,
+          "w": 1920,
+          "h": 84
+        },
+        "footer": {
+          "x": 0,
+          "y": 1044,
+          "w": 1920,
+          "h": 36
+        },
+        "content": {
+          "x": 0,
+          "y": 84,
+          "w": 1920,
+          "h": 960
+        }
+      }
+    }
+  ],
+  "tiles": {
+    "kt3hgu9": {
+      "page": "IBCS Testbed",
+      "id": "mk_kt3hgu9",
+      "kind": "kpi",
+      "title": "Umsatz Ist",
+      "displayName": "Umsatz Ist",
+      "rect": {
+        "x": 0,
+        "y": 84,
+        "w": 960,
+        "h": 480
+      },
+      "body": {
+        "x": 14,
+        "y": 127,
+        "w": 932,
+        "h": 399
+      },
+      "headH": 36,
+      "footH": 27
+    },
+    "4vb2vkn": {
+      "page": "IBCS Testbed",
+      "id": "mk_4vb2vkn",
+      "kind": "kombi",
+      "title": "Umsatz je Monat",
+      "displayName": "Umsatz je Monat",
+      "rect": {
+        "x": 960,
+        "y": 84,
+        "w": 960,
+        "h": 480
+      },
+      "body": {
+        "x": 974,
+        "y": 127,
+        "w": 932,
+        "h": 399
+      },
+      "headH": 36,
+      "footH": 27
+    },
+    "529iu5b": {
+      "page": "IBCS Testbed",
+      "id": "mk_529iu5b",
+      "kind": "bars",
+      "title": "Umsatz je Region",
+      "displayName": "Umsatz je Region",
+      "rect": {
+        "x": 0,
+        "y": 564,
+        "w": 960,
+        "h": 480
+      },
+      "body": {
+        "x": 14,
+        "y": 607,
+        "w": 932,
+        "h": 399
+      },
+      "headH": 36,
+      "footH": 27
+    },
+    "4qyvuuj": {
+      "page": "IBCS Testbed",
+      "id": "mk_4qyvuuj",
+      "kind": "wfint",
+      "title": "Abweichung je Kategorie",
+      "displayName": "Abweichung je Kategorie",
+      "rect": {
+        "x": 960,
+        "y": 564,
+        "w": 960,
+        "h": 480
+      },
+      "body": {
+        "x": 974,
+        "y": 607,
+        "w": 932,
+        "h": 399
+      },
+      "headH": 36,
+      "footH": 27
+    }
+  }
+}

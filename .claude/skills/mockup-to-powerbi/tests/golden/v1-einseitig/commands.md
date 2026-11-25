@@ -66,16 +66,20 @@ Nur über eine vorhandene Referenz-Instanz replizieren — Vorgehen in `.claude/
 ```bash
 # Übersicht · Umsatz (kpi → orientation cards)
 pbir add visual shape "Test.Report/Übersicht.Page" -n "v01_Umsatz_slot" -x 16 -y 72 -w 253 -h 119 -t "ChartKitchen: kpi"
-pbir set "Test.Report/Übersicht.Page/v01_Umsatz_slot.Visual.text.text" --value "ChartKitchen: kpi · Umsatz"
+pbir set "Test.Report/Übersicht.Page/v01_Umsatz_slot.Visual.text.show" --value true
+pbir set "Test.Report/Übersicht.Page/v01_Umsatz_slot.Visual.text.default.text" --value "ChartKitchen: kpi · Umsatz"
 # Übersicht · Marge (kpi → orientation cards)
 pbir add visual shape "Test.Report/Übersicht.Page" -n "v02_Marge_slot" -x 281 -y 72 -w 253 -h 119 -t "ChartKitchen: kpi"
-pbir set "Test.Report/Übersicht.Page/v02_Marge_slot.Visual.text.text" --value "ChartKitchen: kpi · Marge"
+pbir set "Test.Report/Übersicht.Page/v02_Marge_slot.Visual.text.show" --value true
+pbir set "Test.Report/Übersicht.Page/v02_Marge_slot.Visual.text.default.text" --value "ChartKitchen: kpi · Marge"
 # Übersicht · Deckungsbeitrag (kpi → orientation cards)
 pbir add visual shape "Test.Report/Übersicht.Page" -n "v04_Deckungsbeitrag_slot" -x 811 -y 72 -w 253 -h 119 -t "ChartKitchen: kpi"
-pbir set "Test.Report/Übersicht.Page/v04_Deckungsbeitrag_slot.Visual.text.text" --value "ChartKitchen: kpi · Deckungsbeitrag"
+pbir set "Test.Report/Übersicht.Page/v04_Deckungsbeitrag_slot.Visual.text.show" --value true
+pbir set "Test.Report/Übersicht.Page/v04_Deckungsbeitrag_slot.Visual.text.default.text" --value "ChartKitchen: kpi · Deckungsbeitrag"
 # Übersicht · Umsatz AC/FC vs PL je Monat (varint → orientation intwaterfall)
 pbir add visual shape "Test.Report/Übersicht.Page" -n "v05_Umsatz_AC_FC_vs_PL_je_Monat_slot" -x 16 -y 203 -w 691 -h 477 -t "ChartKitchen: varint"
-pbir set "Test.Report/Übersicht.Page/v05_Umsatz_AC_FC_vs_PL_je_Monat_slot.Visual.text.text" --value "ChartKitchen: varint · Umsatz AC/FC vs PL je Monat"
+pbir set "Test.Report/Übersicht.Page/v05_Umsatz_AC_FC_vs_PL_je_Monat_slot.Visual.text.show" --value true
+pbir set "Test.Report/Übersicht.Page/v05_Umsatz_AC_FC_vs_PL_je_Monat_slot.Visual.text.default.text" --value "ChartKitchen: varint · Umsatz AC/FC vs PL je Monat"
 ```
 
 ## Verifizieren

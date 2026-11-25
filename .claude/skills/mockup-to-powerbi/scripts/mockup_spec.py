@@ -61,9 +61,13 @@ CK_ROLE_UNSUPPORTED = {"x", "y", "size", "start", "end", "field", "text"}
 #   kpi:     das Zeitfeld (Mockup-Rolle category) ist die Grouping-Rolle `trend` — in `category`
 #            wuerde jede Periode eine eigene Karte.
 #   scatter: Y = AC (`actual`), X = `xValue`, Blasengroesse = `bubbleSize`.
+#   scatpath: wie scatter; Kategorie = Periode, Serie = Einheit (Datenvertrag des Zeitpfads, 1.57).
+#   bubshare: wie scatter, dazu Blasenanteil `share` -> `bubbleShare` (1.57).
 CK_ROLE_BY_KIND = {
     "kpi": {"category": "trend"},
     "scatter": {"x": "xValue", "y": "actual", "size": "bubbleSize"},
+    "scatpath": {"x": "xValue", "y": "actual", "size": "bubbleSize"},
+    "bubshare": {"x": "xValue", "y": "actual", "size": "bubbleSize", "share": "bubbleShare"},
 }
 
 # ChartKitchen-Optionen je Kachel (visuals[].chartKitchenProps, Tool 0.6.0) -> Objekt `chart`.
@@ -73,6 +77,23 @@ CK_PROPS = {
     "cardTrendValue": {"values": ("last", "sum"), "default": "last"},
     "bridgeOrientation": {"values": ("auto", "bars", "columns"), "default": "auto"},
     "scatterQuadrant": {"values": ("off", "mean", "median"), "default": "mean"},
+    # ab ChartKitchen 1.55 bis 1.57 (capabilities.json, Objekt chart). Feste Werte je Typ
+    # (catalog.js -> ckFixed) und waehlbare (CK_OPTS) kommen beide als chartKitchenProps.
+    "stackShape": {"values": ("columns", "area"), "default": "columns"},
+    "stackNormalize": {"values": ("off", "pct100"), "default": "off"},
+    "stackThickness": {"values": ("equal", "total"), "default": "equal"},
+    "cumulative": {"values": (True, False), "default": False},
+    "cumulativeKind": {"values": ("ytd", "qtd", "r12"), "default": "ytd"},
+    "lineSeries": {"values": (True, False), "default": False},
+    "lineIndex": {"values": ("off", "base100"), "default": "off"},
+    "scatterPath": {"values": ("off", "line"), "default": "off"},
+    "scatterColorBy": {"values": ("single", "status", "group"), "default": "single"},
+    "scatterArrows": {"values": (True, False), "default": False},
+    "scatterPlay": {"values": (True, False), "default": False},
+    "scatterPathArrow": {"values": (True, False), "default": False},
+    "scatterValueLabels": {"values": (True, False), "default": False},
+    "scatterTotalBubble": {"values": (True, False), "default": False},
+    "sfNet": {"values": (True, False), "default": True},
 }
 
 # Vollstaendiges Rollen-Vokabular (Quelle: assets/mockup/catalog.js -> R und R_MULT).
@@ -80,7 +101,7 @@ CK_PROPS = {
 # das Tool darf wachsen.
 ROLE_KEYS = ("category", "subcategory", "series", "multiples", "ac", "ref", "fc",
              "values", "rows", "columns", "x", "y", "size", "indicator", "goal",
-             "start", "end", "field", "text", "rowType")
+             "start", "end", "field", "text", "rowType", "share")
 
 CK_ORIENTATION = {
     "columns": "columns", "kombi": "columns", "colline": "columns",
@@ -91,14 +112,54 @@ CK_ORIENTATION = {
     "dotplot": "dumbbell", "pareto": "pareto",
     "line": "line", "fan": "line", "zchart": "line",
     "slope": "slope",
-    "varint": "intwaterfall", "wfint": "intwaterfall",
+    # wfint ist eine Struktur-Bruecke (Kategorien wie Regionen, waagrecht im Kitchen).
+    # `intwaterfall` ist in ChartKitchen die Zeit-Bruecke (Monate) und zeigte im Deploy 4
+    # dieselbe Δ% bei jeder Region (AUDIT-DEPLOY4.md). Ziel ist die Kategorie-Bruecke.
+    "varint": "intwaterfall", "wfint": "catbridge",
+    # `waterfall` ohne `rowType` zeichnet ChartKitchen als Beitrags-Wasserfall mit Σ
+    # (mit gebundener Referenz als Varianz-Bruecke) — geprueft in
+    # ibcsInspiredChartDeck/src/visual.ts -> buildWaterfall. rowType ist nur fuer GuV-Anker.
     "waterfall": "waterfall", "wfkombi": "waterfall",
-    "bridge": "catbridge",
+    # bridge: Kitchen-Skizze S.bridge = SENKRECHTE Saeulen Σ Referenz -> Δ je
+    # Kategorie -> Σ AC (wfCols). ChartKitchen `catbridge` zeichnet waagrechte
+    # Zeilen (Live-Lauf 8, 02.10.2026). Senkrecht zeichnet `waterfall`: ohne
+    # rowType und mit gebundener Referenz baut buildWaterfall die Varianz-Bruecke
+    # (Anker Basis umrandet -> Δ je Kategorie -> Anker AC), renderWaterfall
+    # zeichnet senkrecht; die Δ-Ebene entfaellt dort (isVarBridge), Δ% nur mit
+    # showRelativeVariance. wfint bleibt catbridge (S.wfint: waagrechte Zeilen).
+    "bridge": "waterfall",
+    # kpi: ab Tool 0.7.0 baut der Konverter `kpi` mit engine ck als ChartKitchen `cards`.
+    # Ab ChartKitchen 1.47 traegt das Zeitfeld die Rolle `trend` (CK_ROLE_BY_KIND), eine
+    # Karte wird damit zur Zeitreihe; vorher zeichnete `cards` je Periode eine eigene Karte.
+    # Der fruehere Weg ueber das Visual ibcsKpiCard bleibt als Schalter (kpi_card_target).
     "kpi": "cards",
     "table": "table", "sparktable": "table", "heatmap": "table",
     # ab ChartKitchen 1.47 / Tool 0.6.0
     "scatter": "scatter",
+    # ab ChartKitchen 1.55 bis 1.57 (Kitchen catalog.js -> CK_MODE)
+    "stockflow": "stockflow", "areastack": "columns", "cumline": "line",
+    "lineidx": "line", "scatpath": "scatter", "bubshare": "scatter",
+    "ckpnl": "pnl", "ckmatrix": "table", "marimekko": "bars",
 }
+
+# Modus aus der Spec (`chartKitchenMode`, Kitchen catalog.js -> CK_MODE), den der Skill
+# bewusst korrigiert: {kind: {Spec-Wert: Ziel}}. Andere Spec-Werte bleiben unangetastet.
+CK_MODE_FIX = {"wfint": {"intwaterfall": "catbridge"},
+               "bridge": {"catbridge": "waterfall"}}
+
+# ChartKitchen-Modi, in denen `chart.topN` wirkt (settings.ts: „Struktur-Modi")
+CK_TOPN_MODES = frozenset({"bars", "catbridge", "table", "dumbbell", "cards"})
+# ... und in denen `chart.cumulative` wirkt (visual.ts -> cumulativeOn)
+CK_CUMULATIVE_MODES = frozenset({"columns", "line", "table"})
+# ... und die eine Rolle `multiples` (Small Multiples) zeichnen
+CK_MULTIPLES_MODES = frozenset({"columns", "bars", "line"})
+
+
+def ck_mode_for(visual: dict):
+    """Wirksamer ChartKitchen-Modus einer Kachel (Spec-Wert mit CK_MODE_FIX)."""
+    kind = (visual or {}).get("kind")
+    mode = (visual or {}).get("chartKitchenMode") or CK_ORIENTATION.get(kind)
+    return CK_MODE_FIX.get(kind, {}).get(mode, mode)
 
 # --------------------------------------------------------------------------- #
 # Darstellungsvarianten (Tool 0.4.1): Small Multiples und Achse per Feldparameter
@@ -106,7 +167,8 @@ CK_ORIENTATION = {
 # --------------------------------------------------------------------------- #
 # Kachel-Typen ohne Kategorieachse — dort bietet das Tool keine Variante an.
 NO_VARIANT_KINDS = frozenset(
-    {"multiples", "map", "treemap", "decomp", "pie", "gauge", "ndonut"})
+    {"multiples", "map", "treemap", "decomp", "pie", "gauge", "ndonut",
+     "scatpath", "pnlmega", "pnlbs", "pnltree"})
 
 # Native Klassiker (Gruppe `native`, engine nur `native`) aus Tool 0.4.1.
 # Quelle: catalog.js -> K('ncolumn'|'nbar'|'nline'|'ndonut', 'native', ...)
@@ -152,7 +214,9 @@ CUSTOM_VISUALS = {
     },
     "pnlByDatenWG": {
         "guid": "pnlByDatenWG3F9A7D2C51E64B08A1C4E7F0B92D6358",
-        "kinds": ["pnl"],
+        # pnlmega (Template), pnlbs (T05A/T05B), pnltree/pnlsankey (Ansicht) ab Tool 0.7;
+        # deren Format-Einstellungen stehen in visuals[].customVisualProps
+        "kinds": ["pnl", "pnlmega", "pnlbs", "pnltree", "pnlsankey"],
         "label": "pnlByDatenWG (GuV)",
         "roles": ["account", "accountName", "levels", "parent", "sortOrder", "rowType",
                   "formulaDef", "signConvention", "displayInvert", "varianceInvert",
@@ -161,6 +225,19 @@ CUSTOM_VISUALS = {
         "required": [["levels", "account"], ["ac"]],
         "source": "pnlByDatenWG/",
         "pbiviz": "pnlByDatenWG/dist/*.pbiviz",
+    },
+    # Ziel fuer den Kachel-Typ `kpi` (engine ck): eine Karte mit Δ-Pill, Mini-Bruecke
+    # und Sparkline. Rollen aus ibcsKpiCard/dist/ibcsKpiCard*.2.3.0.0.pbiviz
+    # (pbiviz.json -> capabilities.dataRoles): category = eine Kachel je Kategorie,
+    # trend = Zeitachse der Sparkline.
+    "ibcsKpiCard": {
+        "guid": "ibcsKpiCard2771CF65D0C343A19EAB34E43D7B8682",
+        "kinds": ["kpi"],
+        "label": "IBCS KPI Card 2.3",
+        "roles": ["category", "ac", "py", "pl", "fc", "trend"],
+        "required": [["ac"]],
+        "source": "ibcsKpiCard/",
+        "pbiviz": "ibcsKpiCard/dist/ibcsKpiCard*.2.3.0.0.pbiviz",
     },
 }
 CUSTOM_BY_GUID = {v["guid"]: k for k, v in CUSTOM_VISUALS.items()}
@@ -184,6 +261,218 @@ VARIANCE_PALETTES = {
 }
 HEADER_STYLES = ("light", "dark", "accent", "custom")
 HEX_RX = re.compile(r"^#[0-9A-Fa-f]{6}$")
+
+# Chrome-Farben des Kitchens (mockup-kitchen.html, Klassen .zone.header/.filter/.footer,
+# .tile). Gelten, solange `design.colors` sie nicht selbst mitbringt.
+KITCHEN_CHROME = {
+    "panel": "#ECEBE5",          # .zone.filter background
+    "rule": "#E3E1D8",           # Linie unter dem hellen Kopfband, am Filterbereich, ueber der Fussleiste
+    "tileBorder": "#E1DFD6",     # .tile border
+    "muted": "#6B7280",          # Fussleisten-Text, Filter-Ueberschrift und -Hinweis
+    "slicerBorder": "#D9D6CC",   # .zone.filter .sl border
+    "slicerBackground": "#FFFFFF",
+    "slicerInk": "#374151",      # .zone.filter .sl color
+    "footerNavInk": "#475569",   # .zone.footer .nav span color
+}
+CHROME_COLOR_KEYS = tuple(KITCHEN_CHROME) + ("footerBackground",)
+
+# Szenario-Farben der IBCS-Skizzen (assets/mockup/sketches.js -> theme(): ac, py,
+# plf/pls = PL-Fuellung/-Umriss, fcc = FC). Hell und dunkel.
+SCENARIO_COLORS = {
+    "light": {"AC": "#404040", "PY": "#B3B3B3", "PLfill": "#FFFFFF", "PLline": "#404040",
+              "FC": "#BDBDBD", "line2": "#8A8A8A"},
+    "dark": {"AC": "#D9D9D9", "PY": "#8A8A8A", "PLfill": "#1E1E1E", "PLline": "#D9D9D9",
+             "FC": "#5A5A5A", "line2": "#A6A6A6"},
+}
+
+# Datenfarben der nativen Skizzen (sketches.js -> NPAL). `pbi` = Power-BI-Standard,
+# dafuer schreibt der Skill keine dataColors.
+NATIVE_PALETTES = {
+    "neutral": {
+        "light": ["#2F6F85", "#8C8C8C", "#3D3D3D", "#6B6B6B", "#7FA3B3", "#A6A6A6", "#262626", "#595959"],
+        "dark": ["#7FB2C4", "#9E9E9E", "#D9D9D9", "#737373", "#A9C7D2", "#BDBDBD", "#858585", "#EDEDED"],
+    },
+    "kitchen": {
+        "light": ["#1E8F9E", "#0F5560", "#A8834A", "#5E7A8A", "#C25A2D", "#3E9C8F", "#7A6446", "#6F8793"],
+        "dark": ["#3FB3C2", "#7FD0D8", "#D4B07A", "#9DB4C2", "#E08A5F", "#5FC0B0", "#C49A6C", "#C9D3D9"],
+    },
+}
+
+
+def mix(a: str, b: str, t: float) -> str:
+    """Farbe a nach b mischen (t = Anteil b), wie mix() in sketches.js."""
+    x = [int(a.lstrip("#")[i:i + 2], 16) for i in (0, 2, 4)]
+    y = [int(b.lstrip("#")[i:i + 2], 16) for i in (0, 2, 4)]
+    return "#" + "".join("%02X" % max(0, min(255, int(round(p + (q - p) * t))))
+                         for p, q in zip(x, y))
+
+
+# Szenario eines Feldes aus seinem Namen (Port von basisOfName/BASIS_RX in
+# assets/mockup/app.js, ergaenzt um LY und AC/Ist). Reihenfolge wie im Tool.
+BASIS_RX = [
+    ("PY", re.compile(r"(^|[^A-Z])(PY|VJ|LY)(TD|YTD)?(?![A-Z])|Vorjahr|[Pp]rior ?[Yy]ear"
+                      r"|[Pp]revious ?[Yy]ear|[Ll]ast ?[Yy]ear")),
+    ("BU", re.compile(r"(^|[^A-Z])BU(?![A-Z])|Budget")),
+    ("FC", re.compile(r"(^|[^A-Z])FC(?![A-Z])|Forecast|Prognose|Hochrechnung")),
+    ("PL", re.compile(r"(^|[^A-Z])PL(?![A-Z])|Plan")),
+    ("AC", re.compile(r"(^|[^A-Z])AC(?![A-Z])|(^|[^A-Za-z])Ist(?![a-z])|Actual")),
+]
+
+
+def basis_of_name(name):
+    """'PY', 'BU', 'FC', 'PL', 'AC' oder None (streng, wie basisOfName(name, true))."""
+    text = str(name or "")
+    for basis, rx in BASIS_RX:
+        if rx.search(text):
+            return basis
+    return None
+
+
+def field_name(f: dict) -> str:
+    return (f or {}).get("name") or split_ref((f or {}).get("ref", ""))[1]
+
+
+def title_shown(visual: dict) -> bool:
+    """Zeigt die Kachel im Kitchen einen Titel?
+
+    Ab Kitchen 0.5.5 (mockup-live/CONTRACT.md, „Kachel-Anzeige") ist `title` der
+    sichtbare Kopf oder "" und `titleShown` sagt es ausdruecklich — beides gewinnt.
+    Aeltere Exporte schrieben immer `title = v.title || def.label`, obwohl das Kitchen
+    den Kopf nur zeichnet, wenn Titel oder Untertitel gesetzt sind (app.js: `headH =
+    v.title || v.sub ? … : 0`). Dort heisst ein Titel gleich dem Katalog-Label ohne
+    Untertitel: kein eigener Titel, kein Kopf.
+    """
+    v = visual or {}
+    if isinstance(v.get("titleShown"), bool):
+        return v["titleShown"]
+    title = str(v.get("title") or "").strip()
+    if not title:
+        return False
+    if v.get("label") and title == str(v["label"]).strip() \
+            and not str(v.get("subtitle") or "").strip():
+        return False
+    return True
+
+
+def visible_title(visual: dict) -> str:
+    """Titeltext, der im Bericht sichtbar sein soll ('' = keiner)."""
+    return str((visual or {}).get("title") or "").strip() if title_shown(visual) else ""
+
+
+def display_name(visual: dict) -> str:
+    """Name fuer Auswahlbereich und Meldungen: `displayName` (Kitchen 0.5.5), sonst
+    der Titel, sonst das Katalog-Label."""
+    v = visual or {}
+    return str(v.get("displayName") or v.get("title") or v.get("label") or v.get("id") or "")
+
+
+def display_block(visual: dict) -> dict:
+    """`display` (Kitchen 0.5.5): was die Kachel zeigt. {} bei aelteren Specs."""
+    d = (visual or {}).get("display")
+    return d if isinstance(d, dict) else {}
+
+
+def drawn(visual: dict) -> dict:
+    """`display.drawn` — was die Skizze in dieser Kachelgroesse zeichnet ({} = unbekannt)."""
+    d = display_block(visual).get("drawn")
+    return d if isinstance(d, dict) else {}
+
+
+def design_from_report(nspec: dict) -> bool:
+    """`design.sourceReport` (Konverter 0.6, Befund B2 Demo-Test 02.10.2026): Die Gestaltung
+    wurde beim Einlesen aus dem Bericht uebernommen und seitdem nicht bewusst geaendert.
+    Nur ohne Live-Helfer: das Kitchen setzt es nicht, der Live-Runner entscheidet ueber den
+    Vergleich mit der Grundlinie (mockup-live/CONTRACT.md)."""
+    return bool(((nspec or {}).get("design") or {}).get("sourceReport"))
+
+
+def keeps_report_style(nspec: dict, page=None, visual=None) -> bool:
+    """True, wenn Seitenhintergrund bzw. Kachelstil so bleiben, wie sie im Bericht stehen:
+    `design.sourceReport` ist gesetzt und die Seite (`page.pbir.page`) bzw. die Kachel
+    (`visual.pbir.visual`) stammt aus dem Bericht. Neue Seiten und neue Kacheln bekommen
+    die Gestaltung wie bisher (sie ist ja die des Berichts)."""
+    if not design_from_report(nspec):
+        return False
+    if visual is not None:
+        vp = (visual or {}).get("pbir")
+        return isinstance(vp, dict) and bool(vp.get("visual"))
+    pp = (page or {}).get("pbir")
+    return isinstance(pp, dict) and bool(pp.get("page"))
+
+
+def tile_numbers(visual: dict):
+    """(displayUnits, decimals, unitText) einer Kachel. `display.numbers` (0.5.5)
+    gewinnt vor `analysis`; displayUnits None = auto."""
+    a = (visual or {}).get("analysis") or {}
+    n = display_block(visual).get("numbers")
+    du, dec, unit = a.get("displayUnits"), a.get("decimals"), a.get("unit")
+    if isinstance(n, dict):
+        if "displayUnits" in n:
+            du = n.get("displayUnits")
+        if "decimals" in n:
+            dec = n.get("decimals")
+        if n.get("unitText"):
+            unit = n["unitText"]
+    if du in ("auto", ""):
+        du = None
+    try:
+        dec = None if dec is None else int(dec)
+    except (TypeError, ValueError):
+        dec = None
+    return du, dec, unit
+# Ziel einer `kpi`-Kachel mit engine ck: "ck" = ChartKitchen `cards` mit Rolle `trend`
+# (Vorgabe ab Tool 0.7.0, braucht ChartKitchen 1.47 oder neuer), "ibcs" = Custom Visual
+# ibcsKpiCard 2.3 (Stand 0.6.x). Umschalten ueber die Umgebungsvariable MK_KPI_CARD oder
+# `mockup_to_pbir.py --kpi-card ibcs`. Der Live-Runner setzt vorerst "ibcs", weil seine
+# Kartengeometrie am Desktop mit ibcsKpiCard abgestimmt wurde.
+KPI_CARD_TARGETS = ("ck", "ibcs")
+KPI_CARD_DEFAULT = "ck"
+
+
+def kpi_card_target() -> str:
+    val = (os.environ.get("MK_KPI_CARD") or "").strip().lower()
+    return val if val in KPI_CARD_TARGETS else KPI_CARD_DEFAULT
+
+
+def kpi_custom_visual(visual: dict):
+    """`kpi` (engine ck) -> customVisual-Block fuer ibcsKpiCard 2.3.
+
+    indicator -> ac; goal -> py/pl/fc nach dem Szenario im Feldnamen (ohne Treffer pl);
+    die Zeitrolle des Kitchens (`category`, Label „Sparkline") -> trend, nicht
+    category: category hiesse eine Karte je Monat. Gibt (Block, Warnungen) zurueck.
+    """
+    roles = (visual or {}).get("roles") or {}
+    buckets, warn = {}, []
+
+    def put(role, f):
+        entry = {"ref": f.get("ref"), "kind": f.get("kind") or "measure",
+                 "isNew": bool(f.get("isNew"))}
+        buckets.setdefault(role, []).append(entry)
+
+    for f in roles.get("indicator") or roles.get("ac") or []:
+        if "ac" in buckets:
+            warn.append("ibcsKpiCard nimmt nur eine AC-Kennzahl; %s nicht gebunden."
+                        % f.get("ref"))
+            continue
+        put("ac", f)
+    for f in (roles.get("goal") or []) + (roles.get("ref") or []):
+        basis = basis_of_name(field_name(f))
+        role = {"PY": "py", "FC": "fc"}.get(basis, "pl")
+        if role in buckets:
+            alt = next((r for r in ("pl", "py") if r not in buckets), None)
+            if alt is None:
+                warn.append("Referenz %s nicht gebunden: pl und py sind belegt."
+                            % f.get("ref"))
+                continue
+            role = alt
+        put(role, f)
+    for f in roles.get("category") or []:
+        if "trend" in buckets:
+            warn.append("trend nimmt ein Feld; %s nicht gebunden." % f.get("ref"))
+            continue
+        put("trend", f)
+    info = CUSTOM_VISUALS["ibcsKpiCard"]
+    return {"name": "ibcsKpiCard", "guid": info["guid"], "buckets": buckets}, warn
 
 # --------------------------------------------------------------------------- #
 # Typografie, Filterbereich, Seitennavigation, Barrierefreiheit (Tool 0.4.3/0.4.4)
@@ -273,6 +562,47 @@ def type_sizes(nspec: dict, visual=None):
             "titlePx": px["title"], "subPx": px["sub"], "chartPx": px["chart"],
             "titlePt": px_to_pt(px["title"]), "subPt": px_to_pt(px["sub"]),
             "chartPt": px_to_pt(px["chart"])}
+
+
+def tile_type_sizes(nspec: dict, visual: dict):
+    """Wie type_sizes(nspec, visual), aber `display.fontPx`/`fontPt` der Kachel
+    (Kitchen 0.5.5, Faktoren schon eingerechnet) gewinnen. Zusaetzlich `axisPx`/
+    `axisPt` (Achsenbeschriftung), sonst gleich der Diagrammschrift.
+    None, wenn weder Typografie noch Kachel-Schriften bekannt sind."""
+    ts = type_sizes(nspec, visual)
+    disp = display_block(visual)
+    fpx = disp.get("fontPx") if isinstance(disp.get("fontPx"), dict) else {}
+    fpt = disp.get("fontPt") if isinstance(disp.get("fontPt"), dict) else {}
+    if not fpx and not fpt:
+        if ts:
+            ts = dict(ts, axisPx=ts["chartPx"], axisPt=ts["chartPt"])
+        return ts
+    if ts is None:
+        k = float((nspec.get("design") or {}).get("fontScale") or 1) or 1.0
+        f = tile_scale(visual) * k
+        base = {key: round(TYPO_DEFAULT[key] * f, 2) for key in ("title", "sub", "chart")}
+        ts = {"k": round(k, 3), "scale": 1.0, "tile": tile_scale(visual),
+              "titlePx": base["title"], "subPx": base["sub"], "chartPx": base["chart"],
+              "titlePt": px_to_pt(base["title"]), "subPt": px_to_pt(base["sub"]),
+              "chartPt": px_to_pt(base["chart"])}
+    out = dict(ts, axisPx=ts["chartPx"], axisPt=ts["chartPt"])
+
+    def num(x):
+        try:
+            return float(x) if x is not None else None
+        except (TypeError, ValueError):
+            return None
+
+    for key, name in (("title", "title"), ("sub", "subtitle"), ("chart", "label"),
+                      ("axis", "axis")):
+        p, q = num(fpx.get(name)), num(fpt.get(name))
+        if p is None and q is not None:
+            p = q / PX_TO_PT
+        if p is None:
+            continue
+        out[key + "Px"] = round(p, 2)
+        out[key + "Pt"] = half_pt(q) if q is not None else px_to_pt(p)
+    return out
 
 
 def nav_position(zones: dict) -> str:
@@ -403,10 +733,19 @@ def normalise_design(design: dict) -> dict:
         "headerBackground": hex_or(given.get("headerBackground"), head_bg),
         "headerInk": hex_or(given.get("headerInk"), head_ink),
     }
+    # Optionale Chrome-Farben (Filterbereich, Linien, Kachelrahmen, Slicer-Kasten). Fehlen
+    # sie, nimmt der Konverter die Kitchen-Vorgaben (KITCHEN_CHROME) — nie None weiterreichen.
+    for key in CHROME_COLOR_KEYS:
+        if isinstance(given.get(key), str) and HEX_RX.match(given[key]):
+            design["colors"][key] = given[key]
     design["accent"] = accent
     design["pageBackground"] = page_bg
     design["tileBackground"] = tile_bg
     design["darkMode"] = bool(design.get("darkMode"))
+    # Kitchen 0.6: nur normalisieren, wenn gesetzt. Ein fehlender Schluessel bleibt fehlend,
+    # sonst aenderte sich der Spec-Hash aller aelteren Mockups (design zaehlt im Hash).
+    if "sourceReport" in design:
+        design["sourceReport"] = bool(design["sourceReport"])
     return design
 
 
@@ -557,6 +896,11 @@ HASH_SKIP_DESIGN = ("variancePalette", "varianceColors", "colors")
 HASH_SKIP_ANALYSIS_IF_NULL = ("smallMultiples", "fieldParam")
 
 
+# Seitenrollen aus dem Kitchen (0.6.1): nav steht in der Navigation, detail und drill sind in
+# Power BI ausgeblendet (drill = Drillthrough-Ziel)
+PAGE_ROLES = ("nav", "detail", "drill")
+
+
 def _hash_analysis(analysis):
     if not isinstance(analysis, dict):
         return analysis
@@ -597,9 +941,12 @@ def _hash_core_v3(spec: dict) -> dict:
     core = {"canvas": _pick(spec.get("canvas"), ("width", "height"))}
     core.update(_pick(spec, ("design", "zones")))
     if "pages" in spec:
-        core["pages"] = [dict(_pick(p, ("name", "question")), **(
+        # Seitenrolle (Tool 0.6.1) nur, wenn sie vom Standard abweicht, wie in export.js
+        core["pages"] = [dict(_pick(p, ("name", "question")),
+                              **({"role": p["role"]} if p.get("role") and p.get("role") != "nav" else {}), **(
             {"visuals": [_pick(v, ("id", "kind", "engine", "title", "content", "rect",
-                                   "roles", "analysis", "link", "chartKitchenProps"))
+                                   "roles", "analysis", "link", "chartKitchenProps",
+                                   "customVisualProps"))
                          for v in (p.get("visuals") or [])]}
             if isinstance(p, dict) and "visuals" in p else {}))
             for p in (spec.get("pages") or []) if isinstance(p, dict)]
@@ -621,8 +968,11 @@ def _hash_core_legacy(spec: dict) -> dict:
         "zones": spec.get("zones") or {},
         "pages": [{
             "name": p.get("name"), "question": p.get("question") or "",
+            # engineSource: Engine vor der kpi-Umstellung (ck -> custom), damit der
+            # Hash derselbe bleibt wie im Kitchen (export.js kennt nur `engine`)
             "visuals": [{"id": v.get("id"), "kind": v.get("kind"),
-                         "engine": v.get("engine"), "title": v.get("title"),
+                         "engine": v.get("engineSource") or v.get("engine"),
+                         "title": v.get("title"),
                          "content": v.get("content") or "", "rect": v.get("rect"),
                          "roles": v.get("roles") or {},
                          "analysis": _hash_analysis(v.get("analysis")),
@@ -799,7 +1149,7 @@ def upgrade(raw: dict, page_name_override=None) -> dict:
     if version >= 2:
         pages = []
         for i, p in enumerate(spec.get("pages") or []):
-            pages.append({
+            page = {
                 "id": p.get("id") or "p%d" % (i + 1),
                 "index": int(p.get("index") or i + 1),
                 "name": p.get("name") or "Seite %d" % (i + 1),
@@ -808,7 +1158,13 @@ def upgrade(raw: dict, page_name_override=None) -> dict:
                 "contentRect": p.get("contentRect") or zones.get("content") or {},
                 "visuals": p.get("visuals") or [],
                 "layoutTree": p.get("layoutTree"),
-            })
+                "role": p.get("role") if p.get("role") in PAGE_ROLES else "nav",
+            }
+            # Herkunft aus dem Bericht (Kitchen 0.6, mockup-live/CONTRACT.md). Nur wenn
+            # gesetzt; zaehlt nicht im Spec-Hash (der kennt je Seite nur Name, Frage, Kacheln).
+            if isinstance(p.get("pbir"), dict) and p["pbir"].get("page"):
+                page["pbir"] = p["pbir"]
+            pages.append(page)
         links = spec.get("links") or []
     else:
         name = page_name_override or (spec.get("page") or {}).get("name") or "Seite"
@@ -986,6 +1342,21 @@ def upgrade(raw: dict, page_name_override=None) -> dict:
     out["specHashComputed"] = raw_hash or spec_hash(out)
     if not meta.get("specHash"):
         meta["specHash"] = out["specHashComputed"]
+    # Nur beim Ziel "ibcs" (kpi_card_target) und erst NACH dem Hash: `kpi` mit engine ck
+    # wird zum Custom Visual ibcsKpiCard. Der Hash bleibt derselbe (er kennt `engine`).
+    # Weil der Live-Runner dieselbe upgrade()-Funktion nutzt, sieht er die Kachel
+    # ebenfalls als `custom` und spielt die erzeugte visual.json ein.
+    # Vorgabe ab Tool 0.7.0 ist "ck": die Kachel bleibt ein ChartKitchen-Slot (`cards`).
+    to_ibcs = kpi_card_target() == "ibcs"
+    for page in pages:
+        for v in page["visuals"]:
+            if to_ibcs and v.get("kind") == "kpi" and v.get("engine") == "ck":
+                cv, warn = kpi_custom_visual(v)
+                v["engineSource"] = "ck"
+                v["engine"] = "custom"
+                v["customVisual"] = cv
+                v["chartKitchenMode"] = None
+                v["kpiCardWarnings"] = warn
     return out
 
 
