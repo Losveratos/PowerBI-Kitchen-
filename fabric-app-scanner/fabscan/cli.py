@@ -17,7 +17,7 @@ import json
 import os
 import sys
 
-from . import __version__, ausnahmen, checks, config, export, fetch, querylog, report, scanapi, tenant, tmdl
+from . import __version__, ausnahmen, checks, config, export, fetch, querylog, report, scanapi, tenant, tmdl, verlauf
 
 
 def _scan_parser(prog: str) -> argparse.ArgumentParser:
@@ -39,6 +39,12 @@ def _scan_parser(prog: str) -> argparse.ArgumentParser:
     ap.add_argument("--ausnahmen", "--exceptions", dest="ausnahmen", default="",
                     help=f"Ausnahmen-Datei (JSON) mit begründet akzeptierten Befunden; Standard: {ausnahmen.FILE_NAME} "
                          "im Repo bzw. im aktuellen Ordner")
+    ap.add_argument("--vorlauf", default="", help="befunde.json (oder Ordner) eines früheren Laufs für den Trend; "
+                                                   "Standard: befunde.json im Ausgabeordner, falls vorhanden")
+    ap.add_argument("--kein-vorlauf", dest="kein_vorlauf", action="store_true",
+                    help="ohne Trend und ohne verlauf.json")
+    ap.add_argument("--klarnamen", action="store_true",
+                    help="Nutzerkennungen im Klartext (Standard: Pseudonym, App-IDs bleiben)")
     ap.add_argument("--html", help=argparse.SUPPRESS)   # Altaufrufe: einzelne Dateien
     ap.add_argument("--json", help=argparse.SUPPRESS)
     ap.add_argument("-q", "--quiet", action="store_true", help="nur Pfade ausgeben")
@@ -93,7 +99,7 @@ def cmd_scan(argv) -> int:
         entries = []
         for ql in a.query_log:
             entries += querylog.load_log(ql)
-        log_apps = tenant.scan_tenant(models, querylog.clients(entries, include_reports=a.include_reports))
+        log_apps = tenant.scan_tenant(models, querylog.clients(entries, include_reports=a.include_reports), a.klarnamen)
         apps += log_apps
         tenant_info = {"models": tenant.model_rows(models, log_apps), "scope": "Tenant"}
 
@@ -105,7 +111,13 @@ def cmd_scan(argv) -> int:
     if tenant_info:
         extra["coverage"] = tenant.coverage(models, apps, include_reports=a.include_reports)
     scope = os.path.basename(root) if root else "Tenant"
-    paths = export.write_run(apps, a.out, root, a.title, tenant_info, scope, extra)
+    try:
+        prev = _previous(a.vorlauf, a.out, a.kein_vorlauf)
+    except ValueError as err:
+        print(err, file=sys.stderr)
+        return 2
+    paths = export.write_run(apps, a.out, root, a.title, tenant_info, scope, extra, previous=prev,
+                             history_path=None if a.kein_vorlauf else os.path.join(a.out, verlauf.HISTORY_FILE))
     if a.html:
         with open(a.html, "w", encoding="utf-8") as fh:
             fh.write(report.to_html(apps, root, a.title, tenant_info, extra))
@@ -114,11 +126,30 @@ def cmd_scan(argv) -> int:
             fh.write(report.to_json(apps, root))
     if not a.quiet:
         print(report.to_text(apps) if apps else "Keine Apps oder Clients mit Abfragen gefunden.")
+        with open(paths["json"], encoding="utf-8") as fh:
+            line = verlauf.trend_line(json.load(fh).get("trend"))
+        if line:
+            print("\n" + line)
         print(f"\nBericht:          {paths['html']}\nZusammenfassung:  {paths['md']}\n"
               f"Daten:            {paths['json']} · {paths['csv']}")
     else:
         print(paths["html"])
     return _fail_code(apps, a.fail_on)
+
+
+def _previous(path: str, out_dir: str, off: bool) -> dict | None:
+    """Vorlauf für den Trend: ausdrücklich angegeben (muss lesbar sein) oder befunde.json im Ausgabeordner."""
+    if off:
+        return None
+    if path:
+        if not os.path.exists(path):
+            raise ValueError(f"Vorlauf nicht gefunden: {path}")
+        return verlauf.load_previous(path)
+    try:
+        return verlauf.load_previous(out_dir)
+    except ValueError as err:
+        print(f"Hinweis: {err}; Lauf ohne Trend.", file=sys.stderr)
+        return None
 
 
 def _unique_models(models: list) -> list:
@@ -193,6 +224,12 @@ def cmd_fetch(argv, fetcher=None) -> int:
     ap.add_argument("--fail-on", choices=["fail", "warn", "never"], default="never")
     ap.add_argument("--ausnahmen", "--exceptions", dest="ausnahmen", default="",
                     help=f"Ausnahmen-Datei (JSON); Standard: {ausnahmen.FILE_NAME} im aktuellen Ordner")
+    ap.add_argument("--vorlauf", default="", help="befunde.json (oder Ordner) eines früheren Laufs für den Trend; "
+                                                   "Standard: befunde.json im Ausgabeordner, falls vorhanden")
+    ap.add_argument("--kein-vorlauf", dest="kein_vorlauf", action="store_true",
+                    help="ohne Trend und ohne verlauf.json")
+    ap.add_argument("--klarnamen", action="store_true",
+                    help="Nutzerkennungen im Klartext (Standard: Pseudonym, App-IDs bleiben)")
     ap.add_argument("--ohne-admin", "--no-admin", dest="no_admin", action="store_true",
                     help="Admin-API überspringen: nur Workspaces mit eigenem Zugriff, Modelle per getDefinition. "
                          "Ohne den Schalter wechselt fetch bei 401/403 der Admin-API von selbst in diesen Modus.")
@@ -225,7 +262,7 @@ def cmd_fetch(argv, fetcher=None) -> int:
         print(f"\nAbbruch: {e}", file=sys.stderr)
         return 2
     entries = querylog.load_log(rows)
-    log_apps = tenant.scan_tenant(models, querylog.clients(entries, include_reports=a.include_reports))
+    log_apps = tenant.scan_tenant(models, querylog.clients(entries, include_reports=a.include_reports), a.klarnamen)
     scope = "Tenant" if f.mode == "admin" else "Workspaces"
     title = a.title or ("Tenant-Prüfbericht Fabric Apps" if f.mode == "admin"
                         else "Prüfbericht Fabric Apps (Workspaces mit eigenem Zugriff)")
@@ -240,7 +277,13 @@ def cmd_fetch(argv, fetcher=None) -> int:
         models, log_apps, workspaces=len(ids),
         workspaces_monitoring=None if a.monitoring else len(f.monitored_ws & wanted),
         days=a.days, include_reports=a.include_reports)
-    paths = export.write_run(log_apps, a.out, "", title, info, scope=scope, extra=extra)
+    try:
+        prev = _previous(a.vorlauf, a.out, a.kein_vorlauf)
+    except ValueError as err:
+        print(err, file=sys.stderr)
+        return 2
+    paths = export.write_run(log_apps, a.out, "", title, info, scope=scope, extra=extra, previous=prev,
+                             history_path=None if a.kein_vorlauf else os.path.join(a.out, verlauf.HISTORY_FILE))
     print("4 · Bericht\n")
     print(report.to_text(log_apps) if log_apps else "Keine Clients mit Abfragen im Zeitraum (nur Modell-Übersicht).")
     for n in f.notes:

@@ -167,7 +167,7 @@ class Fetch(unittest.TestCase):
         rc, out, err, _ = self.run_fetch(fake, [])
         self.assertEqual(rc, 0, err)
         base = os.path.join(self.tmp, "out")
-        self.assertEqual(sorted(os.listdir(base)), ["befunde.csv", "befunde.json", "bericht.html", "rohdaten", "zusammenfassung.md"])
+        self.assertEqual(sorted(os.listdir(base)), ["befunde.csv", "befunde.json", "bericht.html", "rohdaten", "verlauf.json", "zusammenfassung.md"])
         self.assertEqual(sorted(os.listdir(os.path.join(base, "rohdaten"))), ["abfragen.json", "scan.json"])
         self.assertIn("Notebook Export", out)
         self.assertIn("Monitoring KQL database: 8 verschiedene Abfragen", out)

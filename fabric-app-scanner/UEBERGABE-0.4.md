@@ -3,6 +3,54 @@
 Für den Agenten, der fabscan weiterbaut. Stand 19.11.2026, Branch `feat/fabscan-nonadmin-fallback`, PR #56.
 Neueste Version zuerst: 0.6.x, dann 0.5.x, darunter unverändert die Übergabe zu 0.4.0.
 
+## 0.7.0 · Bericht für Entscheider (Roadmap Punkt 7)
+
+Grundlage: `recherche/04-bewertung.md`, Abschnitt 5.3. Stand 25.11.2026, Branch `claude/fabscan-070-bericht` auf
+`claude/fabscan-063-rayfin` (PR #76) gestapelt.
+
+**Ampel je Thema** (`fabscan/themen.py`)
+- Fünf Themen statt der fünf Prüfbereiche: Eine Zahl, Zeilensicherheit, Datenweg, Abfluss, Zuordnung. Zuordnung der
+  Regeln in `THEME_OF_RULE`, unbekannte Regeln über die Kategorie. Zustände rot, gelb, grün, grau.
+- Rot: jedes ✗, dazu DEV-NAME, SEC-ANON, SEC-AUTH im Tenant (Service Principal auf RLS-Modell) und LIN-OTHER-SOURCE mit
+  App-Identität. LIN-NO-MODEL färbt nicht gelb, sondern macht Zahl, Datenweg und Zeilensicherheit grau.
+- Grau (`_grey`): Modell nicht gefunden, Rollen nicht lesbar, nur MDX, im Tenant Abfluss immer (keine Ergebnismengen im
+  Log), Client ohne Anwendungsnamen, App ohne rayfin.yml. Vorrang rot, gelb, grau, grün: ein gefundener ⚠ geht vor
+  „nicht prüfbar“ (im Lauf über die Demo-Apps verdeckte grau sonst das Rechnen im Browser). Im Tenant ist Zuordnung
+  immer mindestens gelb, bis Punkt 4 Vertrauensstufen liefert.
+- Konsole (`report.to_text`), Bericht und `zusammenfassung.md` zeigen die Themen; die alte Tabelle der Prüfbereiche
+  steht im Bericht weiter, als „Für Entwickler: Prüfbereiche je App“.
+
+**Maßnahmenliste** (`themen.actions`)
+- Nur ✗ und ⚠, je Regel und Überschrift über alle Apps gebündelt; Modell-Themen (SEC-NO-RLS, SEC-HIDDEN, SEC-BUILD)
+  je Modell. Wer (`OWNER`: App-Team, Modell-Verantwortliche, beide; im Tenant mit Workspace), Aufwand (`EFFORT`, grob,
+  Standard mittel), betroffene Apps, Fundstellen, Status. Sortiert rot vor gelb, dann nach Zahl der Apps.
+- „Die drei wichtigsten Maßnahmen“ stehen oben im Bericht und in der Zusammenfassung.
+
+**Trend und Verlauf** (`fabscan/verlauf.py`)
+- Vergleich über `finding_id` mit dem Vorlauf: neu, behoben, unverändert, akzeptiert, neu akzeptiert, neue und
+  verschwundene Apps oder Clients. Nur ✗ und ⚠ zählen. Behoben nur, wenn die App wieder geprüft wurde; ein Befund, der
+  zum Hinweis wird (z. B. fester Filter jetzt sichtbar), zählt als behoben.
+- Vorlauf: `--vorlauf DATEI|ORDNER`, sonst `befunde.json` im Ausgabeordner (kaputt: Hinweis, Lauf ohne Trend);
+  `--kein-vorlauf` schaltet Trend und `verlauf.json` ab. Gilt für den Repo-Lauf und `fetch`. Notebook: jüngster
+  Unterordner von `OUTPUT_DIR` mit `befunde.json` (`verlauf.latest_run`), Parameter `TREND`.
+- `verlauf.json` im Ausgabeordner (Notebook: in `OUTPUT_DIR`) mit bis zu 52 Läufen: je Thema Zahl der roten, gelben,
+  grauen Apps, offene und akzeptierte Befunde, Abdeckung. Der Bericht zeigt die letzten acht.
+- Datenvertrag 3: Spalten `first_seen` (aus dem Vorlauf übernommen) und `theme`; `befunde.json` zusätzlich mit
+  `run_date`, `trend` und `themes`.
+
+**Pseudonyme** (`querylog.kennung`)
+- Personen-Kennungen werden zu „Kennung-<8 Zeichen>“ (SHA-256 mit Salz aus `FABSCAN_PSEUDONYM_SALZ`, Standard
+  „fabscan“; Pseudonym, nicht anonym). Technische Identitäten (`is_service_principal`) bleiben lesbar. Heute nennt
+  fabscan nur Service Principals in Befunden, Personen nie; die Funktion ist für Punkt 5 (KQL mit `User`) vorbereitet.
+  `--klarnamen` (scan, fetch), Notebook `KLARNAMEN`.
+
+**Gegenprobe** an der Kopie der zehn Apps aus `Fabric-Apps-Demo\apps`, Bericht im Browser angesehen (Ampel,
+Maßnahmen, Verlauf über vier Läufe): budapest-demo, dwg-guv, showcase nur Abfluss ⚠ (Google Fonts); fünf Apps ohne
+lokales Modell mit ? in Zeilensicherheit und Datenweg; library-app Datenweg ✗ (Lakehouse mit App-Identität). Top-3:
+Lakehouse am Modell vorbei (1 App), fremde Schriften (10 Apps), Modell nicht im Repo (6 Apps).
+
+Tests: 128 (neu `tests/test_bericht.py`, 16 Tests).
+
 ## 0.6.3 · Rayfin-Regeln (Roadmap Punkt 8)
 
 Grundlage: `recherche/04-bewertung.md` (Punkt 8, Zeilen 10 und 11 der Bewertungstabelle), `recherche/03-clients.md`

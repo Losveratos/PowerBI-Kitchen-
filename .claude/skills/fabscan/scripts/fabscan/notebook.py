@@ -90,6 +90,8 @@ OUTPUT_DIR = "/lakehouse/default/Files/fabscan"
 REPORT_TITLE = "Tenant-Prüfbericht Fabric Apps"
 WRITE_DELTA = True                 # Befunde zusätzlich als Tabelle fabscan_findings (für Power BI)
 AUSNAHMEN = "/lakehouse/default/Files/fabscan/fabscan-ausnahmen.json"   # begründet akzeptierte Befunde (optional)
+KLARNAMEN = False                  # True = Nutzerkennungen im Klartext statt als Pseudonym
+TREND = True                       # Vergleich mit dem letzten Lauf unter OUTPUT_DIR und verlauf.json
 """
 
 INSTALL = """
@@ -242,10 +244,10 @@ if not MONITORING and not QUERY_LOG_FILES:
 
 RUN = """
 # 3 · Prüfen und Bericht schreiben: bericht.html, zusammenfassung.md, befunde.json, befunde.csv
-from fabscan import ausnahmen, export, report, tenant
+from fabscan import ausnahmen, export, report, tenant, verlauf
 
 clients = querylog.clients(entries, include_reports=INCLUDE_REPORT_QUERIES)
-apps = tenant.scan_tenant(models, clients)
+apps = tenant.scan_tenant(models, clients, KLARNAMEN)
 info = {"models": tenant.model_rows(models, apps), "scope": SCOPE}
 _rules, _warns = ausnahmen.load(AUSNAHMEN)
 for w in _warns:
@@ -256,8 +258,10 @@ _mon = globals().get("_f")
 coverage = tenant.coverage(models, apps, workspaces=len(ids),
                            workspaces_monitoring=len(_mon.monitored_ws & {w.lower() for w in ids}) if _mon else None,
                            days=DAYS, include_reports=INCLUDE_REPORT_QUERIES)
+_prev = verlauf.load_previous(verlauf.latest_run(OUTPUT_DIR, exclude=f"{OUTPUT_DIR}/{stamp}")) if TREND else None
 paths = export.write_run(apps, f"{OUTPUT_DIR}/{stamp}", "", REPORT_TITLE, info, scope=SCOPE,
-                         extra={"coverage": coverage, "ausnahmen": aus_info})
+                         extra={"coverage": coverage, "ausnahmen": aus_info}, previous=_prev,
+                         history_path=f"{OUTPUT_DIR}/{verlauf.HISTORY_FILE}" if TREND else None)
 with open(paths["html"], encoding="utf-8") as fh:
     html = fh.read()
 print(report.to_text(apps) if apps else "Keine Clients im Zeitraum.")
@@ -276,7 +280,7 @@ if WRITE_DELTA and apps:
     rows = export.rows(apps, SCOPE, run_date=stamp)      # Datenvertrag wie befunde.csv
     if rows:
         (spark.createDataFrame(pd.DataFrame(rows)).write.mode("append")
-         .option("mergeSchema", "true").saveAsTable("fabscan_findings"))      # Datenvertrag 2: neue Spalten
+         .option("mergeSchema", "true").saveAsTable("fabscan_findings"))      # Datenvertrag 3: neue Spalten
         print(f"{len(rows)} Befunde in fabscan_findings geschrieben")
 """
 
