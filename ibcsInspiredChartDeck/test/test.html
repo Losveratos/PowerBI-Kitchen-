@@ -8031,7 +8031,9 @@ addStage("c422c", "Review m7 · Blasengröße VJ ohne Vorjahr in der Leseansicht
     const fcp = sQ("c868", '[data-icd="series-path"][data-scen="fc"]');
     check(fcp.length === 3 && fcp.every(p => p.getAttribute("stroke-dasharray") === "4,3") && fcp.every(p => (p.getAttribute("d").match(/M/g) || []).length === 4),
       `c868: drei gestrichelte FC-Pfade mit je 4 Stücken (Sep → Okt … Dez → Ende)`);
-    check(sQ("c868", '[data-icd="series-pt"][data-scen="fc"]').every(e => e.getAttribute("fill") !== e.getAttribute("stroke")), "c868: FC-Marken hohl");
+    // 1.58 (round 3): FC markers hatched in the series colour (were hollow = plan notation)
+    check(sQ("c868", '[data-icd="series-pt"][data-scen="fc"]').every(e => /^url\(#icd-hatch-/.test(e.getAttribute("fill") || "") && e.getAttribute("fill") !== e.getAttribute("stroke")),
+      "c868: FC-Marken in Serienfarbe schraffiert (bis 1.57 hohl)");
   }
 
   // c869: Regression: Standardwerte zeichnen SVG-gleich; Serie in Linie/Säulen ohne Schalter unverändert
@@ -10845,13 +10847,13 @@ addStage("c422c", "Review m7 · Blasengröße VJ ohne Vorjahr in der Leseansicht
 
   // ---- B6 · Doppellinie liegt über den Δ-Balken (Papierstreifen), Pin-Spalte darunter; PY unverändert
   {
+    // round 3 (A6): no paper strip any more; the Δ bars start at the outer edge of the double line
     const a = wq("c1010", '[data-icd="table-var-axis"]');
-    const over = a.filter(g => g.getAttribute("data-over") === "1");
-    const strip = over.map(g => g.querySelector("rect")).filter(Boolean);
-    const marksAfter = over.every(g => { const rows = wq("c1010", "g.icd-cat"); return rows.length > 0
-      && (rows[rows.length - 1].compareDocumentPosition(g) & Node.DOCUMENT_POSITION_FOLLOWING); });
-    check(over.length === 1 && strip.length === 1 && +strip[0].getAttribute("width") === 3.4 && marksAfter
-      && a.find(g => g.getAttribute("data-over") !== "1"), "c1010 (B6): Δ-Achse über den Balken mit 3,4-px-Papierstreifen, Δ%-Achse darunter");
+    const ax = +a[0].querySelector("line").getAttribute("x1") + 1.2;
+    const bars = wq("c1010", "g.icd-cat rect").filter(r => ["#1E8F9E", "#D64541"].includes(r.getAttribute("fill")) && +r.getAttribute("height") < 20);
+    check(a.length === 2 && !a.some(g => g.querySelector("rect")) && bars.length > 0
+      && bars.every(r => +r.getAttribute("x") >= ax + 1.7 - 0.01 || +r.getAttribute("x") + +r.getAttribute("width") <= ax - 1.7 + 0.01),
+      `c1010 (B6, Runde 3): Δ-Balken beginnen an der Außenkante der Doppellinie (${bars.length} Balken)`);
   }
   // ---- Review 2 · B1: kurze Pins in Small Multiples, GuV-Wasserfall, zweite Basis und Jahressäule
   addStage("c1063", "Welle 1 Review 2 · Small Multiples 4 × 12 auf 960 × 560: kurze Pins zeigen die Farbe an der Beschriftung", 960, 560);
@@ -10891,6 +10893,132 @@ addStage("c422c", "Review m7 · Blasengröße VJ ohne Vorjahr in der Leseansicht
   }
 }
 // ---- WELLE1-REVIEW-END
+// ======================================================================
+// 1.58 · Welle 1 Runde 3 (Stand B portiert), Stufen c1070 bis c1084
+// ======================================================================
+{
+  const { wq, wTexts, isHatch, heads } = window.__w1;
+  const GOOD = "#1E8F9E", BAD = "#D64541";
+  const C03 = extra => dataView(months, [col("actual", ac, "#,0 €"), col("previousYear", py, "#,0 €"), col("plan", pl, "#,0 €"),
+    col("forecast", fc, "#,0 €")], { chart: Object.assign({ template: "C03" }, extra || {}) });
+  // ---- 3 · pinHeadColor = variance: the head of 1.57 in the variance colour, FC hatched in that colour
+  for (const [id, shape] of [["c1070", "auto"], ["c1071", "square"]]) {
+    addStage(id, `Runde 3 · pinHeadColor = variance, Kopf ${shape === "square" ? "eckig" : "rund"}: Kopf grün/rot, FC farbig schraffiert, Stiel 1,6 px`, 960, 480);
+    runCap(id, C03({ pinHeadColor: "variance", pinStyle: shape }), 960, 480);
+    const h = heads(id);
+    const fcH = h.filter(e => e.getAttribute("data-pin") === "fc"), acH = h.filter(e => e.getAttribute("data-pin") === "ac");
+    check(h.length === 12 && h.every(e => e.tagName === (shape === "square" ? "rect" : "circle"))
+      && acH.every(e => [GOOD, BAD].includes(e.getAttribute("fill")) && e.getAttribute("fill") === e.previousElementSibling.getAttribute("stroke"))
+      && fcH.length === 5 && fcH.every(e => /^url\(#icd-hatch-\d+-m[0-9a-f]+\)$/.test(e.getAttribute("fill")) && [GOOD, BAD].includes(e.getAttribute("stroke"))),
+      `${id}: 7 farbige AC-Köpfe, 5 FC-Köpfe in Abweichungsfarbe schraffiert (${fcH[0] && fcH[0].getAttribute("fill")})`);
+    check(h.every(e => e.previousElementSibling.getAttribute("stroke-width") === "1.6")
+      && h.every(e => (e.tagName === "circle" ? +e.getAttribute("r") : +e.getAttribute("width") / 2) === h[0].getAttribute("r") * 1 || e.tagName === "rect")
+      && heads(id).map(e => e.nextElementSibling).filter(t => t && t.tagName === "text").every(t => t.getAttribute("fill") === "#404040"),
+      `${id}: Stiel 1,6 px, Kopf nicht gekappt, Beschriftungen in Tinte`);
+  }
+  // with variance the short-pin label rule is off (c1042 data)
+  addStage("c1072", "Runde 3 · variance mit kurzen Pins: Beschriftung bleibt Tinte, Kopf ungekappt", 700, 420);
+  runCap("c1072", dataView(["A", "B", "C", "D", "E"], [col("actual", [100, 103, 98, 101, 120], "#,0"), col("plan", [101, 101, 100, 100, 100], "#,0")],
+    { chart: { orientation: "columns", comparisonMode: "plan", showAbsoluteVariance: true, showRelativeVariance: true, invert: true, pinHeadColor: "variance" } }), 700, 420);
+  {
+    const h = heads("c1072");
+    check(h.length === 5 && h.every(e => +e.getAttribute("r") >= 2.5 && [GOOD, BAD].includes(e.getAttribute("fill")))
+      && h.map(e => e.nextElementSibling).filter(t => t && t.tagName === "text").every(t => t.getAttribute("fill") === "#404040"),
+      `c1072: Köpfe farbig ab r 2,5, Beschriftungen Tinte (${h.map(e => (+e.getAttribute("r")).toFixed(1)).join(" ")})`);
+  }
+  // variance in the table, the bridges and the P&L statement: coloured heads (as stand B)
+  addStage("c1073", "Runde 3 · variance in der Tabelle mit FC-Zeilen: AC-Köpfe farbig, FC farbig schraffiert", 1100, 460);
+  runCap("c1073", dataView(months, [col("actual", ac.map((v, i) => v ?? fc[i]), "#,0 €"), col("plan", pl, "#,0 €")],
+    { __fcFlags: [0,0,0,0,0,0,0,1,1,1,1,1], chart: { orientation: "table", comparisonMode: "plan", pinHeadColor: "variance" } }), 1100, 460);
+  {
+    const h = heads("c1073");
+    check(h.length >= 12 && h.filter(e => e.getAttribute("data-pin") === "ac").every(e => [GOOD, BAD].includes(e.getAttribute("fill")))
+      && h.filter(e => e.getAttribute("data-pin") === "fc").length === 5, `c1073: 12 farbige Tabellen-Köpfe, 5 FC (${h.length})`);
+  }
+  addStage("c1074", "Runde 3 · variance in der Integrierten Brücke (C05): Köpfe farbig, FC farbig schraffiert", 1120, 620);
+  runCap("c1074", dataView(iwCats, [col("actual", iwAc), col("previousYear", iwPy), col("forecast", iwFc)], { chart: { template: "C05", pinHeadColor: "variance" } }), 1120, 620);
+  addStage("c1075", "Runde 3 · Standard in der Integrierten Brücke (C05): FC-Köpfe fein schraffiert, AC dunkel", 1120, 620);
+  runCap("c1075", dataView(iwCats, [col("actual", iwAc), col("previousYear", iwPy), col("forecast", iwFc)], { chart: { template: "C05" } }), 1120, 620);
+  {
+    const v = heads("c1074"), s = heads("c1075");
+    check(v.length >= 4 && v.every(e => [GOOD, BAD].includes(e.getAttribute("stroke")) || [GOOD, BAD].includes(e.getAttribute("fill"))),
+      `c1074: ${v.length} farbige Brücken-Köpfe`);
+    const sFc = s.filter(e => e.getAttribute("data-pin") === "fc");
+    check(sFc.length >= 4 && sFc.every(e => /-m\)$/.test(e.getAttribute("fill")) && e.getAttribute("stroke") === "#404040"),
+      `c1075: 4 FC-Brücken-Köpfe mit feinem Muster (${sFc.map(e => e.getAttribute("fill")).slice(0, 1)})`);
+  }
+  addStage("c1076", "Runde 3 · Kategorie-Brücke (C06) mit variance: Köpfe in Abweichungsfarbe", 1200, 560);
+  runCap("c1076", dataView(cbCats, [col("actual", cbAc), col("previousYear", cbPy), col("plan", cbPl)], { chart: { template: "C06", pinHeadColor: "variance" } }), 1200, 560);
+  check(heads("c1076").length > 0 && heads("c1076").every(e => [GOOD, BAD, "#B3B3B3"].includes(e.getAttribute("fill"))), `c1076: ${heads("c1076").length} farbige Köpfe`);
+  addStage("c1077", "Runde 3 · GuV-Statement AC&FC: FC-Köpfe fein schraffiert (Standard)", 1280, 480);
+  runCap("c1077", dataView(guvCats, [col("actual", guvAc, "#,0 T€"), col("previousYear", guvPy, "#,0 T€"), col("plan", guvPl, "#,0 T€"), col("forecast", guvFc, "#,0 T€")],
+    { chart: { orientation: "pnl", pnlView: "acfc" } }, null, guvTypes), 1280, 480);
+  addStage("c1078", "Runde 3 · GuV-Statement AC mit variance: Köpfe farbig", 1280, 480);
+  runCap("c1078", dataView(guvCats, [col("actual", guvAc, "#,0 T€"), col("previousYear", guvPy, "#,0 T€"), col("plan", guvPl, "#,0 T€"), col("forecast", guvFc, "#,0 T€")],
+    { chart: { orientation: "pnl", pinHeadColor: "variance" } }, null, guvTypes), 1280, 480);
+  check(heads("c1077").length > 0 && heads("c1077").every(e => /-m\)$/.test(e.getAttribute("fill"))), `c1077: ${heads("c1077").length} fein schraffierte GuV-Köpfe`);
+  check(heads("c1078").length > 0 && heads("c1078").every(e => [GOOD, BAD, "#B3B3B3"].includes(e.getAttribute("fill"))), `c1078: ${heads("c1078").length} farbige GuV-Köpfe`);
+  // high contrast unchanged with variance
+  addStage("c1079", "Runde 3 · variance im Hochkontrast: wie bisher (gut gefüllt, schlecht und FC hohl)", 960, 480, "#000");
+  runCap("c1079", C03({ pinHeadColor: "variance" }), 960, 480, { hc: true });
+  check(heads("c1079").length === 0 && wq("c1079", "circle").filter(c => c.getAttribute("stroke-width") === "1.6" && c.getAttribute("fill") === "#000000").length === 7,
+    "c1079: Hochkontrast unverändert");
+  // the property is no template key
+  check(!Object.values(window.__persist).some(ps => ps.some(c => c.merge.some(m => "pinHeadColor" in m.properties))), "pinHeadColor: keine Vorlage schreibt es");
+
+  // ---- 6 · table: small negative and positive Δ bars stay visible beside the double line
+  addStage("c1080", "Runde 3 · C14 mit kleinen ΔPL (−0,4 bis +0,4 und −21): alle Balken sichtbar außen an der Doppellinie", 1280, 420);
+  runCap("c1080", dataView(["A", "B", "C", "D", "E", "F"], [col("actual", [1000, 999.6, 1000.4, 979, 1050, 1001], "#,0.0"),
+    col("plan", [1000, 1000, 1000, 1000, 1000, 1000], "#,0.0")], { chart: { template: "C14" } }), 1280, 420);
+  {
+    const a = wq("c1080", '[data-icd="table-var-axis"] line').slice(0, 2).map(l => +l.getAttribute("x1"));
+    const inner = (a[0] + a[1]) / 2;
+    const bars = wq("c1080", "g.icd-cat rect").filter(r => ["#1E8F9E", "#D64541"].includes(r.getAttribute("fill"))
+      && Math.abs(+r.getAttribute("x") - inner) < 40 && +r.getAttribute("height") < 20);
+    const vis = bars.filter(r => +r.getAttribute("width") >= 1 && (+r.getAttribute("x") >= inner + 1.7 - 0.01
+      || +r.getAttribute("x") + +r.getAttribute("width") <= inner - 1.7 + 0.01));
+    check(bars.length >= 5 && vis.length === bars.length, `c1080: ${vis.length} von ${bars.length} Δ-Balken außen an der Doppellinie, je ≥ 1 px`);
+  }
+  // PY stays byte-equal: bars at ±1 px from the grey axis
+  {
+    const ax = wq("c1011", 'rect[width="2"]').filter(r => r.getAttribute("fill") === "#B3B3B3")[0];
+    const x0 = +ax.getAttribute("x") + 1;
+    const bars = wq("c1011", "g.icd-cat rect").filter(r => ["#1E8F9E", "#D64541"].includes(r.getAttribute("fill")) && Math.abs(+r.getAttribute("x") - x0) < 200);
+    check(bars.some(r => Math.abs(+r.getAttribute("x") - (x0 + 1)) < 0.01), "c1011: Basis PY unverändert (Balken ab Achse + 1 px)");
+  }
+
+  // ---- 7 · short-pin label colour from the PRINTED value: a label reading zero stays ink
+  for (const [id, rz] of [["c1081", "signed"], ["c1082", "plain"]]) {
+    addStage(id, `Runde 3 · kurzer Pin mit Beschriftung ${rz === "signed" ? "„−0,0 %“" : "„0,0 %“"}: Tinte statt Rot`, 700, 420);
+    runCap(id, dataView(["A", "B", "C"], [col("actual", [99.98, 130, 100], "#,0.00"), col("plan", [100, 100, 100], "#,0.00")],
+      { chart: { orientation: "columns", comparisonMode: "plan", showAbsoluteVariance: true, showRelativeVariance: true }, labels: { roundedZero: rz } }), 700, 420);
+    const lbl = heads(id).map(h => h.nextElementSibling).filter(t => t && t.tagName === "text").find(t => /^[−+]?0,0%$/.test(t.textContent));
+    check(!!lbl && lbl.getAttribute("fill") === "#404040" && lbl.textContent === (rz === "signed" ? "−0,0%" : "0,0%"),
+      `${id}: Beschriftung „${lbl && lbl.textContent}“ in ${lbl && lbl.getAttribute("fill")}`);
+  }
+
+  // ---- 4 · C22 series FC markers hatched (c868 checks the fill), 1 · KPI chip placement in tiles
+  addStage("c1083", "Runde 3 · KPI-Karten als Small Multiples: Knöpfe je Kachel in eigener Kopfzeile", 1200, 360);
+  runCap("c1083", dataView(["Umsatz", "EBIT", "Umsatz", "EBIT"], [col("actual", [18.4e6, 1.3e6, 9e6, 0.6e6], "#,0 €"), col("previousYear", [18e6, 1.25e6, 8.6e6, 0.65e6], "#,0 €")],
+    { chart: { orientation: "cards" } }, ["Nord", "Nord", "Süd", "Süd"]), 1200, 360);
+  {
+    const rows = wq("c1083", '[data-icd="card-chip-row"]');
+    const chip = wq("c1083", 'svg g[role="button"] rect').map(r => r.getBBox());
+    const cards = wq("c1083", "svg g.icd-cat > rect:first-child").map(r => r.getBBox());
+    const hit = chip.filter(cb => cards.some(b => cb.x < b.x + b.width && b.x < cb.x + cb.width && cb.y < b.y + b.height && b.y < cb.y + cb.height));
+    check(rows.length >= 1 && rows.every(r => r.getAttribute("data-place") === "strip") && hit.length === 0,
+      `c1083: Kacheln mit eigener Kopfzeile (${rows.map(r => r.getAttribute("data-place")).join(",")}), keine Überdeckung`);
+  }
+  // active mode chip → own header strip
+  addStage("c1084", "Runde 3 · KPI-Karten mit aktivem Kommentar-Modus: Knöpfe in eigener Kopfzeile", 960, 220);
+  runCap("c1084", dataView(["Umsatz", "EBIT"], [col("actual", [18.4e6, 1.3e6], "#,0 €"), col("previousYear", [18e6, 1.25e6], "#,0 €")],
+    { chart: { orientation: "cards" }, commentsPanel: { editComments: true } }), 960, 220, { viewMode: 1 });
+  {
+    const r = wq("c1084", '[data-icd="card-chip-row"]')[0];
+    check(!!r, `c1084: Kopfzeile ${r ? r.getAttribute("data-place") : "–"}`);
+  }
+}
+// ---- WELLE1-R3-END
 </script>
 <script>
 // ======================================================================
@@ -10982,6 +11110,12 @@ addStage("c422c", "Review m7 · Blasengröße VJ ohne Vorjahr in der Leseansicht
   }
   for (const [id, title, w, h, dv] of kCases) { addStage(id, title, w, h); runCap(id, dv, w, h); }
   const kAll = kCases.map(c => c[0]);
+  // round 3: export twins (no chips) of the three narrow bands
+  for (const id of ["kpi58f", "kpi58l", "kpi58m"]) {
+    const c = kCases.find(q => q[0] === id);
+    addStage(id + "x", c[1] + ", Export ohne Knöpfe", c[2], c[3]);
+    runCap(id + "x", c[4], c[2], c[3], { noInteract: true });
+  }
 
   // 1 · Δ block at one relative x in every flat card row
   for (const id of ["kpi58a", "kpi58b", "kpi58c", "kpi58d", "kpi58g", "kpi58h", "kpi58l", "kpi58m"]) {
@@ -11010,12 +11144,33 @@ addStage("c422c", "Review m7 · Blasengröße VJ ohne Vorjahr in der Leseansicht
     check(gapPx <= 170, `kpi58n: Abstand Wert → Δ-Block ${gapPx.toFixed(0)} px (höchstens 20 + 120 px hinter der Spalte)`);
   }
   // 4 · the Δ block stays clear of the sort chip
-  // (kpi58f, kpi58l, kpi58m: the block cannot clear the chip even right behind the
-  // widest value; there it must not be moved right, the rest is test bench 2, backlog)
   const kChipRows = id => kCards(id).flatMap(c => c.ts.filter(t => +t.getAttribute("font-size") < 18 && c.ts.indexOf(t) > 1)).map(t => t.getBBox());
+  // round 3 (after stand B point 8): sort and exception chips have their own row (title row
+  // of the visual or a header strip of the tile) — they cover no card at all, the three
+  // narrow bands (kpi58f, kpi58l, kpi58m) included; until the merge the block only kept clear
+  for (const id of kAll) {
+    const chip = kq(id, 'svg g[role="button"] rect').map(r => r.getBBox());
+    const cards = kq(id, "svg g.icd-cat > rect:first-child").map(r => r.getBBox());
+    const hits = chip.filter(cb => cards.some(b => kBoxHit(b, cb)));
+    const place = (kq(id, '[data-icd="card-chip-row"]')[0] || { getAttribute: () => "–" }).getAttribute("data-place");
+    check(chip.length > 0 && hits.length === 0, `${id}: Sortierknopf außerhalb aller Karten (${place}, ${hits.length} Treffer)`);
+  }
+  // the Δ block sits at the same x on screen and in the export (the chip no longer pushes it)
   for (const id of ["kpi58f", "kpi58l", "kpi58m"]) {
-    const a = kCards(id)[0].dx[0], b = kCards(id + "b")[0].dx[0];
-    check(Math.abs(a - b) < 0.5, `${id}: Δ-Block bleibt hinter der Wertspalte wie mit Mini-Brücke (${a.toFixed(1)} / ${b.toFixed(1)} px)`);
+    const a = kCards(id).map(c => c.dx[0] - c.x), b = kCards(id + "x").map(c => c.dx[0] - c.x);
+    check(a.length > 0 && a.length === b.length && a.every((v, i) => Math.abs(v - b[i]) < 0.5),
+      `${id}: Δ-Block relativ zur Karte wie im Export (${a.map(v => v.toFixed(1)).join("/")} gegen ${b.map(v => v.toFixed(1)).join("/")})`);
+  }
+  // title row versus own strip: a short title leaves room for the chips in the title row
+  {
+    const pl = id => (kq(id, '[data-icd="card-chip-row"]')[0] || { getAttribute: () => "" }).getAttribute("data-place");
+    addStage("kpi58p", "Runde 3 · Langer Titel und Botschaft auf 420 px: Knöpfe in eigener Kopfzeile, Karten darunter", 420, 220);
+    runCap("kpi58p", kStrip(kCats4.slice(0, 2), kAc4.slice(0, 2), kPy4.slice(0, 2), kPl4.slice(0, 2), { cardBars: false }, null,
+      { ibcsTitle: { kpi: "Umsatz und Finanzierungs-Cashflow aller Gesellschaften im Konzern", message: "Umsatz stabil, der Cashflow liegt deutlich unter dem Plan" } }), 420, 220);
+    const chip = kq("kpi58p", 'svg g[role="button"] rect').map(r => r.getBBox());
+    const top = Math.min(...kCards("kpi58p").map(c => c.y));
+    check(pl("kpi58p") === "strip" && chip.every(b => b.y + b.height <= top), `kpi58p: eigene Kopfzeile über den Karten (${pl("kpi58p")})`);
+    check(["kpi58a", "kpi58l"].every(id => pl(id) === "title"), `kpi58a/l: Knöpfe in der Titelzeile (${pl("kpi58a")}, ${pl("kpi58l")})`);
   }
   for (const id of ["kpi58a", "kpi58c", "kpi58g", "kpi58h", "kpi58n"]) {
     const chip = kq(id, 'svg g[role="button"] rect').map(r => r.getBBox());
@@ -11039,6 +11194,28 @@ addStage("c422c", "Review m7 · Blasengröße VJ ohne Vorjahr in der Leseansicht
     const j = kCards("kpi58j").map(c => c.texts[1]);
     check(j[0] === "Non-GAAP 1.200" && j[1] === "Non-GAAP 5.000" && /^−Non-GAAP 300$/.test(j[2]),
       `kpi58j: Textpräfix behält den Bindestrich, nur das Vorzeichen ist U+2212 (${j.join(" | ")})`);
+  }
+  // round 3 (after stand B point 12) · hidden Δ rows are counted: "+n Δ" with a tooltip
+  {
+    const cats = ["Umsatz", "EBIT", "Cash"], acv = [18.4 * kM, 1.3 * kM, 2 * kM], pyv = [18 * kM, 1.25 * kM, 1.9 * kM],
+      plv = [18.1 * kM, 1.2 * kM, 2.1 * kM], bmv = [18.5 * kM, 1.4 * kM, 2.05 * kM];
+    const dvM = () => dataView(cats, [col("actual", acv, "#,0 €"), col("previousYear", pyv, "#,0 €"), col("plan", plv, "#,0 €"),
+      col("benchmark", bmv, "#,0 €")], { chart: { orientation: "cards", cardBars: false, comparisonMode: "plan" } });
+    addStage("kpi58q", "Runde 3 · Flacher Streifen mit ΔPL, ΔPY und ΔBM: dritte Zeile als „+1 Δ“ mit Tooltip", 1320, 96);
+    runCap("kpi58q", dvM(), 1320, 96);
+    addStage("kpi58r", "Runde 3 · Gestapelte Karten 3 × 230 × 110: nur die erste Zeile, „+2 Δ“ oben rechts", 720, 110);
+    runCap("kpi58r", dvM(), 720, 110);
+    for (const [id, n] of [["kpi58q", 1], ["kpi58r", 2]]) {
+      const m = kq(id, '[data-icd="card-more"]');
+      const tips = m.map(t => (t.querySelector("title") || {}).textContent || "");
+      check(m.length === 3 && m.every(t => t.childNodes[0].nodeValue === `+${n} Δ` && +t.getAttribute("data-n") === n) && tips.every(t => t.split("; ").length === n && (t.match(/Δ[A-Z]/g) || []).length === n),
+        `${id}: „+${n} Δ“ in allen Karten (${m.map(t => t.childNodes[0].nodeValue).join(" / ")}), Tooltips „${tips.join(" / ")}“`);
+    }
+    // the mark of a flat card sits above its Δ block, not over the value
+    const c0 = kCards("kpi58q")[0], mk = kq("kpi58q", '[data-icd="card-more"]')[0];
+    check(Math.abs(+mk.getAttribute("x") - c0.x - c0.dx[0]) < 0.5, `kpi58q: Marke über dem Δ-Block (${(+mk.getAttribute("x") - c0.x).toFixed(1)} / ${c0.dx[0].toFixed(1)})`);
+    // a deck where everything fits shows no mark
+    check(kq("kpi58a", '[data-icd="card-more"]').length === 0, "kpi58a: keine Marke, wenn alle Zeilen passen");
   }
   // 1 (review) · colors: a Δ that rounds to zero beside a real Δ% keeps its status
   // color (text, stripe, tint, ▲); only a row that reads zero as a whole is grey

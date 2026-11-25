@@ -807,6 +807,8 @@ interface ChartConfig {
     mainDomain: [number, number];
     /** Δ%-pin head shape: "auto" keeps each mode's default (round or square) */
     pinStyle: string;
+    /** 1.58 (round 3): chart.pinHeadColor = variance — Δ%-pin heads in the variance color */
+    pinHeadVar: boolean;
     /** trend icons ▲▼● in front of Δ values (table + cards) */
     deltaIcons: boolean;
     /** scenario display labels — house terms via the pane ("AC"→"Ist" …), defaults IBCS */
@@ -1561,6 +1563,10 @@ export class Visual implements IVisual {
     private exceptionHidden = 0;
     /** finance number convention (negatives in parentheses, zero as "–") */
     private financeFmt = false;
+    /** 1.58 (round 3, after stand B point 8): right end of the title block's text lines (0 = no title) */
+    private titleRightX = 0;
+    /** 1.58 (round 3): y of the KPI cards' chip row in the visual's title row (null = own strip) */
+    private cardChipRowY: number | null = null;
     /** 1.52.1 (IBCS: at most 3 digits in charts): labels drop decimals from the value
      *  on ("162K", not "161,8K") — off in the table and the P&L statement */
     private digitCap = true;
@@ -2477,6 +2483,8 @@ export class Visual implements IVisual {
         fs.chartCard.sfStockAt.visible = isSf;
         fs.chartCard.sfNetLabel.visible = isSf && fs.chartCard.sfNet.value !== false;
         fs.chartCard.sfNegTint.visible = isSf && fs.chartCard.sfArea.value !== false;
+        // 1.58 (round 3): the pin head fill exists wherever Δ% pins do (not scatter, stock & flow)
+        fs.chartCard.pinHeadColor.visible = !isScatter && !isSf;
         fs.chartCard.showAbsoluteVariance.visible = !isScatter && !isSf && !seriesLineOn;
         fs.chartCard.showRelativeVariance.visible = !isScatter && !isSf && !seriesLineOn;
         if (isScatter || isSf || seriesLineOn) { fs.chartCard.dualVariance.visible = false; }
@@ -2484,6 +2492,7 @@ export class Visual implements IVisual {
         if (seriesLineOn) {
             fs.chartCard.movingAverage.visible = false;
             fs.chartCard.pinStyle.visible = false;
+            fs.chartCard.pinHeadColor.visible = false;
             fs.chartCard.deltaIcons.visible = false;
             fs.chartCard.scenarioLabels.visible = false;
         }
@@ -7163,6 +7172,7 @@ export class Visual implements IVisual {
             mainDomain: [0, 0],
             varDomain: [0, 0],
             pinStyle: String(s.chartCard.pinStyle.value.value),
+            pinHeadVar: String((s.chartCard.pinHeadColor.value as powerbi.IEnumMember)?.value ?? "scenario") === "variance",
             deltaIcons: s.chartCard.deltaIcons.value === true,
             sharedIntWf: null,
             sharedCatBridge: null,
@@ -7750,6 +7760,7 @@ export class Visual implements IVisual {
             width += this.ctlInset;
         }
         // IBCS title block on top of everything (incl. multiples grid)
+        this.titleRightX = 0;
         const titleH = s.ibcsTitleCard.show.value
             ? this.drawTitleBlock(width, points, cfg, maxAbs, orientation)
             : 0;
@@ -7840,6 +7851,11 @@ export class Visual implements IVisual {
             this.drawCommentPanel({ x: chartW, y: topOffset, w: panelW, h: availH }, commentPts, cfg);
         }
 
+        // 1.58 (round 3, after stand B point 8): the KPI cards' sort and exception chips sit in
+        // the title row of a single deck (not over the last card); without a title row, with
+        // tiles or next to an active mode chip they get their own header strip (renderCards)
+        this.cardChipRowY = isCards && groups.length <= 1 && titleH > 0
+            && !(this.commentEdit || this.compareActive || this.structureEdit) ? 6 : null;
         if (groups.length <= 1) {
             renderCell(groups[0] ?? { name: null, pts: points },
                 { x: 0, y: topOffset, w: chartW, h: availH });
@@ -8641,16 +8657,17 @@ export class Visual implements IVisual {
                 const y = relScale(v);
                 // 1.58 (Welle 1): head in scenario notation, colour on the stem (hc unchanged);
                 // review B2: stem as wide as the table pins, head capped on short pins
-                const headR = cfg.hc ? Math.max(2.6, 2.2 * k) : this.pinHeadR(Math.max(2.6, 2.2 * k), y - zero);
+                // round 3: pinHeadColor = variance draws the head of 1.57 (no cap, 1.6 px stem)
+                const headR = this.pinScen(cfg) ? this.pinHeadR(Math.max(2.6, 2.2 * k), y - zero) : Math.max(2.6, 2.2 * k);
                 this.el("line", { x1: c, y1: zero, x2: c, y2: y, stroke: col,
-                    "stroke-width": cfg.hc ? Math.max(1.6, 1.4 * k) : Math.max(PIN_STEM_W, 1.4 * k) }, tg);
+                    "stroke-width": this.pinScen(cfg) ? Math.max(PIN_STEM_W, 1.4 * k) : Math.max(1.6, 1.4 * k) }, tg);
                 this.pinHead(tg, c, y, headR, "round", cfg.pinStyle,
-                    cfg.hc ? { fill: col } : this.pinHeadScen(cfg, tierPts[i]?.isFc ? "fc" : "ac"));
+                    cfg.hc ? { fill: col } : this.pinHeadScen(cfg, tierPts[i]?.isFc ? "fc" : "ac", col, 0));
                 if (showTierLabels) {
                     const flip = v > 0 && this.collidesPanelTitle(c, this.fmtPercent(v), cfg.labelFont,
                         relScale(v) - headR - cfg.labelFont, relRect.y, region.x, `Δ${cfg.basisLabel} %`);
                     this.drawEndLabelAt(tg, c, v, v >= 0 && !flip, relScale, "columns", this.fmtPercent(v),
-                        cfg.labelFont, this.pinLabelInk(cfg, y - zero, headR, col), Math.round(2 * k), cfg.paper);
+                        cfg.labelFont, this.pinLabelInk(cfg, y - zero, headR, col, this.fmtPercent(v)), Math.round(2 * k), cfg.paper);
                     relLbls.push({ el: tg.lastElementChild as SVGTextElement, prio: Math.abs(v) });
                 }
             }
@@ -9160,10 +9177,12 @@ export class Visual implements IVisual {
                 const yEnd = pct >= 0 ? axisY - h : axisY + h;
                 this.el("line", { x1: x, y1: axisY, x2: x, y2: yEnd, stroke: colOf(pct, pp), "stroke-width": 2.2 }, parent);
                 const r = Math.max(2.6, 3.4 * k);
-                this.pinHead(parent, x, yEnd, r, "square", cfg.pinStyle, {
+                // 1.58 (round 3): fine FC hatch (the 5-px hatch left the head empty), variance
+                // colour with pinHeadColor = variance; high contrast as before
+                this.pinHead(parent, x, yEnd, r, "square", cfg.pinStyle, cfg.hc ? {
                     fill: hollow ? `url(#${cfg.patId})` : cfg.ink,
                     stroke: cfg.ink, "stroke-width": hollow ? 1 : 0
-                });
+                } : this.pinHeadScen(cfg, hollow ? "fc" : "ac", colOf(pct, pp), 0, { fill: cfg.ink, stroke: cfg.ink, "stroke-width": 0 }));
                 const lt = this.el("text", {
                     x, y: pct >= 0 ? yEnd - r - 3 : yEnd + r + lf, "text-anchor": "middle",
                     "font-size": lf, fill: cfg.ink, "font-family": FONT,
@@ -9826,11 +9845,13 @@ export class Visual implements IVisual {
             const r = Math.max(2.6, 3.4 * k);
             if (pct >= 0) {
                 this.el("rect", { x: axisX + 2, y: yMid - 1.5, width: w, height: 3, fill: c }, parent);
-                this.pinHead(parent, axisX + 2 + w + r, yMid, r, "square", cfg.pinStyle, { fill: cfg.ink });
+                this.pinHead(parent, axisX + 2 + w + r, yMid, r, "square", cfg.pinStyle,
+                    cfg.hc ? { fill: cfg.ink } : this.pinHeadScen(cfg, pp?.isFc ? "fc" : "ac", c, 0, { fill: cfg.ink }));
                 valLabel(axisX + 2 + w + 2 * r + 4, yMid + lf * 0.35, this.fmtPercent(pct), bold, parent);
             } else {
                 this.el("rect", { x: axisX - 2 - w, y: yMid - 1.5, width: w, height: 3, fill: c }, parent);
-                this.pinHead(parent, axisX - 2 - w - r, yMid, r, "square", cfg.pinStyle, { fill: cfg.ink });
+                this.pinHead(parent, axisX - 2 - w - r, yMid, r, "square", cfg.pinStyle,
+                    cfg.hc ? { fill: cfg.ink } : this.pinHeadScen(cfg, pp?.isFc ? "fc" : "ac", c, 0, { fill: cfg.ink }));
                 valLabel(axisX - 2 - w - 2 * r - 4, yMid + lf * 0.35, this.fmtPercent(pct), bold, parent, "end");
             }
         };
@@ -10306,7 +10327,8 @@ export class Visual implements IVisual {
             this.el("rect", {
                 x: cx - 1.5, y: Math.min(axisY, yEnd), width: 3, height: Math.abs(yEnd - axisY), fill: c
             }, parent);
-            this.pinHead(parent, cx, yEnd, r, "square", cfg.pinStyle, { fill: cfg.ink });
+            this.pinHead(parent, cx, yEnd, r, "square", cfg.pinStyle,
+                cfg.hc ? { fill: cfg.ink } : this.pinHeadScen(cfg, pp?.isFc ? "fc" : "ac", c, 0, { fill: cfg.ink }));
             if (cfg.showLabels && step >= lf * 1.6) {
                 valLabel(cx, pct >= 0 ? yEnd - r - 3 : yEnd + r + lf, this.fmtPercent(pct), bold, parent);
             }
@@ -10781,10 +10803,12 @@ export class Visual implements IVisual {
                     this.el("rect", { x: x0, y: cy - 1.1, width: Math.max(2, w), height: 2.2, fill: c }, g);
                     const hr = Math.max(2.6, 3.2 * k);
                     const hcx = dp >= 0 ? pAxis + w : pAxis - w;
-                    this.pinHead(g, hcx, cy, hr, "square", cfg.pinStyle,
-                        style === "solid" ? { fill: cfg.ink }
+                    // 1.58 (round 3): fine FC hatch, variance colour with pinHeadColor = variance
+                    this.pinHead(g, hcx, cy, hr, "square", cfg.pinStyle, cfg.hc
+                        ? (style === "solid" ? { fill: cfg.ink }
                             : style === "hatched" ? { fill: `url(#${cfg.patId})`, stroke: cfg.ink, "stroke-width": 1 }
-                                : { fill: cfg.paper, stroke: cfg.ink, "stroke-width": 1.2 });
+                                : { fill: cfg.paper, stroke: cfg.ink, "stroke-width": 1.2 })
+                        : this.pinHeadScen(cfg, style === "solid" ? "ac" : style === "hatched" ? "fc" : "pl", c, 1.2, { fill: cfg.ink }));
                     const lxp = dp >= 0 ? pAxis + w + (outlier ? 16 : 6) : pAxis - w - (outlier ? 16 : 6);
                     if (outlier) {
                         txt(dp >= 0 ? pAxis + w + 3 : pAxis - w - 3, cy + lf * 0.3, "▸▸",
@@ -11515,32 +11539,30 @@ export class Visual implements IVisual {
         // column chart: PY grey (unchanged), PL double line, FC of the prior cycle
         // (fcrev) dashed double line; the Ø basis keeps the grey axis for the first Δ, the
         // second Δ follows basis2Mode like the column panels (review B7).
-        // Review B6: next to the Δ bars the double line lies ABOVE the rows on a paper strip
-        // (3.4 px), so a positive bar no longer covers the right line and every bar reads as
-        // starting at the outer edge; the pin column keeps it underneath (heads near zero
-        // would be cut). Geometry and px per unit stay the same
-        const varAxis = (x: number, basis: Basis, avg: boolean, overBars: boolean) => {
-            if (basis === "py" || avg) {
+        // Round 3 (A6): the Δ bars start at the OUTER edge of a double line (±2.2 px instead
+        // of ±1 px), so no bar covers a line and none disappears (the paper strip over the
+        // bars of review B6 hid bars under 1.7 px); lengths and px per unit stay the same
+        const dblAxis = (basis: Basis, avg: boolean) => basis !== "py" && !avg;
+        const varAxis = (x: number, basis: Basis, avg: boolean) => {
+            if (!dblAxis(basis, avg)) {
                 this.el("rect", { x: x - 1, y: top, width: 2, height: rowsBottom - top, fill: cfg.colors.py }, bg);
                 return;
             }
-            const ag = this.el("g", { "data-icd": "table-var-axis", "data-basis": basis,
-                ...(overBars ? { "data-over": "1", "pointer-events": "none" } : {}) }, overBars ? this.svg : bg);
-            if (overBars) {
-                this.el("rect", { x: x - 1.7, y: top, width: 3.4, height: rowsBottom - top, fill: cfg.paper }, ag);
-            }
+            const ag = this.el("g", { "data-icd": "table-var-axis", "data-basis": basis }, bg);
             this.drawBaseline(ag, { x, y: top, w: 0, h: rowsBottom - top }, () => x, "bars", top, rowsBottom,
                 basis, cfg.colors);
         };
-        if (colX["dbar"]) { varAxis(dAxis, cfg.basisMode, cfg.basisAvg, true); }
+        const dOff = dblAxis(cfg.basisMode, cfg.basisAvg) ? 2.2 : 1;
+        const d2Off = dblAxis(this.basis2Mode, false) ? 2.2 : 1;
+        if (colX["dbar"]) { varAxis(dAxis, cfg.basisMode, cfg.basisAvg); }
         const pctRoom = colX["pct"] ? colX["pct"].w - lf * 6 : 0;
         const pctAxis = colX["pct"] ? colX["pct"].x + lf * 3 + zeroFrac * pctRoom : 0;
         const pinUnit = colX["pct"] ? unitOf(pctRoom, negP, posP) : 0;
-        if (colX["pct"]) { varAxis(pctAxis, cfg.basisMode, cfg.basisAvg, false); }
+        if (colX["pct"]) { varAxis(pctAxis, cfg.basisMode, cfg.basisAvg); }
         const d2Axis = colX["d2bar"] ? colX["d2bar"].x + 4 + zeroFrac * (colX["d2bar"].w - 8) : 0;
         const d2Unit = colX["d2bar"] ? (kBar > 0 && Number.isFinite(fitMin) ? kBar * tblZoom : d2Fit) : 0;
         // the second Δ compares against the second basis (the real one from parseData)
-        if (colX["d2bar"]) { varAxis(d2Axis, this.basis2Mode, false, true); }
+        if (colX["d2bar"]) { varAxis(d2Axis, this.basis2Mode, false); }
 
         // sum-safe rounding: adjust the level-0 detail labels (largest remainder)
         // so they visibly add up to the synthetic Σ row
@@ -11756,7 +11778,7 @@ export class Visual implements IVisual {
                 const c = colOf(p.varAbs, p);
                 const hollowBad = cfg.hc && !goodOf(p.varAbs, p) && p.varAbs !== 0;
                 this.el("rect", {
-                    x: p.varAbs >= 0 ? dAxis + 1 : dAxis - 1 - len, y: yMid - h / 2,
+                    x: p.varAbs >= 0 ? dAxis + dOff : dAxis - dOff - (dOff > 1 ? Math.max(len, 1) : len), y: yMid - h / 2,
                     width: Math.max(len, 1), height: h,
                     ...(hollowBad
                         ? { fill: cfg.paper, stroke: c, "stroke-width": 1.2 }
@@ -11790,15 +11812,15 @@ export class Visual implements IVisual {
                 const endX = pctAxis + dir * Math.max(len, 2);
                 // 1.58 (Welle 1 review B2): head capped on short pins so ≥ 3 px of the coloured
                 // stem stay visible (outside high contrast), round and square alike
-                const r = cfg.hc ? Math.max(2.4, 3 * k) : this.pinHeadR(Math.max(2.4, 3 * k), endX - pctAxis);
+                const r = this.pinScen(cfg) ? this.pinHeadR(Math.max(2.4, 3 * k), endX - pctAxis) : Math.max(2.4, 3 * k);
                 this.el("line", { x1: pctAxis, y1: yMid, x2: endX, y2: yMid, stroke: c, "stroke-width": 2 }, g);
                 // 1.58 (Welle 1): FC hatched like the FC bars (hollow is the plan notation)
                 this.pinHead(g, endX, yMid, r, "square", cfg.pinStyle, cfg.hc
                     ? { fill: p.isFc ? cfg.paper : cfg.ink, stroke: cfg.ink, "stroke-width": p.isFc ? 1 : 0 }
-                    : p.isFc ? this.pinHeadScen(cfg, "fc") : { fill: cfg.ink, stroke: cfg.ink, "stroke-width": 0 });
+                    : this.pinHeadScen(cfg, p.isFc ? "fc" : "ac", c, 0, { fill: cfg.ink, stroke: cfg.ink, "stroke-width": 0 }));
                 if (cfg.showLabels) {
                     txt(endX + dir * (r + 4), yMid + rowFont * 0.35, this.fmtPercent(p.varRel),
-                        dir > 0 ? "start" : "end", Math.round(rowFont * 0.92), sum, this.pinLabelInk(cfg, endX - pctAxis, r, c), g);
+                        dir > 0 ? "start" : "end", Math.round(rowFont * 0.92), sum, this.pinLabelInk(cfg, endX - pctAxis, r, c, this.fmtPercent(p.varRel)), g);
                 }
             }
 
@@ -11820,7 +11842,7 @@ export class Visual implements IVisual {
                 const c2 = colOf2(p.var2Abs, p);
                 const hollowBad2 = cfg.hc && !goodOf(p.var2Abs, p) && p.var2Abs !== 0;
                 this.el("rect", {
-                    x: p.var2Abs >= 0 ? d2Axis + 1 : d2Axis - 1 - len, y: yMid - h / 2,
+                    x: p.var2Abs >= 0 ? d2Axis + d2Off : d2Axis - d2Off - (d2Off > 1 ? Math.max(len, 1) : len), y: yMid - h / 2,
                     width: Math.max(len, 1), height: h,
                     ...(hollowBad2
                         ? { fill: cfg.paper, stroke: c2, "stroke-width": 1.2 }
@@ -13812,6 +13834,41 @@ export class Visual implements IVisual {
             });
         }
         const gap = Math.round(8 * k);
+        // 1.58 (round 3, after stand B point 8 + review M2): the chips no longer sit over the
+        // last card. In the title row of the visual when the title (and the message line)
+        // end before both chips and there is room above the first card row, otherwise in a
+        // header strip of the tile that the cards give up. Export (no chips): unchanged
+        const chipH = Math.round(18 * k);
+        const chipFont = Math.round(11 * k);
+        const sortChipOn = this.allowInteractions && region.w >= 220 * k;
+        const excChipOn = this.allowInteractions && this.exceptionCapable;
+        const sortChipLabels: { [key: string]: string } = {
+            none: this.locStr("Chip_SortNone", "↕ Sort"),
+            deviation: this.locStr("Chip_SortDev", "↕ |Δ|"),
+            worst: this.locStr("Chip_SortWorst", "↓ Worst"),
+            best: this.locStr("Chip_SortBest", "↑ Best")
+        };
+        const sortChipLabel = sortChipLabels[cfg.cardSort === "" ? "none" : cfg.cardSort] ?? sortChipLabels["none"];
+        const excChipLabel = this.exceptionOn ? this.locStr("Chip_ExceptionOn", "⚠ Exceptions")
+            : this.locStr("Chip_ExceptionOff", "⚠ All");
+        const chipsW = (sortChipOn ? this.textWidth(sortChipLabel, chipFont) + Math.round(22 * k) : 0)
+            + (excChipOn ? this.textWidth(excChipLabel, chipFont) + Math.round(22 * k) : 0);
+        const chipRight0 = Math.min(region.x + region.w, this.ctlRight) - Math.round(8 * k);
+        let chipTop = region.y + Math.round(8 * k) - 2;
+        let chipPlace: "none" | "title" | "strip" = "none";
+        if (sortChipOn || excChipOn) {
+            const rowY = this.cardChipRowY;
+            if (rowY != null && rowY + chipH <= region.y + gap / 2 + 1
+                && this.titleRightX + Math.round(8 * k) <= chipRight0 - chipsW) {
+                chipTop = rowY;
+                chipPlace = "title";
+            } else {
+                const strip = chipH + Math.round(4 * k);
+                chipTop = region.y + 2;
+                chipPlace = "strip";
+                region = { x: region.x, y: region.y + strip, w: region.w, h: Math.max(region.h - strip, 20) };
+            }
+        }
         let cols = Math.max(1, Math.min(n, Math.floor(region.w / (185 * k)) || 1));
         // avoid a lonely last row when a squarer grid fits the same width
         cols = Math.min(cols, Math.ceil(n / Math.ceil(n / cols)));
@@ -13988,25 +14045,6 @@ export class Visual implements IVisual {
         const trendOn = cfg.cardTrend !== "off";
         const flatRows = (m: CardModel) => m.rows.slice(0, m.rows.length >= 2 && cardH >= 52 * k ? 2 : 1);
         const drawn = (rs: CardRow[]) => rs.some(r => r.kind !== "blank");
-        // 1.58: the chip cluster (sort chip, ⚠ exception chip) sits over the top-right
-        // card; measured up front so a moved Δ block keeps clear of it
-        const chipTop = region.y + Math.round(8 * k) - 2;
-        const chipRight0 = Math.min(region.x + region.w, this.ctlRight) - Math.round(8 * k);
-        const chipFont = Math.round(11 * k);
-        const sortChipOn = this.allowInteractions && region.w >= 220 * k;
-        const sortChipLabels: { [key: string]: string } = {
-            none: this.locStr("Chip_SortNone", "↕ Sort"),
-            deviation: this.locStr("Chip_SortDev", "↕ |Δ|"),
-            worst: this.locStr("Chip_SortWorst", "↓ Worst"),
-            best: this.locStr("Chip_SortBest", "↑ Best")
-        };
-        const sortChipLabel = sortChipLabels[cfg.cardSort === "" ? "none" : cfg.cardSort] ?? sortChipLabels["none"];
-        const sortChipW = sortChipOn ? this.textWidth(sortChipLabel, chipFont) + Math.round(16 * k) : 0;
-        const excChipW = this.allowInteractions && this.exceptionCapable
-            ? this.textWidth(this.exceptionOn ? this.locStr("Chip_ExceptionOn", "⚠ Exceptions")
-                : this.locStr("Chip_ExceptionOff", "⚠ All"), chipFont) + Math.round(16 * k) : 0;
-        const chipLeft = sortChipW + excChipW > 0
-            ? chipRight0 - (sortChipW > 0 ? sortChipW + Math.round(6 * k) : 0) - excChipW : Infinity;
         // 1.58: ONE Δ column for the whole deck. The column before it holds the widest
         // title (≤ 170 px·k) or value, but no more than lets every card's Δ block fit,
         // and never less than the widest value (the value is not truncated, the title is)
@@ -14023,18 +14061,9 @@ export class Visual implements IVisual {
             const withRows = models.filter(m => drawn(flatRows(m)));
             const blockMax = Math.max(0, ...withRows.map(blockW));
             const twoRows = withRows.some(m => flatRows(m).length === 2);
-            // 1.58: right end (relative to the card) the Δ block may reach in the cards
-            // under the chip cluster, when the chips sit at the height of the first row
-            let chipEnd = Infinity;
-            const rowTop = region.y + gap / 2 + 2 + cardH / 2 + (twoRows ? -Math.round(2 * k) : refF * 0.35) - refF;
-            if (chipTop + Math.round(18 * k) > rowTop - 2) {
-                for (let c = 0; c < Math.min(cols, pts.length); c++) {
-                    const cx = region.x + gap / 2 + c * cw + 2;
-                    if (cx + cardW > chipLeft) { chipEnd = Math.min(chipEnd, chipLeft - 4 - cx); }
-                }
-            }
-            const room = Math.min(chipEnd - blockMax - pad - gapV,
-                ...withRows.map(m => cardW - 2 * pad - gapV - blockW(m)));
+            // 1.58 (round 3): the chips have their own row now (title row or header strip),
+            // the Δ block no longer has to keep clear of them
+            const room = Math.min(...withRows.map(m => cardW - 2 * pad - gapV - blockW(m)));
             const colW = Math.max(need, Math.min(want, room));
             const base = pad + colW + gapV;
             let refDx = base;
@@ -14045,7 +14074,7 @@ export class Visual implements IVisual {
             const rightFree = !trendOn && !(cfg.cardBars && pts.some(q => q.basis != null))
                 && !(cfg.cardBullet && pts.some(q => q.bm != null));
             if (rightFree) {
-                refDx = Math.max(base, Math.min(cardW / 2, cardW - pad - blockMax, base + 120 * k, chipEnd - blockMax));
+                refDx = Math.max(base, Math.min(cardW / 2, cardW - pad - blockMax, base + 120 * k));
             }
             return { refDx, titleW: refDx - pad - gapV, blockMax, twoRows };
         })();
@@ -14412,6 +14441,12 @@ export class Visual implements IVisual {
                 }
             };
             const refRows = m.rows;
+            // 1.58 (round 3, after stand B point 12): rows that find no room are counted; a
+            // "+n Δ" mark (tooltip lists them) instead of a silent drop. Flat cards put it
+            // above their Δ block (the right side may hold the mini bridge), stacked cards in
+            // the top right corner. Blank grid slots never count
+            let shownRows: CardRow[] = [];
+            let moreX: number | null = null, moreY = 0;
             if (flatLay) {
                 const blockH = titleF + Math.round(4 * k) + valueF;
                 const top = y + Math.max(Math.round(6 * k), (h - blockH) / 2);
@@ -14423,6 +14458,9 @@ export class Visual implements IVisual {
                 const maxRefW = Math.max(0, ...rowsShown.map(r => rowTextW(m, r)));
                 if (drawn(rowsShown) && refX + refLabelW + maxRefW <= x + w - pad) {
                     const yMid = y + h / 2;
+                    shownRows = rowsShown;
+                    moreX = refX;
+                    moreY = (flatLay.twoRows ? yMid - Math.round(2 * k) : yMid + refF * 0.35) - refF - Math.round(2 * k);
                     // 1.58: one row grid for the deck — as soon as one card shows two
                     // rows, a single row sits on the baseline of the first of two
                     // (before: centred, a few px lower than its neighbours)
@@ -14462,11 +14500,13 @@ export class Visual implements IVisual {
                 yCur += valueF + Math.round(4 * k) + refF + Math.round(9 * k);
                 if (refRows.length > 0 && yCur <= y + h - 4) {
                     refRowAt(x + pad, yCur, refRows[0]);
+                    shownRows.push(refRows[0]);
                     yCur += refF + Math.round(5 * k);
                 }
                 for (const row of refRows.slice(1)) {
                     if (h < 118 * k || yCur > y + h - 4) { break; }
                     refRowAt(x + pad, yCur, row);
+                    shownRows.push(row);
                     yCur += refF + Math.round(5 * k);
                 }
                 // bullet under the value/Δ block when benchmark is bound
@@ -14495,6 +14535,18 @@ export class Visual implements IVisual {
                 txt(x + w - pad, y + pad + titleF, this.circledNo(p.commentNo),
                     Math.round(10 * k), false, cfg.subtle, "end");
             }
+            const hidden = refRows.filter(r => r.kind !== "blank" && !shownRows.includes(r));
+            if (hidden.length > 0) {
+                const moreF = Math.round(8 * k);
+                const more = moreX != null
+                    ? txt(moreX, moreY, `+${hidden.length} Δ`, moreF, false, cfg.subtle)
+                    : txt(x + w - Math.round(8 * k), y + Math.round(13 * k), `+${hidden.length} Δ`, moreF, false, cfg.subtle, "end");
+                more.setAttribute("data-icd", "card-more");
+                more.setAttribute("data-n", String(hidden.length));
+                const tip = this.el("title", {}, more);
+                tip.textContent = hidden.map(r => r.kind === "na" ? `${r.lbl} ${REL_NA}`
+                    : r.kind === "plain" ? `${r.lbl} ${m.fmtV(r.v)}` : `Δ${r.lbl} ${m.refText(r.v, r.rel)}`).join("; ");
+            }
 
             this.attachInteraction(g, p, cfg);
             this.catGroups.push({ g, sel: p.sel, dim: p.dim });
@@ -14505,6 +14557,9 @@ export class Visual implements IVisual {
         // chip to its left — both anchored on the same right edge so they never overlap.
         // Luft zum Kachelrand statt 2px Klebeabstand (Beta-Feedback A. Korn)
         let chipRight = chipRight0;
+        if (chipPlace !== "none") {
+            this.el("g", { "data-icd": "card-chip-row", "data-place": chipPlace, "data-y": chipTop }, this.svg);
+        }
         // in-chart sort chip (top-right of the region): cycles none → deviation →
         // worst → best; persists as an override of the pane dropdown, bookmarkable
         if (this.allowInteractions && region.w >= 220 * k) {
@@ -19449,8 +19504,9 @@ export class Visual implements IVisual {
             const v = vals[si][i] as number;
             const color = colorOf(si);
             const isFc = fc[si][i];
+            // 1.58 (round 3, after stand B): FC hatched in the series colour (hollow is the plan)
             const style: Record<string, string | number> = isFc
-                ? { fill: cfg.paper, stroke: color, "stroke-width": 1 }
+                ? { fill: `url(#${this.fineHatch(cfg, color)})`, stroke: color, "stroke-width": 1 }
                 : { fill: color, stroke: cfg.paper, "stroke-width": 0.6 };
             const attrs = { ...style, "data-icd": "series-pt", "data-series": series[si], "data-i": i,
                 "data-v": Math.round(v * 100) / 100, "data-scen": isFc ? "fc" : "ac" };
@@ -21367,7 +21423,7 @@ export class Visual implements IVisual {
                 // 1.58 (review B2): outside high contrast the head is capped on short pins so the
                 // coloured stem stays visible (≥ 3 px), never below 2 px
                 const r0 = Math.max(2.5, Math.min(4.5, slotW * 0.12));
-                const r = cfg.hc ? r0 : this.pinHeadR(r0, end - zero);
+                const r = this.pinScen(cfg) ? this.pinHeadR(r0, end - zero) : r0;
                 const hollowPin = p.isFc || p.varPlan === true || (cfg.hc && !good && p.varRel !== 0);
                 // 1.55 (B13): plan-against-plan pins carry the var-plan marker (hollow head)
                 // 1.56 (B13 part 2 review, m2): high contrast keeps the good/bad head
@@ -21378,13 +21434,13 @@ export class Visual implements IVisual {
                 const headAttrs: Record<string, string | number> = hcPlan
                     ? { fill: good && p.varRel !== 0 ? color : cfg.paper, stroke: color, "stroke-width": 1.6, "data-icd": "var-plan" }
                     : p.varPlan
-                    ? { ...this.pinHeadScen(cfg, "pl"), "data-icd": "var-plan" }
+                    ? { ...this.pinHeadScen(cfg, "pl", color, 1.6), "data-icd": "var-plan" }
                     : cfg.hc
                     ? { fill: hollowPin ? cfg.paper : color, stroke: color, "stroke-width": 1.6 }
-                    : this.pinHeadScen(cfg, p.isFc ? "fc" : "ac");
+                    : this.pinHeadScen(cfg, p.isFc ? "fc" : "ac", color, 1.6);
                 const stem: Record<string, string | number> = hcPlan
                     ? { stroke: color, "stroke-width": 1.6, "stroke-dasharray": "3 2" }
-                    : { stroke: color, "stroke-width": cfg.hc ? 1.6 : PIN_STEM_W };
+                    : { stroke: color, "stroke-width": this.pinScen(cfg) ? PIN_STEM_W : 1.6 };
                 if (orientation === "columns") {
                     this.el("line", { x1: c, y1: zero, x2: c, y2: end, ...stem }, g);
                     this.pinHead(g, c, end, r, "round", cfg.pinStyle, headAttrs);
@@ -21398,7 +21454,7 @@ export class Visual implements IVisual {
                             relScale(p.varRel) - (r + 3) - cfg.labelFont,
                             panels.rel.y, region.x, `Δ${cfg.basisLabel} %`);
                     this.drawEndLabelAt(g, c, p.varRel, p.varRel >= 0 && !flip, relScale, orientation,
-                        relTexts[i], cfg.labelFont, this.pinLabelInk(cfg, end - zero, r, color), r + 3, cfg.paper);
+                        relTexts[i], cfg.labelFont, this.pinLabelInk(cfg, end - zero, r, color, relTexts[i]), r + 3, cfg.paper);
                 }
             } else if (panels.rel && relScale && cfg.showLabels && showRelAt(i) && this.relNa(p)) {
                 this.drawRelNa(g, cx, relScale(0), orientation, cfg);
@@ -21430,13 +21486,13 @@ export class Visual implements IVisual {
                 const zero = rel2Scale(0);
                 const end = rel2Scale(p.var2Rel);
                 const r0 = Math.max(2.5, Math.min(4.5, slotW * 0.12));
-                const r = cfg.hc ? r0 : this.pinHeadR(r0, end - zero);
-                const sw2 = cfg.hc ? 1.6 : PIN_STEM_W;
+                const r = this.pinScen(cfg) ? this.pinHeadR(r0, end - zero) : r0;
+                const sw2 = this.pinScen(cfg) ? PIN_STEM_W : 1.6;
                 const hollowPin = p.isFc || (cfg.hc && !good && p.var2Rel !== 0);
                 // 1.58 (Welle 1): scenario head outside high contrast (see the first basis)
                 const head2: Record<string, string | number> = cfg.hc
                     ? { fill: hollowPin ? cfg.paper : color, stroke: color, "stroke-width": 1.6 }
-                    : this.pinHeadScen(cfg, p.isFc ? "fc" : "ac");
+                    : this.pinHeadScen(cfg, p.isFc ? "fc" : "ac", color, 1.6);
                 if (orientation === "columns") {
                     this.el("line", { x1: cx, y1: zero, x2: cx, y2: end, stroke: color, "stroke-width": sw2 }, g);
                     this.pinHead(g, cx, end, r, "round", cfg.pinStyle, head2);
@@ -21450,7 +21506,7 @@ export class Visual implements IVisual {
                             rel2Scale(p.var2Rel) - (r + 3) - cfg.labelFont,
                             panels.rel2.y, region.x, `Δ${cfg.basis2Label} %`);
                     this.drawEndLabelAt(g, cx, p.var2Rel, p.var2Rel >= 0 && !flip, rel2Scale, orientation,
-                        rel2Texts[i], cfg.labelFont, this.pinLabelInk(cfg, end - zero, r, color), r + 3, cfg.paper);
+                        rel2Texts[i], cfg.labelFont, this.pinLabelInk(cfg, end - zero, r, color, rel2Texts[i]), r + 3, cfg.paper);
                 }
             } else if (panels.rel2 && rel2Scale && cfg.showLabels && showRel2At(i) && this.relNa(p, true)) {
                 this.drawRelNa(g, cx, rel2Scale(0), orientation, cfg);
@@ -21953,6 +22009,9 @@ export class Visual implements IVisual {
             });
         });
         const extraH = (lines.length - 1) * lineH;
+        // 1.58 (round 3): right end of the title lines (the KPI cards' chips keep clear of it)
+        this.titleRightX = 6 + Math.max(0, ...lines.map(ln =>
+            ln.reduce((a, sg) => a + this.textWidth(sg.text, f1) * (sg.bold ? 1.06 : 1), 0)));
 
         let message = (s.message.value || "").trim();
         if (!message && s.autoMessage.value) {
@@ -21964,6 +22023,7 @@ export class Visual implements IVisual {
                 fill: cfg.ink, "font-style": "italic"
             }, this.svg);
             m.textContent = this.truncate(message, width - 12, f2);
+            this.titleRightX = Math.max(this.titleRightX, 6 + this.textWidth(m.textContent, f2));
             return f1 + f2 + 15 + extraH;
         }
         return f1 + 10 + extraH;
@@ -22613,15 +22673,15 @@ export class Visual implements IVisual {
             const zero = scale(0), end = scale(dr);
             // 1.58 (review B2): wider stem, head capped on short pins (outside high contrast)
             const r0 = Math.max(2.5, Math.min(4.5, slotW * 0.12));
-            const r = cfg.hc ? r0 : this.pinHeadR(r0, end - zero);
-            this.el("line", { x1: cx, y1: zero, x2: cx, y2: end, stroke: color, "stroke-width": cfg.hc ? 1.6 : PIN_STEM_W, "data-part": "pin" }, g);
+            const r = this.pinScen(cfg) ? this.pinHeadR(r0, end - zero) : r0;
+            this.el("line", { x1: cx, y1: zero, x2: cx, y2: end, stroke: color, "stroke-width": this.pinScen(cfg) ? PIN_STEM_W : 1.6, "data-part": "pin" }, g);
             // 1.58 (Welle 1): scenario head (AC&FC hatched) outside high contrast
             this.pinHead(g, cx, end, r, "round", cfg.pinStyle, cfg.hc
                 ? { fill: anyFc || (!good && dr !== 0) ? cfg.paper : color, stroke: color, "stroke-width": 1.6 }
-                : this.pinHeadScen(cfg, anyFc ? "fc" : "ac"));
+                : this.pinHeadScen(cfg, anyFc ? "fc" : "ac", color, 1.6));
             if (cfg.showLabels) {
                 this.drawEndLabelAt(g, cx, dr, dr >= 0, scale, "columns", this.relText(p, second),
-                    cfg.labelFont, this.pinLabelInk(cfg, end - zero, r, color), r + 3, cfg.paper);
+                    cfg.labelFont, this.pinLabelInk(cfg, end - zero, r, color, this.relText(p, second)), r + 3, cfg.paper);
             }
         };
         // Δ far beyond the monthly Δ (cfg.yearDeltaOwn): the year Δ runs on the year
@@ -24567,16 +24627,24 @@ export class Visual implements IVisual {
      *  circle entirely and it then reads as hollow, the plan notation. Created on first
      *  use only, so charts without FC markers keep their SVG */
     private fcMarkFill(cfg: ChartConfig): string {
-        if (!this.svg.querySelector(`[id="${cfg.patMark}"]`)) {
+        return `url(#${this.fineHatch(cfg, cfg.colors.ac)})`;
+    }
+
+    /** 1.58 (round 3, after stand B): the fine FC hatch (period 2.4 px) in a given stroke
+     *  colour, once per colour and render; the AC colour keeps the id cfg.patMark */
+    private fineHatch(cfg: ChartConfig, col: string): string {
+        const c = col.trim();
+        const id = c.toUpperCase() === cfg.colors.ac.toUpperCase() ? cfg.patMark
+            : `${cfg.patMark}${c.replace(/[^0-9a-z]/gi, "").toLowerCase()}`;
+        if (!this.svg.querySelector(`[id="${id}"]`)) {
             const defs = this.svg.querySelector("defs") ?? this.el("defs", {}, this.svg);
             const pm = this.el("pattern", {
-                id: cfg.patMark, patternUnits: "userSpaceOnUse", width: 2.4, height: 2.4,
-                patternTransform: "rotate(45)"
+                id, patternUnits: "userSpaceOnUse", width: 2.4, height: 2.4, patternTransform: "rotate(45)"
             }, defs);
             this.el("rect", { width: 2.4, height: 2.4, fill: cfg.paper }, pm);
-            this.el("line", { x1: 0, y1: 0, x2: 0, y2: 2.4, stroke: cfg.colors.ac, "stroke-width": 1.3 }, pm);
+            this.el("line", { x1: 0, y1: 0, x2: 0, y2: 2.4, stroke: c, "stroke-width": 1.3 }, pm);
         }
-        return `url(#${cfg.patMark})`;
+        return id;
     }
 
     /** 1.58 (Welle 1): technical panel subtitles that only name the chart type
@@ -24590,7 +24658,17 @@ export class Visual implements IVisual {
      *  The variance colour (good/bad/immaterial) stays on the stem only. Callers keep
      *  their high-contrast branch (good = filled, bad = hollow) unchanged. `data-pin`
      *  names the scenario for the tests */
-    private pinHeadScen(cfg: ChartConfig, scen: "ac" | "fc" | "pl"): Record<string, string | number> {
+    private pinHeadScen(cfg: ChartConfig, scen: "ac" | "fc" | "pl", color = "", sw = 1.6,
+        ac?: Record<string, string | number>): Record<string, string | number> {
+        // 1.58 (round 3, after stand B): chart.pinHeadColor = variance keeps the head of 1.57 in
+        // the variance color, FC hatched in that color (not hollow, hollow is the plan)
+        if (cfg.pinHeadVar && color) {
+            return scen === "fc" ? { fill: `url(#${this.fineHatch(cfg, color)})`, stroke: color, "stroke-width": 1, "data-pin": "fc" }
+                : scen === "pl" ? { fill: cfg.paper, stroke: color, "stroke-width": sw, "data-pin": "pl" }
+                    : { fill: color, stroke: color, "stroke-width": sw, "data-pin": "ac" };
+        }
+        // the AC head of a site that drew it dark before (table, bridges, P&L) stays byte-equal
+        if (scen === "ac" && ac) { return ac; }
         // review B1: the fine hatch (period 2.4 px) — the bar hatch (5 px) leaves heads of
         // r 2.5 to 4.5 empty or as a single stroke ("⊘")
         return scen === "fc" ? { fill: this.fcMarkFill(cfg), stroke: cfg.ink, "stroke-width": 1, "data-pin": "fc" }
@@ -24603,9 +24681,19 @@ export class Visual implements IVisual {
      *  the variance colour (good/bad), like the compact tile, so the direction of the
      *  business impact stays readable; immaterial and zero Δ (grey stem) keep the ink.
      *  High contrast unchanged */
-    private pinLabelInk(cfg: ChartConfig, len: number, half: number, stemColor: string): string {
-        if (cfg.hc || stemColor === cfg.colors.py || Math.abs(len) >= half + 3) { return cfg.ink; }
+    private pinLabelInk(cfg: ChartConfig, len: number, half: number, stemColor: string, text = ""): string {
+        // round 3: no colour with pinHeadColor = variance (the head carries it), and none
+        // when the printed label reads zero ("0,0 %", "−0,0 %"): the colour follows the
+        // number the reader sees, never red or green next to a zero
+        if (cfg.hc || cfg.pinHeadVar || stemColor === cfg.colors.py || Math.abs(len) >= half + 3
+            || (text !== "" && Visual.zeroText(text))) { return cfg.ink; }
         return stemColor;
+    }
+
+    /** 1.58 (round 3): scenario notation of the pins active (not high contrast, not
+     *  pinHeadColor = variance) — head capped, 2 px stem, short-pin labels coloured */
+    private pinScen(cfg: ChartConfig): boolean {
+        return !cfg.hc && !cfg.pinHeadVar;
     }
 
     /** 1.58 (Welle 1 review B2): head radius of a scenario-coded pin — on a short pin

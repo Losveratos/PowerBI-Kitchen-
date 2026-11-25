@@ -20,8 +20,18 @@ FC `fcMarkFill(cfg)` mit Tintenrand 1, PL `cfg.paper` mit Tintenrand 1,2; jeweil
 Abweichungsfarbe (gut, schlecht, unwesentlich grau) steht nur noch am Stiel, Stielbreite `PIN_STEM_W` = 2 (wie die
 Tabelle; Wasserfall-Stufe `max(2, 1,4 · k)`). `pinHeadR(r, Länge)` kappt den Kopf auf `max(2, min(r, Länge − 3))`,
 damit kurze Pins mindestens 3 px farbigen Stiel zeigen. Bleibt weniger (Länge < Kopf + 3), färbt `pinLabelInk(cfg,
-Länge, Kopf, Stielfarbe)` die Δ%-Beschriftung des Pins in der Abweichungsfarbe (nicht bei grauem Stiel, nicht im
-Hochkontrast); die Beschriftung ist das nächste Element hinter dem Kopf (Prüfung `colourShown` in c1063 bis c1065). Aufrufer: rel- und rel2-Pins in `renderChartBody` (Säulen,
+Länge, Kopf, Stielfarbe, Text)` die Δ%-Beschriftung des Pins in der Abweichungsfarbe (nicht bei grauem Stiel, nicht im
+Hochkontrast, nicht mit `variance`, nicht wenn der gedruckte Text null liest, `Visual.zeroText`); die Beschriftung ist
+das nächste Element hinter dem Kopf (Prüfung `colourShown` in c1063 bis c1065).
+Runde 3: `chart.pinHeadColor` (`scenario` | `variance`, Standard `scenario`, Gruppe „Darstellung“ hinter `pinStyle`,
+nicht bei Scatter, Bestand & Fluss und Serienlinien), `cfg.pinHeadVar`. `pinScen(cfg)` = weder Hochkontrast noch
+`variance`: nur dann Kopf gekappt, Stiel 2 px, farbige Kurz-Pin-Beschriftung. `pinHeadScen(cfg, scen, Farbe, Strich,
+ac?)` gibt mit `variance` den farbigen Kopf (FC über `fineHatch(cfg, Farbe)`), sonst die Szenario-Kennung; `ac` hält
+einen bisher dunklen AC-Kopf bytegleich (Tabelle, Brücken, GuV). Aufrufer zusätzlich: Integrierte Brücke, Kategorie-Brücke
+(waagerecht und senkrecht, FC-Zeilen jetzt schraffiert), GuV-Statement (Stil `hatched` fein schraffiert); alle mit
+unverändertem Hochkontrast-Zweig. `fineHatch(cfg, Farbe)`: feines Muster je Farbe (`cfg.patMark` + Farbcode, AC-Farbe
+= `cfg.patMark`), `fcMarkFill(cfg)` ist `fineHatch` in AC-Farbe; die FC-Marken der Serienlinien (C22) nutzen es in
+Serienfarbe. Aufrufer: rel- und rel2-Pins in `renderChartBody` (Säulen,
 Balken, Linie; Plan gegen Plan behält `data-icd="var-plan"`), Δ%-Stufe des Wasserfalls (`tierPts[i].isFc`),
 Jahressäule (`anyFc` = `isFc` oder `fcPart`), Δ%-Kopf der Tabelle (FC fein schraffiert, AC bytegleich, Kopf gekappt).
 Alles über `pinHead(…, cfg.pinStyle, …)`, also für runde und eckige Köpfe gleich (`chart.pinStyle`, Standard `auto`,
@@ -38,9 +48,8 @@ flachen Small-Multiples-Kacheln kehrt sich die Δ%-Skala um, positive Pins zeige
 *3 · Δ-Achsen der Tabelle.* `renderTable` zeichnet die Achsen von `dbar`, `pct` und `d2bar` über
 `varAxis(x, basis, avg, overBars)`: PY oder Ø-Basis wie bisher als graues 2-px-Rechteck (bytegleich), sonst
 `drawBaseline(…, "bars")` in einer Gruppe `data-icd="table-var-axis"` mit `data-basis` (`plan` Doppellinie, `fcrev`
-gestrichelte Doppellinie). `dbar` und `d2bar`: Gruppe direkt im SVG hinter den Zeilen (`data-over="1"`,
-`pointer-events: none`) mit Papierstreifen 3,4 px, damit positive Balken die rechte Linie nicht verdecken; `pct` bleibt
-im Hintergrund (Köpfe nahe null). `d2bar` folgt `this.basis2Mode`, auch unter der Ø-Basis (wie die Säulen-Panels;
+gestrichelte Doppellinie), alle im Hintergrund. Runde 3: an einer Doppellinie setzen die Δ-Balken mit `dOff`/`d2Off` =
+2,2 px an (sonst 1 px wie bisher), negative mit `max(Länge, 1)`; der Papierstreifen über den Balken entfällt. `d2bar` folgt `this.basis2Mode`, auch unter der Ø-Basis (wie die Säulen-Panels;
 unter Ø ist die zweite Abweichung heute ohnehin aus). Die Matrix (Mini-Δ-Balken je Block) ist unverändert.
 
 *4 · Scatter.* `chart.scatterTypeTitle` und `chart.scatterScenarioTag` (bool, Standard aus, Gruppe „Scatter / Bubble“
@@ -78,7 +87,9 @@ Pixelprobe in `test/shot.js` für c1040/c1041 (Stufen-SVG 4-fach im Browser gera
 Pixel; mit dem alten 5-px-Muster schlägt sie fehl), beide Kopfformen, kurze Pins, Dunkelmodus, Small Multiples mit
 Re-Render, Export, Bestandsberichte ohne Chip, GuV-Statement, negative und Finanz-Null, Pp. Prüfungen an c600, c701.
 Angepasst c278c, c829, c976 (schalten `panelTypeTitles` an), c959 (Paneltitel über „○“), `test/notation-cases.js`
-Punkt 7, c262 (drei Merge-Einträge), c195, c222, c223, c229 (Echo mit `labels`). 1005 resjson-Keys je Sprache.
+Punkt 7, c262 (drei Merge-Einträge), c195, c222, c223, c229 (Echo mit `labels`). Runde 3: c1070 bis c1084, c868 und
+c1010 angepasst. 1009 resjson-Keys je Sprache (`Chart_PinHeadColor`, `Desc_Chart_PinHeadColor`,
+`Enum_PinHeadColor_Scenario`, `Enum_PinHeadColor_Variance`).
 
 *KPI-Karten (1.58).* Keine neue Property. `renderCards` rechnet Texte und Zeilen aller Karten vorab (`cardModel`:
 `fmtV`, `refText`, `readsZero`, `deltas`/`vals` je Label). Zeilenraster: `valKeys`/`deltaKeys` = Zeilen, die irgendeine
@@ -86,17 +97,23 @@ Karte hat (Werte zuerst; Δ in der Folge Basis, Basis 2, BM, mit Status-Basis Be
 `CardRow` (`kind` `delta` · `plain` · `na` = „PY n.a.“ ohne Δ für eine fehlende Basis · `blank` = freier Platz, wenn
 die Basis schon in der Wertzeile als n.a. steht). Flaches Layout (`flatLay`): eine Δ-Spalte für das ganze Band,
 `refDx = pad + colW + 20k`, `colW` = breitester Titel (≤ 170k) oder Wert, gedeckelt auf die Breite, bei der jeder
-Δ-Block passt und der Block der Karten unter dem Chip-Cluster (`chipLeft`, vorab gemessen) davor endet, mindestens der
-breiteste Wert (`blockW` mit 5k Reserve). Ohne Brücke, Trend und Bullet (`rightFree`) rückt der Block auf
-`min(w/2, w − pad − blockMax, base + 120k, chipEnd − blockMax)`, nie links von `base`. `refLabelW` gilt für alle
+Δ-Block passt, mindestens der breiteste Wert (`blockW` mit 5k Reserve). Ohne Brücke, Trend und Bullet (`rightFree`)
+rückt der Block auf `min(w/2, w − pad − blockMax, base + 120k)`, nie links von `base`. Runde 3 (Stand B Punkt 8 und
+Review M2): die Knöpfe haben eine eigene Zeile, entschieden in `renderCards` vor dem Raster: Titelzeile (`chipTop` =
+`cardChipRowY` = 6, gesetzt in `render()` nur bei einem Band ohne Small Multiples, mit Titel und ohne aktiven
+Modus-Chip), wenn `titleRightX` (rechtes Ende von Titel- und Botschaftszeile, aus `drawTitleBlock`) + 8k vor dem linken
+Rand beider Knöpfe endet und die Zeile über der ersten Kartenreihe liegt; sonst eigene Kopfzeile (`region` rückt um
+18k + 4k nach unten). Marker `card-chip-row` (`data-place`, `data-y`). `chipLeft`/`chipEnd` entfallen. Verdeckte Zeilen
+(Stand B Punkt 12): `shownRows` je Karte, „+n Δ“ (`card-more`, `data-n`, `<title>` mit den Zeilen, getrennt durch „; “)
+über dem Δ-Block (flach) bzw. oben rechts (gestapelt); `blank` zählt nicht. `refLabelW` gilt für alle
 Karten; zwei Zeilen (`twoRows`) liegen in allen Karten auf `yMid − 2k` und `yMid + refF + 4k`. Gerundete Null:
 `cardSigned`/`cardPercent` über `Visual.unsignZero` immer ohne Vorzeichen und ohne Finanz-Klammer (Produktentscheidung, keine Option); `Visual.zeroText` prüft nur die erste Ziffernfolge (Einheiten wie „tCO2“). Farbe, Pfeil,
 Streifen und Tönung vom ungerundeten Δ wie bisher; `readsZero` macht eine Zeile nur neutral, wenn Δ und Δ% (fehlt,
 n.a. oder 0,0 %) null lesen. Diagramm- und Tabellenlabels folgen `labels.roundedZero` (Standard `signed`, alle Vorlagen
 `plain`), die Karten nicht. `cardMinus(t, v)`: nur
 bei v < 0 ein Bindestrich am Anfang oder hinter einem Währungszeichen vor der Ziffer wird U+2212 (Kartenwert,
-Referenzwerte, Trend-Beschriftung). Tests kpi58a bis kpi58o. Offen: Sortierknopf, wo der Block ihn auch direkt hinter
-dem Wert berührt (Prüfstand 2), stiller Wegfall von Δ-Zeilen (7), `fmtSigned` mit Ziffer in der Einheit (Altbestand).
+Referenzwerte, Trend-Beschriftung). Tests kpi58a bis kpi58r, Export-Zwillinge kpi58fx, kpi58lx, kpi58mx. Offen:
+`fmtSigned` mit Ziffer in der Einheit (Altbestand).
 
 **Neu in 1.57 (Backlog IBCS-Templates Teil 4, 22.11.2026):**
 
@@ -1019,6 +1036,7 @@ deutschen Oberfläche. „Standard“ ist der Wert, der ohne Eintrag in `visual.
 | Property | Typ | Standard | Werte / Beschreibung |
 | --- | --- | --- | --- |
 | `pinStyle` | enum | `auto` | `auto` · `round` · `square` — Form des Lollipop-Kopfes der Δ%-Pins. „Automatisch" behält den bisherigen Stil je Modus (Säulen/Balken/Wasserfall rund, Brücken und Tabelle quadratisch); „Rund" oder „Quadratisch" vereinheitlichen alle Modi. |
+| `pinHeadColor` | enum | `scenario` | `scenario` · `variance` — Füllung des Kopfes der Δ%-Pins … |
 | `deltaIcons` | bool | `false` | Stellt den Δ-Werten in Tabelle und KPI-Karten Richtungspfeile voran: ▲ Anstieg, ▼ Rückgang, ● unwesentlich (unter der Materialitätsschwelle) … |
 | `driverNote` | bool | `true` | Kategorie-Brücke: kursive Notiz am größten Treiber („größter Treiber · n % der Gesamtabweichung“) — überlagert den Zeilenbereich, hier abschaltbar. |
 | `stackShape` | enum | `columns` | `columns` · `area` — Gestapelte Säulen (Feld „Stack-Serie“): als Säulen (Standard) oder als gestapelte Fläche über die Zeit mit Summenlinie, Punkten je Periode und Seriennamen am Ende. Ohne Serie und bei Balken ohne Wirkung. |
@@ -1208,6 +1226,8 @@ Enum-Labels:
   `rest` = FC = Restmonat (additiv)
 - `highlightStyle`: `band` = Band hinter der Kategorie; `ellipse` = Ellipse um die Werte
 - `pinStyle`: `auto` = Automatisch (je Modus); `round` = Rund; `square` = Quadratisch
+- `pinHeadColor`: `scenario` = Szenario (AC massiv, FC schraffiert, PL hohl);
+  `variance` = Abweichungsfarbe (alle Modi, auch Tabelle und Brücken)
 - `stackShape`: `columns` = Säulen; `area` = Fläche
 - `areaValueLabels`: `auto` = Automatisch (ausdünnen); `ends` = Erste und letzte Periode; `off` = Aus
 - `stackLegendPos`: `end` = Rechts neben der letzten Säule; `start` = Links neben der ersten Säule

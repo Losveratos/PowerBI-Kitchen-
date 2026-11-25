@@ -278,6 +278,13 @@ const roundedZeroItems: LocEnumMember[] = [
     { value: "plain", displayName: "Without sign (0.0)", key: "Enum_RoundedZero_Plain" }
 ];
 
+// 1.58 (round 3, after stand B): fill of the Δ%-pin heads — scenario notation (default)
+// or the variance color up to 1.57
+const pinHeadColorItems: LocEnumMember[] = [
+    { value: "scenario", displayName: "Scenario (AC solid, FC hatched, PL outlined)", key: "Enum_PinHeadColor_Scenario" },
+    { value: "variance", displayName: "Variance color (all modes, incl. table and bridges)", key: "Enum_PinHeadColor_Variance" }
+];
+
 const labelDensityItems: LocEnumMember[] = [
     { value: "auto", displayName: "Automatic (thin out)", key: "Enum_LabelDensity_Auto" },
     { value: "all", displayName: "All", key: "Enum_LabelDensity_All" },
@@ -386,7 +393,7 @@ export function localizeEnumItems(lm: powerbi.extensibility.ILocalizationManager
         multiplesBasisItems, sfStockAtItems, axisGroupsItems, timeAggregationItems, stackShapeItems, areaValueLabelsItems,
         linePeriodColumnsItems, lineGapMarkersItems, lineMarkerShapeItems, lineIndexItems, lineSeriesColorItems,
         lineSeriesLabelsItems, stackThicknessItems, scatterPathItems, scatterPathLabelsItems, scatterShareAsItems,
-        roundedZeroItems];
+        roundedZeroItems, pinHeadColorItems];
     for (const items of lists) {
         for (const it of items) {
             const loc = lm.getDisplayName(it.key);
@@ -828,6 +835,16 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
         description: "Exception-Reporting: Zeigt nur Kategorien, deren Abweichung die Wesentlichkeits-Schwelle überschreitet; alle übrigen werden zu EINER Sammelzeile „Unauffällig (n)\" verdichtet — deren Werte werden aufsummiert, die Σ-Kopfzeile bleibt also unverändert. Setzt eine Schwelle voraus (absolut oder %). Wirkt in Balken, KPI-Karten und der flachen Tabelle (nicht in Matrix- oder Hierarchie-Tabellen); Zeitachsen (Säulen/Linie) und Kaskaden (Wasserfall, Brücken, GuV) bleiben lückenlos. Standard aus.",
         descriptionKey: "Desc_Chart_ExceptionOnly",
         value: false
+    });
+
+    pinHeadColor = new formattingSettings.ItemDropdown({
+        name: "pinHeadColor",
+        displayName: "Δ%-pin head",
+        displayNameKey: "Chart_PinHeadColor",
+        description: "Füllung des Kopfes der Δ%-Pins. „Szenario“ (Standard ab 1.58) zeichnet den Kopf in der Notation des verglichenen Szenarios wie die IBCS-Blätter 03A, 04A und 06E: AC massiv dunkel, FC fein schraffiert, PL hohl; nur der Stiel trägt die Abweichungsfarbe (bei sehr kurzen Pins auch die Beschriftung). „Abweichungsfarbe“ füllt den Kopf in Grün bzw. Rot (FC in der Abweichungsfarbe schraffiert, PL hohl), und zwar in allen Modi: in Säulen, Balken, Linie und Wasserfall wie bis 1.57 (Stiel 1,6 px, Kopf nicht verkleinert), in Tabelle, Brücken und GuV neu farbig statt dunkel. Die Kopfform wählt „Δ%-Pin-Form“. Im Hochkontrast bleibt der Kopf bei gefüllt = gut, hohl = schlecht.",
+        descriptionKey: "Desc_Chart_PinHeadColor",
+        items: pinHeadColorItems,
+        value: pinHeadColorItems[0]
     });
 
     pinStyle = new formattingSettings.ItemDropdown({
@@ -1870,7 +1887,7 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
         name: "chartDisplay",
         displayName: "Display",
         displayNameKey: "Group_Display",
-        slices: [this.pinStyle, this.deltaIcons, this.driverNote, this.stackShape, this.areaTotalLine, this.areaValueLabels,
+        slices: [this.pinStyle, this.pinHeadColor, this.deltaIcons, this.driverNote, this.stackShape, this.areaTotalLine, this.areaValueLabels,
             this.stackLegendDirect, this.stackLegendPos,
             this.stackNormalize, this.stackThickness, this.stackShareColumn, this.stackTotalRow, this.stackTotalLabel, this.stackShareBracket,
             this.stackBlocks, this.stackBlockShare, this.scenarioLabels, this.panelTypeTitles,

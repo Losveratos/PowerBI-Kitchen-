@@ -1003,5 +1003,9 @@
   "Labels_RoundedZero": "Cero redondeado",
   "Desc_Labels_RoundedZero": "Una desviación que no es cero pero se redondea a cero: mantener el signo («+0,0», la dirección sigue legible junto al alfiler o la barra) o mostrarla sin signo como en las hojas de referencia («0,0»). Se aplica a Δ, Δ % y pp. Los ceros exactos nunca llevan signo. Por defecto se mantiene el signo.",
   "Enum_RoundedZero_Signed": "Mantener el signo (+0,0)",
-  "Enum_RoundedZero_Plain": "Sin signo (0,0)"
+  "Enum_RoundedZero_Plain": "Sin signo (0,0)",
+  "Chart_PinHeadColor": "Cabeza del pin Δ%",
+  "Desc_Chart_PinHeadColor": "Relleno de la cabeza de los pines Δ%. «Escenario» (predeterminado desde 1.58) dibuja la cabeza en la notación del escenario comparado, como las hojas IBCS 03A, 04A y 06E: AC sólido oscuro, FC con rayado fino, PL hueco; solo el tallo lleva el color de la desviación (en pines muy cortos también la etiqueta). «Color de desviación» rellena la cabeza en verde o rojo (FC rayado en el color de la desviación, PL hueco) en todos los modos: en columnas, barras, línea y cascada como hasta 1.57 (tallo de 1,6 px, cabeza sin reducir), en tabla, puentes y cuenta de resultados ahora en color en lugar de oscuro. La forma de la cabeza se elige en «Forma del pin Δ%». En alto contraste la cabeza mantiene relleno = bueno, hueco = malo.",
+  "Enum_PinHeadColor_Scenario": "Escenario (AC sólido, FC rayado, PL hueco)",
+  "Enum_PinHeadColor_Variance": "Color de desviación (todos los modos, también tabla y puentes)"
 }
