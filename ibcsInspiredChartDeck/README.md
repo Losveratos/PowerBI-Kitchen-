@@ -14,7 +14,7 @@ in **einem** Visual löst:
 > DAX-Fallen, komplette Property-Referenz fürs PBIR-Authoring (inkl.
 > persistierter Zustände), Modus-Matrix und bekannte Stolperfallen.
 
-## Stand 1.57.0.0 (live seit 23.11.2026)
+## Stand 1.58.0.0 (24.11.2026)
 
 - **25 Vorlagen C01 bis C25** (ohne C11) im Start-Hub, nach Zweck gruppiert. Damit lassen sich alle 62
   Referenzblätter der IBCS-Vorlagen nachbauen; Abweichungen vom Blatt stehen in der Doku.
@@ -24,9 +24,16 @@ in **einem** Visual löst:
 - **Neu in 1.57:** Scatter-Zeitpfad mit Quotenstrahlen (C23), Blasen mit Kreissegment und Gesamtblase
   (C24, neue Rolle „Blasenanteil“), Marimekko mit Zeilendicke nach Summe (C25), große Kachel nach
   Gruppenname und feste Spaltenzahl in Small Multiples, kein Zoom-Knopf in nicht interaktiver Ausgabe.
+- **Neu in 1.58** (Notation und KPI-Karten): Köpfe der Δ%-Pins in Szenario-Notation (AC dunkel, FC fein
+  schraffiert, PL hohl, Stiel in Abweichungsfarbe; alte Anzeige über `chart.pinHeadColor = variance`), feine
+  FC-Schraffur an Linie, Serienlinien, Dumbbell, Slope und Brücken, Abweichungsachse der Tabelle nach Basis
+  (Doppellinie bei PL), Scatter ohne „Scatter · AC × …“ und „(AC)“ und technische Paneltitel standardmäßig aus
+  (`scatterTypeTitle`, `scatterScenarioTag`, `panelTypeTitles`), gerundete Null `labels.roundedZero` (alle
+  Vorlagen ohne Vorzeichen), KPI-Karten mit festem Δ-Block, „PY n.a.“, „+n Δ“ und eigenem Platz für Sortier-
+  und Ausnahmeknopf. Ändert das Bild bestehender Berichte (Notationskorrekturen, siehe CHANGELOG).
 - **21 Feldrollen**, 14 Chart-Modi, vier Sprachen (de · en · es · ja).
 - Vollständige Liste: [CHANGELOG.md](CHANGELOG.md), Property-Namen: [AGENT-GUIDE.md](AGENT-GUIDE.md)
-  („Neu in 1.56“, „Neu in 1.57“), Bedienung: [Doku](../chartkitchen-doku.html).
+  („Neu in 1.56“ bis „Neu in 1.58“), Bedienung: [Doku](../chartkitchen-doku.html).
 
 ## Features
 
@@ -197,7 +204,7 @@ in **einem** Visual löst:
 
 ## Installation in Power BI
 
-1. Fertiges Paket: [`dist/`](dist/) (`chartKitchenByDatenWG….pbiviz`, derzeit 1.57.0.0) oder der stabile Download
+1. Fertiges Paket: [`dist/`](dist/) (`chartKitchenByDatenWG….pbiviz`, derzeit 1.58.0.0) oder der stabile Download
    [`chartkitchen-byDatenWG-latest.pbiviz`](../downloads/chartkitchen-byDatenWG-latest.pbiviz)
 2. In Power BI Desktop: **Visualisierungen → ⋯ → Visual aus Datei importieren**
    und die `.pbiviz`-Datei auswählen.

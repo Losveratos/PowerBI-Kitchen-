@@ -26,7 +26,7 @@ Version · **1.58.0.0** · Stand · **2026-11-24** · IBCS-inspired
 
 Die Gestaltung ist von den **IBCS®-Prinzipien** (International Business Communication Standards) inspiriert: eine einheitliche Szenario-Notation — **AC** (Ist) ausgefüllt, **PY** (Vorjahr) grau, **PL** (Plan) umrandet, **FC** (Forecast) schraffiert — und Abweichungen, die immer mitgedacht sind: absolute und relative Varianz-Panels stehen automatisch neben oder über dem Basis-Chart. So liest sich jede Grafik nach denselben Regeln, egal welcher Modus.
 
-Diese Anleitung beschreibt den Stand der Version **1.58.0.0**. Gezählt wird wie im Visual selbst: 14 Chart-Typen (seit 1.55 mit „Bestand & Fluss“) — die Matrix ist dabei kein eigener Typ, sondern die Tabelle mit gefüllter Spalten-Rolle; sie bekommt in Kapitel 05 trotzdem eine eigene Karte. Neu seit 1.48: der Start-Hub für den Einstieg (Kapitel 03), die IBCS-Vorlagen C01–C13, das Nachladen bis 30.000 Zeilen, Lesezeichen, die die Auswahl wiederherstellen, gesperrte statt stummer Chips, wählbare Leer-Zustände und echter Hochkontrast (Kapitel 07). Seit 1.52 skaliert das Visual nach IBCS 2.0 / ISO 24896 (Kapitel 07, „Skalierung nach IBCS 2.0 / ISO 24896“). Neu in 1.53: die Zeilenstruktur als Datenvertrag über [rowType-Token](#rowtype), negative Werte in beiden Brücken (Kapitel 05) und ein geprüftes [Export-Layout](#export) mit ehrlichen Grenzen im Power-BI-Service (Kapitel 07). Neu in 1.54: sechs weitere IBCS-Vorlagen C14 bis C19 (Balkentabellen gegen Plan, waagerechte Kategorie-Brücke, Abweichungs-Scatter, Säulen mit Jahressäule), die Jahressäule mit eigener Skala, Sortierung nach |Δ|, Δ, Δ % oder AC mit fester Rest-Zeile, die Szenario-Notation im Stapel und die Hervorhebung als Ellipse (Kapitel 07). Neu in 1.55: der Chart-Typ [„Bestand & Fluss (Zeit)“](#stockflow) mit der Vorlage C20 für Kasse, Personal und Lager (Kapitel 07). Neu in 1.56: [Stapel-Blöcke mit Zwischensummen](#stackblocks), das [Abweichungs-Panel allein in Small Multiples](#varianceonly), Aggregation über die Zeit und YTD für [Bestand und Fluss](#stockflow), die gestapelte Fläche mit der Vorlage C07, die [kumulierte Linie mit gleitender Jahressumme, Monatssäulen und Abstandsmarkern](#cumline) mit der Vorlage C21 und die [Serienlinien mit Index](#serieslines) mit der Vorlage C22 (Kapitel 07). Neu in 1.57: das [Marimekko](#marimekko) mit der Vorlage C25 und der [Scatter-Zeitpfad mit Quotenstrahlen](#scatterpath) mit der Vorlage C23 und die [Blasen mit Kreissegment und Gesamtblase](#bubbleshare) mit der Vorlage C24 (Kapitel 07).
+Diese Anleitung beschreibt den Stand der Version **1.58.0.0**. Gezählt wird wie im Visual selbst: 14 Chart-Typen (seit 1.55 mit „Bestand & Fluss“) — die Matrix ist dabei kein eigener Typ, sondern die Tabelle mit gefüllter Spalten-Rolle; sie bekommt in Kapitel 05 trotzdem eine eigene Karte. Neu seit 1.48: der Start-Hub für den Einstieg (Kapitel 03), die IBCS-Vorlagen C01–C13, das Nachladen bis 30.000 Zeilen, Lesezeichen, die die Auswahl wiederherstellen, gesperrte statt stummer Chips, wählbare Leer-Zustände und echter Hochkontrast (Kapitel 07). Seit 1.52 skaliert das Visual nach IBCS 2.0 / ISO 24896 (Kapitel 07, „Skalierung nach IBCS 2.0 / ISO 24896“). Neu in 1.53: die Zeilenstruktur als Datenvertrag über [rowType-Token](#rowtype), negative Werte in beiden Brücken (Kapitel 05) und ein geprüftes [Export-Layout](#export) mit ehrlichen Grenzen im Power-BI-Service (Kapitel 07). Neu in 1.54: sechs weitere IBCS-Vorlagen C14 bis C19 (Balkentabellen gegen Plan, waagerechte Kategorie-Brücke, Abweichungs-Scatter, Säulen mit Jahressäule), die Jahressäule mit eigener Skala, Sortierung nach |Δ|, Δ, Δ % oder AC mit fester Rest-Zeile, die Szenario-Notation im Stapel und die Hervorhebung als Ellipse (Kapitel 07). Neu in 1.55: der Chart-Typ [„Bestand & Fluss (Zeit)“](#stockflow) mit der Vorlage C20 für Kasse, Personal und Lager (Kapitel 07). Neu in 1.56: [Stapel-Blöcke mit Zwischensummen](#stackblocks), das [Abweichungs-Panel allein in Small Multiples](#varianceonly), Aggregation über die Zeit und YTD für [Bestand und Fluss](#stockflow), die gestapelte Fläche mit der Vorlage C07, die [kumulierte Linie mit gleitender Jahressumme, Monatssäulen und Abstandsmarkern](#cumline) mit der Vorlage C21 und die [Serienlinien mit Index](#serieslines) mit der Vorlage C22 (Kapitel 07). Neu in 1.57: das [Marimekko](#marimekko) mit der Vorlage C25 und der [Scatter-Zeitpfad mit Quotenstrahlen](#scatterpath) mit der Vorlage C23 und die [Blasen mit Kreissegment und Gesamtblase](#bubbleshare) mit der Vorlage C24 (Kapitel 07). Neu in 1.58: [Pinköpfe in Szenario-Notation](#pinheads) mit feiner FC-Schraffur, die [Abweichungsachse der Tabelle nach Basis](#tableaxis), [schlankere Titel](#paneltitles) bei Scatter und gestapelten Charts, die [gerundete Null](#roundedzero) ohne Vorzeichen in allen Vorlagen und ein ruhiges Raster für die [KPI-Karten](#cards158) (Kapitel 07).
 
 ## 02 · Die Produktfamilie
 
@@ -374,6 +374,38 @@ Für PBIR-Autoren: `chart.template` und die versteckte Property `chart.templateA
 4. Für einen Zielwert je Kategorie füllst du die Benchmark-Rolle — sie erscheint als Querstrich-Marker (Dreieck).
 5. Eine feste Ziel- oder Schwellenlinie ziehst du stattdessen über Skala → Referenzlinie (Wert + Beschriftung).
 
+### Pinköpfe in Szenario-Notation (seit 1.58)
+
+Der Kopf eines Δ%-Pins zeigt seit 1.58, gegen welches Szenario verglichen wird; die Bewertung gut oder schlecht trägt der Stiel. Säulen, Balken, Linie, Wasserfall und Jahressäule lesen sich damit wie Tabelle und Brücken.
+
+![Säulen mit ΔPL- und ΔPY-Pins in Szenario-Notation](../doku-assets/feature-pin-heads.png)
+
+*Säulen mit ΔPL und ΔPY: AC-Köpfe dunkel, FC-Köpfe fein schraffiert, die Stiele in Abweichungsfarbe. Kurze Pins (+2,0 %, −2,0 %) tragen ihre Farbe an der Beschriftung.*
+
+1. **Kopf nach Szenario:** AC dunkel gefüllt, FC fein schraffiert, Plan gegen Plan hohl mit dunklem Rand. Der Stiel ist grün, rot oder bei unwesentlicher Abweichung grau und jetzt 2 px breit wie in der Tabelle.
+2. **Kurze Pins:** Der Kopf wird kleiner, damit mindestens 3 px farbiger Stiel sichtbar bleiben. Reicht auch das nicht, trägt die Δ%-Beschriftung des Pins die Abweichungsfarbe. Eine Beschriftung, die null liest („0,0%“), bleibt in Tinte.
+3. **Kopfform:** „Δ%-Pin-Form“ (`chart.pinStyle`) wählt wie bisher Automatisch, Rund oder Quadratisch; die Notation gilt für beide Formen.
+4. **Anzeige bis 1.57:** „Kopf der Δ%-Pins“ (`chart.pinHeadColor`, Chart → Darstellung) auf „Abweichungsfarbe“ stellt den farbigen Kopf wieder her (FC in der Abweichungsfarbe schraffiert, Stiel 1,6 px, Kopf nicht verkleinert) und färbt dann auch die Köpfe in Tabelle, Brücken und GuV-Statement. Keine Vorlage setzt diese Einstellung.
+5. **Feine FC-Schraffur:** FC-Köpfe und FC-Punkte nutzen ein feineres Muster als die Säulen, damit auch kleine Köpfe schraffiert erscheinen und nicht leer wie Plan. Das gilt auch für die Punkte von Linie, R12-Linie, Dumbbell und Slope, die FC-Marken der Serienlinien (C22, in der Farbe ihrer Serie), den FC-Referenzpunkt der KPI-Trendlinie und die FC-Köpfe von Integrierter Brücke, Kategorie-Brücke und GuV-Statement.
+6. **Hochkontrast** bleibt wie bisher: Dort trägt der Kopf gut (gefüllt) oder schlecht (hohl), weil beide dieselbe Farbe haben. Die FC-Punkte von Linie, R12, Dumbbell und Slope sind auch im Hochkontrast fein schraffiert.
+
+> **Bestehende Berichte:** Alle Δ%-Pins in Säulen, Balken, Linie, Wasserfall und Jahressäule zeigen nach dem Update dunkle Köpfe und breitere Stiele, FC-Köpfe und FC-Punkte sind fein schraffiert statt hohl. Das ist eine Notationskorrektur; wer die alte Anzeige braucht, stellt „Kopf der Δ%-Pins“ auf „Abweichungsfarbe“.
+
+### Abweichungsachse der Tabelle nach Basis (seit 1.58)
+
+Die Achsen der Spalten Δ, Δ % und der zweiten Δ-Spalte zeigen jetzt wie die Δ-Panels der Säulen, wogegen verglichen wird (z. B. Vorlagen C14 bis C16).
+
+![Tabelle gegen Plan mit Doppellinie als Abweichungsachse](../doku-assets/feature-table-axis.png)
+
+*Vorlage C14 gegen Plan: Doppellinie als Achse der ΔPL- und ΔPL-%-Spalte, die Δ-Balken setzen an ihrer Außenkante an.*
+
+1. Basis PL: Doppellinie. Basis FC Vormonat: gestrichelte Doppellinie. Basis PY und Ø-Basis: graue Linie wie bisher.
+2. Die zweite Δ-Spalte folgt der zweiten Basis, wie bei den Säulen.
+3. An einer Doppellinie beginnen die Δ-Balken an ihrer Außenkante: Ein positiver Balken verdeckt die Linie nicht, kleine Balken bleiben sichtbar. Ein Δ von genau null zeichnet dort keinen Balken.
+4. Gilt auch im Hochkontrast (Doppellinie in der Hochkontrastfarbe). Die Mini-Δ-Balken der Matrix sind unverändert.
+
+> **Bestehende Berichte:** Tabellen gegen Plan oder FC zeigen die Doppellinie (Notationskorrektur), gegen PY ändert sich nichts.
+
 ### Small Multiples
 
 ![Small Multiples: eine Kachel je Region auf gemeinsamer Achse, jede mit eigenen Varianz-Panels und Zoom-Symbol.](../doku-assets/feature-multiples.png)
@@ -658,6 +690,15 @@ Zeilennamen sind kein stabiler Datenvertrag: Wer eine Zeile umbenennt oder über
 1. Unter Datenbeschriftungen → „Finance-Format (Klammern)“ werden negative Werte in Klammern statt mit Minuszeichen dargestellt — (1.234) — und Null als „–“.
 2. Das gilt für Wert- und Δ-Beschriftungen inklusive Δ % und passt zu den GuV-Zeilentypen Summe, Delta und Marge.
 
+### Gerundete Null mit oder ohne Vorzeichen (seit 1.58)
+
+Eine Abweichung, die nicht null ist, aber auf null rundet, druckt standardmäßig mit Vorzeichen („+0,00M“, „−0,0%“): Die Richtung bleibt neben Pin oder Balken lesbar. Die Referenzblätter schreiben sie ohne Vorzeichen.
+
+1. „Gerundete Null“ (`labels.roundedZero`, Datenbeschriftungen) wählt „Vorzeichen behalten (+0,0)“ (Standard) oder „Ohne Vorzeichen (0,0)“. Ohne Vorzeichen entfallen auch die Finanzklammer und das „±“ des GuV-Statements: „0,00M“, „0,0%“, „0,0Pp“.
+2. Gilt für alle Δ-, Δ %- und Netto-Beschriftungen, die Pp-Texte von Tabelle und Matrix, das GuV-Statement, das Index-Δ der Serienlinien und die Pp-Labels der Differenzmarker. Exakte Nullen tragen nie ein Vorzeichen.
+3. Alle Vorlagen C01 bis C25 setzen „Ohne Vorzeichen“. Ein Bericht, der eine Vorlage schon vor 1.58 angewandt hat, behält seine Anzeige, bis die Vorlage erneut angewandt wird; der Chip „↺ Zum Template zurück“ erscheint dadurch nicht.
+4. KPI-Karten drucken eine gerundete Null immer ohne Vorzeichen, unabhängig von dieser Einstellung.
+
 ### IBCS-Titel, Fußzeilen & Beschriftungen
 
 ![IBCS-Titel und Fußzeilen: „KPI · Einheit · Zeitraum: Szenarien“ mit Botschaftszeile oben, Filterkontext und Datenstand als Fußzeilen unten.](../doku-assets/feature-title.png)
@@ -666,6 +707,16 @@ Zeilennamen sind kein stabiler Datenvertrag: Wer eine Zeile umbenennt oder über
 2. Eine Botschaftszeile (IBCS: SAY) trägst du oben ein oder lässt sie über „Automatische Botschaft“ aus Gesamtabweichung und größten Treibern erzeugen.
 3. Zwei Fußzeilen sind möglich: „Fußzeile (Datenstand · Quelle)“ unten links und die Filter-Fußzeile mit der gebundenen Filter-Info-Measure plus dem Anzeige-Zustand (YTD, Top-N, Sortierung …).
 4. Alle Schriften skalierst du zentral über Datenbeschriftungen → Größen-Preset (HD/Full HD/UHD — identisch zur Start-Hub-Leiste) und den Faktor „Alle Beschriftungen skalieren %“; die Beschriftungs-Dichte steuert das Ausdünnen.
+
+### Schlankere Titel: Scatter und technische Paneltitel (seit 1.58)
+
+Graue Untertitel, die nur den Charttyp oder ein womöglich falsches Szenario nennen, sind seit 1.58 standardmäßig aus. Der Platz der Titelzeile bleibt, keine Skala verschiebt sich.
+
+1. **Scatter und Bubble:** kein „Scatter · AC × X-Name“ mehr im Paneltitel, kein „(AC)“ am Titel der Y-Achse und kein „· AC“ im automatischen Diagrammtitel. Bei einer Abweichungsachse (etwa ΔPL % als Measure wie in C18) wäre „AC“ falsch. Die übrigen Titelteile (○ Blasengröße, Farbe = Δ, Punkte außerhalb) bleiben. Zurückholen lässt sich beides mit „Charttyp im Paneltitel“ (`chart.scatterTypeTitle`) und „Szenario am Titel der Y-Achse“ (`chart.scatterScenarioTag`) unter Chart → Scatter / Bubble.
+2. **Technische Paneltitel:** kein „AC · gestapelt“ über gestapelten Säulen, Balken und Flächen, keine Leseanleitung im Marimekko, „PY → AC/FC“ ohne „Brücke + Monatssäulen“ in der Integrierten Brücke. Szenario- und Abweichungstitel (AC · FC, ΔPY, ΔPL %), „Anteile in %“, Faktor und Achsenschnitt bleiben immer. Zurückholen: „Charttyp in Paneltiteln“ (`chart.panelTypeTitles`, Chart → Darstellung). Pareto, Dumbbell und der Wasserfall sind nicht betroffen.
+3. Die Vorlagen C09, C10, C18, C23 und C24 setzen beide Scatter-Schalter, die Vorlagen C01, C02, C05, C07 und C25 die Paneltitel ausdrücklich aus.
+
+> **Bestehende Berichte:** Der Standard „aus“ gilt für alle Berichte ohne gesetzte Einstellung: Scatter und Bubble verlieren den Typ-Titel und das „AC“, gestapelte Charts, Marimekko und Integrierte Brücke ihre technischen Untertitel. Mit den Schaltern an sieht alles aus wie in 1.57.
 
 ### Monitoring-Karten (Ampel & Bullet)
 
@@ -684,6 +735,24 @@ Zeilennamen sind kein stabiler Datenvertrag: Wer eine Zeile umbenennt oder über
 2. Unter Chart → KPI-Karten wählst du das Mini-Chart: Sparkline (mit PY-Geisterlinie, FC gestrichelt, letzter Ist-Punkt beschriftet) oder nullbasierte Säulen (Negative unter der Nulllinie, FC schraffiert) — oder Aus.
 3. Der Kartenwert zeigt „Letzter Wert“ (Standard — Δ-Zeilen und Ampel beziehen sich konsistent auf dieselbe Periode) oder „Summe“.
 4. Ohne Trend-Feld bleibt alles exakt wie bisher; andere Modi ignorieren die Rolle (die Zeilen werden re-aggregiert).
+
+### KPI-Karten: ruhiges Raster, fehlende Basis und verdeckte Zeilen (seit 1.58)
+
+Ein Kartenband liest sich seit 1.58 wie eine Tabelle: gleiche Positionen, gleiche Zeilen, gleiche Schreibweise. Eine neue Einstellung gibt es dafür nicht.
+
+![Drei Kartenbänder mit Sortierknopf, Markierung +1 Δ und PY n.a.](../doku-assets/feature-cards-158.png)
+
+*Oben: Sortierknopf in der Titelzeile, Δ-Blöcke aller Karten an derselben Stelle, typografisches Minus. Mitte: „+1 Δ“ über dem Δ-Block meldet eine verdeckte Zeile. Unten: Der ersten Jahreskarte fehlt das Vorjahr, sie zeigt „PY n.a.“.*
+
+1. **Δ-Block an fester Position:** Im flachen Layout beginnt der Δ-Block aller Karten an derselben Stelle, hinter der breitesten Titel- oder Wertspalte; die Δ-Werte stehen untereinander. Ist rechts nichts zu zeichnen (keine Mini-Brücke, kein Trend, kein Bullet), rückt der Block Richtung Kartenmitte, höchstens bis zur Mitte.
+2. **Ein Zeilenraster für alle Karten:** Alle Karten teilen die Zeilen, die irgendeine Karte zeigt (Referenzwerte zuerst, dann ΔPL, ΔPY, ΔBM in fester Reihenfolge). Fehlt einer Karte die Basis, steht an ihrem Platz grau „PY n.a.“ bzw. „PL n.a.“.
+3. **Typografisches Minus:** Kartenwert, Referenzwert-Zeilen und Trend-Beschriftung schreiben negative Werte mit „−“ wie die Δ-Zeilen. Textpräfixe und Einheiten bleiben unverändert.
+4. **Gerundete Null ohne Vorzeichen:** Ein Wert, der auf null rundet, steht in den Karten immer ohne Vorzeichen und ohne Klammer („0,0M€ · +0,1%“), unabhängig von `labels.roundedZero`. Farbe, Pfeil und Statusstreifen folgen weiter dem ungerundeten Δ; grau wird eine Zeile nur, wenn Δ und Δ% beide null lesen.
+5. **Verdeckte Zeilen werden gezählt:** Passt eine Δ-Zeile nicht auf die Karte, erscheint „+n Δ“ (mit Referenzwert-Zeilen neutral „+n“). Der Tooltip nennt die verdeckten Zeilen; die Marke ist per Tastatur erreichbar und im Export sichtbar.
+6. **Sortier- und Ausnahmeknopf mit eigenem Platz:** Die Knöpfe ↕ und ⚠ liegen nicht mehr über der letzten Karte. Sie stehen rechts in der Titelzeile des Visuals, bei Small Multiples kompakt im Kachelkopf, sonst in einer eigenen Kopfzeile oder, wenn dafür die Höhe fehlt, kompakt in der Ecke der letzten Karte der ersten Reihe. Ohne Titel und mit aktivem Modus-Chip (Kommentar, Struktur, Vergleich) reserviert das Visual oben ein Band für Chip und Knöpfe. Der Export zeichnet keine Knöpfe.
+7. **Niedrige Karten:** Reicht die Höhe nicht, wird zuerst der Wert kleiner, dann rücken Titel und Wert zusammen, zuletzt steht der Wert allein (der Titel bleibt im Tooltip). Kartentext ragt nicht mehr unter den Rand.
+
+> **Bestehende Berichte:** Im flachen Layout steht der Δ-Block an neuer Position, bei ausgeschalteten Balken weiter rechts. Gerundete Nullen verlieren Vorzeichen und Finanzklammer, negative Kartenwerte zeigen „−“, Karten ohne eine Basis zeigen „PY n.a.“ bzw. „PL n.a.“. Im Stapel-Layout ändern sich nur die Breite der Label-Spalte und die n.a.-Zeilen.
 
 ### Dark Mode (Erscheinungsbild)
 
@@ -816,6 +885,7 @@ Seit 1.45 führt der Formatbereich nach Arbeitslogik: Die Chart-Karte steht an P
 | Wesentlichkeit ab (absolut) | Wesentlichkeits-Schwelle: Abweichungen unter diesem absoluten Betrag werden grau statt rot/grün dargestellt (Panels, Wasserfall-Stufen, Tabelle). 0 = aus. | ab 0 · Standard 0 |
 | Wesentlichkeit ab (%) | Wesentlichkeits-Schwelle in Prozent: Abweichungen unter diesem Δ % werden grau dargestellt. Sind beide Schwellen gesetzt, muss eine Abweichung beide überschreiten, um farbig zu sein. 0 = aus. | 0–100 · Standard 0 |
 | Δ%-Pin-Form | Form des Lollipop-Kopfes der Δ%-Pins. „Automatisch" behält den bisherigen Stil je Modus (Säulen/Balken/Wasserfall rund, Brücken und Tabelle quadratisch); „Rund" oder „Quadratisch" vereinheitlichen alle Modi. | Optionen: Automatisch (je Modus) \| Rund \| Quadratisch · Standard „Automatisch (je Modus)“ |
+| Kopf der Δ%-Pins | Seit 1.58 (`chart.pinHeadColor`): „Szenario“ zeichnet den Kopf in der Notation des verglichenen Szenarios (AC dunkel, FC fein schraffiert, PL hohl), nur der Stiel trägt die Abweichungsfarbe, bei sehr kurzen Pins auch die Beschriftung. „Abweichungsfarbe“ füllt den Kopf grün oder rot wie bis 1.57 (FC in der Abweichungsfarbe schraffiert, PL hohl), und zwar in allen Modi, auch in Tabelle, Brücken und GuV-Statement. Die Form wählt „Δ%-Pin-Form“. Im Hochkontrast bleibt gefüllt = gut, hohl = schlecht. | Optionen: Szenario (AC massiv, FC schraffiert, PL hohl) \| Abweichungsfarbe (alle Modi, auch Tabelle und Brücken) · Standard „Szenario“ |
 | Trend-Icons ▲▼● | Stellt den Δ-Werten in Tabelle und KPI-Karten Richtungspfeile voran: ▲ Anstieg, ▼ Rückgang, ● unwesentlich (unter der Materialitätsschwelle). Lesbar auch in Schwarzweiß-Druck und für Farbenblinde — die Farbe bewertet weiterhin gut/schlecht. | An / Aus · Standard Aus |
 | Stapellegende am Stapel | Gruppe Darstellung, seit 1.52.1 (Property `chart.stackLegendDirect`): Gestapelte Säulen und Balken zeigen die Seriennamen direkt am Stapel (Säulen: rechts neben der letzten Säule, Balken: über dem breitesten Segment jeder Serie) statt als Schlüssel oben. Passen sie nicht, bleibt der Schlüssel. Aus = immer Schlüssel oben. | An / Aus · Standard An |
 | Stapel-Skala | Gruppe Darstellung, seit 1.55 (`chart.stackNormalize`): Gestapelte Säulen und Balken als Werte oder als 100 % je Kategorie. Bei 100 % sind die Beschriftungen Anteile mit einer Nachkommastelle, der Panel-Titel lautet „Anteile in %“, eine „100 %“-Marke steht am Stapel. Bei einer negativen Zelle bleibt der Stapel bei Werten. Bei 100 %-Balken zeigt „Summen-Kopfzeile (Σ)“ ein Summen-Panel rechts auf eigener Skala. | Optionen: Werte \| 100 % (Anteile) · Standard Werte |
@@ -831,6 +901,7 @@ Seit 1.45 führt der Formatbereich nach Arbeitslogik: Die Chart-Karte steht an P
 | Werte in den Flächen | Seit 1.56 (`chart.areaValueLabels`), nur gestapelte Fläche: Werte in den Flächen, nach Platz ausgedünnt, nur in der ersten und letzten Periode oder keine. | Optionen: Automatisch (ausdünnen) \| Erste und letzte Periode \| Aus · Standard Automatisch |
 | Seriennamen (Säulen) | Seit 1.55 (`chart.stackLegendPos`): Position der Seriennamen am Stapel. Rechts neben der letzten Säule (Standard) oder links neben der ersten Säule (IBCS-Blatt 01E). | Optionen: Rechts neben der letzten Säule \| Links neben der ersten Säule · Standard Rechts |
 | Szenario-Kürzel an den Säulen | Seit 1.54 (`chart.scenarioLabels`), nur Säulen: AC unter den ersten Ist-Monat, FC unter den ersten Forecast-Monat, AC und FC neben die Teile der Jahressäule. Seit 1.55 auch im Chart-Typ „Bestand & Fluss“ (Zeile unter den Achsengruppen). Seit 1.56 auch in der Linie: Kürzel-Zeile unter der Achse und das Kürzel am Ende jeder Linie (FC, PL, PY); ein Linienbericht mit gespeichertem Wert zeigt sie jetzt (Verhaltensänderung). Seit 1.55 auch PL unter die erste reine Planperiode, mit einem dünnen Trennstrich AC \| PL unter der Achse, wenn die Planperioden am Ende stehen (IBCS-Blatt 13A). Reine Planperioden tragen seit 1.55 immer ihren Planwert als Beschriftung über dem Umriss, auch ohne Szenario-Kürzel (Verhaltensänderung). | An / Aus · Standard Aus |
+| Charttyp in Paneltiteln | Seit 1.58 (`chart.panelTypeTitles`), sichtbar bei Säulen, Balken und Integrierter Brücke: graue Paneltitel, die nur den Charttyp nennen („gestapelt“ über gestapelten Säulen, Balken und Flächen, „Brücke + Monatssäulen“ in der Integrierten Brücke, die Leseanleitung des Marimekko). Szenario- und Abweichungstitel (AC · FC, ΔPY, ΔPL %), „Anteile in %“, Faktor und Achsenschnitt bleiben. Bis 1.57 immer sichtbar. | An / Aus · Standard Aus |
 
 #### Bestand & Fluss
 
@@ -951,6 +1022,8 @@ Seit 1.45 führt der Formatbereich nach Arbeitslogik: Die Chart-Karte steht an P
 | Bewegungspfeile PY → AC | Nur mit Vorjahr (PY), seit 1.48: dünner Pfeil vom kleinen grauen PY-Startpunkt zur AC-Markerkante jedes Punkts. Mit der Rolle „X-Achse VJ (Scatter)“ echte 2D-Bewegung, sonst bewegt sich nur Y; der Tooltip nennt Δ je Achse, die Achsen schließen die PY-Positionen mit ein. | An / Aus · Standard Aus |
 | Trendlinie | Lineare Regression über die sichtbaren Punkte (seit 1.48) als dünne gepunktete Linie über die Plotbreite, bei Small Multiples je Kachel; bei Log-Achsen im logarithmischen Raum gerechnet — die Gerade bleibt gerade. Mindestens 3 Punkte. | Optionen: Aus \| Linear · Standard „Aus“ |
 | R² anzeigen | Nur bei aktiver Trendlinie: beschriftet das Linienende mit dem Bestimmtheitsmaß („R² = 0,87“). | An / Aus · Standard Aus |
+| Charttyp im Paneltitel | Seit 1.58 (`chart.scatterTypeTitle`): Der graue Paneltitel von Scatter und Bubble beginnt mit „Scatter · AC × X-Name“. Die übrigen Teile (○ Blasengröße, Farbe = Δ, Punkte außerhalb der Achsen) bleiben immer. Bis 1.57 immer sichtbar. | An / Aus · Standard Aus |
+| Szenario am Titel der Y-Achse | Seit 1.58 (`chart.scatterScenarioTag`): hängt das Szenario-Kürzel an den Titel der Y-Achse („Umsatz (AC)“) und an den automatischen Diagrammtitel („Umsatz · AC“). Falsch, wenn die Achse eine Abweichung zeigt (ΔPL % als Measure); ohne Measure-Namen steht das Kürzel an der Y-Achse weiterhin allein. Bis 1.57 immer sichtbar. | An / Aus · Standard Aus |
 | Größen-Legende | Nur bei gebundener Blasengröße: drei genestete Referenzkreise (klein · mittel · groß, auf runde Werte gerundet) kompakt in der ersten freien Plot-Ecke; bei Small Multiples genau einmal. | An / Aus · Standard An |
 | Wert der Blasengröße | Nur bei gebundener Blasengröße (seit 1.55): Wert der Blasengröße in der Blase, Schrift hell oder dunkel nach Kontrast. Passt die Zahl nicht hinein, steht sie hinter dem Namen; die Namen stehen dann bevorzugt über der Blase. | An / Aus · Standard Aus |
 | Max. Blasenradius (px) | Nur bei gebundener Blasengröße (seit 1.55): Radius der größten Blase, mit dem Schrift-Preset skaliert und auf ein Fünftel der kleineren Plotkante gedeckelt (Plothöhe oder 0,8 × Breite). Große Blasen dürfen über den Achsenrand ragen, bleiben aber im Visual. | Zahl 0 bis 200 · Standard 0 = automatisch (höchstens 22 px) |
@@ -1000,6 +1073,7 @@ Seit 1.45 führt der Formatbereich nach Arbeitslogik: Die Chart-Karte steht an P
 | Dezimalstellen | Gilt unverändert für Tabelle und GuV-Statement. In Grafiken hat jede Zahl seit 1.52.1 höchstens drei Ziffern: ab 10 der Anzeige-Einheit höchstens eine Nachkommastelle, ab 100 keine. | 0–3 · Standard 1 |
 | Einheiten | — | Optionen: Auto \| Keine \| Tausend (k) \| Millionen (M) \| Milliarden (B) · Standard „Auto“ |
 | Finance-Format (Klammern) | Finanzkonvention für Zahlen: negative Werte in Klammern statt Minuszeichen — (1.234) — und Null als „–". Gilt für Wert- und Δ-Beschriftungen inkl. Δ %. | An / Aus · Standard Aus |
+| Gerundete Null | Seit 1.58 (`labels.roundedZero`): Eine Abweichung, die nicht null ist, aber auf null rundet, behält ihr Vorzeichen („+0,0“, die Richtung bleibt neben Pin oder Balken lesbar) oder steht ohne Vorzeichen wie in den Referenzblättern („0,0“). Gilt für Δ, Δ % und Pp. Exakte Nullen tragen nie ein Vorzeichen. Alle Vorlagen setzen „Ohne Vorzeichen“; KPI-Karten drucken eine gerundete Null immer ohne Vorzeichen. | Optionen: Vorzeichen behalten (+0,0) \| Ohne Vorzeichen (0,0) · Standard „Vorzeichen behalten (+0,0)“ |
 | Σ-treue Rundung der Beschriftungen | Rundet die Wertbeschriftungen nach dem Restwertverfahren so, dass sie exakt auf die Σ-Kopfzeile aufaddieren — keine Rundungsdifferenz-Nachfragen mehr. Aus = mathematisch exakte Einzelrundung, dafür erscheint bei Abweichung ein Rundungshinweis unter der Σ-Zeile. Seit 1.52.1 gilt mit der Option eine Präzision für Beschriftungen und Σ, gesetzt von der größten Zahl; ohne die Option vergleicht der Rundungshinweis die gedruckten Zahlen. | An / Aus · Standard Aus |
 | Einheit an jeder Beschriftung | Seit 1.52.1 (Property `labels.unitSuffix`): An = jede Beschriftung trägt Größenordnung und Einheit („18,5M“). Aus = nur die Zahl („18,5“), die Einheit steht einmal im Titel („Nettoumsatz in Mio. EUR“), wie es IBCS empfiehlt; KPI-Karten nehmen dann eine gemeinsame Einheit. Die Abkürzung bleibt „K“ wie in Power BI. | An / Aus · Standard An |
 
@@ -1129,6 +1203,14 @@ Aktiviere Datenbeschriftungen → „Σ-treue Rundung der Beschriftungen“. Dan
 ### Δ% zeigt „n.a.“ — warum?
 
 Seit 1.45 bewusst so: Bei Basis 0 oder einem Vorzeichenwechsel zwischen Basis und Ist wäre jede Prozentzahl irreführend (z. B. „−250 %“ bei einer Verbesserung). Das Visual zeigt dann „n.a.“ — überall: Labels, Pins, Tooltips, Tabelle, Karten, Σ-Kopf und GuV-Statement. GuV-Kostenzeilen mit durchgängig negativer Basis behalten ihre Prozente.
+
+### Seit dem Update sind die Köpfe der Δ%-Pins dunkel statt grün oder rot.
+
+Seit 1.58 zeigt der Kopf das verglichene Szenario (AC dunkel, FC fein schraffiert, PL hohl), die Bewertung trägt der Stiel; bei sehr kurzen Pins färbt sich die Beschriftung. Die Anzeige bis 1.57 bekommst du mit Chart → Darstellung → „Kopf der Δ%-Pins“ = „Abweichungsfarbe“ zurück (siehe [Pinköpfe in Szenario-Notation](#pinheads)).
+
+### Über dem Scatter fehlt „Scatter · AC × …“, an der Y-Achse das „(AC)“.
+
+Seit 1.58 standardmäßig aus, weil das Kürzel bei einer Abweichungsachse falsch wäre. Unter Chart → Scatter / Bubble holen „Charttyp im Paneltitel“ und „Szenario am Titel der Y-Achse“ beides zurück; „Charttyp in Paneltiteln“ unter Chart → Darstellung gilt für gestapelte Charts, Marimekko und Integrierte Brücke (siehe [Schlankere Titel](#paneltitles)).
 
 ### Ein Klick in einem anderen Visual filtert ChartKitchen, statt hervorzuheben.
 

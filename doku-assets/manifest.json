@@ -118,5 +118,14 @@
     "captionEn": "Template C23 (sheet 07D): one path per division over nine years, year labels, division name at the end point; for Trucks guide lines show the start-to-end variances Δ X and Δ Y." },
   { "file": "feature-scatter-ratio-rays.png", "w": 1280, "h": 720,
     "captionDe": "Quotenstrahlen (Blatt 07E): Strahlen für feste Quoten wie „Umsatz je Mitarbeiter“, hohler Kreis und Beschriftung am Austritt, dazu die Pfade zweier Länder.",
-    "captionEn": "Ratio rays (sheet 07E): rays for fixed ratios such as “sales per employee”, hollow circle and label at the exit, plus the paths of two countries." }
+    "captionEn": "Ratio rays (sheet 07E): rays for fixed ratios such as “sales per employee”, hollow circle and label at the exit, plus the paths of two countries." },
+  { "file": "feature-pin-heads.png", "w": 1920, "h": 1280,
+    "captionDe": "Säulen mit ΔPL und ΔPY: AC-Köpfe dunkel, FC-Köpfe fein schraffiert, die Stiele in Abweichungsfarbe. Kurze Pins (+2,0 %, −2,0 %) tragen ihre Farbe an der Beschriftung.",
+    "captionEn": "Columns with ΔPL and ΔPY: AC heads dark, FC heads finely hatched, the stems in the variance color. Short pins (+2.0 %, −2.0 %) carry their color on the label." },
+  { "file": "feature-table-axis.png", "w": 2560, "h": 1076,
+    "captionDe": "Vorlage C14 gegen Plan: Doppellinie als Achse der ΔPL- und ΔPL-%-Spalte, die Δ-Balken setzen an ihrer Außenkante an.",
+    "captionEn": "Template C14 against plan: a double line as the axis of the ΔPL and ΔPL % columns, the Δ bars start at its outer edge." },
+  { "file": "feature-cards-158.png", "w": 1640, "h": 632,
+    "captionDe": "Oben: Sortierknopf in der Titelzeile, Δ-Blöcke aller Karten an derselben Stelle, typografisches Minus. Mitte: „+1 Δ“ über dem Δ-Block meldet eine verdeckte Zeile. Unten: Der ersten Jahreskarte fehlt das Vorjahr, sie zeigt „PY n.a.“.",
+    "captionEn": "Top: sort button in the title row, the Δ blocks of all cards in the same place, typographic minus. Middle: “+1 Δ” above the Δ block reports a hidden row. Bottom: the first year card has no previous year and shows “PY n.a.”." }
 ]

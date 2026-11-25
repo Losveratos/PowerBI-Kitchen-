@@ -26,7 +26,7 @@ Version · **1.58.0.0** · As of · **2026-11-24** · IBCS-inspired
 
 The design is inspired by the **IBCS® principles** (International Business Communication Standards): one consistent scenario notation — **AC** (actual) filled, **PY** (prior year) grey, **PL** (plan) outlined, **FC** (forecast) hatched — and variances that are always present: absolute and relative variance panels appear automatically next to or above the base chart. Every chart reads by the same rules, whichever mode you choose.
 
-This guide describes the state of version **1.58.0.0**. The count matches the visual itself: 14 chart types (since 1.55 with “Stock & flow”) — the matrix is not a separate type but the table with the column role filled; it still gets its own card in chapter 05. New since 1.48: the start hub for getting started (chapter 03), the IBCS templates C01–C13, loading up to 30,000 rows, bookmarks that restore the selection, locked instead of silent chips, selectable empty states and real high contrast (chapter 07). Since 1.52 the visual scales according to IBCS 2.0 / ISO 24896 (chapter 07, “Scaling according to IBCS 2.0 / ISO 24896”). New in 1.53: row structure as a data contract via [rowType tokens](#rowtype), negative values in both bridges (chapter 05) and a tested [export layout](#export) with honest limits in the Power BI service (chapter 07). New in 1.54: six more IBCS templates C14 to C19 (bar tables vs. plan, horizontal category bridge, variance scatter, columns with year column), the year column on its own scale, sorting by |Δ|, Δ, Δ % or AC with a fixed rest row, the scenario notation in stacks and the ellipse highlight (chapter 07). New in 1.55: the chart type [“Stock & flow (time)”](#stockflow) with template C20 for cash, headcount and inventory (chapter 07). New in 1.56: [stack blocks with subtotals](#stackblocks), the [variance panel alone in small multiples](#varianceonly), aggregation over time and YTD for [stock and flow](#stockflow), the stacked area with template C07, the [cumulated line with the rolling year, month columns and gap markers](#cumline) with template C21 and the [series lines with an index](#serieslines) with template C22 (chapter 07). New in 1.57: the [Marimekko](#marimekko) with template C25 and the [scatter time path with ratio rays](#scatterpath) with template C23 and the [bubbles with a share sector and a total bubble](#bubbleshare) with template C24 (chapter 07).
+This guide describes the state of version **1.58.0.0**. The count matches the visual itself: 14 chart types (since 1.55 with “Stock & flow”) — the matrix is not a separate type but the table with the column role filled; it still gets its own card in chapter 05. New since 1.48: the start hub for getting started (chapter 03), the IBCS templates C01–C13, loading up to 30,000 rows, bookmarks that restore the selection, locked instead of silent chips, selectable empty states and real high contrast (chapter 07). Since 1.52 the visual scales according to IBCS 2.0 / ISO 24896 (chapter 07, “Scaling according to IBCS 2.0 / ISO 24896”). New in 1.53: row structure as a data contract via [rowType tokens](#rowtype), negative values in both bridges (chapter 05) and a tested [export layout](#export) with honest limits in the Power BI service (chapter 07). New in 1.54: six more IBCS templates C14 to C19 (bar tables vs. plan, horizontal category bridge, variance scatter, columns with year column), the year column on its own scale, sorting by |Δ|, Δ, Δ % or AC with a fixed rest row, the scenario notation in stacks and the ellipse highlight (chapter 07). New in 1.55: the chart type [“Stock & flow (time)”](#stockflow) with template C20 for cash, headcount and inventory (chapter 07). New in 1.56: [stack blocks with subtotals](#stackblocks), the [variance panel alone in small multiples](#varianceonly), aggregation over time and YTD for [stock and flow](#stockflow), the stacked area with template C07, the [cumulated line with the rolling year, month columns and gap markers](#cumline) with template C21 and the [series lines with an index](#serieslines) with template C22 (chapter 07). New in 1.57: the [Marimekko](#marimekko) with template C25 and the [scatter time path with ratio rays](#scatterpath) with template C23 and the [bubbles with a share sector and a total bubble](#bubbleshare) with template C24 (chapter 07). New in 1.58: [pin heads in scenario notation](#pinheads) with a fine FC hatch, the [variance axis of the table by basis](#tableaxis), [leaner titles](#paneltitles) on scatter and stacked charts, the [rounded zero](#roundedzero) without a sign in every template and a calm grid for the [KPI cards](#cards158) (chapter 07).
 
 ## 02 · The product family
 
@@ -374,6 +374,38 @@ For PBIR authors: set `chart.template` and the hidden property `chart.templateAp
 4. For a target value per category fill the Benchmark role — it appears as a tick marker (triangle).
 5. For a fixed target or threshold line use Scale → Reference line (value + label) instead.
 
+### Pin heads in scenario notation (since 1.58)
+
+Since 1.58 the head of a Δ% pin shows which scenario is compared; the stem carries the good or bad rating. Columns, bars, line, waterfall and the year column now read like the table and the bridges.
+
+![Columns with ΔPL and ΔPY pins in scenario notation](../doku-assets/feature-pin-heads.png)
+
+*Columns with ΔPL and ΔPY: AC heads dark, FC heads finely hatched, the stems in the variance color. Short pins (+2.0 %, −2.0 %) carry their color on the label.*
+
+1. **Head by scenario:** AC filled dark, FC finely hatched, plan against plan outlined with a dark rim. The stem is green, red or, for an immaterial variance, grey, and is now 2 px wide as in the table.
+2. **Short pins:** the head shrinks so that at least 3 px of colored stem stay visible. If even that does not fit, the Δ% label of the pin takes the variance color. A label that reads zero (“0.0%”) stays in ink.
+3. **Head shape:** “Δ%-pin shape” (`chart.pinStyle`) still offers automatic, round or square; the notation applies to both shapes.
+4. **Display up to 1.57:** setting “Δ%-pin head” (`chart.pinHeadColor`, Chart → Display) to “Variance color” brings back the colored head (FC hatched in the variance color, stem 1.6 px, head not reduced) and then also colors the heads in the table, the bridges and the P&L statement. No template sets this option.
+5. **Fine FC hatch:** FC heads and FC points use a finer pattern than the columns, so even small heads appear hatched and not empty like plan. This also applies to the points of the line, the R12 line, dumbbell and slope, the FC marks of the series lines (C22, in the color of their series), the FC reference point of the KPI trend line and the FC heads of the integrated bridge, the category bridge and the P&L statement.
+6. **High contrast** stays as before: there the head shows good (filled) or bad (outlined), because both share one color. The FC points of line, R12, dumbbell and slope are finely hatched in high contrast too.
+
+> **Existing reports:** after the update all Δ% pins in columns, bars, line, waterfall and the year column show dark heads and wider stems, FC heads and FC points are finely hatched instead of outlined. This is a notation fix; if you need the old display, set “Δ%-pin head” to “Variance color”.
+
+### Variance axis of the table by basis (since 1.58)
+
+The axes of the Δ, Δ % and second Δ columns now show what is compared, like the Δ panels of the columns (for example templates C14 to C16).
+
+![Table against plan with a double line as variance axis](../doku-assets/feature-table-axis.png)
+
+*Template C14 against plan: a double line as the axis of the ΔPL and ΔPL % columns, the Δ bars start at its outer edge.*
+
+1. Basis PL: double line. Basis FC previous month: dashed double line. Basis PY and the Ø basis: grey line as before.
+2. The second Δ column follows the second basis, as in the columns.
+3. At a double line the Δ bars start at its outer edge: a positive bar no longer covers the line and small bars stay visible. A Δ of exactly zero draws no bar there.
+4. Also in high contrast (double line in the high-contrast color). The mini Δ bars of the matrix are unchanged.
+
+> **Existing reports:** tables against plan or FC show the double line (notation fix), against PY nothing changes.
+
 ### Small multiples
 
 ![Small multiples: one tile per region on a shared axis, each with its own variance panels and a zoom icon.](../doku-assets/feature-multiples.png)
@@ -658,6 +690,15 @@ Row names are not a stable data contract: rename or translate a row and the name
 1. Under Data labels → “Finance format (parentheses)” negative values are shown in parentheses instead of a minus sign — (1,234) — and zero as “–”.
 2. This applies to value and Δ labels including Δ % and matches the P&L row types subtotal, delta and margin.
 
+### Rounded zero with or without a sign (since 1.58)
+
+A variance that is not zero but rounds to zero prints with a sign by default (“+0.00M”, “−0.0%”): the direction stays readable next to a pin or bar. The reference sheets write it without a sign.
+
+1. “Rounded zero” (`labels.roundedZero`, Data labels) offers “Keep the sign (+0.0)” (default) or “Without sign (0.0)”. Without a sign the finance parentheses and the “±” of the P&L statement are dropped too: “0.00M”, “0.0%”, “0.0pp”.
+2. Applies to all Δ, Δ % and net labels, the pp texts of table and matrix, the P&L statement, the index Δ of the series lines and the pp labels of the difference markers. Exact zeros never carry a sign.
+3. All templates C01 to C25 set “Without sign”. A report that applied a template before 1.58 keeps its display until the template is applied again; the chip “↺ Back to template” does not appear because of it.
+4. KPI cards always print a rounded zero without a sign, regardless of this option.
+
 ### IBCS title, footers & labels
 
 ![IBCS title and footers: "KPI · unit · period: scenarios" with a message line on top, filter context and data status as footers at the bottom.](../doku-assets/feature-title.png)
@@ -666,6 +707,16 @@ Row names are not a stable data contract: rename or translate a row and the name
 2. Enter a message line (IBCS: SAY) at the top or let “Auto message” build it from the total variance and the biggest drivers.
 3. Two footers are available: “Footer (data status · source)” at the bottom left and the filter footer with the bound filter-info measure plus the display state (YTD, Top-N, sorting …).
 4. Scale all fonts centrally via Data labels → Size preset (HD/Full HD/UHD — identical to the start-hub bar) and the “Scale all labels %” factor; label density controls the thinning.
+
+### Leaner titles: scatter and technical panel titles (since 1.58)
+
+Grey subtitles that only name the chart type or a possibly wrong scenario are off by default since 1.58. The title row keeps its space, no scale moves.
+
+1. **Scatter and bubble:** no more “Scatter · AC × X name” in the panel title, no “(AC)” at the Y axis title and no “· AC” in the automatic chart title. On a variance axis (such as ΔPL % as a measure, as in C18) “AC” would be wrong. The other title parts (○ bubble size, color = Δ, points outside) stay. Both come back with “Chart type in the panel title” (`chart.scatterTypeTitle`) and “Scenario at the Y axis title” (`chart.scatterScenarioTag`) under Chart → Scatter / bubble.
+2. **Technical panel titles:** no “AC · stacked” above stacked columns, bars and areas, no reading aid in the Marimekko, “PY → AC/FC” without “bridge + monthly columns” in the integrated bridge. Scenario and variance titles (AC · FC, ΔPY, ΔPL %), “shares in %”, factor and axis break always stay. To bring them back: “Chart type in panel titles” (`chart.panelTypeTitles`, Chart → Display). Pareto, dumbbell and the waterfall are not affected.
+3. Templates C09, C10, C18, C23 and C24 explicitly switch both scatter options off, templates C01, C02, C05, C07 and C25 the panel titles.
+
+> **Existing reports:** the default “off” applies to every report without a stored setting: scatter and bubble lose the type title and the “AC”, stacked charts, Marimekko and integrated bridge their technical subtitles. With the switches on everything looks as in 1.57.
 
 ### Monitoring cards (status light & bullet)
 
@@ -684,6 +735,24 @@ Row names are not a stable data contract: rename or translate a row and the name
 2. Under Chart → KPI cards pick the mini chart: a sparkline (with a PY ghost line, FC dashed, the last actual point labelled) or zero-based columns (negatives below the zero line, FC hatched) — or Off.
 3. The card value shows “Last value” (default — the Δ rows and the traffic light consistently refer to the same period) or “Sum”.
 4. Without a trend field everything stays exactly as before; other modes ignore the role (the rows are re-aggregated).
+
+### KPI cards: calm grid, missing basis and hidden rows (since 1.58)
+
+Since 1.58 a card band reads like a table: same positions, same rows, same notation. There is no new option for it.
+
+![Three card bands with sort button, +1 Δ mark and PY n.a.](../doku-assets/feature-cards-158.png)
+
+*Top: sort button in the title row, the Δ blocks of all cards in the same place, typographic minus. Middle: “+1 Δ” above the Δ block reports a hidden row. Bottom: the first year card has no previous year and shows “PY n.a.”.*
+
+1. **Δ block at a fixed position:** in the flat layout the Δ block of every card starts in the same place, after the widest title or value column; the Δ values line up. If there is nothing to draw on the right (no mini bridge, no trend, no bullet), the block moves towards the middle of the card, at most up to the middle.
+2. **One row grid for all cards:** all cards share the rows any card shows (reference values first, then ΔPL, ΔPY, ΔBM in a fixed order). If a card lacks a basis, its place shows a grey “PY n.a.” or “PL n.a.”.
+3. **Typographic minus:** card value, reference value rows and trend label write negative values with “−” like the Δ rows. Text prefixes and units stay unchanged.
+4. **Rounded zero without a sign:** a value that rounds to zero always appears without a sign and without parentheses in the cards (“0.0M€ · +0.1%”), regardless of `labels.roundedZero`. Colour, arrow and status strip still follow the unrounded Δ; a row only turns grey when Δ and Δ% both read zero.
+5. **Hidden rows are counted:** if a Δ row does not fit on the card, “+n Δ” appears (with reference value rows a neutral “+n”). The tooltip lists the hidden rows; the mark can be reached by keyboard and is visible in the export.
+6. **Sort and exception buttons with their own place:** the buttons ↕ and ⚠ no longer sit on top of the last card. They stand on the right of the visual's title row, compact in the tile header for small multiples, otherwise in a header row of their own or, if the height is missing for that, compact in the corner of the last card of the first row. Without a title and with an active mode chip (comment, structure, comparison) the visual reserves a band at the top for the chip and the buttons. The export draws no buttons.
+7. **Low cards:** if the height is not enough, the value shrinks first, then title and value move together, finally the value stands alone (the title stays in the tooltip). Card text no longer reaches below the edge.
+
+> **Existing reports:** in the flat layout the Δ block sits at a new position, further right when the bars are off. Rounded zeros lose their sign and finance parentheses, negative card values show “−”, cards without a basis show “PY n.a.” or “PL n.a.”. In the stacked layout only the width of the label column and the n.a. rows change.
 
 ### Dark mode (appearance)
 
@@ -816,6 +885,7 @@ Since 1.45 the format pane follows the working order: the Chart card sits at pos
 | Materiality from (absolute) | Materiality threshold: variances below this absolute amount are shown in grey instead of red/green (panels, waterfall steps, table). 0 = off. | from 0 · default 0 |
 | Materiality from (%) | Materiality threshold in percent: variances below this Δ % are shown in grey. If both thresholds are set, a variance must exceed both to be colored. 0 = off. | 0–100 · default 0 |
 | Δ%-pin shape | Shape of the lollipop head of the Δ% pins. "Automatic" keeps the previous style per mode (Columns/Bars/Waterfall round, bridges and table square); "Round" or "Square" unify all modes. | Options: Automatic (per mode) \| Round \| Square · default „Automatic (per mode)“ |
+| Δ%-pin head | Since 1.58 (`chart.pinHeadColor`): “Scenario” draws the head in the notation of the compared scenario (AC dark, FC finely hatched, PL outlined), only the stem carries the variance color, on very short pins also the label. “Variance color” fills the head green or red as up to 1.57 (FC hatched in the variance color, PL outlined), in all modes, including table, bridges and P&L statement. The shape is set by “Δ%-pin shape”. In high contrast filled = good, outlined = bad stays. | Options: Scenario (AC solid, FC hatched, PL outlined) \| Variance color (all modes, incl. table and bridges) · default “Scenario” |
 | Trend icons ▲▼● | Prefixes the Δ values in the table and KPI cards with direction arrows: ▲ increase, ▼ decrease, ● immaterial (below the materiality threshold). Also readable in black-and-white print and for color-blind users — color still rates good/bad. | On / Off · default Off |
 | Stack legend at the stack | Display group, since 1.52.1 (property `chart.stackLegendDirect`): stacked columns and bars show the series names right at the stack (columns: next to the last column, bars: above the widest segment of each series) instead of a key at the top. When they do not fit, the key stays. Off = always the key at the top. | On / Off · default On |
 | Stack scale | Display group, since 1.55 (`chart.stackNormalize`): stacked columns and bars as values or as 100 % per category. In 100 % mode the labels are shares with one decimal, the panel title ends in “shares in %”, and a “100 %” mark sits at the stack. If any cell is negative, the stack stays at values. For 100 % bars “Total header (Σ)” shows an absolute-total side panel on the right on its own scale. | Options: Values \| 100 % (shares) · default Values |
@@ -831,6 +901,7 @@ Since 1.45 the format pane follows the working order: the Chart card sits at pos
 | Values in the areas | Since 1.56 (`chart.areaValueLabels`), stacked area only: values in the areas, thinned out by space, only in the first and last period, or none. | Options: Automatic (thin out) \| First and last period \| Off · default Automatic |
 | Series names (columns) | Since 1.55 (`chart.stackLegendPos`): where the series names sit at the stack. right of the last column (default) or left of the first column (IBCS sheet 01E). | Options: Right of the last column \| Left of the first column · default Right |
 | Scenario labels at the columns | Since 1.54 (`chart.scenarioLabels`), columns only: AC under the first actual month, FC under the first forecast month, AC and FC next to the parts of the year column. Since 1.55 also in the chart type “Stock & flow” (row below the axis groups). Since 1.56 also in the line: the row below the axis and the code at the end of each line (FC, PL, PY); a line report with a stored value now shows them (behaviour change). Since 1.55 also PL under the first plan-only period, with a thin AC \| PL separator below the axis when the plan periods come last (IBCS sheet 13A). Since 1.55 plan-only periods always carry their plan value as a label above the outline, also without scenario labels (behaviour change). | On / Off · default Off |
+| Chart type in panel titles | Since 1.58 (`chart.panelTypeTitles`), visible for columns, bars and integrated bridge: grey panel titles that only name the chart type (“stacked” above stacked columns, bars and areas, “bridge + monthly columns” in the integrated bridge, the Marimekko reading aid). Scenario and variance titles (AC · FC, ΔPY, ΔPL %), “shares in %”, factor and axis break stay. Always visible up to 1.57. | On / Off · default Off |
 
 #### Stock & flow
 
@@ -951,6 +1022,8 @@ Since 1.45 the format pane follows the working order: the Chart card sits at pos
 | Movement arrows PY → AC | Only with prior year (PY), since 1.48: a thin arrow from a small grey PY start dot to the AC marker edge of every dot. With the “X axis PY (scatter)” role true 2D movement, otherwise only Y moves; the tooltip states Δ per axis and the axes include the PY positions. | On / Off · default Off |
 | Trend line | Linear regression over the visible dots (since 1.48) as a thin dotted line across the plot width, per tile with small multiples; computed in log space on log axes — the line stays straight. At least 3 dots. | Options: Off \| Linear · default “Off” |
 | Show R² | Only with an active trend line: labels the end of the line with the coefficient of determination (“R² = 0.87”). | On / Off · default Off |
+| Chart type in the panel title | Since 1.58 (`chart.scatterTypeTitle`): the grey panel title of scatter and bubble starts with “Scatter · AC × X name”. The other parts (○ bubble size, color = Δ, points outside the axes) always stay. Always visible up to 1.57. | On / Off · default Off |
+| Scenario at the Y axis title | Since 1.58 (`chart.scatterScenarioTag`): appends the scenario code to the Y axis title (“Revenue (AC)”) and to the automatic chart title (“Revenue · AC”). Wrong when the axis shows a variance (ΔPL % as a measure); without a measure name the code still stands alone at the Y axis. Always visible up to 1.57. | On / Off · default Off |
 | Size legend | Only with a bound bubble size: three nested reference circles (small · medium · large, rounded to friendly values) compactly in the first free plot corner; exactly once with small multiples. | On / Off · default On |
 | Bubble size value | Only with a bound bubble size (since 1.55): the bubble-size value inside the bubble, light or dark text by contrast. If the number does not fit it follows the name; names then prefer the spot above the bubble. | On / Off · default Off |
 | Max. bubble radius (px) | Only with a bound bubble size (since 1.55): radius of the largest bubble, scaled with the font preset and capped at a fifth of the shorter plot side (plot height or 0.8 × width). Large bubbles may reach past the axis edge but stay inside the visual. | Number 0 to 200 · default 0 = automatic (at most 22 px) |
@@ -1000,6 +1073,7 @@ Since 1.45 the format pane follows the working order: the Chart card sits at pos
 | Decimal places | Applies unchanged to the table and the P&L statement. In charts every number has at most three digits since 1.52.1: from 10 of the display unit at most one decimal, from 100 none. | 0–3 · default 1 |
 | Display units | — | Options: Auto \| None \| Thousands (k) \| Millions (M) \| Billions (B) · default „Auto“ |
 | Finance format (parentheses) | Finance convention for numbers: negative values in parentheses instead of a minus sign — (1,234) — and zero as "–". Applies to value and Δ labels including Δ %. | On / Off · default Off |
+| Rounded zero | Since 1.58 (`labels.roundedZero`): a variance that is not zero but rounds to zero keeps its sign (“+0.0”, the direction stays readable next to a pin or bar) or is printed without a sign like the reference sheets (“0.0”). Applies to Δ, Δ % and pp. Exact zeros never carry a sign. All templates set “Without sign”; KPI cards always print a rounded zero without a sign. | Options: Keep the sign (+0.0) \| Without sign (0.0) · default “Keep the sign (+0.0)” |
 | Sum-safe label rounding | Rounds the value labels using the largest-remainder method so they add up exactly to the Σ header — no more rounding-difference questions. Off = mathematically exact individual rounding, but a rounding note appears below the Σ row when there is a discrepancy. Since 1.52.1 the option applies one precision to labels and Σ, set by the largest number; without it the rounding note compares the printed numbers. | On / Off · default Off |
 | Unit on every label | Since 1.52.1 (property `labels.unitSuffix`): On = every label carries magnitude and unit (“18.5M”). Off = the number only (“18.5”), the unit appears once in the title (“Net revenue in mEUR”), as IBCS recommends; KPI cards then use one common unit. The abbreviation stays “K” as in Power BI. | On / Off · default On |
 
@@ -1129,6 +1203,14 @@ Enable Data labels → “Sum-safe label rounding”. The individual labels are 
 ### Δ% shows “n.a.” — why?
 
 Deliberate since 1.45: when the basis is 0 or the sign flips between basis and actual, any percentage would be misleading (e.g. “−250 %” for an improvement). The visual then shows “n.a.” — everywhere: labels, pins, tooltips, table, cards, Σ header and the P&L statement. P&L cost rows with a consistently negative basis keep their percentages.
+
+### Since the update the heads of the Δ% pins are dark instead of green or red.
+
+Since 1.58 the head shows the compared scenario (AC dark, FC finely hatched, PL outlined) and the stem carries the rating; on very short pins the label takes the color. You get the display up to 1.57 back with Chart → Display → “Δ%-pin head” = “Variance color” (see [pin heads in scenario notation](#pinheads)).
+
+### “Scatter · AC × …” is missing above the scatter, and “(AC)” at the Y axis.
+
+Off by default since 1.58, because the code would be wrong on a variance axis. Under Chart → Scatter / bubble, “Chart type in the panel title” and “Scenario at the Y axis title” bring both back; “Chart type in panel titles” under Chart → Display covers stacked charts, Marimekko and integrated bridge (see [leaner titles](#paneltitles)).
 
 ### Clicking in another visual filters ChartKitchen instead of highlighting it.
 
