@@ -105,7 +105,7 @@ From the point of view of someone presenting the month-end close:
 
 If you want to try it: the [quick start](../pnl-schnellstart_en.html) gets you to a first P&L in two minutes, and the [documentation of the views](../pnl-doku_en.html#views) describes the Sankey in detail.
 
-Version 1.8.3.0 · .pbiviz
+Version 1.8.4.0 · .pbiviz
 
 ### Switch it yourself
 

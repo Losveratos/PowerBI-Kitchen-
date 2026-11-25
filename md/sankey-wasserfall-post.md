@@ -105,7 +105,7 @@ Aus Sicht von jemandem, der den Monatsabschluss präsentiert:
 
 Wer es ausprobieren will: Der [Schnellstart](../pnl-schnellstart.html) führt in zwei Minuten zur ersten GuV, die [Doku zu den Ansichten](../pnl-doku.html#views) beschreibt den Sankey im Detail.
 
-Version 1.8.3.0 · .pbiviz
+Version 1.8.4.0 · .pbiviz
 
 ### Selbst umschalten
 
