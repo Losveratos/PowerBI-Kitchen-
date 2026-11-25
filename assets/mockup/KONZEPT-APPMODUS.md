@@ -107,10 +107,9 @@ gleicher `viewGroup` sind eine Seite mit Umschalter, die Filter bleiben beim Wec
 
 Ideen, die daran anschließen (nicht gebaut):
 
-1. **Rollen-Assistent im Einrichten-Modus:** das Tool schlägt aus dem Modell passende Felder je Rolle vor (ein Klick
-   statt Ziehen), erkennt Szenario-Kennzahlen am Namen und füllt AC, PL, PY.
-2. **Visual-Wechsel je Kachel:** kleiner Schalter an einer einzelnen Kachel (Diagramm oder Tabelle), ohne die ganze
-   Seite als Ansicht zu doppeln.
+1. ~~Rollen-Assistent im Einrichten-Modus~~ gebaut in 0.8.1 (Feld-Vorschläge je Rolle, „Felder vorschlagen“).
+2. ~~Visual-Wechsel je Kachel~~ gebaut in 0.8.1 (`v.alts`, Schalter in der Kachel). Für dwg: `visuals[].alternatives`
+   sind weitere Fassungen derselben Kachel am selben Platz.
 3. **Startseite statt leerem Editor:** drei große Einstiege (Vorlage, Tour, eigenes Modell laden) und zuletzt
    bearbeitete Projekte.
 4. **Befehlspalette (Strg+K):** alles per Suche erreichbar, entlastet die Kopfleiste.

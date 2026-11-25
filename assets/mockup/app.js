@@ -1,6 +1,6 @@
 /* MockupKitchen · App-Kern v0.2: Zustand (mehrere Seiten), Container-Layout, Rendering, Interaktion, Datenmodell (TMDL/Demo) */
 // Einzige Quelle der Tool-Version: Kopfzeile, meta.version der Spec, AGENT-BRIEF und WORKSHOP-DOKU lesen diesen Wert.
-window.MK_VERSION = '0.8.0';
+window.MK_VERSION = '0.8.1';
 (function () {
   'use strict';
   const CAT = window.MK_CATALOG;
@@ -1158,6 +1158,8 @@ window.MK_VERSION = '0.8.0';
     const ALIAS = { ac: ['indicator', 'values', 'y'], indicator: ['ac', 'values'], ref: ['goal'], goal: ['ref'], values: ['ac', 'indicator'], category: ['rows', 'field'], rows: ['category'], field: ['category'] };
     def.roles.forEach(r => { const src = [r.key].concat(ALIAS[r.key] || []).find(k => old.roles && old.roles[k] && old.roles[k].length); if (src) roles[r.key] = old.roles[src].filter(f => r.kind === 'any' || f.kind === r.kind).slice(0, r.max); });
     n.visual = normVisual(Object.assign({ kind, engine: def.engine, title: old.title || '', sub: old.sub || '', scenario: old.scenario || S.defScenario, roles, notes: old.notes || '', link: old.link || '' }, old.dflt ? { dflt: JSON.parse(JSON.stringify(old.dflt)) } : {}));
+    // Alternativen der Kachel (Visual-Wechsel, ab 0.8.1) hängen an der Kachel, nicht am Typ
+    if (old.alts && old.alts.length) { n.visual.alts = old.alts; n.visual.altIx = old.altIx || 0; if (old.altLabel) n.visual.altLabel = old.altLabel; }
     sel = id; commit();
   }
   function assignField(id, f, roleKey) {

@@ -142,6 +142,7 @@
   .tg-scheme .sw{display:inline-flex;width:38px;height:14px;border-radius:999px;overflow:hidden;border:1px solid var(--line)}
   .tg-scheme .sw i{flex:1}
   body.present .simple-sw{display:none}
+  @media (max-width:1640px){.topbar input.name{flex:0 1 130px;width:130px;min-width:100px}.topbar{gap:6px}.topbar .btn{padding-left:9px;padding-right:9px}#btnTour .mkt-lbl{display:none}}
   body.simple #btnImportTmdl,body.simple #dsTypo,body.simple #dsA11y,body.simple #secNav,body.simple #btnDiff,body.simple #btnGridCheck,body.simple #btnGridCheck2,body.simple #btnSplitRoot,body.simple .tab[data-tab="report"],
   body.simple #dsFormat .field:has(#spPixel),body.simple #dsFormat .field:has(#spMargin),body.simple #dsFormat .grid3:has(#spMargin),body.simple #dsFormat .field:has(#defScenario),body.simple #uiScaleInfo,
   body.simple #secHeader .field:has(#hdNav),body.simple #secHeader .toggle:has(#hdNavAuto),body.simple #secHeader .grid2:has(#hdH),
@@ -149,6 +150,20 @@
   body.simple #secFooter .grid2:has(#ffH),body.simple #dsColors .field:has(#dsNative),body.simple #dsSurface .field:has(#dsRadius),
   body.simple #insEl details[data-grp="variants"],body.simple #insEl details[data-grp="ckopts"],body.simple #insEl details[data-grp="workshop"],body.simple #insEl .field:has(> .engine),
   body.simple #pageNotes,body.simple label[for="pageNotes"],body.simple #onlyUsed,body.simple label:has(#onlyUsed){display:none!important}
+  /* Feld-Vorschläge je Rolle (Kachel-Reiter) */
+  #insEl .role .sugg{display:flex;flex-wrap:wrap;gap:4px;margin-top:4px;align-items:center}
+  #insEl .role .sugg small{font-size:10px;color:var(--ink-mute);text-transform:uppercase;letter-spacing:.05em}
+  #insEl .role .sugg button{border:1px dashed var(--line-strong);background:var(--bg-card);border-radius:999px;padding:1px 8px;font-size:11px;color:var(--ink-soft);font-family:var(--ff-mono)}
+  #insEl .role .sugg button:hover{border-style:solid;border-color:var(--accent);color:var(--ink);background:var(--accent-soft)}
+  /* Visual-Wechsel an einer Kachel */
+  .tile .t-alts{position:absolute;top:calc(5px * var(--ui));right:calc(34px * var(--ui));display:flex;border:1px solid rgba(15,30,46,.25);border-radius:calc(6px * var(--ui));overflow:hidden;background:var(--tile-bg,#fff);z-index:3;font-size:calc(9.5px * var(--ui));line-height:1}
+  .tile .t-alts span{padding:calc(3.5px * var(--ui)) calc(7px * var(--ui));cursor:pointer;white-space:nowrap;border-right:1px solid rgba(15,30,46,.15);color:#475569;max-width:calc(90px * var(--ui));overflow:hidden;text-overflow:ellipsis}
+  .tile .t-alts span:last-child{border-right:0}
+  .tile .t-alts span.act{background:var(--accent);color:#fff}
+  .tile.tiny .t-alts{display:none}
+  .page.focus .tile:not(.foc) .t-alts{display:none}
+  .tile-bar .sep{width:1px;height:16px;background:rgba(255,255,255,.25);margin:0 2px}
+  .tile-bar button.ghost{opacity:.85}
   /* Typauswahl */
   dialog#dlgCatalog{width:min(96vw,1180px);max-width:min(96vw,1180px)}
   .cat-filter{display:flex;flex-wrap:wrap;gap:6px;align-items:center;padding:10px 18px 0}
@@ -302,7 +317,7 @@
   // Klick auf die Chip-Zeile im Entwurf öffnet den Abschnitt (in der Präsentation übernimmt stage.js)
   document.addEventListener('click', e => {
     if (document.body.classList.contains('present')) return;
-    if (!e.target.closest('#page [data-chipzone]')) return;
+    if (!e.target.closest || !e.target.closest('#page [data-chipzone]')) return;
     MK.showTab('chrome'); sec.open = true; sec.scrollIntoView({ block: 'nearest' }); sec.classList.add('flash'); setTimeout(() => sec.classList.remove('flash'), 1300);
   });
 
@@ -468,7 +483,7 @@
   // ------------------------------------------------------------------ Kachel-Leiste und Einrichten-Modus
   // Klick auf eine Kachel zeigt an ihr zwei Wege: „Visual wählen" (Typauswahl) und „Einrichten" (die Kachel groß im Blick,
   // Felder links ziehen oder rechts zuordnen, dann zurück). Im Einrichten-Modus wird aus der Leiste „Fertig".
-  const tbar = el(`<div class="tile-bar hide-present" id="tileBar" role="toolbar"><span class="ttl" id="tbTitle"></span><button type="button" data-tb="pick"></button><button type="button" class="pri" data-tb="setup"></button></div>`);
+  const tbar = el(`<div class="tile-bar hide-present" id="tileBar" role="toolbar"><span class="ttl" id="tbTitle"></span><button type="button" data-tb="pick"></button><button type="button" class="ghost" data-tb="auto"></button><button type="button" class="ghost" data-tb="alt"></button><button type="button" class="ghost" data-tb="altdrop"></button><button type="button" class="pri" data-tb="setup"></button></div>`);
   const fhint = el(`<div class="focus-hint" id="focusHint"></div>`);
   document.body.appendChild(tbar); document.body.appendChild(fhint);
   function placeTileBar() {
@@ -480,6 +495,10 @@
     $('#tbTitle').style.display = focus ? '' : 'none';
     tbar.querySelector('[data-tb="pick"]').textContent = v ? t('tb.pick') : t('tb.pickEmpty');
     const sb = tbar.querySelector('[data-tb="setup"]'); sb.textContent = focus ? t('tb.done') : t('tb.setup'); sb.style.display = v ? '' : 'none';
+    const hasEmpty = !!(v && def && CAT.rolesFor(def, v).some(r => !((v.roles || {})[r.key] || []).length));
+    const ab = tbar.querySelector('[data-tb="auto"]'); ab.textContent = t('tb.auto'); ab.style.display = focus && hasEmpty ? '' : 'none';
+    const al = tbar.querySelector('[data-tb="alt"]'); al.textContent = t('tb.alt'); al.style.display = focus && v ? '' : 'none';
+    const ad = tbar.querySelector('[data-tb="altdrop"]'); ad.textContent = t('tb.altDrop'); ad.style.display = focus && v && (v.alts || []).length ? '' : 'none';
     tbar.classList.add('on');
     const r = tile.getBoundingClientRect(), st = $('#stage').getBoundingClientRect(), bw = tbar.offsetWidth || 260, bh = tbar.offsetHeight || 34;
     let x = r.left + r.width / 2 - bw / 2, y = r.top - bh - 8;
@@ -492,11 +511,14 @@
   tbar.addEventListener('click', e => {
     const b = e.target.closest('[data-tb]'); if (!b) return;
     if (b.dataset.tb === 'pick') { MK.openCatalog(); return; }
+    if (b.dataset.tb === 'auto') { autoFill(); return; }
+    if (b.dataset.tb === 'alt') { addAlt(); return; }
+    if (b.dataset.tb === 'altdrop') { dropAlt(); return; }
     if (MK.focusId) MK.unfocusTile(); else MK.focusTile(MK.sel);
   });
   { const stg = $('#stage'); if (stg) stg.addEventListener('scroll', placeTileBar, { passive: true }); }
   // Auswahl per Klick oder Taste zeichnet nicht neu (kein mk:rendered), deshalb hier nachziehen
-  document.addEventListener('click', () => setTimeout(placeTileBar, 0));
+  document.addEventListener('click', () => setTimeout(() => { placeTileBar(); decorateRoles(); }, 0));
   document.addEventListener('keyup', e => { if (e.key === 'Escape' || e.key === 'Tab' || e.key === 'Enter' || e.key.indexOf('Arrow') === 0) setTimeout(placeTileBar, 0); });
   window.addEventListener('resize', () => setTimeout(placeTileBar, 60));
   // Esc beendet zuerst den Einrichten-Modus (vor den Kürzeln des Editors)
@@ -507,6 +529,111 @@
   }, true);
   // Nach dem Schließen der Typauswahl die Leiste wieder zeigen
   $$('dialog').forEach(d => d.addEventListener('close', () => setTimeout(placeTileBar, 30)));
+
+  // ------------------------------------------------------------------ Feld-Vorschläge je Rolle
+  // Für leere Rollen schlägt das Tool passende Felder aus dem Modell vor (ein Klick statt Ziehen). Die Regeln sind bewusst
+  // einfach und lesen nur Namen und Feldart: Zeitfelder, Szenario-Kennzahlen (AC, PL, PY, BU, FC), Dimensionen ohne Schlüssel.
+  const RX = { time: /(^|[^a-z])(month|monat|date|datum|period|periode|quarter|quartal|year|jahr|week|woche)/i, key: /(key|id|sort|nr|code|order)$/i,
+    fc: /forecast|prognose|isfc|fcflag/i, rowtype: /row.?type|zeilentyp/i, geo: /country|land|region|city|stadt|state|bundesland/i, start: /start|begin|von|from/i, end: /end|ende|bis|to$/i,
+    dim: /category|kategorie|product|produkt|region|customer|kunde|account|konto|segment|channel|kanal|brand|marke|department|abteilung|costcenter|kostenstelle|company|gesellschaft/i, delta: /^Δ|delta|abw/i };
+  function modelFields() {
+    const out = []; ((S().model || {}).tables || []).forEach(tb => {
+      (tb.columns || []).forEach(c => { if (!c.hidden) out.push({ table: tb.name, name: c.name, kind: 'column', type: String(c.type || '') }); });
+      (tb.measures || []).forEach(m => { if (!m.hidden) out.push({ table: tb.name, name: m.name, kind: 'measure', type: 'measure' }); });
+    }); return out;
+  }
+  function suggestFor(v, role, all) {
+    const used = new Set(Object.keys(v.roles || {}).flatMap(k => (v.roles[k] || []).map(f => f.table + '.' + f.name)));
+    const refs = String(v.scenario || '').split(/[\/,\s]+/).filter(x => x && x !== 'AC');
+    const isTime = role.labelKey === 'time' || role.labelKey === 'timeSpark' || role.labelKey === 'period';
+    const score = f => {
+      if (used.has(f.table + '.' + f.name)) return -1;
+      if (role.kind !== 'any' && role.kind !== f.kind) return -1;
+      const nm = f.name, basis = f.kind === 'measure' && MK.basisOfName ? MK.basisOfName(nm, true) : null;
+      if (f.kind === 'measure') {
+        if (RX.delta.test(nm) || /%/.test(nm)) return role.key === 'values' ? 0.4 : (role.key === 'x' || role.key === 'y' ? 0.6 : -1);
+        if (role.key === 'ref' || role.key === 'goal') { const i = refs.indexOf(basis); return basis && basis !== 'AC' ? (i >= 0 ? 5 - i : (role.key === 'goal' && basis === 'PL' ? 3 : 1)) : -1; }
+        if (role.key === 'fc') return basis === 'FC' ? 4 : -1;
+        if (role.key === 'ac') return nm === 'AC' || basis === 'AC' ? 5 : (basis ? -1 : 2);
+        return basis && basis !== 'AC' ? 0.3 : (basis === 'AC' || nm === 'AC' ? 1 : 2.5);          // indicator, values, x, y, size: fachliche Kennzahlen vor Szenario-Kennzahlen
+      }
+      const isKey = RX.key.test(nm), isNum = /int|double|decimal|number/i.test(f.type), tim = RX.time.test(nm) || /date/i.test(f.type);
+      if (role.key === 'fc') return RX.fc.test(nm) ? 5 : -1;
+      if (role.key === 'rowType') return RX.rowtype.test(nm) ? 5 : -1;
+      if (role.key === 'start') return /date/i.test(f.type) || RX.start.test(nm) ? (RX.start.test(nm) ? 4 : 2) : -1;
+      if (role.key === 'end') return /date/i.test(f.type) || RX.end.test(nm) ? (RX.end.test(nm) ? 4 : 2) : -1;
+      if (isTime) return tim && !isKey ? (/^month$|^monat$/i.test(nm) ? 5 : /month|monat/i.test(nm) ? 4 : /quarter|quartal/i.test(nm) ? 3 : /year|jahr/i.test(nm) ? 2.5 : 2) : -1;
+      if (role.labelKey === 'geo') return RX.geo.test(nm) ? 4 : -1;
+      if (isKey || isNum || RX.rowtype.test(nm) || RX.fc.test(nm)) return -1;
+      if (tim) return 0.5;
+      return (RX.dim.test(nm) ? 3 : 1.5) + (/^dim/i.test(f.table) ? 0.5 : 0);
+    };
+    return all.map(f => ({ f, s: score(f) })).filter(x => x.s > 0).sort((a, b) => b.s - a.s).slice(0, 3);
+  }
+  const curLeaf = () => { const id = MK.sel; return id ? MK.leaves(MK.page().layout).find(l => l.id === id) : null; };
+  function putField(leaf, roleKey, f) { const v = leaf.visual; v.roles = v.roles || {}; (v.roles[roleKey] = v.roles[roleKey] || []).push({ table: f.table, name: f.name, kind: f.kind, isNew: false }); }
+  function decorateRoles() {
+    const ins = $('#insEl'), leaf = curLeaf(); if (!ins || !leaf || !leaf.visual) return;
+    const v = leaf.visual, def = CAT.byId[v.kind]; if (!def) return; const all = modelFields(); if (!all.length) return;
+    const roles = CAT.rolesFor(def, v);
+    $$('.role[data-role]', ins).forEach(rEl => {
+      if (rEl.querySelector('.sugg')) return;
+      const role = roles.find(x => x.key === rEl.dataset.role); if (!role || ((v.roles || {})[role.key] || []).length) return;
+      const sg = suggestFor(v, role, all); if (!sg.length) return;
+      const box = document.createElement('div'); box.className = 'sugg';
+      box.innerHTML = `<small>${esc(t('sg.cap'))}</small>` + sg.map(x => `<button type="button" data-sgrole="${esc(role.key)}" data-sgf="${esc(JSON.stringify(x.f))}" title="${esc(x.f.table + '.' + x.f.name)}">+ ${esc(x.f.name)}</button>`).join('');
+      rEl.appendChild(box);
+    });
+  }
+  // Alle leeren Rollen mit dem besten Vorschlag füllen (nur sichere Treffer), ein Rückgängig-Schritt
+  function autoFill() {
+    const leaf = curLeaf(); if (!leaf || !leaf.visual) return 0; const v = leaf.visual, def = CAT.byId[v.kind]; if (!def) return 0;
+    const all = modelFields(); let n = 0;
+    CAT.rolesFor(def, v).forEach(role => {
+      if (((v.roles || {})[role.key] || []).length) return;
+      const sg = suggestFor(v, role, all); if (!sg.length) return;
+      if (sg[0].s < (role.req ? 1.5 : 3)) return;                         // freiwillige Rollen nur bei klarem Treffer
+      putField(leaf, role.key, sg[0].f); n++;
+    });
+    if (n) MK.commit({ keep: true });
+    MK.toast(n ? t('sg.filled', { n }) : t('sg.none'));
+    return n;
+  }
+  document.addEventListener('click', e => {
+    const b = e.target.closest ? e.target.closest('#insEl .sugg [data-sgf]') : null; if (!b) return;
+    const leaf = curLeaf(); if (!leaf || !leaf.visual) return;
+    let f = null; try { f = JSON.parse(b.dataset.sgf); } catch (err) { f = null; } if (!f) return;
+    putField(leaf, b.dataset.sgrole, f); MK.commit({ keep: true });
+  });
+
+  // ------------------------------------------------------------------ Visual-Wechsel an einer Kachel
+  // Eine Kachel kann mehrere Fassungen haben (z. B. Diagramm und Tabelle). Gezeigt und bearbeitet wird immer eine; die anderen
+  // liegen in v.alts, v.altIx ist die Stelle der gezeigten Fassung in der Reihenfolge. Der Schalter sitzt oben rechts in der Kachel.
+  const altLabel = a => a.altLabel || ((CAT.byId[a.kind] || {}).label || a.kind).replace(/\s*\(.*\)\s*$/, '');
+  function altList(v) { const rest = (v.alts || []).slice(); const ix = Math.max(0, Math.min(v.altIx || 0, rest.length)); const cur = Object.assign({}, v); delete cur.alts; delete cur.altIx; rest.splice(ix, 0, cur); return { list: rest, ix }; }
+  function setAlts(leaf, list, ix) { const act = Object.assign({}, list[ix]); const rest = list.filter((x, i) => i !== ix).map(x => { const o = Object.assign({}, x); delete o.alts; delete o.altIx; return o; }); if (rest.length) { act.alts = rest; act.altIx = ix; } else { delete act.alts; delete act.altIx; } leaf.visual = act; }
+  function switchAlt(leaf, j) { const a = altList(leaf.visual); if (j === a.ix || !a.list[j]) return false; setAlts(leaf, a.list, j); return true; }
+  function addAlt() { const leaf = curLeaf(); if (!leaf || !leaf.visual) return; const a = altList(leaf.visual); const copy = JSON.parse(JSON.stringify(a.list[a.ix])); delete copy.altLabel; a.list.splice(a.ix + 1, 0, copy); setAlts(leaf, a.list, a.ix + 1); MK.commit({ keep: true }); MK.toast(t('alt.added')); MK.openCatalog(); }
+  function dropAlt() { const leaf = curLeaf(); if (!leaf || !leaf.visual || !(leaf.visual.alts || []).length) return; const a = altList(leaf.visual); a.list.splice(a.ix, 1); setAlts(leaf, a.list, Math.max(0, a.ix - 1)); MK.commit({ keep: true }); MK.toast(t('alt.dropped')); }
+  function decorateAlts() {
+    const pageEl = $('#page'); if (!pageEl) return;
+    MK.leaves(MK.page().layout).forEach(leaf => {
+      const v = leaf.visual; if (!v || !(v.alts || []).length) return;
+      const tile = pageEl.querySelector('.tile[data-leaf="' + CSS.escape(leaf.id) + '"]'); if (!tile || tile.querySelector('.t-alts')) return;
+      const a = altList(v); const box = document.createElement('div'); box.className = 't-alts'; box.setAttribute('role', 'group');
+      box.innerHTML = a.list.map((x, i) => `<span class="${i === a.ix ? 'act' : ''}" data-alt="${i}" data-altleaf="${esc(leaf.id)}" title="${esc(altLabel(x))}">${esc(altLabel(x))}</span>`).join('');
+      tile.appendChild(box);
+    });
+  }
+  // Klick auf den Schalter: im Entwurf als Schritt (rückgängig), in der Präsentation ohne Spur im Verlauf
+  document.addEventListener('click', e => {
+    const s = e.target.closest ? e.target.closest('#page .t-alts [data-alt]') : null; if (!s) return;
+    e.stopPropagation(); e.preventDefault();
+    const leaf = MK.leaves(MK.page().layout).find(l => l.id === s.dataset.altleaf); if (!leaf) return;
+    if (!switchAlt(leaf, +s.dataset.alt)) return;
+    if (document.body.classList.contains('present')) MK.render({ inspector: false }); else { MK.selectTile(leaf.id); MK.commit({ keep: true }); }
+  }, true);
+  ['mousedown', 'pointerdown', 'dblclick'].forEach(ev => document.addEventListener(ev, e => { if (e.target.closest && e.target.closest('#page .t-alts')) e.stopPropagation(); }, true));
 
   // ------------------------------------------------------------------ Ansichten einer Seite (Reiter Seite)
   const vbox = el(`<details class="sub" id="pgViews" open><summary><span data-i18n="pv.sec"></span><span class="cnt" id="pvCnt" hidden></span></summary>
@@ -557,7 +684,7 @@
     pill.querySelector('.ic').textContent = TG_LETTER[tg]; pill.querySelector('.nm').textContent = t('target.' + tg);
     const sel = $('#rpTarget'); if (sel && document.activeElement !== sel) sel.value = tg;
     const hint = $('#rpTargetHint'); if (hint) hint.textContent = t('target.' + tg + '.hint');
-    renderViews(false); renderScheme(); renderPageViews(); placeTileBar();
+    renderViews(false); renderScheme(); renderPageViews(); decorateAlts(); placeTileBar(); decorateRoles();
     if (bar && dlgCat && dlgCat.open) buildBar();
   }
   window.addEventListener('mk:rendered', sync);
@@ -567,5 +694,5 @@
   buildBar();
   sync();
 
-  window.MK_APPMODE = { applyTarget, openTargetDialog, fitsApp, tagsOf, pick, applyScheme, parseColors, setBrand, brandMapping, setSimple, placeTileBar };
+  window.MK_APPMODE = { applyTarget, openTargetDialog, fitsApp, tagsOf, pick, applyScheme, parseColors, setBrand, brandMapping, setSimple, placeTileBar, suggestFor, autoFill, addAlt, dropAlt, switchAlt, altList };
 })();

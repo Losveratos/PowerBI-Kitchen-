@@ -314,7 +314,9 @@
 
     var navPos = (ctx.S.chrome && ctx.S.chrome.navPos) || (c.navOn === false ? 'off' : 'header');
     var names = navPos !== 'header' ? [] : (c.navAuto ? S.pages.map(function (pg) { return pg.name; }) : (c.nav || []).slice());
-    var cur = c.navAuto ? ctx.p.name : names[0];
+    var famP = (mk().viewFamily ? mk().viewFamily(ctx.p) : { root: ctx.p, members: [ctx.p] });
+    if (c.navAuto && navPos === 'header') names = S.pages.filter(function (pg) { return !pg.role || pg.role === 'nav'; }).map(function (pg) { return pg.name; });
+    var cur = c.navAuto ? famP.root.name : names[0];
     var navW = 0, items = [];
     if (names.length) {
       var fs = 11.5 * k, bh2 = Math.round(fs * LH + 10 * k + 2), g2 = 6 * k;
@@ -347,6 +349,20 @@
     var top = cy - blockH / 2;
     out += tx(x, top + tfs * ASC, title, { size: tfs, weight: 600, fill: fg });
     if (c.sub) out += tx(x, top + tfs * LH + sfs * ASC, fit(c.sub, maxW, sfs), { size: sfs, fill: fg, opacity: 0.7 });
+    /* Ansichten-Schalter (Seiten mit viewOf) rechts neben dem Titelblock */
+    if (famP.members.length > 1) {
+      var vfs = 11.5 * k, vh = Math.round(vfs * LH + 10 * k), vx = x + Math.max(textW(title, tfs, 600), c.sub ? textW(c.sub, sfs) : 0) + 18 * k;
+      var vItems = famP.members.map(function (m) { var lab = m.viewLabel || m.name; return { t: lab, w: Math.round(textW(lab, vfs) + 24 * k), act: m.id === ctx.p.id }; });
+      var vW = vItems.reduce(function (a, it) { return a + it.w; }, 0);
+      if (vx + vW <= rightX) {
+        out += rc(vx, cy - vh / 2, vW, vh, { r: 7 * k, stroke: light ? 'rgba(15,30,46,.28)' : 'rgba(255,255,255,.4)', sw: 1 });
+        vItems.forEach(function (it) {
+          if (it.act) out += rc(vx, cy - vh / 2, it.w, vh, { r: 7 * k, fill: style === 'accent' ? '#0F1E2E' : ctx.accent });
+          out += tx(vx + it.w / 2, cy + vfs * MID, it.t, { size: vfs, anchor: 'middle', fill: it.act ? '#FFFFFF' : fg });
+          vx += it.w;
+        });
+      }
+    }
     return out;
   }
 

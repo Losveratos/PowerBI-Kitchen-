@@ -70,7 +70,7 @@
   body.present .page .tile:hover{box-shadow:0 6px 22px rgba(15,30,46,.16);transform:translateY(-1px)}
   body.present .page .tile.sel{box-shadow:none}
   body.present .page .tile.empty{visibility:hidden}
-  body.present .page .tile .badges,body.present .page .tile .rchip.ph{display:none}
+  body.present .page .tile .badges,body.present .page .tile .rchip.ph,body.present .page .tile .t-actions{display:none}
   body.present .page .tile.st-src{box-shadow:0 0 0 calc(2px * var(--ui)) #1F7A6D,0 8px 26px rgba(31,122,109,.25)}
   body.present .page .tile.st-dim{opacity:.92}
   body.present .page .tile.st-link::after{content:"↗";position:absolute;right:calc(7px * var(--ui));top:calc(5px * var(--ui));font-size:calc(11px * var(--ui));color:var(--accent);opacity:.85}

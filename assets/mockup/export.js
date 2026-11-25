@@ -79,6 +79,13 @@
     const z = MK.zones(); const issues = []; const links = []; const target0 = (MK.TARGETS || []).includes(S.target) ? S.target : 'pbi';
     const issue = (level, code, text, page, visual) => issues.push({ level, code, text, page: page || null, visual: visual || null });
     const fieldOut = f => Object.assign({ table: f.table, name: f.name, kind: f.kind, ref: fieldRef(f) }, liveFlags(f));
+    // Visual-Wechsel an einer Kachel (ab 0.8.1): die gezeigte Fassung steht wie immer in der Kachel, die anderen in alternatives[]
+    const altOut = (v, pageName, id, title) => {
+      const alts = v.alts || []; if (!alts.length) return {};
+      const lab = a => a.altLabel || (CAT.byId[a.kind] || {}).label || a.kind;
+      issue(target0 === 'pbi' ? 'warn' : 'info', target0 === 'pbi' ? 'BOOKMARKS_TILE_SWITCH' : 'APP_TILE_SWITCH', T(target0 === 'pbi' ? 'exp.issue.tileSwitchPbi' : 'exp.issue.tileSwitchApp', { t: title, n: alts.length + 1 }), pageName, id);
+      return { switchLabel: lab(v), switchIndex: v.altIx || 0, alternatives: alts.map(a => { const d = CAT.byId[a.kind] || {}; const r = {}; Object.keys(a.roles || {}).forEach(k => { r[k] = (a.roles[k] || []).map(f => f.table + '.' + f.name); }); return { label: lab(a), kind: a.kind, engine: a.engine, chartKitchenMode: a.engine === 'ck' ? (d.ckMode || null) : null, title: a.title || '', roles: r }; }) };
+    };
     const pages = S.pages.map((p, pi) => {
       const all = MK.computeAll(p);
       const visuals = all.leaves.filter(l => l.node.visual).map(l => {
@@ -131,7 +138,7 @@
           typography: v.typo && v.typo.scale ? { scale: v.typo.scale } : null,
           samples: MK.samplesOf ? MK.samplesOf(v) : null,
           interaction: { drillDown: !!(v.interaction || {}).drillDown, crossFilter: (v.interaction || {}).crossFilter !== false, drillThrough: target && v.kind !== 'button' ? { pageId: target.id, pageName: target.name, field: cat ? fieldRef(cat) : null } : null },
-          rect: l.rect, ...(l.cell ? { cell: l.cell } : {}), roles, notes: v.notes || '', link: target ? { pageId: target.id, pageName: target.name } : null, warnings: vw,
+          rect: l.rect, ...(l.cell ? { cell: l.cell } : {}), roles, ...altOut(v, p.name, id, title), notes: v.notes || '', link: target ? { pageId: target.id, pageName: target.name } : null, warnings: vw,
           // Herkunft aus dem Projekt (MK_PBIR): der Runner aktualisiert dieses PBIR-Visual per Delta statt ein neues anzulegen (CONTRACT.md)
           pbir: pbirOf(v.pbir, true),
         };

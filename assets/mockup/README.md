@@ -3,6 +3,22 @@
 Positionierung (aus dem Review): kein Report-Generator, sondern ein **Anforderungswerkzeug mit deterministischem
 Ausgang**. Der Workshop legt Struktur, Felder und Entscheidungen fest; der Bau ist eine Ableitung.
 
+## Neu in v0.8.1 (25.11.2026, lokal auf `feat/mockup-kitchen`)
+
+- **Feld-Vorschläge je Rolle** (`suggestFor`, `autoFill` in `appmode.js`): Leere Rollen im Kachel-Reiter zeigen bis zu
+  drei passende Felder aus dem Modell als Knöpfe, ein Klick ordnet zu. Im Einrichten-Modus füllt „Felder vorschlagen“
+  alle leeren Rollen auf einmal (Pflichtrollen immer, freiwillige nur bei klarem Treffer), als ein Rückgängig-Schritt.
+  Die Regeln lesen nur Namen und Feldart: Zeitfelder, Szenario-Kennzahlen (AC, PL, PY, BU, FC nach dem Szenario der
+  Kachel), Dimensionen ohne Schlüssel- und Sortierspalten, FC-Kennzeichen, Zeilentyp.
+- **Visual-Wechsel an einer Kachel** (`v.alts`, `v.altIx`, `addAlt`, `switchAlt`): eine Kachel kann mehrere Fassungen
+  haben, z. B. Balken und Tabelle. „+ Alternative“ im Einrichten-Modus kopiert die Fassung samt Feldern und öffnet die
+  Typauswahl. Der Schalter sitzt oben rechts in der Kachel und ist in der Präsentation klickbar. Bearbeitet wird immer
+  die gezeigte Fassung. Export: `visuals[].switchLabel`, `switchIndex`, `alternatives[]`; Issues
+  `BOOKMARKS_TILE_SWITCH` (Power BI braucht Lesezeichen) bzw. `APP_TILE_SWITCH`.
+- **Nachgezogen:** Ansichten-Schalter im PNG-Export, aktive Hauptseite in der PNG-Navigation, Kopfleiste bis 1640 px
+  enger (bei 1500 px einzeilig), keine Bearbeiten-Knöpfe an der Kachel in der Präsentation.
+- Branch auf `origin/main` vom 25.11. nachgezogen (konfliktfrei).
+
 ## Neu in v0.8.0 (25.11.2026, lokal auf `feat/mockup-kitchen`)
 
 Rückmeldung der Nutzer: das Tool ist viel geworden. Diese Fassung macht den Einstieg leichter.

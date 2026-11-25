@@ -83,6 +83,13 @@
     'exp.issue.viewSwitch': 'Ansichten-Schalter ({n} Ansichten): in Power BI Schaltflächen mit Seitennavigation im Kopfband, die Ansichten als ausgeblendete Seiten.',
     'exp.issue.appViewSwitch': 'Ansichten-Schalter ({n} Ansichten) ist eine Vorgabe für die App-Shell: umschalten ohne Seitenwechsel, Filter bleiben erhalten.',
 
+    // Feld-Vorschläge und Visual-Wechsel je Kachel (ab 0.8.1)
+    'sg.cap': 'Vorschlag', 'sg.filled': '{n} Felder zugeordnet. Bitte kurz prüfen.', 'sg.none': 'Kein sicherer Vorschlag. Felder bitte von links ziehen.',
+    'tb.auto': 'Felder vorschlagen', 'tb.alt': '+ Alternative', 'tb.altDrop': 'Alternative entfernen',
+    'alt.added': 'Alternative angelegt. Jetzt den Typ wählen.', 'alt.dropped': 'Alternative entfernt',
+    'exp.issue.tileSwitchPbi': 'Kachel „{t}“ hat {n} Fassungen mit Schalter. Achtung Lesezeichen: in Power BI je Fassung ein Lesezeichen, das die anderen Visuals ausblendet, plus Schaltflächen.',
+    'exp.issue.tileSwitchApp': 'Kachel „{t}“ hat {n} Fassungen mit Schalter. Vorgabe für die App: Umschalten in der Kachel, ohne Seitenwechsel.',
+
     // Gespeicherte Filter
     'views.sec': 'Gespeicherte Filter',
     'views.hint': 'Erscheinen als Chips über den Kacheln. In der Präsentation lassen sie sich wegklicken und wieder einschalten.',
@@ -220,6 +227,12 @@
     'scheme.clean': 'Clean', 'scheme.cleanSub': 'IBCS-oriented, no logo',
     'exp.issue.viewSwitch': 'View switch ({n} views): in Power BI buttons with page navigation in the header, the views as hidden pages.',
     'exp.issue.appViewSwitch': 'View switch ({n} views) is a requirement for the app shell: switch without changing the page, filters are kept.',
+
+    'sg.cap': 'Suggestion', 'sg.filled': '{n} fields assigned. Please check them.', 'sg.none': 'No confident suggestion. Please drag fields from the left.',
+    'tb.auto': 'Suggest fields', 'tb.alt': '+ Alternative', 'tb.altDrop': 'Remove alternative',
+    'alt.added': 'Alternative added. Now choose its type.', 'alt.dropped': 'Alternative removed',
+    'exp.issue.tileSwitchPbi': 'Tile "{t}" has {n} versions with a switch. Mind the bookmarks: in Power BI one bookmark per version that hides the other visuals, plus buttons.',
+    'exp.issue.tileSwitchApp': 'Tile "{t}" has {n} versions with a switch. Requirement for the app: switch inside the tile without changing the page.',
 
     'views.sec': 'Saved filters',
     'views.hint': 'Shown as chips above the tiles. In presentation mode they can be dismissed and switched back on.',
