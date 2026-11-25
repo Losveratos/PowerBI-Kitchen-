@@ -112,8 +112,14 @@ Klickfläche ist `h − 1` hoch. Sonst eigene Kopfzeile (`strip`, `region` rück
 sonst `card`: kompakte Knöpfe in der Ecke der letzten Karte der ersten Reihe, `chipLeftNow()`/`chipEnd` wie bis Runde 2,
 `rEdge` begrenzt rechts Brücke, Trend, Kommentarnummer, „+n Δ“ und den gestapelten Titel, `flatLay.clear` falsch →
 `chipIcons` („↕“, „⚠“). `modeChipLeft` (aus `drawModeChip`) schiebt die Knöpfe links vom Modus-Chip, wenn sie auf
-seiner Höhe liegen. Flache Karten verkleinern den Wert (`vF`), wenn Titel und Wert sonst nicht in die Karte passen.
-Marker `card-chip-row` (`data-place` = `title` | `tile` | `strip` | `card`, `data-icons`). Verdeckte Zeilen
+seiner Höhe liegen. Runde 3c: `cardFit(h, lead)` liefert `vF`, Abstand und `tight`/`noTitle` (Standard, eng mit 1 px,
+Wert allein), flach vor `mkFlatLay` (`vFlat`, auch für `valueW`), gestapelt je Karte. `mkFlatLay(shortRel)`: `blockUnder`
+nur über die Karten unter den Knöpfen (`underAt`), nach `chipIcons` erneut geprüft, dann `shortRel` (Δ ohne Δ %, `<title>`
+mit vollem Text). Gestapelt in `card`: reicht der Wert an die Knöpfe, erst `chipIcons`, dann ohne Ausnahmeknopf.
+`render()`: `cardModeBand` (KPI-Karten ohne Titel mit Modus-Chip) erhöht `topOffset` um 6 + 18k + 4k und setzt
+`cardChipRowY = 6` → Platz `band`. `tileChipReserve` wird nach dem Ausweichen vor dem Modus-Chip gerechnet. „+n Δ“:
+neben dem Block, wenn oben kein Platz ist oder die Knöpfe dort liegen; ohne Platz entfällt die Marke.
+Marker `card-chip-row` (`data-place` = `title` | `band` | `tile` | `strip` | `card`, `data-icons`). Verdeckte Zeilen
 (Stand B Punkt 12): `shownRows` je Karte, „+n Δ“ (`card-more`, `data-n`, `<title>` mit den Zeilen, getrennt durch „; “,
 `aria-label`, interaktiv `tabindex`) über dem Δ-Block (flach, nie über dem Kartenrand) bzw. oben rechts (gestapelt);
 `blank` zählt nicht, mit verdeckten Wertzeilen (`plain`) heißt die Marke „+n“. `refLabelW` gilt für alle

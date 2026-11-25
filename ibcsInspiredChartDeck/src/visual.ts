@@ -7782,7 +7782,12 @@ export class Visual implements IVisual {
         const smartStartH = smartStartSug ? this.drawSmartStartChip(titleH, cfg, smartStartSug) : 0;
         // scatter colorBy "group": one compact legend row for the whole visual (1.48)
         const scatterLegH = isScatter ? this.drawScatterLegend(titleH + smartStartH, width, cfg) : 0;
-        const topOffset = titleH + smartStartH + scatterLegH;
+        // round 3c (B2/B4): KPI cards without a title and with an active mode chip (comment,
+        // structure, compare) reserve a band for the chip (y 6, 18 px·k) so no card covers it
+        const cardModeBand = isCards && titleH === 0 && smartStartH === 0
+            && (this.commentEdit || this.compareActive || this.structureEdit) && this.allowInteractions
+            ? 6 + Math.round(18 * this.fontK) + Math.round(4 * this.fontK) : 0;
+        const topOffset = titleH + smartStartH + scatterLegH + cardModeBand;
         const footerText = (s.ibcsTitleCard.footer.value || "").trim();
         // optional second footer line: the applied-filter context. Report/page
         // filters are not exposed to custom visuals, so the author binds a text
@@ -7865,6 +7870,10 @@ export class Visual implements IVisual {
         // tiles or next to an active mode chip they get their own header strip (renderCards)
         this.cardChipRowY = isCards && groups.length <= 1 && titleH > 0
             && !(this.commentEdit || this.compareActive || this.structureEdit) ? 6 : null;
+        // round 3c (B2): cards without a title and with an active mode chip get a band at the
+        // top (topOffset, see above) — the chip stays clickable, the sort and exception chips
+        // sit in it left of the mode chip
+        if (cardModeBand > 0 && groups.length <= 1) { this.cardChipRowY = 6; }
         if (groups.length <= 1) {
             renderCell(groups[0] ?? { name: null, pts: points },
                 { x: 0, y: topOffset, w: chartW, h: availH });
@@ -13867,7 +13876,7 @@ export class Visual implements IVisual {
         cols = Math.min(cols, Math.ceil(n / Math.ceil(n / cols)));
         const rows = Math.ceil(n / cols);
         const sortChipOn = this.allowInteractions && region.w >= 220 * k;
-        const excChipOn = this.allowInteractions && this.exceptionCapable;
+        let excChipOn = this.allowInteractions && this.exceptionCapable;
         const sortChipLabels: { [key: string]: string } = {
             none: this.locStr("Chip_SortNone", "↕ Sort"),
             deviation: this.locStr("Chip_SortDev", "↕ |Δ|"),
@@ -13885,7 +13894,7 @@ export class Visual implements IVisual {
             + (excChipOn ? this.textWidth(chipLbl(excChipLabel), chipFont) + Math.round(16 * k) : 0);
         let chipRight0 = Math.min(region.x + region.w, this.ctlRight) - Math.round(8 * k);
         let chipTop = region.y + Math.round(8 * k) - 2;
-        let chipPlace: "none" | "title" | "tile" | "strip" | "card" = "none";
+        let chipPlace: "none" | "title" | "band" | "tile" | "strip" | "card" = "none";
         // height a card needs for its layout (flat: title + value; stacked: + first Δ row)
         const padN = Math.round(10 * k) + Math.round(5 * k), titleFN = Math.max(9, cfg.catFont);
         const valueFN = Math.round(cfg.labelFont * 1.9), refFN = Math.max(9, Math.round(cfg.labelFont * 0.95));
@@ -13907,11 +13916,10 @@ export class Visual implements IVisual {
                 chipFont = Math.round(9 * k);
                 chipRight0 = tileHead.x + tileHead.w - 6 - Math.round(14 * k) - Math.round(4 * k);
                 chipTop = tileHead.y + Math.max(1, (tileHead.h - chipBh) / 2);
-                this.tileChipReserve = chipsWNow() + Math.round(6 * k);
             } else if (rowY != null && rowY + chipBh <= region.y + gap / 2 + 1
                 && this.titleRightX + Math.round(8 * k) <= chipRight0 - chipsWNow()) {
                 chipTop = rowY;
-                chipPlace = "title";
+                chipPlace = this.titleRightX > 0 ? "title" : "band";
             } else if (cardHFor(region.h - strip) >= needH(region.h - strip)) {
                 chipTop = region.y + 2;
                 chipPlace = "strip";
@@ -13929,6 +13937,10 @@ export class Visual implements IVisual {
             // chips to its left whenever they share its height
             if (chipTop < 6 + Math.round(18 * k) + 2 && chipTop + chipBh > 4 && Number.isFinite(this.modeChipLeft)) {
                 chipRight0 = Math.min(chipRight0, this.modeChipLeft - Math.round(6 * k));
+            }
+            // round 3c (B4): the tile title keeps clear of the chips where they finally sit
+            if (chipPlace === "tile" && tileHead) {
+                this.tileChipReserve = Math.max(0, tileHead.x + tileHead.w - 6 - 14 * k - (chipRight0 - chipsWNow())) + Math.round(6 * k);
             }
         }
         const cw = (region.w - gap) / cols;
@@ -14090,10 +14102,11 @@ export class Visual implements IVisual {
         const refLabelW = Math.max(refF * 2.6, this.maxTextWidth(models.flatMap(m => m.rows
             .filter(r => r.kind !== "blank").map(r => r.kind === "delta" ? `Δ${r.lbl}` : r.lbl)), refF) + refF * 0.6);
         // width of one row's value text as drawn (bold Δ, optional ▲ icon)
-        const rowTextW = (m: CardModel, r: CardRow) => r.kind === "blank" ? 0
+        // round 3c (B1): `short` = the Δ text without its relative part (cards under the corner chips)
+        const rowTextW = (m: CardModel, r: CardRow, short = false) => r.kind === "blank" ? 0
             : r.kind === "na" ? this.textWidth(REL_NA, refF)
             : r.kind === "plain" ? this.textWidth(m.fmtV(r.v), refF)
-            : this.textWidth((cfg.deltaIcons ? "▲ " : "") + m.refText(r.v, r.rel), refF, true);
+            : this.textWidth((cfg.deltaIcons ? "▲ " : "") + m.refText(r.v, short ? null : r.rel), refF, true);
 
         // flat layout: wide + short tile → Δ rows and bridge move to the right
         const cardW = cw - gap, cardH = ch - gap;
@@ -14110,19 +14123,34 @@ export class Visual implements IVisual {
         // cover horizontally keep their content left of them
         const chipLeftNow = () => chipPlace === "card" ? chipRight0 - chipsWNow() : Infinity;
         const firstRowTop = region.y + gap / 2 + 2;
-        const mkFlatLay = () => !flat ? null : (() => {
+        // round 3c (B1): the value font of a very low flat card is known before the layout, so
+        // the value column is measured with it (was: valueF, the full font)
+        // fit of title and value in a card of height h: standard spacing, then tight (1 px gap,
+        // smaller margins), else the value alone (the title stays in the tooltip / aria-label)
+        const cardFit = (h: number, lead: number) => {
+            const std = Math.floor((h - lead - titleF - Math.round(4 * k) - 4) / 1.25);
+            if (std >= 9) { return { vF: Math.min(valueF, std), g: Math.round(4 * k), tight: false, noTitle: false }; }
+            const tight = Math.floor((h - 3 - titleF - 1 - 3) / 1.2);
+            if (tight >= 9) { return { vF: Math.min(valueF, tight), g: 1, tight: true, noTitle: false }; }
+            return { vF: Math.max(7, Math.min(valueF, Math.floor((h - 3) / 1.25))), g: 0, tight: true, noTitle: true };
+        };
+        const fitFlat = cardFit(cardH, 0);
+        const vFlat = fitFlat.vF;
+        const underAt = (j: number) => j < cols && region.x + gap / 2 + (j % cols) * cw + 2 + cardW > chipLeftNow();
+        const mkFlatLay = (shortRel: boolean) => !flat ? null : (() => {
             const gapV = Math.round(20 * k);
-            const valueW = (j: number) => models[j].valueText.length * valueF * 0.58 + (pts[j].isFc ? 24 * k : 0);
+            const valueW = (j: number) => models[j].valueText.length * vFlat * 0.58 + (pts[j].isFc ? 24 * k : 0);
             // + a few px: the value column is an estimate (0.58 em per character)
-            const blockW = (m: CardModel) => {
-                const rs = flatRows(m);
-                return !drawn(rs) ? 0 : refLabelW + Math.max(...rs.map(r => rowTextW(m, r))) + Math.round(5 * k);
+            const blockWj = (j: number) => {
+                const m = models[j], rs = flatRows(m), short = shortRel && underAt(j);
+                return !drawn(rs) ? 0 : refLabelW + Math.max(...rs.map(r => rowTextW(m, r, short))) + Math.round(5 * k);
             };
             const need = Math.max(...pts.map((_, j) => valueW(j)));
             const want = Math.max(need, ...pts.map(q => Math.min(this.maxTextWidth([q.cat], titleF), 170 * k)));
-            const withRows = models.filter(m => drawn(flatRows(m)));
-            const blockMax = Math.max(0, ...withRows.map(blockW));
-            const twoRows = withRows.some(m => flatRows(m).length === 2);
+            const withRows = models.map((m, j) => j).filter(j => drawn(flatRows(models[j])));
+            const blockMax = Math.max(0, ...withRows.map(blockWj));
+            const blockUnder = Math.max(0, ...withRows.filter(underAt).map(blockWj));
+            const twoRows = withRows.some(j => flatRows(models[j]).length === 2);
             // 1.58 (round 3): the chips have their own row (title row, tile header or strip);
             // round 3b: in the card corner the Δ block of the cards under them ends before them
             let chipEnd = Infinity;
@@ -14134,8 +14162,8 @@ export class Visual implements IVisual {
                     if (cx + cardW > chipLeft) { chipEnd = Math.min(chipEnd, chipLeft - 4 - cx); }
                 }
             }
-            const room = Math.min(chipEnd - blockMax - pad - gapV,
-                ...withRows.map(m => cardW - 2 * pad - gapV - blockW(m)));
+            const room = Math.min(chipEnd - blockUnder - pad - gapV,
+                ...withRows.map(j => cardW - 2 * pad - gapV - blockWj(j)));
             const colW = Math.max(need, Math.min(want, room));
             const base = pad + colW + gapV;
             let refDx = base;
@@ -14146,13 +14174,28 @@ export class Visual implements IVisual {
             const rightFree = !trendOn && !(cfg.cardBars && pts.some(q => q.basis != null))
                 && !(cfg.cardBullet && pts.some(q => q.bm != null));
             if (rightFree) {
-                refDx = Math.max(base, Math.min(cardW / 2, cardW - pad - blockMax, base + 120 * k, chipEnd - blockMax));
+                refDx = Math.max(base, Math.min(cardW / 2, cardW - pad - blockMax, base + 120 * k, chipEnd - blockUnder));
             }
-            return { refDx, titleW: refDx - pad - gapV, blockMax, twoRows, clear: refDx + blockMax <= chipEnd + 0.5 };
+            return { refDx, titleW: refDx - pad - gapV, blockMax, twoRows, shortRel,
+                clear: refDx + blockUnder <= chipEnd + 0.5 };
         })();
-        let flatLay = mkFlatLay();
-        // the Δ block cannot clear the full chips: icons only ("↕", "⚠")
-        if (flatLay && !flatLay.clear) { chipIcons = true; flatLay = mkFlatLay(); }
+        let flatLay = mkFlatLay(false);
+        // the Δ block cannot clear the full chips: icons only ("↕", "⚠"), checked again; if it
+        // still does not clear, the cards under the chips drop the relative part of their Δ
+        // text (full text in the tooltip of the row)
+        if (flatLay && !flatLay.clear) { chipIcons = true; flatLay = mkFlatLay(false); }
+        if (flatLay && !flatLay.clear) { flatLay = mkFlatLay(true); }
+        // round 3c: stacked cards under the corner chips — the chips must not reach the value
+        // line (narrow cards, long chip labels): icons only, then without the exception chip
+        if (!flat && chipPlace === "card") {
+            const fitS0 = cardFit(cardH, pad - 2);
+            const vTop = fitS0.noTitle ? firstRowTop + (cardH - fitS0.vF * 0.72) / 2 - fitS0.vF * 0.2
+                : firstRowTop + (fitS0.tight ? 3 : pad) + titleF + fitS0.g;
+            const hitsValue = () => chipTop + chipBh > vTop - 1 && pts.some((_, j) => underAt(j)
+                && region.x + gap / 2 + (j % cols) * cw + 2 + pad + models[j].valueText.length * fitS0.vF * 0.58 + 4 > chipLeftNow());
+            if (hitsValue()) { chipIcons = true; }
+            if (hitsValue()) { excChipOn = false; }
+        }
 
         pts.forEach((p, i) => {
             const m = models[i];
@@ -14207,8 +14250,10 @@ export class Visual implements IVisual {
                 t.textContent = text;
                 return t;
             };
-            const titleValue = (tyTitle: number, tyValue: number, maxW: number, vF = valueF) => {
-                txt(x + pad, tyTitle, this.truncate(p.cat, maxW, titleF), titleF, false, cfg.subtle);
+            const titleValue = (tyTitle: number, tyValue: number, maxW: number, vF = valueF, noTitle = false) => {
+                // round 3c: a card too low for title and value shows the value alone (the title
+                // stays in the tooltip and the aria-label of the card)
+                if (!noTitle) { txt(x + pad, tyTitle, this.truncate(p.cat, maxW, titleF), titleF, false, cfg.subtle); }
                 txt(x + pad, tyValue, valueText, vF, true, cfg.ink);
                 if (p.isFc) {
                     const vw = valueText.length * vF * 0.58;
@@ -14241,7 +14286,10 @@ export class Visual implements IVisual {
                     : (zero || !cfg.isMaterial(p, r.v, vRel)) ? "● "
                     : r.v > 0 ? "▲ " : "▼ ";
                 txt(tx, ty, `Δ${r.lbl}`, refF, false, cfg.subtle);
-                txt(tx + refLabelW, ty, icon + m.refText(r.v, r.rel), refF, true, col);
+                // round 3c (B1): under the corner chips without the relative part, full text as tooltip
+                const shortHere = flatLay?.shortRel === true && underChips;
+                const vt = txt(tx + refLabelW, ty, icon + m.refText(r.v, shortHere ? null : r.rel), refF, true, col);
+                if (shortHere) { this.el("title", {}, vt).textContent = `Δ${r.lbl} ${m.refText(r.v, r.rel)}`; }
             };
             // mini bridge basis → Δ → AC in IBCS notation; byBottom is the axis line
             const drawBridge = (bx: number, byBottom: number, bw2: number, bridgeH: number) => {
@@ -14525,14 +14573,18 @@ export class Visual implements IVisual {
             // above their Δ block (the right side may hold the mini bridge), stacked cards in
             // the top right corner. Blank grid slots never count
             let shownRows: CardRow[] = [];
-            let moreX: number | null = null, moreY = 0;
+            let moreX: number | null = null, moreY = 0, moreBeside = false;
             if (flatLay) {
                 // round 3b (M1): a very low card (800 × 44) shrinks the value font until title
                 // and value (with its descent) fit inside the card; taller cards unchanged
-                const vF = Math.max(9, Math.min(valueF, Math.floor((h - titleF - Math.round(4 * k) - 4) / 1.25)));
-                const blockH = titleF + Math.round(4 * k) + vF;
-                const top = y + (vF < valueF ? Math.max(2, (h - blockH - vF * 0.25) / 2) : Math.max(Math.round(6 * k), (h - blockH) / 2));
-                titleValue(top + titleF, top + titleF + Math.round(4 * k) + vF, flatLay.titleW, vF);
+                const vF = vFlat, gTV = fitFlat.g;
+                const blockH = titleF + gTV + vF;
+                if (fitFlat.noTitle) {
+                    titleValue(0, y + (h + vF * 0.72) / 2, flatLay.titleW, vF, true);
+                } else {
+                    const top = y + (vF < valueF ? Math.max(fitFlat.tight ? 1 : 2, (h - blockH - vF * 0.25) / 2) : Math.max(Math.round(6 * k), (h - blockH) / 2));
+                    titleValue(top + titleF, top + titleF + gTV + vF, flatLay.titleW, vF);
+                }
 
                 // 1.58: the Δ block of every card starts at the same relative x
                 let refX = x + flatLay.refDx;
@@ -14542,7 +14594,16 @@ export class Visual implements IVisual {
                     const yMid = y + h / 2;
                     shownRows = rowsShown;
                     moreX = refX;
-                    moreY = (flatLay.twoRows ? yMid - Math.round(2 * k) : yMid + refF * 0.35) - refF - Math.round(2 * k);
+                    const y1 = flatLay.twoRows ? yMid - Math.round(2 * k) : yMid + refF * 0.35;
+                    moreY = y1 - refF - Math.round(2 * k);
+                    // round 3c (B6): no room above the block (very low card), or the corner chips sit
+                    // there → right beside the block
+                    const mW = this.textWidth("+9 Δ", Math.round(8 * k));
+                    const chipsHere = underChips && moreY - Math.round(8 * k) < chipTop + chipBh + 1
+                        && moreX + mW > chipLeftNow() - 2;
+                    if (moreY < y + Math.round(8 * k) + 1 || chipsHere) {
+                        moreX = refX + flatLay.blockMax + Math.round(4 * k); moreY = y1; moreBeside = true;
+                    }
                     // 1.58: one row grid for the deck — as soon as one card shows two
                     // rows, a single row sits on the baseline of the first of two
                     // (before: centred, a few px lower than its neighbours)
@@ -14578,8 +14639,20 @@ export class Visual implements IVisual {
                 }
             } else {
                 let yCur = y + pad + titleF;
-                titleValue(yCur, yCur + valueF + Math.round(4 * k), rEdge - x - pad);
-                yCur += valueF + Math.round(4 * k) + refF + Math.round(9 * k);
+                // round 3c (B5): a low stacked card shrinks the value until it fits (taller cards unchanged)
+                const fitS = cardFit(h, pad - 4 + 2);
+                const vS = fitS.vF;
+                if (fitS.noTitle) {
+                    titleValue(0, y + (h + vS * 0.72) / 2, rEdge - x - pad, vS, true);
+                    yCur = y + h;
+                } else if (fitS.tight) {
+                    yCur = y + 3 + titleF;
+                    titleValue(yCur, yCur + 1 + vS, rEdge - x - pad, vS);
+                    yCur = y + h;
+                } else {
+                    titleValue(yCur, yCur + vS + Math.round(4 * k), rEdge - x - pad, vS);
+                }
+                yCur += vS + Math.round(4 * k) + refF + Math.round(9 * k);
                 if (refRows.length > 0 && yCur <= y + h - 4) {
                     refRowAt(x + pad, yCur, refRows[0]);
                     shownRows.push(refRows[0]);
@@ -14623,18 +14696,26 @@ export class Visual implements IVisual {
                 // round 3b (K1): "+n Δ" only for Δ rows; with hidden reference VALUE rows the
                 // mark says "+n" neutrally. K2: never above the card's top edge
                 const moreTxt = hidden.some(r => r.kind === "plain") ? `+${hidden.length}` : `+${hidden.length} Δ`;
-                const more = moreX != null
+                // round 3c (B6): beside the block it must end inside the card (left of the chips);
+                // without a place the mark is left out (the card's tooltip still lists every row)
+                const noPlace = (moreBeside && moreX != null && moreX + this.textWidth(moreTxt, moreF) > rEdge)
+                    || (moreX == null && h < Math.round(13 * k) + 3);
+                // round 3c (B3): only under the corner chips is the corner mark moved left
+                const more = noPlace ? null : moreX != null
                     ? txt(moreX, Math.max(moreY, y + moreF + 1), moreTxt, moreF, false, cfg.subtle)
-                    : txt(Math.min(x + w - Math.round(8 * k), rEdge), y + Math.round(13 * k), moreTxt, moreF, false, cfg.subtle, "end");
-                more.setAttribute("data-icd", "card-more");
-                more.setAttribute("data-n", String(hidden.length));
-                const tipText = hidden.map(r => r.kind === "na" ? `${r.lbl} ${REL_NA}`
-                    : r.kind === "plain" ? `${r.lbl} ${m.fmtV(r.v)}` : `Δ${r.lbl} ${m.refText(r.v, r.rel)}`).join("; ");
-                const tip = this.el("title", {}, more);
-                tip.textContent = tipText;
-                // K3: stays in the export (a visible cut is wanted); readable by keyboard
-                more.setAttribute("aria-label", `${moreTxt}: ${tipText}`);
-                if (this.allowInteractions) { more.setAttribute("tabindex", "0"); }
+                    : txt(underChips ? Math.min(x + w - Math.round(8 * k), rEdge) : x + w - Math.round(8 * k),
+                        y + Math.round(13 * k), moreTxt, moreF, false, cfg.subtle, "end");
+                if (more) {
+                    more.setAttribute("data-icd", "card-more");
+                    more.setAttribute("data-n", String(hidden.length));
+                    const tipText = hidden.map(r => r.kind === "na" ? `${r.lbl} ${REL_NA}`
+                        : r.kind === "plain" ? `${r.lbl} ${m.fmtV(r.v)}` : `Δ${r.lbl} ${m.refText(r.v, r.rel)}`).join("; ");
+                    const tip = this.el("title", {}, more);
+                    tip.textContent = tipText;
+                    // K3: stays in the export (a visible cut is wanted); readable by keyboard
+                    more.setAttribute("aria-label", `${moreTxt}: ${tipText}`);
+                    if (this.allowInteractions) { more.setAttribute("tabindex", "0"); }
+                }
             }
 
             this.attachInteraction(g, p, cfg);

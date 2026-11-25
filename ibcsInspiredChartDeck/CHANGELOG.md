@@ -108,7 +108,13 @@
   960 × 220 mit Kopfzeile; Kacheln mit Knöpfen im Kachelkopf; Modus-Chip ohne Titel; Δ = 0 ohne Balken; C22 im
   Hochkontrast; „+n“ mit Referenzwerten, aria-label und Fokus; Marke in 34-px-Karten), c868 prüft die Periode 1,8 px;
   angepasst c1083 (Knöpfe im Kachelkopf statt Kopfzeile) und kpi58 „Δ-Block überdeckt den Wert nicht“ (findet den Wert
-  als zweiten Text der Karte, weil sehr niedrige Karten ihn verkleinern). 1009 resjson-Keys je Sprache.
+  als zweiten Text der Karte, weil sehr niedrige Karten ihn verkleinern). Runde 3c: c1110 bis c1122 (Ausnahmeknopf in
+  der Kartenecke 800 × 56, 800 × 44, 800 × 70 mit Brücke, 400 × 400 Full HD; Kommentar-Modus ohne Titel 1240 × 72,
+  800 × 70, 760 × 150, 900 × 64 mit Band; gestapelt 900 × 64 und 520 × 70; „+n Δ“ gestapelt am Kartenrand − 8 px wie in
+  391d04f; 8 Kacheln mit Kommentar-Modus; 22-px-Karten), jeweils mit der Abnahme des Reviews: kein Knopf über Text oder
+  Knopf, jeder Knopf klickbar, kein Kartentext außerhalb der Karte. Messung des Reviews über 397 Fälle: 46 statt 120
+  Befunde, keiner mehr mit Knopf über Text außer zwei Altfällen mit Titel (800 × 44 mit Titel, Modus-Chip über
+  langem Titel). 1009 resjson-Keys je Sprache.
 
 ### KPI-Karten
 
@@ -141,17 +147,25 @@ aus dem unabhängigen Review. Keine neue Property.
     und erste Δ-Zeile).
   - `card`: sonst kompakt in der rechten oberen Ecke der letzten Karte der ersten Reihe; Δ-Block, Mini-Brücke,
     Trend, Kommentarnummer, „+n Δ“ und (gestapelt) der Kartentitel der darunter liegenden Karten weichen nach links
-    aus. Reicht das nicht, zeigen die Knöpfe nur „↕“ und „⚠“ (`data-icons`).
-  Ein aktiver Modus-Chip schiebt die Knöpfe nach links, wenn sie auf seiner Höhe liegen (ohne Titel lag der
-  Sortierknopf sonst auf dem Chip). Flache Karten, die für Titel und Wert zu niedrig sind (z. B. 800 × 44 oder ein
-  Band 1240 × 72 mit Titel), verkleinern den Wert, bis er in die Karte passt; bisher ragte er unter den Rand. Export
-  ohne Knöpfe unverändert.
+    aus. Reicht das nicht, zeigen die Knöpfe nur „↕“ und „⚠“ (`data-icons`); reicht auch das nicht, zeigen die
+    Karten unter den Knöpfen ihr Δ ohne den Δ %-Teil (voller Text als Tooltip der Zeile), gestapelte Karten
+    verzichten notfalls auf den Ausnahmeknopf (er bleibt im Formatbereich).
+  - `band`: ohne Titel und mit aktivem Modus-Chip (Kommentar, Struktur, Vergleich) reserviert das Visual oben ein
+    Band (6 + 18 + 4 px·k), der Chip liegt dort frei und klickbar, Sortier- und Ausnahmeknopf links davon. Gilt auch
+    für Small Multiples (der Chip lag dort über dem ⤢ der rechten oberen Kachel).
+  Ein aktiver Modus-Chip schiebt die Knöpfe nach links, wenn sie auf seiner Höhe liegen. Karten, die für ihren Inhalt
+  zu niedrig sind, verkleinern erst den Wert (flach und gestapelt), dann rücken Titel und Wert eng zusammen, zuletzt
+  steht der Wert allein (der Titel bleibt im Tooltip); bisher ragten Wert und Titel unter den Rand (z. B. 800 × 44,
+  900 × 64 gestapelt, ein Band 1240 × 72 mit Titel). Die Breite der Wertspalte rechnet mit dem verkleinerten Wert.
+  Export ohne Knöpfe unverändert.
 - **Verdeckte Δ-Zeilen werden gezählt (wie Stand B Punkt 12).** Zeilen ohne Platz (mehr als zwei Zeilen im flachen
   Streifen, niedrige Karte, Block passt nicht) entfallen nicht mehr still: „+n Δ“ steht bei flachen Karten über dem
   Δ-Block (nie über dem oberen Kartenrand), sonst oben rechts in der Karte, mit Tooltip der verdeckten Zeilen
   („ΔBM −0,1M€ · −0,5%; …“, `data-icd="card-more"`, `data-n`) und demselben Text als `aria-label`; interaktiv per
   Tastatur erreichbar, im Export sichtbar ohne Fokus. Sind Referenzwert-Zeilen dabei (`cardRefValues`), heißt die
-  Marke neutral „+n“. Leere Rasterplätze zählen nicht; „PY n.a.“ zählt als Zeile. Zeilenraster,
+  Marke neutral „+n“. Leere Rasterplätze zählen nicht; „PY n.a.“ zählt als Zeile. Ist über dem Δ-Block kein Platz
+  (sehr niedrige Karte) oder liegen dort die Knöpfe, steht die Marke rechts neben dem Block; passt sie auch dort
+  nicht, entfällt sie (der Tooltip der Karte nennt alle Zeilen). Zeilenraster,
   „PY n.a.“ und die Regel zur gerundeten Null in Karten bleiben wie oben.
 - **Keine gerundete Null mit Vorzeichen (Prüfstand 3).** Vorher „+0,0M€ · +0,1%“, „−0 · −0,6%“. Nachher druckt eine
   Zahl, die ungleich 0 ist, aber auf 0 rundet, in den Karten immer ohne Vorzeichen (Entscheidung des Autors, keine
@@ -191,7 +205,9 @@ aus dem unabhängigen Review. Keine neue Property.
   sind die Karten am Bildschirm 22 px niedriger als im Export. In der Kartenecke (niedrige Kacheln ohne Titel) weicht
   der Δ-Block der Karten unter den Knöpfen am Bildschirm nach links aus, im Export nicht; dort sind Bildschirm und
   Export also nicht deckungsgleich.
-- Offen (Backlog): Kleinteile (8); `fmtSigned` erkennt eine Null mit Ziffer in der Einheit nicht („+0 tCO2“ in Diagrammen,
+- Offen (Backlog): Kommentarnummer der Karte kann bei sehr schmalen Karten auf Δ-Text oder Titel liegen; Modus-Chip
+  über einem langen Titel (Altbestand); lange Kacheltitel werden neben den Knöpfen im Kachelkopf gekürzt; Karten unter
+  etwa 10 px Höhe (sehr niedrige Kachel mit Titel) bleiben unlesbar; Kleinteile (8); `fmtSigned` erkennt eine Null mit Ziffer in der Einheit nicht („+0 tCO2“ in Diagrammen,
   Altbestand).
 
 ## 1.57.0.0 (2026-11-22, Backlog IBCS-Templates Teil 4)

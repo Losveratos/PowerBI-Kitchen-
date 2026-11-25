@@ -11139,6 +11139,122 @@ addStage("c422c", "Review m7 · Blasengröße VJ ohne Vorjahr in der Leseansicht
   }
 }
 // ---- WELLE1-R3B-END
+// ======================================================================
+// 1.58 · Welle 1 Runde 3c (Nachprüfung zu e2666df), Stufen c1110 bis c1124
+// B1 Ausnahmeknopf in der Kartenecke · B2 Band für den Modus-Chip ohne Titel ·
+// B3 „+n Δ“ gestapelt wie 391d04f · B4 Kachelkopf mit Modus-Chip · B5 gestapelte
+// niedrige Karten · B6 „+1 Δ“ in 22-px-Karten
+// ======================================================================
+{
+  const q = (id, sel) => [...document.querySelectorAll(`#${id} ${sel}`)];
+  const hit = (a, b, t = 0.5) => a.x < b.x + b.width - t && b.x < a.x + a.width - t && a.y < b.y + b.height - t && b.y < a.y + a.height - t;
+  const KC = (cats, a, p, l, extra, objs, mult, bm) => dataView(cats,
+    [col("actual", a, "#,0 €"), col("previousYear", p, "#,0 €")].concat(l ? [col("plan", l, "#,0 €")] : []).concat(bm ? [col("benchmark", bm, "#,0 €")] : []),
+    Object.assign({ chart: Object.assign({ orientation: "cards" }, extra || {}) }, objs || {}), mult);
+  const c4 = ["Umsatz", "Finanzierungs-Cashflow", "EBIT", "Tilgung und Dividende"];
+  const a4 = [18.46e6, -4.2e6, 1.302e6, 0.95e6], p4 = [18.44e6, -3.9e6, 1.25e6, 1.01e6], l4 = [18.0e6, -4.3e6, 1.301e6, 0.9e6];
+  const c3 = ["Umsatz", "EBIT", "Cash"], a3 = [18.4e6, 1.3e6, 2e6], bm3 = [18.5e6, 1.4e6, 2.05e6];
+  const exc = { materialityPct: 2 }, noTitle = { ibcsTitle: { show: false } };
+  const cm = { ibcsTitle: { show: false }, commentsPanel: { editComments: true } };
+  // the reviewer's measurement in short: chips (incl. the mode chip) over no text of the
+  // visual, over no other chip, fully clickable; no card text outside its card
+  const audit = id => {
+    // elementFromPoint needs the stage in the viewport
+    document.getElementById(id).scrollIntoView({ block: "center" });
+    const svg = document.querySelector(`#${id} svg`), sr = svg.getBoundingClientRect();
+    const bb = e => { const r = e.getBoundingClientRect(); return { x: r.x - sr.x, y: r.y - sr.y, width: r.width, height: r.height }; };
+    const chips = [...svg.querySelectorAll('g[role="button"][data-ck-ctl]')].map(g => ({ g, b: bb(g.querySelector("rect")) }));
+    const texts = [...svg.querySelectorAll("text")].filter(t => t.textContent.trim() && !t.closest("g[data-ck-ctl]")).map(t => ({ t: t.textContent, b: bb(t) }));
+    const msgs = [];
+    chips.forEach((c, i) => {
+      texts.filter(o => hit(c.b, o.b, 1)).forEach(o => msgs.push(`Knopf über „${o.t.slice(0, 16)}“`));
+      chips.forEach((d, j) => { if (j > i && hit(c.b, d.b)) { msgs.push("Knopf über Knopf"); } });
+      let okc = 0;
+      for (const [fx, fy] of [[0.5, 0.5], [0.15, 0.5], [0.85, 0.5]]) {
+        const e = document.elementFromPoint(sr.x + c.b.x + c.b.width * fx, sr.y + c.b.y + c.b.height * fy);
+        if (e && c.g.contains(e)) { okc++; }
+      }
+      if (okc < 3) { msgs.push(`Knopf nur ${okc}/3 klickbar`); }
+    });
+    for (const g of svg.querySelectorAll("g.icd-cat")) {
+      const r = bb(g.querySelector("rect"));
+      for (const t of g.querySelectorAll("text")) {
+        if (!t.textContent.trim()) { continue; }
+        const b = bb(t);
+        if (b.y + b.height > r.y + r.height + 1 || b.y < r.y - 1) { msgs.push(`Text außerhalb „${t.textContent.slice(0, 12)}“`); }
+      }
+    }
+    return { msgs: [...new Set(msgs)], n: chips.length };
+  };
+  const cases = [
+    // B1: exception chip in the card corner
+    ["c1110", "B1 · ohne Titel mit Ausnahmeknopf 800 × 56", 800, 56, KC(c4.slice(0, 3), a4.slice(0, 3), p4.slice(0, 3), null, Object.assign({ cardBars: false }, exc), noTitle)],
+    ["c1111", "B1 · ohne Titel mit Ausnahmeknopf 800 × 44", 800, 44, KC(c4.slice(0, 3), a4.slice(0, 3), p4.slice(0, 3), null, Object.assign({ cardBars: false }, exc), noTitle)],
+    ["c1112", "B1 · ohne Titel mit Ausnahmeknopf 800 × 70, Mini-Brücke", 800, 70, KC(c3, a3, [18e6, 1.25e6, 1.9e6], [18.1e6, 1.2e6, 2.1e6], Object.assign({ comparisonMode: "plan" }, exc), noTitle, null, bm3)],
+    ["c1113", "B1 · ohne Titel mit Ausnahmeknopf 400 × 400 Full HD", 400, 400, KC(c4, a4, p4, l4, exc, { ibcsTitle: { show: false }, labels: { fontPreset: "fullhd" } })],
+    // B2: active mode chip without a title
+    ["c1114", "B2 · Kommentar-Modus ohne Titel 1240 × 72", 1240, 72, KC(c4, a4, p4, l4, Object.assign({ cardBars: false }, exc), cm), { viewMode: 1 }],
+    ["c1115", "B2 · Kommentar-Modus ohne Titel 800 × 70, Mini-Brücke", 800, 70, KC(c3, a3, [18e6, 1.25e6, 1.9e6], [18.1e6, 1.2e6, 2.1e6], Object.assign({ comparisonMode: "plan" }, exc), cm, null, bm3), { viewMode: 1 }],
+    ["c1116", "B2 · Kommentar-Modus ohne Titel 760 × 150, 8 Karten", 760, 150, KC(["A", "B", "C", "D", "E", "F", "G", "H"], [1, 2, 3, 4, 5, 6, 7, 8].map(v => v * 1e6),
+      [1, 2, 3, 4, 5, 6, 7, 8].map(v => v * 1.1e6), null, Object.assign({ cardBars: false }, exc), cm), { viewMode: 1 }],
+    ["c1117", "B2 · Kommentar-Modus ohne Titel 900 × 64, gestapelt", 900, 64, KC(c4, a4, p4, l4, Object.assign({ cardBars: false }, exc), cm), { viewMode: 1 }],
+    // B5: stacked low cards
+    ["c1118", "B5 · ohne Titel 900 × 64, gestapelte Karten (Breite < 250)", 900, 64, KC(c4, a4, p4, l4, { cardBars: false }, noTitle)],
+    ["c1119", "B5 · ohne Titel 520 × 70, gestapelte Karten", 520, 70, KC(c4.slice(0, 3), a4.slice(0, 3), p4.slice(0, 3), null, { cardBars: false }, noTitle)]
+  ];
+  for (const [id, t, w, h, dv, opts] of cases) {
+    addStage(id, "Runde 3c · " + t, w, h);
+    runCap(id, dv, w, h, opts);
+    const r = audit(id);
+    check(r.n > 0 && r.msgs.length === 0, `${id}: ${r.n} Knöpfe, ${r.msgs.join("; ") || "keine Überlappung, alles klickbar, Text in den Karten"}`);
+  }
+  // B2: the mode band is reserved and the chips sit in it left of the mode chip
+  {
+    const row = q("c1114", '[data-icd="card-chip-row"]')[0];
+    const cardsTop = Math.min(...q("c1114", "svg g.icd-cat > rect:first-child").map(r => +r.getAttribute("y")));
+    check(!!row && row.getAttribute("data-place") === "band" && cardsTop >= 6 + 18, `c1114: Band (${row && row.getAttribute("data-place")}), Karten ab y ${cardsTop}`);
+  }
+  // B1: when even icons do not clear, the cards under the chips drop the Δ% part (full text as tooltip)
+  {
+    const shorted = q("c1110", "svg g.icd-cat text").filter(t => t.querySelector("title"));
+    check(shorted.every(t => !/%/.test(t.childNodes[0].nodeValue) && /%/.test(t.querySelector("title").textContent)),
+      `c1110: ${shorted.length} gekürzte Δ-Texte unter den Knöpfen, voller Text im Tooltip`);
+  }
+  // B3: stacked "+n Δ" back at x + w − 8k where no chip is (as in 391d04f)
+  addStage("c1120", "B3 · gestapelte Karten 720 × 110 mit „+2 Δ“: Marke am rechten Kartenrand − 8 px", 720, 110);
+  runCap("c1120", KC(c3, a3, [18e6, 1.25e6, 1.9e6], [18.1e6, 1.2e6, 2.1e6], { cardBars: false, comparisonMode: "plan" }, null, null, bm3), 720, 110, { noInteract: true });
+  {
+    const marks = q("c1120", '[data-icd="card-more"]').map(t => { const r = t.closest("g.icd-cat").querySelector("rect");
+      return +t.getAttribute("x") - (+r.getAttribute("x") + +r.getAttribute("width")); });
+    check(marks.length === 3 && marks.every(d => Math.abs(d + 8) < 0.01), `c1120: Marken bei Kartenrand − 8 (${marks.map(d => d.toFixed(1)).join(", ")})`);
+  }
+  // B4: tiles without a title, comment mode: the band keeps the mode chip off ⤢, chips off the tile titles
+  addStage("c1121", "B4 · 8 Kacheln 700 × 500 ohne Titel, Kommentar-Modus", 700, 500);
+  {
+    const names = ["Nord", "Süd", "West", "Ost", "Mitte", "Übersee", "R7", "R8"], C = [], M = [], A = [], P = [];
+    names.forEach((r, ri) => ["Umsatz", "EBIT"].forEach((kk, qi) => { C.push(kk); M.push(r); A.push((18.4 - ri * 2) * 1e6 / (qi * 5 + 1)); P.push((18 - ri * 1.7) * 1e6 / (qi * 5 + 1.1)); }));
+    runCap("c1121", KC(C, A, P, null, exc, cm, M), 700, 500, { viewMode: 1 });
+    const r = audit("c1121");
+    const svg = document.querySelector("#c1121 svg"), sr = svg.getBoundingClientRect();
+    document.getElementById("c1121").scrollIntoView({ block: "center" });
+    const icons = [...svg.querySelectorAll("text")].filter(t => t.textContent === "⤢");
+    const iconOk = icons.every(ic => { const b = ic.getBoundingClientRect(); const e = document.elementFromPoint(b.x + b.width / 2, b.y + b.height / 2); return e && ic.closest('g[role="button"]').contains(e); });
+    check(r.msgs.length === 0 && icons.length === 8 && iconOk, `c1121: ${r.msgs.join("; ") || "Modus-Chip, Knöpfe und alle ⤢ frei und klickbar"}`);
+    void sr;
+  }
+  // B6: in 22-px cards the mark sits beside the Δ block or is left out, never on the Δ label
+  addStage("c1122", "B6 · Karten 22 px hoch (1240 × 38 ohne Titel): „+1 Δ“ neben dem Δ-Block oder weg", 1240, 38);
+  runCap("c1122", KC(c4, a4, p4, l4, { cardBars: false }, noTitle), 1240, 38, { noInteract: true });
+  {
+    const bad = q("c1122", "svg g.icd-cat").filter(g => {
+      const m = g.querySelector('[data-icd="card-more"]'); if (!m) { return false; }
+      const mb = m.getBBox();
+      return [...g.querySelectorAll("text")].some(t => t !== m && t.textContent.trim() && hit(mb, t.getBBox(), 0.5));
+    });
+    check(bad.length === 0, `c1122: keine Marke über einem Text (${bad.length})`);
+  }
+}
+// ---- WELLE1-R3C-END
 </script>
 <script>
 // ======================================================================
