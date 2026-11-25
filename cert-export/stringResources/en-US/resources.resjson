@@ -1003,5 +1003,9 @@
   "Labels_RoundedZero": "Rounded zero",
   "Desc_Labels_RoundedZero": "A variance that is not zero but rounds to zero: keep its sign (\"+0.0\", the direction stays readable next to a pin or bar) or print it without a sign like the reference sheets (\"0.0\"). Applies to Δ, Δ % and pp. Exact zeros never carry a sign. Default keep the sign.",
   "Enum_RoundedZero_Signed": "Keep the sign (+0.0)",
-  "Enum_RoundedZero_Plain": "Without sign (0.0)"
+  "Enum_RoundedZero_Plain": "Without sign (0.0)",
+  "Chart_PinHeadColor": "Δ%-pin head",
+  "Desc_Chart_PinHeadColor": "Fill of the Δ% pin heads. \"Scenario\" (default from 1.58) draws the head in the notation of the compared scenario like IBCS sheets 03A, 04A and 06E: AC solid dark, FC finely hatched, PL outlined; only the stem carries the variance color (on very short pins also the label). \"Variance color\" fills the head in green or red (FC hatched in the variance color, PL outlined) in all modes: in columns, bars, line and waterfall as up to 1.57 (stem 1.6 px, head not reduced), in table, bridges and P&L newly colored instead of dark. The head shape is set by \"Δ%-pin shape\". In high contrast the head keeps filled = good, outlined = bad.",
+  "Enum_PinHeadColor_Scenario": "Scenario (AC solid, FC hatched, PL outlined)",
+  "Enum_PinHeadColor_Variance": "Variance color (all modes, incl. table and bridges)"
 }

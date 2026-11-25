@@ -14,7 +14,7 @@ Ein einzelnes Power-BI-Visual mit 14 IBCS-inspirierten Modi — von Säulen, Lin
 
 ### Visual herunterladen
 
-Version **1.58.0.0** · **.pbiviz** · 24.11.2026
+Version **1.58.0.0** · **.pbiviz** · 25.11.2026
 
 Direkt-Download, keine Registrierung — der Link liefert immer die aktuelle Version. Import in Power BI Desktop: *Visualisierungen → „…" → Visual aus einer Datei importieren*. Alternativ gibt es alle Builds auch auf [GitHub](https://github.com/Losveratos/Power-BI-Custom-Visuals-byDatenWG).
 

@@ -14,7 +14,7 @@ One Power BI visual with 14 IBCS-inspired modes — from columns, lines and wate
 
 ### Download the visual
 
-Version **1.58.0.0** · **.pbiviz** · 24.11.2026
+Version **1.58.0.0** · **.pbiviz** · 25.11.2026
 
 Direct download, no registration — this link always serves the latest release. Import in Power BI Desktop: *Visualizations → “…” → Import a visual from a file*. All builds are also available on [GitHub](https://github.com/Losveratos/Power-BI-Custom-Visuals-byDatenWG).
 

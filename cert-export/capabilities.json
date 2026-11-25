@@ -576,6 +576,14 @@
                 "stackLegendDirect": { "type": { "bool": true } },
                 "scenarioLabels": { "type": { "bool": true } },
                 "panelTypeTitles": { "type": { "bool": true } },
+                "pinHeadColor": {
+                    "type": {
+                        "enumeration": [
+                            { "value": "scenario", "displayName": "Scenario (AC solid, FC hatched, PL outlined)" },
+                            { "value": "variance", "displayName": "Variance color (all modes, incl. table and bridges)" }
+                        ]
+                    }
+                },
                 "sfNet": { "type": { "bool": true } },
                 "sfNetLabel": { "type": { "text": true } },
                 "sfArea": { "type": { "bool": true } },

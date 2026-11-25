@@ -8,7 +8,9 @@
   deshalb das feinere Muster; es wird erst beim ersten FC-Kopf oder FC-Punkt angelegt, Charts ohne FC bleiben
   SVG-gleich. Gilt für Säulen, Balken, Linie und Wasserfall (erste und zweite Basis, Jahressäule mit AC&FC, Δ%-Stufe
   des Wasserfalls) und für die Δ%-Pins der Tabelle. FC-Punkte (Kreise) der Linie, der R12-Linie, von Dumbbell und
-  Slope sind ebenfalls fein schraffiert statt hohl, **auch im Hochkontrast** (diese Marken hatten nie einen eigenen
+  Slope sind ebenfalls fein schraffiert statt hohl, die FC-Marken der Serienlinien (C22) in der Farbe ihrer Serie
+  (bei Marken bis 5 px mit Periode 1,8 px, sonst nur ein Strich; im Hochkontrast bleiben diese hohl wie bisher); Linie,
+  R12, Dumbbell und Slope **auch im Hochkontrast** (diese Marken hatten nie einen eigenen
   Hochkontrast-Zweig). **Bestehende Berichte:** FC-Köpfe und FC-Punkte sehen anders aus (Notationskorrektur).
 - **2 · Pinköpfe szenariocodiert, nur der Stiel in Abweichungsfarbe.** Vorher: Säulen, Balken, Linie und Wasserfall
   färbten den Kopf grün bzw. rot (bei unwesentlichen Abweichungen grau), der Stiel war 1,6 px breit. Nachher wie in
@@ -27,14 +29,25 @@
   und schlecht im Hochkontrast dieselbe Farbe haben; FC-Köpfe bleiben dort hohl, Stiel 1,6 px. **Bestehende Berichte:**
   alle Δ%-Pins in Säulen, Balken, Linie, Wasserfall und Jahressäule zeigen dunkle Köpfe und breitere Stiele
   (Notationskorrektur).
+  - **Liest die Beschriftung null** („0,0%“ mit `plain`, „−0,0%“ mit `signed`), bleibt sie auch am kurzen Pin in Tinte:
+    die Farbe folgt der gedruckten Zahl, nie Rot oder Grün neben einer Null.
+  - **Alte Anzeige wählbar:** neue Property `chart.pinHeadColor` (Gruppe „Darstellung“, „Kopf der Δ%-Pins“, `scenario`
+    | `variance`, Standard `scenario`). `variance` stellt den Kopf von 1.57 in der Abweichungsfarbe her (Stiel 1,6 px,
+    Kopf nicht verkleinert, keine farbige Beschriftung kurzer Pins), FC dabei in der Abweichungsfarbe fein schraffiert
+    statt hohl, und färbt wie Stand B auch die Köpfe in Tabelle, Integrierter Brücke, Kategorie-Brücke und GuV. Die
+    Kopfform (`chart.pinStyle`) bleibt davon unabhängig. Keine Vorlage schreibt die Property. Hochkontrast unverändert.
+  - **Brücken und GuV:** FC-Köpfe der Integrierten Brücke (C05), der Kategorie-Brücke (C06, C17) und des
+    GuV-Statements (Sicht AC&FC) tragen jetzt die feine Schraffur statt des 5-px-Musters, das sie leer erscheinen ließ;
+    die Kategorie-Brücke kennzeichnet FC-Zeilen damit erstmals am Kopf. AC-Köpfe dort bleiben bytegleich.
 - **3 · Abweichungsachse der Tabelle nach Basis (C14 bis C16).** Vorher: die Achsen der Spalten Δ, Δ % und der
   zweiten Δ-Spalte waren immer eine graue 2-px-Linie. Nachher wie die Δ-Panels der Säulen: Basis PL Doppellinie,
   Basis FC Vormonat (`fcrev`) gestrichelte Doppellinie, Basis PY grau wie bisher (SVG-gleich), Ø-Basis grau für die
-  erste Δ-Spalte; die zweite Δ-Spalte folgt der zweiten Basis (wie die Säulen, auch unter der Ø-Basis). Neben den
-  Δ-Balken liegt die Doppellinie über den Zeilen auf einem 3,4 px breiten Streifen in Papierfarbe: ein positiver Balken
-  verdeckte sonst die rechte Linie, jetzt beginnen alle Balken sichtbar an der Außenkante (Geometrie und px je Einheit
-  unverändert). In der Δ %-Spalte liegt sie unter den Pins, damit Köpfe nahe null nicht angeschnitten werden.
-  Testmarker `table-var-axis` (`data-basis`, `data-over`). Auch im Hochkontrast (Doppellinie in der
+  erste Δ-Spalte; die zweite Δ-Spalte folgt der zweiten Basis (wie die Säulen, auch unter der Ø-Basis). An einer
+  Doppellinie beginnen die Δ-Balken an ihrer Außenkante (2,2 px statt 1 px neben der Achse, positiv und negativ gleich,
+  mindestens 1 px breit): ein positiver Balken verdeckt die rechte Linie nicht mehr, und kleine Balken (−0,4 bis −21 in
+  C14) bleiben sichtbar; ein Papierstreifen über den Balken, wie er im ersten Stand kleine Balken verschluckte, entfällt.
+  Ein Δ von genau null zeichnet an der Doppellinie keinen Balken (an der grauen PY-Achse wie bisher den 1-px-Strich).
+  Länge und px je Einheit unverändert. Testmarker `table-var-axis` (`data-basis`). Auch im Hochkontrast (Doppellinie in der
   Hochkontrastfarbe). **Bestehende Berichte:** Tabellen gegen Plan oder FC zeigen die Doppellinie (Notationskorrektur),
   gegen PY keine Änderung.
 - **4 · Scatter ohne „Scatter · AC × …“ und ohne „AC“.** Neue Properties im Objekt `chart`, Gruppe „Scatter / Bubble“:
@@ -84,7 +97,24 @@
   c600, c701, c1002 (genau 7 Köpfe) und c1005 (genau 7 hohle Köpfe, Stiel 1,6 px). Angepasst: c278c, c829, c976
   (prüfen den Typ-Titel und schalten ihn dafür an), c959 (Paneltitel über „○“), Notation Punkt 7 (B5b findet die
   Beschriftung über „PY → AC“), c262 (drei Merge-Einträge: chart, scale, labels), c195, c222, c223, c229 (das
-  Host-Echo enthält jetzt auch das Objekt `labels`, wie es Power BI zurückgibt). 1005 resjson-Keys je Sprache.
+  Host-Echo enthält jetzt auch das Objekt `labels`, wie es Power BI zurückgibt). Runde 3 (Stand B portiert): c1070
+  bis c1084 (`pinHeadColor = variance` rund und eckig, kurze Pins, Tabelle, C05, C06, GuV, Hochkontrast; feine
+  FC-Schraffur in C05 und GuV; kleine Δ-Balken der Tabelle an der Doppellinie, PY bytegleich; Beschriftung „−0,0%“ und
+  „0,0%“ in Tinte; Knöpfe in Small Multiples und neben aktivem Kommentar-Modus in eigener Kopfzeile), kpi58p bis kpi58r
+  (eigene Kopfzeile bei langem Titel, „+1 Δ“ flach, „+2 Δ“ gestapelt), Export-Zwillinge kpi58fx, kpi58lx, kpi58mx;
+  geschärft: Knöpfe überdecken in keiner kpi58-Stufe eine Karte (statt nur keine Δ-Zeile); angepasst: c868 (FC-Marken
+  schraffiert statt hohl), c1010 (Balken an der Außenkante statt Papierstreifen). Runde 3b: c1090 bis c1101 (ohne Titel
+  1240 × 72, 800 × 56, 800 × 44, 800 × 70 mit Brücke, 760 × 150: kein Kartentext unter dem Rand, kein Knopf über Text;
+  960 × 220 mit Kopfzeile; Kacheln mit Knöpfen im Kachelkopf; Modus-Chip ohne Titel; Δ = 0 ohne Balken; C22 im
+  Hochkontrast; „+n“ mit Referenzwerten, aria-label und Fokus; Marke in 34-px-Karten), c868 prüft die Periode 1,8 px;
+  angepasst c1083 (Knöpfe im Kachelkopf statt Kopfzeile) und kpi58 „Δ-Block überdeckt den Wert nicht“ (findet den Wert
+  als zweiten Text der Karte, weil sehr niedrige Karten ihn verkleinern). Runde 3c: c1110 bis c1122 (Ausnahmeknopf in
+  der Kartenecke 800 × 56, 800 × 44, 800 × 70 mit Brücke, 400 × 400 Full HD; Kommentar-Modus ohne Titel 1240 × 72,
+  800 × 70, 760 × 150, 900 × 64 mit Band; gestapelt 900 × 64 und 520 × 70; „+n Δ“ gestapelt am Kartenrand − 8 px wie in
+  391d04f; 8 Kacheln mit Kommentar-Modus; 22-px-Karten), jeweils mit der Abnahme des Reviews: kein Knopf über Text oder
+  Knopf, jeder Knopf klickbar, kein Kartentext außerhalb der Karte. Messung des Reviews über 397 Fälle: 46 statt 120
+  Befunde, keiner mehr mit Knopf über Text außer zwei Altfällen mit Titel (800 × 44 mit Titel, Modus-Chip über
+  langem Titel). 1009 resjson-Keys je Sprache.
 
 ### KPI-Karten
 
@@ -102,8 +132,41 @@ aus dem unabhängigen Review. Keine neue Property.
 - **Inhalt über die Kartenbreite (Prüfstand 6).** Ist rechts nichts zu zeichnen (Balken aus oder ohne Basis, kein
   Trend, kein Bullet), rückt der Δ-Block Richtung Kartenmitte statt direkt hinter dem Wert zu stehen. Gedeckelt:
   höchstens bis zur Kartenmitte, höchstens 120 px·k hinter die Wertspalte (eine breite Karte reißt Wert und Δ nicht
-  auseinander), nie über den rechten Rand und nie unter den Sortierknopf bzw. Ausnahmeknopf, wenn diese auf Höhe der
-  ersten Δ-Zeile liegen. Mit Brücke, Trend oder Bullet bleibt er hinter der Wertspalte.
+  auseinander) und nie über den rechten Rand. Mit Brücke, Trend oder Bullet bleibt er hinter der Wertspalte.
+- **Sortier- und Ausnahmeknopf mit eigenem Platz (Prüfstand 2, wie Stand B Punkt 8).** Vorher lagen die Knöpfe über
+  der letzten Karte und konnten den Δ-Block berühren. Nachher, in dieser Reihenfolge (Marker `card-chip-row`,
+  `data-place`):
+  - `title`: rechts in der Titelzeile des Visuals, wenn das Visual einen Titel hat, keine Small Multiples zeigt, kein
+    Modus-Chip (Kommentar, Struktur, Vergleich) aktiv ist und Titel und Botschaftszeile vor beiden Knöpfen enden
+    (`titleRightX`).
+  - `tile`: bei Small Multiples kompakt (14 px hoch) im Kachelkopf links vom ⤢, über dessen Klickfläche gezeichnet
+    (bleiben klickbar), der Kacheltitel wird davor gekürzt; die Klickfläche des Kacheltitels endet jetzt mit dem
+    Kopf (reichte 3 px in die Kachel). Vorher bekam jede Kachel eine zweite Kopfzeile, die Werte ragten unter den Rand.
+  - `strip`: eigene Kopfzeile der Kachel (18 px + 4 px), die Karten rücken darunter, aber nur, wenn die Karten danach
+    noch die Höhe ihres Layouts haben (flach mindestens 52 px·k bzw. Titel + Wert + 16 px·k, gestapelt Titel, Wert
+    und erste Δ-Zeile).
+  - `card`: sonst kompakt in der rechten oberen Ecke der letzten Karte der ersten Reihe; Δ-Block, Mini-Brücke,
+    Trend, Kommentarnummer, „+n Δ“ und (gestapelt) der Kartentitel der darunter liegenden Karten weichen nach links
+    aus. Reicht das nicht, zeigen die Knöpfe nur „↕“ und „⚠“ (`data-icons`); reicht auch das nicht, zeigen die
+    Karten unter den Knöpfen ihr Δ ohne den Δ %-Teil (voller Text als Tooltip der Zeile), gestapelte Karten
+    verzichten notfalls auf den Ausnahmeknopf (er bleibt im Formatbereich).
+  - `band`: ohne Titel und mit aktivem Modus-Chip (Kommentar, Struktur, Vergleich) reserviert das Visual oben ein
+    Band (6 + 18 + 4 px·k), der Chip liegt dort frei und klickbar, Sortier- und Ausnahmeknopf links davon. Gilt auch
+    für Small Multiples (der Chip lag dort über dem ⤢ der rechten oberen Kachel).
+  Ein aktiver Modus-Chip schiebt die Knöpfe nach links, wenn sie auf seiner Höhe liegen. Karten, die für ihren Inhalt
+  zu niedrig sind, verkleinern erst den Wert (flach und gestapelt), dann rücken Titel und Wert eng zusammen, zuletzt
+  steht der Wert allein (der Titel bleibt im Tooltip); bisher ragten Wert und Titel unter den Rand (z. B. 800 × 44,
+  900 × 64 gestapelt, ein Band 1240 × 72 mit Titel). Die Breite der Wertspalte rechnet mit dem verkleinerten Wert.
+  Export ohne Knöpfe unverändert.
+- **Verdeckte Δ-Zeilen werden gezählt (wie Stand B Punkt 12).** Zeilen ohne Platz (mehr als zwei Zeilen im flachen
+  Streifen, niedrige Karte, Block passt nicht) entfallen nicht mehr still: „+n Δ“ steht bei flachen Karten über dem
+  Δ-Block (nie über dem oberen Kartenrand), sonst oben rechts in der Karte, mit Tooltip der verdeckten Zeilen
+  („ΔBM −0,1M€ · −0,5%; …“, `data-icd="card-more"`, `data-n`) und demselben Text als `aria-label`; interaktiv per
+  Tastatur erreichbar, im Export sichtbar ohne Fokus. Sind Referenzwert-Zeilen dabei (`cardRefValues`), heißt die
+  Marke neutral „+n“. Leere Rasterplätze zählen nicht; „PY n.a.“ zählt als Zeile. Ist über dem Δ-Block kein Platz
+  (sehr niedrige Karte) oder liegen dort die Knöpfe, steht die Marke rechts neben dem Block; passt sie auch dort
+  nicht, entfällt sie (der Tooltip der Karte nennt alle Zeilen). Zeilenraster,
+  „PY n.a.“ und die Regel zur gerundeten Null in Karten bleiben wie oben.
 - **Keine gerundete Null mit Vorzeichen (Prüfstand 3).** Vorher „+0,0M€ · +0,1%“, „−0 · −0,6%“. Nachher druckt eine
   Zahl, die ungleich 0 ist, aber auf 0 rundet, in den Karten immer ohne Vorzeichen (Entscheidung des Autors, keine
   Option): „0,0M€ · +0,1%“, „0 tCO2“, im Finanzformat „0,0M€“ statt „(0,0M€)“. Geprüft wird nur der Zahlteil, Ziffern
@@ -137,11 +200,14 @@ aus dem unabhängigen Review. Keine neue Property.
   direkt hinter der Wertspalte), Abstand höchstens 170 px bei einer Karte, keine
   Null mit Vorzeichen oder in Klammern, nur U+2212 außer im Textpräfix, Farbe von Zeile, Streifen und Tönung bei
   „Δ rundet auf null, Δ% deutlich“ und bei „alles null“, Position der n.a.-Zeilen.
-- Nebenwirkung: Im Export ohne Chips (Sortierknopf fehlt) steht der Δ-Block etwa 20 px weiter rechts und Titel
-  werden anders gekürzt als am Bildschirm; Bildschirm und Export sind in diesem Punkt nicht deckungsgleich.
-- Offen (Backlog): Sortierknopf über der letzten Karte in den übrigen Lagen (Prüfstand 2), auch der Fall, dass er bei
-  5 Karten auf 1320 × 96 und 4 Karten auf 1320 × 72 den Δ-Block berührt; stiller Wegfall von
-  Δ-Zeilen (7), Kleinteile (8); `fmtSigned` erkennt eine Null mit Ziffer in der Einheit nicht („+0 tCO2“ in Diagrammen,
+- Bildschirm und Export (der Export zeichnet keine Knöpfe): Titelzeile und Kachelkopf ändern die Karten nicht,
+  Bildschirm und Export sind gleich (geprüft an kpi58f, kpi58l, kpi58m gegen Export-Zwillinge). Mit eigener Kopfzeile
+  sind die Karten am Bildschirm 22 px niedriger als im Export. In der Kartenecke (niedrige Kacheln ohne Titel) weicht
+  der Δ-Block der Karten unter den Knöpfen am Bildschirm nach links aus, im Export nicht; dort sind Bildschirm und
+  Export also nicht deckungsgleich.
+- Offen (Backlog): Kommentarnummer der Karte kann bei sehr schmalen Karten auf Δ-Text oder Titel liegen; Modus-Chip
+  über einem langen Titel (Altbestand); lange Kacheltitel werden neben den Knöpfen im Kachelkopf gekürzt; Karten unter
+  etwa 10 px Höhe (sehr niedrige Kachel mit Titel) bleiben unlesbar; Kleinteile (8); `fmtSigned` erkennt eine Null mit Ziffer in der Einheit nicht („+0 tCO2“ in Diagrammen,
   Altbestand).
 
 ## 1.57.0.0 (2026-11-22, Backlog IBCS-Templates Teil 4)

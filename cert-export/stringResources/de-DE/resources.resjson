@@ -1003,5 +1003,9 @@
   "Labels_RoundedZero": "Gerundete Null",
   "Desc_Labels_RoundedZero": "Eine Abweichung, die nicht null ist, aber auf null rundet: Vorzeichen behalten („+0,0“, die Richtung bleibt neben Pin oder Balken lesbar) oder ohne Vorzeichen wie in den Referenzblättern („0,0“). Gilt für Δ, Δ % und Pp. Exakte Nullen tragen nie ein Vorzeichen. Standard Vorzeichen behalten.",
   "Enum_RoundedZero_Signed": "Vorzeichen behalten (+0,0)",
-  "Enum_RoundedZero_Plain": "Ohne Vorzeichen (0,0)"
+  "Enum_RoundedZero_Plain": "Ohne Vorzeichen (0,0)",
+  "Chart_PinHeadColor": "Kopf der Δ%-Pins",
+  "Desc_Chart_PinHeadColor": "Füllung des Kopfes der Δ%-Pins. „Szenario“ (Standard ab 1.58) zeichnet den Kopf in der Notation des verglichenen Szenarios wie die IBCS-Blätter 03A, 04A und 06E: AC massiv dunkel, FC fein schraffiert, PL hohl; nur der Stiel trägt die Abweichungsfarbe (bei sehr kurzen Pins auch die Beschriftung). „Abweichungsfarbe“ füllt den Kopf in Grün bzw. Rot (FC in der Abweichungsfarbe schraffiert, PL hohl), und zwar in allen Modi: in Säulen, Balken, Linie und Wasserfall wie bis 1.57 (Stiel 1,6 px, Kopf nicht verkleinert), in Tabelle, Brücken und GuV neu farbig statt dunkel. Die Kopfform wählt „Δ%-Pin-Form“. Im Hochkontrast bleibt der Kopf bei gefüllt = gut, hohl = schlecht.",
+  "Enum_PinHeadColor_Scenario": "Szenario (AC massiv, FC schraffiert, PL hohl)",
+  "Enum_PinHeadColor_Variance": "Abweichungsfarbe (alle Modi, auch Tabelle und Brücken)"
 }
