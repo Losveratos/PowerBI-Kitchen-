@@ -111,7 +111,7 @@ Version 1.8.3.0 · .pbiviz
 
 Der Schnellstart verlinkt die aktuelle .pbiviz und zeigt die ersten Schritte. Demo-Daten der Brauerei liegen im Repository.
 
-[Zum Schnellstart →](../pnl-schnellstart.html) · [.pbiviz laden ↓](https://raw.githubusercontent.com/Losveratos/PowerBI-Kitchen-/main/pnlByDatenWG/dist/pnlByDatenWG3F9A7D2C51E64B08A1C4E7F0B92D6358.1.8.3.0.pbiviz) · [Zur Doku](../pnl-doku.html)
+[Zum Schnellstart →](../pnl-schnellstart.html) · [.pbiviz laden ↓](https://raw.githubusercontent.com/Losveratos/PowerBI-Kitchen-/main/pnlByDatenWG/dist/pnlByDatenWG3F9A7D2C51E64B08A1C4E7F0B92D6358.1.8.4.0.pbiviz) · [Zur Doku](../pnl-doku.html)
 
 In der Doku: [Die Ansichten (Sankey)](../pnl-doku.html#views) · [⚡ Nur Ausnahmen](../pnl-doku.html#exceptions) · [Cross-Highlight](../pnl-doku.html#highlight) · [Bestand & Fluss](../pnl-doku.html#stock) · [T05A/T05B](../pnl-doku.html#t05) · [Sicherheit & Betrieb](../visuals-sicherheit.html)
 

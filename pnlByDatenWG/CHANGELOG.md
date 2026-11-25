@@ -1,6 +1,6 @@
 # Changelog — P&L Statement byDatenWG
 
-## 1.8.4.0 (in Arbeit): Notationskorrekturen Welle 1
+## 1.8.4.0 (2026-11-25): Notationskorrekturen Welle 1
 
 Korrekturen aus dem Template-Prüfstand vom 24.11.2026 (Welle 1, Punkte 6 bis 10), dazu flache Listen,
 der Maximieren-Fix und ⚡ auf dem gedruckten Wert aus einer parallelen Linie übernommen. IBCS dient nur

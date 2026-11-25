@@ -9,7 +9,7 @@ Das Repo hinter **[datenwgknowledgekitchen.com](https://www.datenwgknowledgekitc
 | Bereich | Ordner/Dateien | Kurz |
 | --- | --- | --- |
 | **ChartKitchen byDatenWG** | `ibcsInspiredChartDeck/` | Custom Visual (derzeit 1.58.0.0) mit 14 IBCS-inspirierten Chart-Modi (Säulen, Balken, Linien, Waterfall/Brücke, GuV, Tabelle/Matrix, KPI-Karten, Scatter/Bubble, Bestand & Fluss …) und den Vorlagen C01–C25, mit denen sich alle 62 Referenzblätter der IBCS-Vorlagen nachbauen lassen. Quellcode, Tests, `dist/*.pbiviz`, CHANGELOG |
-| **P&L Statement byDatenWG** | `pnlByDatenWG/` | Custom Visual für GuV/P&L (derzeit 1.8.3.0): Mega-Table mit IBCS-Templates T01A–12H, Treiberbaum mit ROI-Baum, Sankey, Bilanz und Cashflow, klassische Tabelle |
+| **P&L Statement byDatenWG** | `pnlByDatenWG/` | Custom Visual für GuV/P&L (derzeit 1.8.4.0): Mega-Table mit IBCS-Templates T01A–12H, Treiberbaum mit ROI-Baum, Sankey, Bilanz und Cashflow, klassische Tabelle |
 | **dataKitchenGantt** | `dataKitchenGantt/` | Custom Visual: Gantt-/Projektplan |
 | **fabscan** | `fabric-app-scanner/` | Governance-Prüfung (derzeit 0.6.1) für Fabric Apps und den Tenant, auch ohne Admin-Rechte: Berechnungen in der App, Lineage, Sicherheit, veränderte Abfragen, Abweichungen zum Modell. CLI (`pip install`), Skill für Claude (`.claude/skills/fabscan/`, ZIP in `downloads/`), Fabric-Notebook für den Tenant-Scan |
 | **MockupKitchen & Co** | `mockup-kitchen.html`, `business-chart-builder.html` | Browser-Werkzeuge: Report-Mockups skizzieren, Deneb/Vega-Charts bauen |

@@ -183,7 +183,7 @@ Readers, PDF export and subscriptions never see the hub, the overlay or the bar.
 
 ### 1 · Import the visual
 
-1. Download the file [`pnlByDatenWG…1.8.3.0.pbiviz`](https://raw.githubusercontent.com/Losveratos/PowerBI-Kitchen-/main/pnlByDatenWG/dist/pnlByDatenWG3F9A7D2C51E64B08A1C4E7F0B92D6358.1.8.3.0.pbiviz) (extension `.pbiviz`, also via the button at the top right).
+1. Download the file [`pnlByDatenWG…1.8.3.0.pbiviz`](https://raw.githubusercontent.com/Losveratos/PowerBI-Kitchen-/main/pnlByDatenWG/dist/pnlByDatenWG3F9A7D2C51E64B08A1C4E7F0B92D6358.1.8.4.0.pbiviz) (extension `.pbiviz`, also via the button at the top right).
 2. In Power BI Desktop: *Visualizations* → *⋯* → *Import a visual from a file* and pick the `.pbiviz`. An older version is replaced.
 3. Draw the visual generously (at least about 1200 × 800 px) — the toolbar and two column blocks need width. Freshly placed, it shows the **start hub** in edit mode (chapter 03): “🚀 Get started” walks you through fields, template and fine-tuning with ticks, “Show demo” opens the example statement on which views, toolbar and templates already work.
 
@@ -965,7 +965,7 @@ Sister visual: [ChartKitchen byDatenWG – documentation](../chartkitchen-doku_e
 
 Contact: Michael Tenner · [michael.tenner84@gmail.com](mailto:michael.tenner84@gmail.com)
 
-Quick start: [pnl-schnellstart_en.html](../pnl-schnellstart_en.html) · Download: [.pbiviz 1.8.3.0](https://raw.githubusercontent.com/Losveratos/PowerBI-Kitchen-/main/pnlByDatenWG/dist/pnlByDatenWG3F9A7D2C51E64B08A1C4E7F0B92D6358.1.8.3.0.pbiviz) · Source code and changelog: [pnlByDatenWG in the repository](https://github.com/Losveratos/PowerBI-Kitchen-/tree/main/pnlByDatenWG) · For AI agents: [AGENT-GUIDE](https://github.com/Losveratos/PowerBI-Kitchen-/blob/main/pnlByDatenWG/AGENT-GUIDE.md)
+Quick start: [pnl-schnellstart_en.html](../pnl-schnellstart_en.html) · Download: [.pbiviz 1.8.3.0](https://raw.githubusercontent.com/Losveratos/PowerBI-Kitchen-/main/pnlByDatenWG/dist/pnlByDatenWG3F9A7D2C51E64B08A1C4E7F0B92D6358.1.8.4.0.pbiviz) · Source code and changelog: [pnlByDatenWG in the repository](https://github.com/Losveratos/PowerBI-Kitchen-/tree/main/pnlByDatenWG) · For AI agents: [AGENT-GUIDE](https://github.com/Losveratos/PowerBI-Kitchen-/blob/main/pnlByDatenWG/AGENT-GUIDE.md)
 
 > Notation follows the IBCS® Standards 2.0 (ISO 24896) of the IBCS Association (CC BY-SA 4.0, ibcs.com). Documented deviation: teal replaces the IBCS variance green to stay readable with red–green color-vision deficiency. IBCS® is a registered trademark of the IBCS Institute. This visual is not certified by the IBCS Association and is not affiliated with it.
 
