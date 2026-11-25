@@ -6,7 +6,7 @@ Power-BI-Visual · Enddokumentation
 
 Ein IBCS-inspiriertes Chart-Deck für Power BI: 14 Diagramm-Modi in einem einzigen Visual, mit einheitlicher Szenario-Notation (AC ausgefüllt, PY grau, PL umrandet, FC schraffiert) und mitgedachten Varianzen. Diese Dokumentation führt vom Import über die 14 Modi und die wichtigsten Funktionen bis zur vollständigen Einstellungs-Referenz.
 
-Version · **1.58.0.0** · Stand · **2026-11-24** · IBCS-inspired
+Version · **1.58.0.0** · Stand · **2026-11-25** · IBCS-inspired
 
 ## Inhalt
 
@@ -208,7 +208,7 @@ ChartKitchen zählt 14 Chart-Typen. Die Demo-Galerie im Start-Hub zeigt die folg
 
 ![Säulen (Zeitreihe): AC gegen PY als überlagerte Säulen, darüber die Varianz-Panels ΔPY absolut und ΔPY in Prozent.](../doku-assets/mode-columns.png)
 
-![So sieht es in Power BI Desktop aus: Säulen-Modus mit vier gestapelten Varianz-Panels — ΔPL %, ΔPL, ΔPY % und ΔPY — über den AC-Säulen; die Forecast-Monate ab Juli sind schraffiert.](../doku-assets/pbi/pbi-columns.png)
+![So sieht es in Power BI Desktop aus: Säulen-Modus mit vier gestapelten Varianz-Panels — ΔPL %, ΔPL, ΔPY % und ΔPY — über den AC-Säulen; die Forecast-Monate ab Juli sind schraffiert. Aufnahme vor 1.58.](../doku-assets/pbi/pbi-columns.png)
 
 Der Standard für Zeitreihen: Monate oder Quartale als Säulen, AC ausgefüllt, PY grau (oder als Dreieck, wenn zusätzlich PL gebunden ist). Über den Säulen liegen die Varianz-Panels ΔPY absolut und in Prozent. Nimm diesen Modus, wenn die Zeitachse überschaubar ist (bis etwa 24 Punkte) und die Abweichung je Periode zählt.
 
@@ -222,7 +222,7 @@ Für Strukturvergleiche ohne Zeitbezug — Produkte, Regionen, Konten. Die Kateg
 
 ![Linie (viele Datenpunkte): AC solide, PY dünn und grau, plus gleitender 6-Perioden-Durchschnitt für den Trend.](../doku-assets/mode-line.png)
 
-![So sieht es in Power BI Desktop aus: Linien-Modus über das Geschäftsjahr: AC durchgezogen, PL gestrichelt und der Forecast-Abschnitt abgesetzt, darüber die Panels ΔPL und ΔPL % je Monat.](../doku-assets/pbi/pbi-line.png)
+![So sieht es in Power BI Desktop aus: Linien-Modus über das Geschäftsjahr: AC durchgezogen, PL gestrichelt und der Forecast-Abschnitt abgesetzt, darüber die Panels ΔPL und ΔPL % je Monat. Aufnahme vor 1.58.](../doku-assets/pbi/pbi-line.png)
 
 Für lange Zeitreihen mit vielen Datenpunkten (Wochen, Tage), bei denen Säulen zu dicht würden. Alle absoluten Linien haben dieselbe Stärke: AC dunkel, PY hellgrau, PL hohl, nur FC gestrichelt; optional ein gleitender Durchschnitt über N Perioden für den Trend. Der Fokus liegt auf Verlauf und Wendepunkten, nicht auf der Einzelperiode.
 
@@ -250,7 +250,7 @@ Die Treiber-Brücke über Kategorien: PY-Zeile oben, je Treiber ein AC-PY-Balken
 
 ![Tabelle (IBCS): flache Wertetabelle mit AC-PY-Balken, ΔPL-Balkenspalte, ΔPL-%-Pins und Σ-Total-Zeile.](../doku-assets/mode-table.png)
 
-![So sieht es in Power BI Desktop aus: Tabelle nach Ländern: AC-PY-PL-Balken je Zeile, eine eigene ΔPL-Balkenspalte, ΔPL-%-Pins und die Σ-Gesamt-Zeile unten.](../doku-assets/pbi/pbi-table.png)
+![So sieht es in Power BI Desktop aus: Tabelle nach Ländern: AC-PY-PL-Balken je Zeile, eine eigene ΔPL-Balkenspalte, ΔPL-%-Pins und die Σ-Gesamt-Zeile unten. Aufnahme vor 1.58.](../doku-assets/pbi/pbi-table.png)
 
 Die flache IBCS-Wertetabelle: je Zeile der AC-PY-Balken, eine ΔBasis-Balkenspalte, ΔBasis-%-Pins und eine Σ-Gesamtzeile. Sie verbindet Zahlengenauigkeit mit IBCS-Grafik in der Zelle und ist die Grundlage für Hierarchien, Ergebnis-/Skip-Zeilen und die Matrix. Ideal für board- und drucktaugliche Kennzahlenblätter. Mehrere Kategorie-Felder klappen seit 1.47 automatisch als Zeilenbaum auf (Schalter „Hierarchie automatisch aufklappen“, Standard an).
 
@@ -310,9 +310,9 @@ Seit 1.55 trägt der Modus die Portfolio-Blätter 10A, 10B und 10D: Der Wert der
 
 Die folgenden Aufnahmen stammen direkt aus Power BI Desktop, mit Beispieldaten aus einem echten Bericht. Die übrigen Abbildungen dieser Dokumentation sind mit demselben Renderer erzeugt — hier siehst du das Visual so, wie es im Berichtsalltag zusammenspielt.
 
-![Eine komplette Berichtsseite: KPI-Karten, eine AC/FC-Monatsbrücke und eine YTD-Brücke nach Produkt — alle Kacheln aus demselben Visual, mit einheitlicher Szenario-Notation.](../doku-assets/pbi/pbi-demo-report.png)
+![Eine komplette Berichtsseite: KPI-Karten, eine AC/FC-Monatsbrücke und eine YTD-Brücke nach Produkt — alle Kacheln aus demselben Visual, mit einheitlicher Szenario-Notation. Aufnahme vor 1.58.](../doku-assets/pbi/pbi-demo-report.png)
 
-![Integrierte Brücken je Kategorie oben, darunter dieselbe Brücke als Small Multiples je Land — so wird der Beitrag jeder Region zur Gesamtabweichung vergleichbar.](../doku-assets/pbi/pbi-bridges-multiples.png)
+![Integrierte Brücken je Kategorie oben, darunter dieselbe Brücke als Small Multiples je Land — so wird der Beitrag jeder Region zur Gesamtabweichung vergleichbar. Aufnahme vor 1.58.](../doku-assets/pbi/pbi-bridges-multiples.png)
 
 ![Frei gewählte Farbpalette: dieselbe integrierte Brücke mit Monatssäulen in Blau statt der IBCS-Graustufen — Szenario-Logik und Forecast-Schraffur bleiben erhalten.](../doku-assets/pbi/pbi-custom-color.png)
 
@@ -846,7 +846,7 @@ Seit 1.45 führt der Formatbereich nach Arbeitslogik: Die Chart-Karte steht an P
 
 #### Layout
 
-![Schema: Formatbereich → Chart: Chart-Typ (vormals „Ausrichtung“), Abweichungsbasis und die Abweichungs-Optionen (Skizze: Stand vor 1.45).](../doku-assets/pane/pane-chart-layout.png)
+![Schema: Formatbereich → Chart: Chart-Typ (vormals „Ausrichtung“), Abweichungsbasis und die Abweichungs-Optionen (Skizze: Stand vor 1.45). Stand vor 1.58: Die in 1.58 neuen Einstellungen fehlen im Bild, die Tabelle nennt sie.](../doku-assets/pane/pane-chart-layout.png)
 
 | Einstellung | Beschreibung | Optionen / Standard |
 | --- | --- | --- |
@@ -865,7 +865,7 @@ Seit 1.45 führt der Formatbereich nach Arbeitslogik: Die Chart-Karte steht an P
 
 #### Analyse
 
-![Schema: Formatbereich → Chart → Analyse: Kumulierung (YTD), gleitender Durchschnitt, Top N, Hervorhebung, Invertierung, Wesentlichkeit und Pin-Form.](../doku-assets/pane/pane-chart-analyse.png)
+![Schema: Formatbereich → Chart → Analyse: Kumulierung (YTD), gleitender Durchschnitt, Top N, Hervorhebung, Invertierung, Wesentlichkeit und Pin-Form. Stand vor 1.58: Die in 1.58 neuen Einstellungen fehlen im Bild, die Tabelle nennt sie.](../doku-assets/pane/pane-chart-analyse.png)
 
 | Einstellung | Beschreibung | Optionen / Standard |
 | --- | --- | --- |
@@ -1061,7 +1061,7 @@ Seit 1.45 führt der Formatbereich nach Arbeitslogik: Die Chart-Karte steht an P
 
 ### Datenbeschriftungen
 
-![Schema: Formatbereich → Datenbeschriftungen: Anzeige, Dichte, Größen-Preset, Skalierung, Textgröße, Dezimalstellen, Einheiten, Finance-Format und Σ-treue Rundung.](../doku-assets/pane/pane-beschriftungen.png)
+![Schema: Formatbereich → Datenbeschriftungen: Anzeige, Dichte, Größen-Preset, Skalierung, Textgröße, Dezimalstellen, Einheiten, Finance-Format und Σ-treue Rundung. Stand vor 1.58: Die in 1.58 neuen Einstellungen fehlen im Bild, die Tabelle nennt sie.](../doku-assets/pane/pane-beschriftungen.png)
 
 | Einstellung | Beschreibung | Optionen / Standard |
 | --- | --- | --- |

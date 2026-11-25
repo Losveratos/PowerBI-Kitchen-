@@ -14,7 +14,7 @@ in **einem** Visual löst:
 > DAX-Fallen, komplette Property-Referenz fürs PBIR-Authoring (inkl.
 > persistierter Zustände), Modus-Matrix und bekannte Stolperfallen.
 
-## Stand 1.58.0.0 (24.11.2026)
+## Stand 1.58.0.0 (25.11.2026)
 
 - **25 Vorlagen C01 bis C25** (ohne C11) im Start-Hub, nach Zweck gruppiert. Damit lassen sich alle 62
   Referenzblätter der IBCS-Vorlagen nachbauen; Abweichungen vom Blatt stehen in der Doku.

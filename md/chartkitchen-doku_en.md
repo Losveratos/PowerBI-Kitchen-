@@ -6,7 +6,7 @@ Power BI visual · End-user documentation
 
 An IBCS-inspired chart deck for Power BI: 14 chart modes in a single visual, with a consistent scenario notation (AC filled, PY grey, PL outlined, FC hatched) and variances built in throughout. This documentation takes you from import through the 14 modes and the key features to the complete settings reference.
 
-Version · **1.58.0.0** · As of · **2026-11-24** · IBCS-inspired
+Version · **1.58.0.0** · As of · **2026-11-25** · IBCS-inspired
 
 ## Contents
 
@@ -208,7 +208,7 @@ ChartKitchen counts 14 chart types. The demo gallery in the start hub shows the 
 
 ![Columns (time series): AC against PY as overlaid columns, topped by the variance panels ΔPY absolute and ΔPY in percent.](../doku-assets/mode-columns.png)
 
-![As it looks in Power BI Desktop: Columns mode with four stacked variance panels — ΔPL %, ΔPL, ΔPY % and ΔPY — above the AC columns; the forecast months from July on are hatched.](../doku-assets/pbi/pbi-columns.png)
+![As it looks in Power BI Desktop: Columns mode with four stacked variance panels — ΔPL %, ΔPL, ΔPY % and ΔPY — above the AC columns; the forecast months from July on are hatched. Captured before 1.58.](../doku-assets/pbi/pbi-columns.png)
 
 The default for time series: months or quarters as columns, AC filled, PY grey (or a triangle when PL is also bound). The variance panels ΔPY absolute and in percent sit above the columns. Use this mode when the time axis is manageable (up to about 24 points) and the deviation per period matters.
 
@@ -222,7 +222,7 @@ For structural comparisons without a time axis — products, regions, accounts. 
 
 ![Line (many data points): AC solid, PY thin and grey, plus a 6-period moving average for the trend.](../doku-assets/mode-line.png)
 
-![As it looks in Power BI Desktop: Line mode across the fiscal year: AC solid, PL dashed and the forecast section set apart, topped by the ΔPL and ΔPL % panels per month.](../doku-assets/pbi/pbi-line.png)
+![As it looks in Power BI Desktop: Line mode across the fiscal year: AC solid, PL dashed and the forecast section set apart, topped by the ΔPL and ΔPL % panels per month. Captured before 1.58.](../doku-assets/pbi/pbi-line.png)
 
 For long time series with many data points (weeks, days) where columns would get too dense. All absolute lines have the same weight: AC dark, PY light grey, PL hollow, only FC dashed; optionally a moving average over N periods for the trend. The focus is on the trajectory and turning points, not the single period.
 
@@ -250,7 +250,7 @@ The driver bridge across categories: a PY row on top, each driver as an AC-PY ba
 
 ![Table (IBCS): flat value table with AC-PY bars, a ΔPL bar column, ΔPL% pins and a Σ total row.](../doku-assets/mode-table.png)
 
-![As it looks in Power BI Desktop: Table by country: AC-PY-PL bars per row, a dedicated ΔPL bar column, ΔPL % pins and the Σ total row at the bottom.](../doku-assets/pbi/pbi-table.png)
+![As it looks in Power BI Desktop: Table by country: AC-PY-PL bars per row, a dedicated ΔPL bar column, ΔPL % pins and the Σ total row at the bottom. Captured before 1.58.](../doku-assets/pbi/pbi-table.png)
 
 The flat IBCS value table: an AC-PY bar per row, a Δbasis bar column, Δbasis% pins and a Σ total row. It combines numeric precision with in-cell IBCS graphics and is the basis for hierarchies, result/skip rows and the matrix. Ideal for board- and print-ready KPI sheets. Multiple category fields expand automatically into the row tree since 1.47 (toggle “Auto-expand hierarchy”, default on).
 
@@ -310,9 +310,9 @@ Since 1.55 the mode covers the portfolio sheets 10A, 10B and 10D: the bubble-siz
 
 The following captures come straight from Power BI Desktop, with sample data from a real report. The other figures in this documentation are produced by the same renderer — here you see the visual as it works together in day-to-day reporting.
 
-![A complete report page: KPI cards, an AC/FC monthly bridge and a YTD bridge by product — every tile from the same visual, sharing one scenario notation.](../doku-assets/pbi/pbi-demo-report.png)
+![A complete report page: KPI cards, an AC/FC monthly bridge and a YTD bridge by product — every tile from the same visual, sharing one scenario notation. Captured before 1.58.](../doku-assets/pbi/pbi-demo-report.png)
 
-![Integrated bridges per category on top, the same bridge as small multiples per country below — making each region's contribution to the total deviation comparable.](../doku-assets/pbi/pbi-bridges-multiples.png)
+![Integrated bridges per category on top, the same bridge as small multiples per country below — making each region's contribution to the total deviation comparable. Captured before 1.58.](../doku-assets/pbi/pbi-bridges-multiples.png)
 
 ![A freely chosen colour palette: the same integrated bridge with monthly columns in blue instead of the IBCS greys — scenario logic and the forecast hatching stay intact.](../doku-assets/pbi/pbi-custom-color.png)
 
@@ -694,7 +694,7 @@ Row names are not a stable data contract: rename or translate a row and the name
 
 A variance that is not zero but rounds to zero prints with a sign by default (“+0.00M”, “−0.0%”): the direction stays readable next to a pin or bar. The reference sheets write it without a sign.
 
-1. “Rounded zero” (`labels.roundedZero`, Data labels) offers “Keep the sign (+0.0)” (default) or “Without sign (0.0)”. Without a sign the finance parentheses and the “±” of the P&L statement are dropped too: “0.00M”, “0.0%”, “0.0pp”.
+1. “Rounded zero” (`labels.roundedZero`, Data labels) offers “Keep the sign (+0.0)” (default) or “Without sign (0.0)”. Without a sign the finance parentheses and the “±” of the P&L statement are dropped too: “0.00M”, “0.0%”, “0.0Pp”.
 2. Applies to all Δ, Δ % and net labels, the pp texts of table and matrix, the P&L statement, the index Δ of the series lines and the pp labels of the difference markers. Exact zeros never carry a sign.
 3. All templates C01 to C25 set “Without sign”. A report that applied a template before 1.58 keeps its display until the template is applied again; the chip “↺ Back to template” does not appear because of it.
 4. KPI cards always print a rounded zero without a sign, regardless of this option.
@@ -747,7 +747,7 @@ Since 1.58 a card band reads like a table: same positions, same rows, same notat
 1. **Δ block at a fixed position:** in the flat layout the Δ block of every card starts in the same place, after the widest title or value column; the Δ values line up. If there is nothing to draw on the right (no mini bridge, no trend, no bullet), the block moves towards the middle of the card, at most up to the middle.
 2. **One row grid for all cards:** all cards share the rows any card shows (reference values first, then ΔPL, ΔPY, ΔBM in a fixed order). If a card lacks a basis, its place shows a grey “PY n.a.” or “PL n.a.”.
 3. **Typographic minus:** card value, reference value rows and trend label write negative values with “−” like the Δ rows. Text prefixes and units stay unchanged.
-4. **Rounded zero without a sign:** a value that rounds to zero always appears without a sign and without parentheses in the cards (“0.0M€ · +0.1%”), regardless of `labels.roundedZero`. Colour, arrow and status strip still follow the unrounded Δ; a row only turns grey when Δ and Δ% both read zero.
+4. **Rounded zero without a sign:** a value that rounds to zero always appears without a sign and without parentheses in the cards (“0.0M€ · +0.1%”), regardless of `labels.roundedZero`. Color, arrow and status strip still follow the unrounded Δ; a row only turns grey when Δ and Δ% both read zero.
 5. **Hidden rows are counted:** if a Δ row does not fit on the card, “+n Δ” appears (with reference value rows a neutral “+n”). The tooltip lists the hidden rows; the mark can be reached by keyboard and is visible in the export.
 6. **Sort and exception buttons with their own place:** the buttons ↕ and ⚠ no longer sit on top of the last card. They stand on the right of the visual's title row, compact in the tile header for small multiples, otherwise in a header row of their own or, if the height is missing for that, compact in the corner of the last card of the first row. Without a title and with an active mode chip (comment, structure, comparison) the visual reserves a band at the top for the chip and the buttons. The export draws no buttons.
 7. **Low cards:** if the height is not enough, the value shrinks first, then title and value move together, finally the value stands alone (the title stays in the tooltip). Card text no longer reaches below the edge.
@@ -846,7 +846,7 @@ Since 1.45 the format pane follows the working order: the Chart card sits at pos
 
 #### Layout
 
-![Schematic: Format pane → Chart: chart type (formerly “Orientation”), variance basis and the deviation options (sketch: state before 1.45). German format pane shown; the English pane has the identical structure.](../doku-assets/pane/pane-chart-layout.png)
+![Schematic: Format pane → Chart: chart type (formerly “Orientation”), variance basis and the deviation options (sketch: state before 1.45). German format pane shown; the English pane has the identical structure. State before 1.58: the settings new in 1.58 are not shown, the table lists them.](../doku-assets/pane/pane-chart-layout.png)
 
 | Setting | Description | Options / default |
 | --- | --- | --- |
@@ -865,7 +865,7 @@ Since 1.45 the format pane follows the working order: the Chart card sits at pos
 
 #### Analysis
 
-![Schematic: Format pane → Chart → Analysis: cumulation (YTD), moving average, Top N, highlighting, inversion, materiality and pin shape. German format pane shown; the English pane has the identical structure.](../doku-assets/pane/pane-chart-analyse.png)
+![Schematic: Format pane → Chart → Analysis: cumulation (YTD), moving average, Top N, highlighting, inversion, materiality and pin shape. German format pane shown; the English pane has the identical structure. State before 1.58: the settings new in 1.58 are not shown, the table lists them.](../doku-assets/pane/pane-chart-analyse.png)
 
 | Setting | Description | Options / default |
 | --- | --- | --- |
@@ -1061,7 +1061,7 @@ Since 1.45 the format pane follows the working order: the Chart card sits at pos
 
 ### Data Labels
 
-![Schematic: Format pane → Data labels: display, density, size preset, scaling, text size, decimals, units, finance format and sum-safe rounding. German format pane shown; the English pane has the identical structure.](../doku-assets/pane/pane-beschriftungen.png)
+![Schematic: Format pane → Data labels: display, density, size preset, scaling, text size, decimals, units, finance format and sum-safe rounding. German format pane shown; the English pane has the identical structure. State before 1.58: the settings new in 1.58 are not shown, the table lists them.](../doku-assets/pane/pane-beschriftungen.png)
 
 | Setting | Description | Options / default |
 | --- | --- | --- |

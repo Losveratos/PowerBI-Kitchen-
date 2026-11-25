@@ -1,6 +1,6 @@
 # Changelog · ChartKitchen byDatenWG
 
-## 1.58.0.0 (2026-11-24, Welle 1 aus dem Template-Prüfstand: Notation und KPI-Karten)
+## 1.58.0.0 (2026-11-25, Welle 1 aus dem Template-Prüfstand: Notation und KPI-Karten)
 
 - **1 · FC-Pinköpfe schraffiert statt hohl.** Vorher: Δ%-Pins an Forecast-Perioden hatten einen hohlen Kopf; hohl ist
   aber die Plan-Kennung. Nachher trägt der Kopf eine feine FC-Schraffur (Periode 2,4 px, Strich 1,3 px, Rand in Tinte).

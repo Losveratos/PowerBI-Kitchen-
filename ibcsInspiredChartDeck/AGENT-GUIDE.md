@@ -10,10 +10,10 @@ Setting-Beschreibungen stehen in [src/settings.ts](src/settings.ts).
 **Property-Referenz wird generiert: `npm run guide`** (Prüfung: `npm run guide:check`) — die Tabellen
 im Abschnitt „Settings-Referenz“ nie von Hand ändern, sondern `settings.ts`/`capabilities.json` anpassen.
 
-Stand: **1.58.0.0** (24.11.2026): Welle 1 aus dem Template-Prüfstand, Notation und KPI-Karten (siehe „Neu in 1.58“); davor **1.57.0.0** (22.11.2026): Backlog IBCS-Templates B13 Teil 1b, B18, B19, B20, B24, B25 (siehe „Neu in 1.57“); davor 1.56 mit B10 Teil 2, B11 Teil 2, B13 Teil 2, B15, B16, B17; davor 1.55 mit B09, B10, B11 (Teil 1), B12, B13; davor 1.54 mit B01, B04, B05, B06, B14.
+Stand: **1.58.0.0** (25.11.2026): Welle 1 aus dem Template-Prüfstand, Notation und KPI-Karten (siehe „Neu in 1.58“); davor **1.57.0.0** (22.11.2026): Backlog IBCS-Templates B13 Teil 1b, B18, B19, B20, B24, B25 (siehe „Neu in 1.57“); davor 1.56 mit B10 Teil 2, B11 Teil 2, B13 Teil 2, B15, B16, B17; davor 1.55 mit B09, B10, B11 (Teil 1), B12, B13; davor 1.54 mit B01, B04, B05, B06, B14.
 Bei Versionssprüngen: CHANGELOG.md zuerst lesen.
 
-**Neu in 1.58 (Welle 1 aus dem Template-Prüfstand: Notation und KPI-Karten, 24.11.2026):**
+**Neu in 1.58 (Welle 1 aus dem Template-Prüfstand: Notation und KPI-Karten, 25.11.2026):**
 
 *1/2 · Pinköpfe szenariocodiert.* `pinHeadScen(cfg, "ac" | "fc" | "pl")` liefert die Kopf-Attribute: AC `fill = cfg.ink`,
 FC `fcMarkFill(cfg)` mit Tintenrand 1, PL `cfg.paper` mit Tintenrand 1,2; jeweils `data-pin` = Szenario. Die
