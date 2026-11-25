@@ -15,8 +15,9 @@ als Bericht in Klartext:
 fabscan liest nur, führt nichts aus und braucht keine Verbindung zu Fabric. Es läuft mit Python ab 3.10 und hat
 keine weiteren Abhängigkeiten.
 
-**Stand 0.6.1** (23.11.2026): Abruf auch ohne Admin-Rechte, Workspace Monitoring über das Monitoring-Item, Lauf über
-den ganzen Tenant, Ausnahmen mit Begründung, Abdeckung im Bericht und weniger Fehlalarme. Was sich je Version
+**Stand 0.6.2** (24.11.2026): Abruf auch ohne Admin-Rechte, Workspace Monitoring über das Monitoring-Item, Lauf über
+den ganzen Tenant, Ausnahmen mit Begründung, Abdeckung im Bericht, weniger Fehlalarme, `fabscan.json` je App und
+sichtbare feste Filter. Was sich je Version
 geändert hat, steht in [UEBERGABE-0.4.md](UEBERGABE-0.4.md); Recherche und Roadmap liegen unter
 [recherche/](recherche/00-ueberblick.md).
 
@@ -52,7 +53,7 @@ Weitere Befehle:
 | --- | --- |
 | `fabscan [ordner] -o ausgabe` | Apps prüfen, Bericht nach `ausgabe/` (Standard: `fabscan-bericht/`) |
 | `fabscan --app NAME` | nur eine App |
-| `fabscan --models ../modelle` | Modelle aus einem anderen Ordner |
+| `fabscan --models ../modelle` | Modelle aus einem anderen Ordner (oder direkt `../modelle/X.SemanticModel`) |
 | `fabscan --fail-on fail` | Exit-Code 1 bei kritischen Befunden (für CI) |
 | `fabscan fetch -w WORKSPACE` | Tenant direkt prüfen (Admin-Scanner-API + Workspace Monitoring), ohne Admin-Rechte die eigenen Workspaces |
 | `fabscan fetch --ohne-admin` | gleich im Workspace-Modus prüfen (normale Fabric-API, Modelle per getDefinition) |
@@ -124,6 +125,37 @@ Workspace wie im Workspace-Modus.
 
 Mit exportierten Dateien geht es auch lokal: `fabscan --scan-result scan.json --query-log logs.csv`.
 
+## Konfiguration: fabscan.json
+
+fabscan liest `fabscan.json` im geprüften Ordner (oder `--config DATEI`) und zusätzlich je gefundener App eine
+`fabscan.json` im App-Ordner (neben `rayfin/`). Pfade darin gelten relativ zum Ordner der Datei. Die Werte einer
+App-Datei gelten nur für diese App und gehen den Werten der Wurzel vor. So kann ein App-Generator wie dwg je App eine
+Datei schreiben, und `fabscan apps/` über mehrere Apps sieht sie alle.
+
+```json
+{
+  "models": ["../../Finanzmodell.SemanticModel"],
+  "connectors": {"meine-app:finanzen": "Finanzmodell"},
+  "visibleFilters": [
+    {"column": "'Calender'[Year]", "values": [2026]},
+    {"column": "'Calender'[Month]", "values": [1, 2, 3, 4, 5, 6, 7, 8], "file": "*/pages/guv-*.dax"},
+    "'Kalender'[Ist] = TRUE"
+  ]
+}
+```
+
+| Feld | Bedeutung |
+| --- | --- |
+| `models` | Ordner mit `*.SemanticModel`-Ordnern oder direkt ein `X.SemanticModel`-Ordner |
+| `connectors` | Zuordnung `"<App-Ordner>:<Konnektor>"` oder `"<itemId>"` → Modellname (`displayName` aus `.platform`) |
+| `visibleFilters` | Feste Filter, die die App den Nutzern sichtbar anzeigt (z. B. als Chip). Je Eintrag `column` als `'Tabelle'[Spalte]` (oder `table` und `column`), `values` (optional, ohne: jeder feste Wert dieser Spalte), `file` (optional, Dateimuster relativ zur App, Text oder Liste), oder ein DAX-Ausdruck als Text (`"'T'[S] = 1"`, `"'T'[S] IN {1, 2}"`, `"TREATAS({2026}, 'T'[Jahr])"`) |
+
+Ein fester Filter in einer Abfrage (`QRY-HARDCODED`), der zu `visibleFilters` passt, wird zum Hinweis ℹ „Fester
+Filter, für Nutzer sichtbar“ und zählt nicht für Ampel, Gesamtbild und `--fail-on`. Verglichen werden Tabelle, Spalte
+und die Menge der Werte, ohne Rücksicht auf Leerzeichen, Anführungszeichen und Groß/Klein (`TRUE()` = `true`,
+`"2026"` = `2026`). Bei mehreren Bedingungen (`&&`) braucht jede einen Eintrag. Nicht gelistete feste Filter bleiben
+⚠. Nicht lesbare Einträge nennt fabscan als Hinweis, eine kaputte Datei bricht den Lauf mit Exit-Code 2 ab.
+
 ## Was herauskommt
 
 Jeder Lauf schreibt einen Ordner:
@@ -191,7 +223,7 @@ nennt der Bericht, damit veraltete auffallen.
 | `SEC-NO-RLS` | ℹ | Modell ohne Rollen |
 | `SEC-CDN`, `SEC-EXTERNAL`, `SEC-STORAGE`, `SEC-HTML`, `SEC-CLIENT-RLS` | ⚠ | fremde Server, Browser-Speicher, HTML-Injektion, Nutzerfilter im Browser |
 | `QRY-SHADOW` | ✗ | `DEFINE MEASURE` überschreibt ein Modell-Measure |
-| `QRY-OVERRIDE`, `QRY-HARDCODED`, `QRY-REPLACE` | ⚠ | Filter aufgehoben, feste Filterwerte, Textersetzung in Abfragen |
+| `QRY-OVERRIDE`, `QRY-HARDCODED`, `QRY-REPLACE` | ⚠ | Filter aufgehoben, feste Filterwerte, Textersetzung in Abfragen. `QRY-HARDCODED` ist ℹ, wenn der Filter in `fabscan.json` als sichtbar gemeldet ist |
 | `DEV-TRANSFORM`, `DEV-NAME` | ⚠ | Runden/Bereinigen in der Abfrage, Modell-Kennzahl nachgerechnet |
 
 ## Grenzen
@@ -204,7 +236,7 @@ Eintrag in den Tenant-Logs steckt, hängt davon ab, was der Client meldet.
 
 ```bash
 cd fabric-app-scanner
-python3 -m unittest discover -s tests
+python3 -m unittest discover -s tests          # 104 Tests
 python3 -m fabscan skill --ziel ../.claude/skills/fabscan   # Skill im Repo aktualisieren
 python3 -m fabscan skill --zip ../downloads/fabscan-skill.zip
 python3 -m fabscan notebook -o ../downloads/fabscan_tenant.ipynb
