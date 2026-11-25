@@ -2,7 +2,8 @@
 
 ## 1.8.4.0 (in Arbeit): Notationskorrekturen Welle 1
 
-Fünf Korrekturen aus dem Template-Prüfstand vom 24.11.2026 (Welle 1, Punkte 6 bis 10). IBCS dient nur
+Korrekturen aus dem Template-Prüfstand vom 24.11.2026 (Welle 1, Punkte 6 bis 10), dazu flache Listen,
+der Maximieren-Fix und ⚡ auf dem gedruckten Wert aus einer parallelen Linie übernommen. IBCS dient nur
 als Bezug. Neue Eigenschaften stehen per Standard so, dass ein Bericht wie 1.8.3 rendert; die übrigen
 Punkte sind Notationskorrekturen und ändern das Bild bestehender Berichte gezielt an der fehlerhaften Stelle.
 
@@ -19,7 +20,9 @@ Punkte sind Notationskorrekturen und ändern das Bild bestehender Berichte gezie
   nur der Vorzeichenwechsel. **Darstellung „n.a.“** (wie die
   ChartKitchen-Karte), für Vorzeichenwechsel und Referenz 0 gleich: dezent kursiv in Grau in der Δ%-Zelle
   der Mega-Tabelle, an der Achse einer Pin-Spalte (Mega-Tabelle und klassische Tabelle, ohne Pin), im
-  Tooltip, im Szenario-Raster, im Kopf von Baumkarte, Hover-Panel, Kachel und Mikrokarte; bis 1.8.3 blieb
+  Tooltip, im Szenario-Raster (grau und kursiv, nie in der Abweichungsfarbe), im Kopf von Baumkarte,
+  Hover-Panel, Kachel und Mikrokarte; ohne Diagrammbeschriftung reserviert die Pin-Spalte keinen Platz und
+  druckt nichts; bis 1.8.3 blieb
   die Stelle bei Referenz 0 leer. Δ selbst und seine Farbe bleiben. Neuer Text `UI_RelNa` (de-DE und en-US
   „n.a.“, es-ES „n.d.“, ja-JP „N/A“).
   ⚡ zählt ein n.a. wie eine Referenz 0 als Ausnahme, sobald die Prozent-Schwelle an ist; die
@@ -41,8 +44,13 @@ Punkte sind Notationskorrekturen und ändern das Bild bestehender Berichte gezie
   und `columns.capFactor` (Ausreißer-Schwelle Q3 + Faktor × IQR, Standard 4, 1 bis 20; gilt für Pins und
   mit `capBars` für die Δ-Balken). **Wirkung:** Mega-Tabellen mit gekappten Pins zeigen zusätzlich den Kopf;
   sonst unverändert. Auch die klassische Tabelle (feste Kappung bei ±40 %) behält am gekappten Pin den
-  Kopf (gefüllt bzw. bei AC&FC FY umrandet wie der ungekappte Pin) direkt vor dem Dreieck; ihre Geometrie
-  bleibt gleich.
+  Kopf direkt vor dem Dreieck; ihre Geometrie bleibt gleich.
+- **FY-Kopf AC&FC der klassischen Tabelle schraffiert.** Die Pin-Köpfe des FY-Ausblicks (AC&FC) waren ein
+  leerer Ring und lasen sich wie Plan. Jetzt tragen sie eine feine Schraffur (Periode 2,4 px, sichtbar beim
+  Radius 2,8) in ihrer Farbe mit Kontur, wie jedes FC-Element und wie die FY-Pins im Blatt 12G; gekappt und
+  ungekappt, hell und dunkel. Die klassische Tabelle hat keinen Hochkontrast-Pfad (nur Mega-Tabelle und
+  Sankey), dort ändert sich nichts. **Wirkung:** klassische Tabellen mit FY-Block zeigen schraffierte statt
+  leere Pin-Köpfe.
 - **Zahlen folgen einem Sprachwechsel des Hosts zur Laufzeit.** Das Visual las `host.locale` nur im
   Konstruktor; wechselte der Host die Sprache danach, zogen nur die Texte nach, die Zahlen blieben im
   alten Format. Jetzt übernimmt jedes Update die aktuelle Sprache des Hosts; alle Zahlen nutzen weiter
@@ -50,6 +58,19 @@ Punkte sind Notationskorrekturen und ändern das Bild bestehender Berichte gezie
   Mega-Tabelle merkt sich die Sprache mit. **Wirkung:** keine für Berichte ohne Sprachwechsel. Der
   Prüfstand-Befund „4.28“ im ROI-Baum (11A) war ein Lesefehler: Power BI und App zeigen dort 4,28 mit
   Komma, der dwg-Host liefert die Sprache schon im Konstruktor.
+- **Flache Listen ohne Leerzeilen** (übernommen). Strukturdaten ohne Hierarchie unter der Gesamtzeile
+  (T02B, T02C auf einer Kundenliste) zeichnen ihre Zeilen dicht (24 statt 36 px je Zeile), die Leerzeile
+  steht nur vor der Gesamtzeile. Mit Hierarchie gilt die Blockregel von 1.5.1 unverändert. **Wirkung:**
+  flache Strukturlisten werden kürzer.
+- **Fläche maximieren hält die Kachelbreite ein** (übernommen). Der Wachstumsfaktor von `layout.maximize`
+  ist das Minimum aus Höhe und Breite und steigt über die Durchläufe nie wieder; gemessen werden auch
+  Beschriftungen, die über ihr SVG hinauslaufen. T02C mit zwei Blöcken in 1400 × 742 px stand mit den
+  dichten Listen 119 px über den Kachelrand. **Wirkung:** Berichte mit `maximize` wachsen höchstens so weit,
+  wie die Breite reicht.
+- **⚡ Nur Ausnahmen auf dem gedruckten Wert** (übernommen). Die Schwellen von ⚡ prüfen das gedruckte Δ
+  (Einheit und Dezimalen der Tabelle) und Δ% bzw. pp (Δ%-Dezimalen), wie das Schwellen-Rot: −9,96 % druckt
+  −10,0 % und ist bei 10 % eine Ausnahme. **Wirkung:** Zeilen genau an der Schwelle können ihre Einstufung
+  wechseln.
 - **Gerundete Null ohne Vorzeichen in allen Templates** (wie ChartKitchen). Jedes Template schreibt beim
   Anwenden `numbers.roundedZero = plain` (wie die Dezimalen, in derselben Schreibaktion und unter demselben
   Echo-Schutz); damit hängt das Ergebnis nicht mehr vom vorher angewandten Template ab. „Aus“ (klassische
@@ -70,7 +91,13 @@ Template behält +0.0%) und m8/m10/m11 (Templates plain, ohne Template mit Vorze
 Template-Schreibvorgang mit `roundedZero`, Echo-Schutz hält `plain` über ein veraltetes Update (neu), Echos
 der Tests tragen `roundedZero` (auch finance-test F9); scale-views p1 (Kopf gekappter Pins der klassischen
 Tabelle) und p30 (n.a. statt Pin) neu; engine-test „Rauschen ist kein Vorzeichenwechsel“ (neu); tree-interact
-„Zahlen folgen einem Sprachwechsel des Hosts zur Laufzeit“ und „Mikrokarte n.a.“ (neu).
+„Zahlen folgen einem Sprachwechsel des Hosts zur Laufzeit“ und „Mikrokarte n.a.“ (neu). Runde 3: mega-shot m81
+(flache Liste), m82 (Maximieren 1566 und 1400 × 742), m83 (⚡ gedruckt), m80 geschärft (Köpfe an derselben
+Stelle wie m74); engine-test ⚡ mit `rd`/`rp`; scale-views p1 (FY-Kopf schraffiert, Kopf vor dem Dreieck) und
+p30 geschärft (n.a. auf der Zeile, kursiv, grau); tree-interact n.a. in Baumkarte, Hover-Panel, Raster,
+Kachel, Tooltip und Mega-Tooltip sowie es-ES „n.d.“ und ja-JP „N/A“. Angepasst: tree-interact „⚡ hide, Sankey“ bündelt jetzt
+bei 6 % statt 5 % (mit dem gedruckten Δ% zählt ein Strom mit +4,96 % bei 5 % als Ausnahme, das letzte Paar
+ruhiger Geschwister fiel weg).
 
 ## 1.8.3.0 (2026-11-22): Blatt-Notation 11A, 12G und 12H
 

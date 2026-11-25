@@ -992,7 +992,8 @@ Anfangsbestand und `stock` am Endbestand (Formel `[Anfangsbestand]+[Operativ]+�
       Baumkarten und Kachel. Ist Δ da, Δ% aber `null`, steht „n.a.“ (`UI_RelNa`, `Visual.relNa()`):
       Mega-Tabelle über `MegaInput.naText` (Δ%-Zelle; Pin-Spalte: `MegaCol.na`, Text
       `data-pnl="mega-na"` an der Achse, kein Pin), klassische Pins (`data-pnl="pin-na"`), Tooltips,
-      Szenario-Raster und Kartenköpfe (`relNaEl`, Mikrokarte `micro-delta`). Ohne `naText` bleibt die
+      Szenario-Raster (`data-pnl-na`, grau kursiv, nie Abweichungsfarbe) und Kartenköpfe (`relNaEl`,
+      Mikrokarte `micro-delta`, SVG-Kopf der Baumkarte `data-pnl="tree-na"`). Ohne `naText` bleibt die
       Zelle leer (Altaufrufer). Margenzeilen zeigen n.a. nur mit `marginRel`. ⚡ und `sort = pct`
       behandeln n.a. wie Referenz 0.
     - **Schwellen-Rot:** `cellText` vergleicht `megaRound(D.impact, dec)` bzw.
@@ -1003,7 +1004,9 @@ Anfangsbestand und `stock` am Endbestand (Formel `[Anfangsbestand]+[Operativ]+�
       an) und `capFactor` (Standard `MEGA_OUTLIER.fence` = 4) kommen aus `columns.capPins`/`capFactor`;
       `outlierCap(values, factor)` fällt bei 0 oder NaN auf 4 zurück. Die klassische Tabelle hat eine
       eigene, feste Pin-Kappung (±40 %, ohne Schalter); ihr gekappter Pin trägt den Kopf
-      (`data-pnl="pin-head"`, gleiche Füllung wie der ungekappte) direkt vor dem Dreieck.
+      (`data-pnl="pin-head"`, gleiche Füllung wie der ungekappte) direkt vor dem Dreieck. Der Kopf
+      eines AC&FC-Pins (FY) ist schraffiert (`data-pnl-fc`, Muster `pnlpinfc…`, Periode 2,4 px) statt
+      eines leeren Rings (Vorlage: Blatt 12G).
     - **Sprache:** `syncLocale()` übernimmt `host.locale` zu Beginn jedes `update()` (leer = die zuletzt
       bekannte, im Konstruktor en-US). Zahlformat-Speicher (`treeNf`, `megaNf`) sind nach Sprache und
       Dezimalen geschlüsselt. Damit folgen die Zahlen einem Sprachwechsel des Hosts zur Laufzeit; bis
@@ -1015,6 +1018,13 @@ Anfangsbestand und `stock` am Endbestand (Formel `[Anfangsbestand]+[Operativ]+�
       zählt sie nicht in `templateDeviation()`: Bestandsberichte mit `templateApplied` bekommen kein „↺“.
       PBIR: wer ein Template mit `templateApplied` vorkonfiguriert, setzt `numbers.roundedZero` selbst
       (`'plain'`), sonst gilt der Standard `signed`.
+    - **Flache Listen:** `megaRows` setzt zwischen Elementen der obersten Ebene keine Leerzeile, wenn
+      jedes Element genau eine Zeile ohne Kinder ist (`flatTop`); die Gesamtzeile behält ihre Leerzeile.
+    - **Maximieren:** `fillHeight` nimmt das Minimum aus Höhe und Breite (`capW` sinkt nur) und misst
+      über `bodyOverflow` auch SVG-Texte jenseits ihres SVG; zum Schluss tritt ein zu breiter Körper in
+      Schritten von 0,06 auf ×1 zurück.
+    - **⚡ gedruckt:** `ExceptionRule.rd`/`rp` runden Δ (Anzeigeeinheit, Dezimalen) und Δ% (Δ%-Dezimalen)
+      wie die Tabelle (`engine.roundShown`), bevor die Schwellen greifen.
 
 ## Verwandte Dateien
 

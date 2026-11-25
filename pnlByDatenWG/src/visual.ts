@@ -35,7 +35,7 @@ import {
     parseRowTypeInfo, parseBool, parseSign, rowsFromLevels, aggregateMonthly,
     windowValue, stockish, modelHasStock, BuildOptions, StockMode,
     isZeroRow, revenueBase, formulaOperands, nodeResolver, Variance,
-    syntheticTotal, TOTAL_ID, parsePeriod, displayVariance, sumSafeRound, varianceOf, relDelta, sortMonths,
+    syntheticTotal, TOTAL_ID, parsePeriod, displayVariance, sumSafeRound, varianceOf, relDelta, roundShown, sortMonths,
     FormulaOp, InputRow, LevelInputRow, PeriodSort, PnlModel, PnlNode, Scenario,
     isExceptionVariance, ExceptionRule, markedShare, stackPairs, sameShape, mergeNodes,
     unpostedActualMonths, dropActuals,
@@ -4634,23 +4634,59 @@ export class Visual implements IVisual {
         if (!avail) { return cur; }
         const lo = Math.min(1, 9 / (base * this.fontScale()));
         const hi = 1.6;
-        for (let pass = 0; pass < 4; pass++) {
-            const h = this.rect(cur).height;
-            if (h <= 0) { break; }
-            const room = avail - (this.contentHeight() - h) - 2;
-            let k = Math.max(lo, Math.min(hi, this.bodyK * room / h));
-            // a body already wider than the tile does not grow; a grown one gives width back
-            const over = this.root.scrollWidth - this.root.clientWidth;
-            if (k > this.bodyK && over > 1) { k = this.bodyK; }
-            const wide = over > 1 && this.bodyK > 1;
-            if (wide) { k = Math.max(1, Math.min(k, this.bodyK * this.root.clientWidth / this.root.scrollWidth - 0.01)); }
-            if (Math.abs(k - this.bodyK) < 0.01 && !wide) { break; }
+        // 1.8.4 the factor is min(height, width): `capW` only ever falls. A short table (a flat
+        // list without spacer rows) grew to ×1.6 and the next pass, finding it too wide, could
+        // grow it again: T02C in a 1400 px tile ended 119 px wider than the tile. A body already
+        // wider than the tile at ×1 does not grow; a grown one gives width back to ×1 at most.
+        let capW = hi;
+        const rebuild = (k: number): void => {
             this.bodyK = k;
             const fresh = build();
             this.root.replaceChild(fresh, cur);
             cur = fresh;
+        };
+        for (let pass = 0; pass < 6; pass++) {
+            const h = this.rect(cur).height;
+            if (h <= 0) { break; }
+            const room = avail - (this.contentHeight() - h) - 2;
+            const over = this.bodyOverflow(cur);
+            if (over > 1) {
+                capW = Math.min(capW, this.bodyK > 1
+                    ? Math.max(1, this.bodyK * this.root.clientWidth / (this.root.clientWidth + over) - 0.01)
+                    : this.bodyK);
+            }
+            const k = Math.max(lo, Math.min(hi, capW, this.bodyK * room / h));
+            if (Math.abs(k - this.bodyK) < 0.01) { break; }
+            rebuild(k);
+        }
+        // never past the tile edge: a grown body that still overflows steps back towards ×1
+        for (let i = 0; i < 8 && this.bodyK > 1 && this.bodyOverflow(cur) > 1; i++) {
+            rebuild(Math.max(1, this.bodyK - 0.06));
         }
         return cur;
+    }
+
+    /**
+     * 1.8.4 how far the statement body reaches past the tile: the horizontal
+     * scroll overflow of the page, and SVG labels that run past the right edge of
+     * their own SVG or of the tile (an SVG clips them silently, so scrollWidth
+     * never sees them; happens when a host font renders wider than measured).
+     * Layout pixels (rect()), so a CSS-scaled stage measures the same.
+     */
+    private bodyOverflow(cur: HTMLElement): number {
+        let over = this.root.scrollWidth - this.root.clientWidth;
+        const rootR = this.rect(this.root).right;
+        const svgs = cur.querySelectorAll("svg");
+        for (let i = 0; i < svgs.length; i++) {
+            const svg = svgs[i];
+            const edge = Math.min(this.rect(svg).right, rootR);
+            const texts = svg.querySelectorAll("text");
+            for (let j = 0; j < texts.length; j++) {
+                const r = this.rect(texts[j]).right;
+                if (r - edge > over) { over = r - edge; }
+            }
+        }
+        return over;
     }
 
     /**
@@ -6716,13 +6752,29 @@ export class Visual implements IVisual {
         svg.setAttribute("width", String(w)); svg.setAttribute("height", String(h));
         svg.style.cssText = "display:block;";
         this.drawAxis(svg, ns, mid, h, c.ref!);
-        // pin head carries the minuend's scenario fill (IBCS): FC → outlined
+        // pin head carries the minuend's scenario fill (IBCS): AC filled; 1.8.4 AC&FC (FY outlook)
+        // hatched like every FC element and like the FY pin heads of sheet 12G (until 1.8.3 an
+        // outline, which reads as plan). The hatch is fine (period 2.4 px) so it shows at r 2.8
         const pinHead = (cx: number, r: string): SVGCircleElement => {
             const head = document.createElementNS(ns, "circle");
             head.setAttribute("cx", String(cx)); head.setAttribute("cy", String(h / 2));
             head.setAttribute("r", r);
             if (c.minuend === "fcfy") {
-                head.setAttribute("fill", C.paper); head.setAttribute("stroke", color); head.setAttribute("stroke-width", "1.4");
+                // no instance id: two renders of the same statement stay byte-identical (like the Δ bar hatch)
+                const pid = `pnlpinfc${(color + C.paper).replace(/[^0-9a-z]/gi, "")}`;
+                if (!svg.querySelector(`#${pid}`)) {
+                    const defs = document.createElementNS(ns, "defs");
+                    const pat = document.createElementNS(ns, "pattern");
+                    pat.setAttribute("id", pid); pat.setAttribute("width", "2.4"); pat.setAttribute("height", "2.4");
+                    pat.setAttribute("patternUnits", "userSpaceOnUse"); pat.setAttribute("patternTransform", "rotate(45)");
+                    const bg = document.createElementNS(ns, "rect");
+                    bg.setAttribute("width", "2.4"); bg.setAttribute("height", "2.4"); bg.setAttribute("fill", C.paper);
+                    const ln = document.createElementNS(ns, "rect");
+                    ln.setAttribute("width", "1.1"); ln.setAttribute("height", "2.4"); ln.setAttribute("fill", color);
+                    pat.appendChild(bg); pat.appendChild(ln); defs.appendChild(pat); svg.appendChild(defs);
+                }
+                head.setAttribute("fill", `url(#${pid})`); head.setAttribute("stroke", color); head.setAttribute("stroke-width", "1");
+                head.setAttribute("data-pnl-fc", "1");
             } else { head.setAttribute("fill", color); }
             svg.appendChild(head);
             return head;
@@ -8279,7 +8331,7 @@ export class Visual implements IVisual {
         const pad = this.k(compact ? 0.5 : 1.5);
         const fs = this.k(compact ? 9 : 10);
         const cellPad = this.k(8);
-        const row = (cells: string[], opts?: { bold?: boolean; color?: (string | null)[] }): void => {
+        const row = (cells: string[], opts?: { bold?: boolean; color?: (string | null)[]; na?: boolean[] }): void => {
             const r = document.createElement("div");
             r.style.cssText = "display:table-row;";
             cells.forEach((cTxt, i) => {
@@ -8288,7 +8340,9 @@ export class Visual implements IVisual {
                     `font-family:${FONT};font-variant-numeric:tabular-nums;` +
                     (i === 0 ? `text-align:left;padding-left:0;color:${C.soft};` : "text-align:right;") +
                     (opts?.bold ? "font-weight:700;" : "") +
-                    (opts?.color?.[i] ? `color:${opts.color[i]};font-weight:600;` : "");
+                    (opts?.na?.[i] ? `color:${C.soft};font-style:italic;font-weight:400;`
+                        : opts?.color?.[i] ? `color:${opts.color[i]};font-weight:600;` : "");
+                if (opts?.na?.[i]) { c.setAttribute("data-pnl-na", "1"); }
                 c.textContent = cTxt;
                 r.appendChild(c);
             });
@@ -8306,7 +8360,8 @@ export class Visual implements IVisual {
             row([sc.toUpperCase(), num(this.ytdDisplay(node, sc)),
                 dNum(v.delta == null ? null : v.delta * inv),
                 v.deltaPct == null ? (v.delta == null ? "·" : this.relNa()) : fmt.pct(v.deltaPct * inv, true)],
-            { color: [null, null, col, col] });
+            // 1.8.4 "n.a." is soft and italic, never in the variance colour
+            { color: [null, null, col, col], na: [false, false, false, v.delta != null && v.deltaPct == null] });
         }
         if (this.has.fcfy) {
             const fy = variance(node, "plfy", "fcfy");
@@ -8315,7 +8370,7 @@ export class Visual implements IVisual {
                 num(displayValue(node, "fcfy")),
                 this.has.plfy ? dNum(fy.delta == null ? null : fy.delta * inv) : "",
                 !this.has.plfy || fy.delta == null ? "" : fy.deltaPct != null ? fmt.pct(fy.deltaPct * inv, true) : this.relNa()],
-            { color: [null, null, col, col] });
+            { color: [null, null, col, col], na: [false, false, false, this.has.plfy && fy.delta != null && fy.deltaPct == null] });
         }
         return grid;
     }
@@ -8461,6 +8516,22 @@ export class Visual implements IVisual {
             const pt = document.createElementNS(ns, "title");
             pt.textContent = `Δ${this.ui!.ref.toUpperCase()} ${txt}`;
             p.appendChild(pt);
+            g.appendChild(p);
+            pctW = txt.length * ufs * 0.6 + 4 * s;
+            rightX -= pctW;
+        } else if (va) {
+            // 1.8.4 a Δ% without meaning (reference 0, sign change): "n.a." soft and italic in its place
+            const txt = this.relNa();
+            const p = document.createElementNS(ns, "text");
+            p.setAttribute("x", rightX.toFixed(2));
+            p.setAttribute("y", headY.toFixed(2));
+            p.setAttribute("text-anchor", "end");
+            p.setAttribute("font-size", ufs.toFixed(1));
+            p.setAttribute("font-family", FONT);
+            p.setAttribute("font-style", "italic");
+            p.setAttribute("fill", C.soft);
+            p.setAttribute("data-pnl", "tree-na");
+            p.textContent = txt;
             g.appendChild(p);
             pctW = txt.length * ufs * 0.6 + 4 * s;
             rightX -= pctW;
@@ -11152,6 +11223,21 @@ export class Visual implements IVisual {
             return cur.row.id;
         };
 
+        // 1.8.4 a flat list (every element of the top visible level is one row: customers,
+        // products without a hierarchy) gets no spacer between its rows (T02B / T02C drew
+        // every row as a block of its own, 36 instead of 24 px); the grand total keeps its gap
+        const isGrand = (x: PnlNode): boolean => x === soleRoot || x.row.id === TOTAL_ID;
+        let flatTop = struct;
+        if (flatTop) {
+            const perTop = new Map<string, number>();
+            for (const it of items) {
+                if (!it.node || it.kind === "pct" || isGrand(it.node)) { continue; }
+                const k = topOf(it.node);
+                perTop.set(k, (perTop.get(k) ?? 0) + 1);
+                if (perTop.get(k)! > 1 || it.node.hasChildren) { flatTop = false; break; }
+            }
+        }
+
         // comment footnotes are numbered in reading order of this table
         this.comments = [];
         this.commentNo.clear();
@@ -11172,7 +11258,7 @@ export class Visual implements IVisual {
             // a row without a gap), a one-child group and the grand total
             if (prev && prev.node && it.kind !== "pct" && (
                 (prev.kind === "sum" || prev.kind === "formula") && it.kind === "acc"
-                || struct && topOf(prev.node) !== topOf(n)
+                || struct && topOf(prev.node) !== topOf(n) && !(flatTop && !isGrand(prev.node) && !isGrand(n))
             )) {
                 if (out.length && out[out.length - 1].kind !== "gap") { out.push(this.megaGap()); }
             }
@@ -11723,7 +11809,13 @@ export class Visual implements IVisual {
         if (this.excFnCache) { return this.excFnCache; }
         if (this.excMemo == null) { this.excMemo = new Map(); }
         const memo = this.excMemo;
-        const rule: ExceptionRule = { pct: x.pct, abs: x.abs, dir: x.dir };
+        // 1.8.4 the printed numbers count: Δ in the unit and decimals of the table, Δ% in its decimals
+        const exFmt = this.makeFmt(this.scans().maxAbsVal);
+        const exDec = this.settings.numbersCard.decimals.value;
+        const exPdec = this.settings.numbersCard.pctDecimals.value;
+        const rule: ExceptionRule = { pct: x.pct, abs: x.abs, dir: x.dir,
+            rd: d => roundShown(d / exFmt.div, exDec) * exFmt.div,
+            rp: p => roundShown(p, exPdec) };
         let test: (n: PnlNode) => boolean;
         const fixed: Scenario | null = x.ref !== "auto" && this.has[x.ref] ? x.ref : null;
         if (this.megaInView()) {

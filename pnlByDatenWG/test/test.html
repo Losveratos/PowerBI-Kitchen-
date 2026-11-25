@@ -111,6 +111,7 @@
 <div class="case"><h4>m74 · 1.8.4 · T04D: gekappter Pin behält den schraffierten FC-Kopf · m75 12H: gekappter Pin behält den hohlen PL-Kopf · m76 T04D mit Kappung aus (columns.capPins = false)</h4><div class="stage" id="m74" style="width:1320px;height:700px"></div><div class="stage" id="m75" style="width:1320px;height:760px"></div><div class="stage" id="m76" style="width:1320px;height:700px"></div></div>
 <div class="case"><h4>m77 · 1.8.4 · T04A: ΔPL% n.a. an der Achse der Pin-Spalte (Financial income PL −15 → AC 66) · p30 klassische Tabelle Δ%-Pins: n.a. und gekappter Pin mit Kopf</h4><div class="stage" id="m77" style="width:1320px;height:700px"></div><div class="stage" id="p30" style="width:1100px;height:640px"></div></div>
 <div class="case"><h4>m78 · 1.8.4 · Gleitkomma-Rauschen ist kein Vorzeichenwechsel (Investment income 0.0, ΔPY% −100.0 %) · m79 negativer gekappter Pin mit Kopf · m80 Hochkontrast: gekappte FC-Pins behalten den Kopf</h4><div class="stage" id="m78" style="width:1320px;height:600px"></div><div class="stage" id="m79" style="width:1320px;height:700px"></div><div class="stage" id="m80" style="width:1320px;height:700px"></div></div>
+<div class="case"><h4>m81 · 1.8.4 · T02B auf einer flachen Kundenliste: keine Leerzeilen, Leerzeile nur vor Gesamt · m82 T02C Bierranking 1566 × 742 mit „Fläche maximieren“: wächst nur so weit, wie die Breite reicht · m83 ⚡ auf dem gedruckten Δ% (−9,96 % druckt −10,0 % und ist Ausnahme bei 10 %)</h4><div class="stage" id="m81" style="width:1320px;height:480px"></div><div class="stage" id="m82" style="width:1566px;height:742px"></div><div class="stage" id="m83" style="width:1320px;height:640px"></div></div>
 <div class="case"><h4>m46 · 1.7 · ⚡ Hochkontrast · T02A · Nicht-Ausnahmen gestrichelt ohne Füllung und Muster</h4><div class="stage" id="m46" style="width:1320px;height:800px"></div></div>
 <script src="locales.js"></script>
 <script src="visual.bundle.js"></script>
@@ -658,6 +659,41 @@ runRows("m79", MEGA_DEMO.regions().map(r => r.month === "2026-11" && r.account =
   { titleBlock: { ...MT, periodLine: "November 2026" }, ...REG, columns: { template: "T02A" } });
 runRows("m80", W1_T04, { titleBlock: { ...MT, periodLine: "2026" }, toolbar: { show: false }, hierarchy: { defaultLevel: 0 },
   columns: { template: "T04D" } }, null, { palette: HC });
+// m81 — 1.8.4 a flat customer list (no hierarchy below the grand total): T02B without spacer rows (port of the parallel line)
+(function () {
+  const cust = [["HyperMax", 4210, 3620], ["Diskont Sever", 3300, 3440], ["Trh Plus", 3050, 3110], ["Sklepik", 1350, 1600],
+    ["Kaufpark", 2600, 2770], ["Billa Nord", 2400, 2510], ["Coop Süd", 2050, 2470], ["Mini Markt", 1500, 1340]];
+  const rows = cust.map(([leaf, pl, ac], i) => ({ levels: ["Gesamt", leaf], account: "C" + i, sort: i, rowType: "account",
+    formulaDef: null, sign: 1, displayInvert: false, varianceInvert: false, month: "2026-08", comment: null, values: { ac: ac * 1000, pl: pl * 1000 } }));
+  runRows("m81", rows, { titleBlock: { ...MT, measureLine: "Umsatz in kEUR", periodLine: "August 2026" }, ...REG, columns: { template: "T02B" } }, "de-DE");
+})();
+// m82 — 1.8.4 the beer ranking of the showcase (T02C, flat list, two blocks) in a 1566 × 742 tile with
+// layout.maximize: without spacer rows the table is short, the body grows, but never past the tile width
+(function () {
+  const beers = [["Lev Free", 2250, 2410, 13970, 14740], ["Lev Citrón Radler", 1860, 1900, 10470, 10430],
+    ["Zlatý Lev 12° Dvanáctka", 13740, 13750, 88590, 89130], ["Anniversary 1882", 40, 40, 290, 280],
+    ["Smíchov Hazy IPA", 1040, 1030, 6820, 6390], ["Vltava Pšenice", 1490, 1460, 8930, 8780],
+    ["Karlův IPA", 1440, 1410, 9640, 9560], ["Vyšehrad Tmavý 13°", 1320, 1280, 9380, 9190],
+    ["Černý Lev 11°", 3420, 3370, 23870, 23860], ["Zlatý Lev 10° Desítka", 12490, 11990, 80520, 80920],
+    ["Praha Premium 13°", 5620, 3390, 36220, 26280]];
+  const MONTHS8 = ["2026-01", "2026-02", "2026-03", "2026-04", "2026-05", "2026-06", "2026-07", "2026-08"];
+  const rows = [];
+  beers.forEach(([leaf, plA, acA, plY, acY], i) => MONTHS8.forEach((m, mi) => rows.push({ levels: ["Gesamt", leaf], account: "B" + i,
+    sort: i, rowType: "account", formulaDef: null, sign: 1, displayInvert: false, varianceInvert: false, month: m, comment: null,
+    values: mi === 7 ? { pl: plA, ac: acA } : { pl: (plY - plA) / 7, ac: (acY - acA) / 7 } })));
+  runRows("m82", rows, { titleBlock: { unitLine: "ZLATÝ LEV Brauerei", measureLine: "Absatz in Tsd. hl je Bier, sortiert nach Planabweichung im Monat",
+    periodLine: "Aug 2026 | Jan..Aug 2026 (YTD), AC gegen PL" }, toolbar: { show: true, foldable: true }, hierarchy: { defaultLevel: 0 },
+    layout: { maximize: true },
+    columns: { template: "T02C", templateApplied: "T02C", showPL: true, showMinuend: true, dPlBar: true, dPlPin: true, secondBlock: true,
+      sort: "delta", sortBlock: "period", keepBlockOrder: true, structureTotal: true },
+    numbers: { scaling: "k", unitText: "hl", decimals: 2, pctDecimals: 1 } }, "de-DE");
+})();
+// m83 — 1.8.4 ⚡ on the printed Δ%: Sweden ΔPL% −9.96 % prints −10.0 % and is an exception at 10 % (until 1.8.3 grey)
+runRows("m83", MEGA_DEMO.regions().map(r => r.month === "2026-11" && r.account === "Europe:Sweden" ? { ...r, values: { ...r.values, ac: 72.93 } } : r),
+  { titleBlock: { ...MT, periodLine: "November 2026" }, ...REG,
+    columns: { template: "T01A", templateApplied: "T01A", showPY: true, showPL: true, showMinuend: true, dPyAbs: true, dPyPct: true,
+      dPlAbs: true, dPlPct: true, secondBlock: true, structureSubtotals: false, thresholds: false },
+    numbers: { decimals: 0, pctDecimals: 1 }, exceptions: { enabled: true, thresholdPct: 10, reference: "pl" } });
 // p30 — 1.8.4 classic table, Δ% pins: Financial income crosses zero ("n.a.", no pin), Other revenue +62.7 % capped with its head
 runRows("p30", W1_T03, { titleBlock: { ...MT, periodLine: "2026" }, hierarchy: { defaultLevel: 0 }, columns: { preset: "dpct" } });
 runRows("m65", MEGA_DEMO.statement("T04"), { titleBlock: { ...MT, periodLine: "2026" }, toolbar: { show: false },

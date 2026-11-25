@@ -1292,7 +1292,8 @@ export function layoutMega(input: MegaInput): MegaLayout {
             const v = c.type === "bar" ? D.d : D.p == null ? null : D.p * 100;
             if (v != null && isFinite(v)) { c.vals.push({ r, v, D }); }
             // 1.8.4 a pin column prints "n.a." at the axis for a Δ% without meaning
-            else if (c.type === "pin" && D.p == null && input.naText) { (c.na ??= new Set()).add(r); }
+            // (only with chart labels: without them the column reserves no room and prints nothing)
+            else if (c.type === "pin" && D.p == null && input.naText && t.labels) { (c.na ??= new Set()).add(r); }
         }
     }
     // outlier cap: ONE limit per family over all blocks (all pin columns of the

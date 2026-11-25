@@ -98,7 +98,7 @@ Jedes Template ist nur ein Preset: Es setzt alle Schalter
 | **T01C** (1.8) | wie T01B, je Block nach ΔPY des _YTD-Blocks absteigend sortiert („ΔPY(↓)"; ohne PY-Rolle nach ΔPL), „Other" bleibt unten, Blöcke in Kategoriereihenfolge | wie T01B |
 | **T01D** (1.8) | wie T01B mit FC als analysiertem Szenario, je Block nach ΔPY% des Monats sortiert („ΔPY%(↓)") | wie T01B + FC |
 | **T02A** | PL·AC + ΔPL-Balken + ΔPL%-Pins, zwei Blöcke | AC/PL |
-| **T02B/C/D** | wie T02A, sortiert nach AC↓, ΔPL↓ bzw. (1.8) ΔPL%↓ („(↓)" im Kopf, bei D am Pin-Kopf); Blöcke seit 1.8 in Kategoriereihenfolge | — |
+| **T02B/C/D** | wie T02A, sortiert nach AC↓, ΔPL↓ bzw. (1.8) ΔPL%↓ („(↓)" im Kopf, bei D am Pin-Kopf); Blöcke seit 1.8 in Kategoriereihenfolge; 1.8.4: auf einer flachen Liste (Kunden, Biere ohne Hierarchie) dichte Zeilen ohne Leerzeilen, Leerzeile nur vor Gesamt | — |
 | **T02E/F** | FC statt AC (schraffierte Balken), Referenz PY bzw. PL (graue bzw. Doppellinien-Achse) | FC + PY bzw. PL |
 | **T03A/B** | GuV-Statement: +/−/=-Zeilen, PY·PL·AC(bzw. FC) + Δ-Zahlenspalten, Margen-Zeile in pp | Kontendimension mit RowType |
 | **T04A–E** | Statement mit **integriertem Δ-Wasserfall** (kaskadierende Balken, =-Anker) + Δ%-Pins; A/B = vs. PL, C = vs. PY, D/E = FC | wie T03 |

@@ -1100,6 +1100,17 @@ test("1.8.4 relDelta: Δ% n.a. on a sign change and against 0, same-sign negativ
     // ⚡ an n.a. Δ% counts like a reference of 0 (an exception once the percent threshold is on)
     assert.strictEqual(E.isExceptionVariance(row("fin", null), E.varianceOf(69.6, -15, false), { pct: 5, abs: 0, dir: "both" }), true);
     assert.strictEqual(E.isExceptionVariance(row("fin", null), E.varianceOf(69.6, -15, false), { pct: 0, abs: 100, dir: "both" }), false);
+    // ⚡ on the printed numbers (rd / rp, 1.8.4): +9.96 % prints +10.0 % (Δ% decimals 1) = an exception at 10 %;
+    // Δ 499.6 prints 500 (0 decimals) = an exception at |Δ| ≥ 500; without the printers the raw values decide
+    const ex = (v, rule) => E.isExceptionVariance(row("r", null), v, rule);
+    const v996 = { delta: 9.96, deltaPct: 0.0996, good: true };
+    assert.strictEqual(ex(v996, { pct: 10, abs: 0, dir: "both" }), false);
+    assert.strictEqual(ex(v996, { pct: 10, abs: 0, dir: "both", rp: p => E.roundShown(p, 1) }), true);
+    assert.strictEqual(ex(v996, { pct: 10, abs: 0, dir: "both", rp: p => E.roundShown(p, 2) }), false);
+    const v4996 = { delta: 499.6, deltaPct: 0.01, good: true };
+    assert.strictEqual(ex(v4996, { pct: 0, abs: 500, dir: "both" }), false);
+    assert.strictEqual(ex(v4996, { pct: 0, abs: 500, dir: "both", rd: d => E.roundShown(d, 0) }), true);
+    assert.strictEqual(E.roundShown(-0.04, 1), 0, "a rounded zero is 0, not −0");
     // variance() on a model: the PY window of a cash-flow row that turns from −6 to +10
     const m = E.buildModel([row("wc", null, { values: { ac: 10, py: -6 } })], "U");
     assert.strictEqual(E.variance(m.byId.get("wc"), "py").deltaPct, null);

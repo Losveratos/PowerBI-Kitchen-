@@ -122,7 +122,7 @@ function readMega(id) {
     const ids = ["m1", "m2", "m3", "m4", "m5", "m6", "m7", "m8", "m9", "m10", "m11", "m12", "m13", "m14", "m15", "m16",
         "m17", "m18", "m19", "m20", "m21", "m22", "m23", "m24", "m25", "m26", "m27", "m28", "m29", "m30", "m31", "m32", "m33",
         "m34", "m35", "m36", "m37", "m38", "m39", "m40", "m41", "m42", "m43", "m44", "m45", "m46", "m47", "m48", "m49", "m50", "m51", "m52", "m53", "m54", "m55", "m56", "m57", "m58", "m59", "m60", "m61", "m62", "m63", "m64", "m65", "m66", "m67", "m68", "m69", "m70", "m71",
-        "m72", "m73", "m74", "m75", "m76", "m77", "m78", "m79", "m80"];
+        "m72", "m73", "m74", "m75", "m76", "m77", "m78", "m79", "m80", "m81", "m82", "m83"];
     const S = {};
     for (const id of ids) {
         S[id] = await page.evaluate(readMega, id);
@@ -449,9 +449,56 @@ function readMega(id) {
             && p79.pinHeads[0].fill === "#404040" && p79.breaks === 1 && p79.labels.some(l => l.t === nb("-98.2")),
             JSON.stringify(p79 && { h: p79.pinHeads, ax79, l: p79.labels.map(l => l.t) }));
         const p80 = S.m80.charts.find(c => c.pinHeads.length > 0);
-        check("m80 high contrast: the three capped FC pins keep a head (pattern or hollow outline), not dropped",
-            p80 != null && p80.pinHeads.length === 3 && p80.pinHeads.every(h => h.fill && (/^url\(/.test(h.fill) || h.stroke)),
+        // the same three rows as in the light palette (m74), each head in front of its triangle, the stem ends in it
+        const p74 = S.m74.charts.find(c => c.pinHeads.length > 0);
+        check("m80 high contrast: the three capped FC pins keep their head (hatch pattern or hollow outline in the foreground), at the same place as m74",
+            p80 != null && p80.pinHeads.length === 3 && p80.pinHeads.every(h => h.fill && (/^url\(/.test(h.fill) || (h.stroke && h.fill !== h.stroke)))
+            && p74 != null && p80.pinHeads.every((h, i) => Math.abs(h.x - p74.pinHeads[i].x) < 0.5) && p80.breaks === 3,
             JSON.stringify(p80 && p80.pinHeads));
+    }
+    if (S.m81 && S.m38) {
+        // 1.8.4 a flat list: one row pitch between the customers, the spacer only before the total
+        const ys = S.m81.rowY; const steps = ys.slice(1).map((y, i) => Math.round(y - ys[i]));
+        const pitch = steps[0];
+        check("m81 T02B on a flat list: no spacer rows between the 8 customers (one pitch), one gap before the total",
+            ys.length === 9 && steps.slice(0, 7).every(d => d === pitch) && steps[7] > pitch, steps.join(","));
+        // a hierarchy keeps its blocks (1.5.1 rule): m38 regions still separate their elements
+        const ys38 = S.m38.rowY; const st38 = ys38.slice(1).map((y, i) => Math.round(y - ys38[i]));
+        check("m38 hierarchy unchanged: region blocks keep their spacer rows", new Set(st38).size > 1, st38.join(","));
+    }
+    if (S.m82) {
+        // 1.8.4 layout.maximize grows a short table (flat list without spacer rows) only as far as the
+        // tile width allows: T02C at 1566 × 742 (the showcase tile) and, rendered again, at 1400 × 742
+        // (before the fix: 119 px past the edge at 1400, ΔPL% of the right block cut off)
+        const fit = async (w, h) => page.evaluate(([w, h]) => {
+            const st = document.getElementById("m82");
+            if (w) { st.style.width = w + "px"; st.style.height = h + "px";
+                const v = window.__visuals.m82; v.update({ dataViews: [v.lastDv], viewport: { width: w, height: h }, type: 4 }); }
+            const sb = st.getBoundingClientRect(); const root = st.firstElementChild;
+            const cut = [];
+            for (const svg of st.querySelectorAll("svg")) { const R = svg.getBoundingClientRect();
+                for (const t of svg.querySelectorAll("text")) { if (t.getBoundingClientRect().right > Math.min(R.right, sb.right) + 0.5) { cut.push(t.textContent); } } }
+            const body = st.querySelector('svg[data-pnl="mega-body"]');
+            const charts = [...body.querySelectorAll('g[data-pnl="mega-chart"]')];
+            const last = charts[charts.length - 1];
+            const heads = [...last.querySelectorAll("rect")].map(r => r.getBoundingClientRect().right);
+            return { cut, scroll: root.scrollWidth - root.clientWidth, headsOut: heads.filter(x => x > sb.right + 0.5).length,
+                heads: heads.length, fs: parseFloat(getComputedStyle(body.querySelector("text")).fontSize) };
+        }, [w, h]);
+        const a = await fit(0, 0);
+        check("m82 T02C flat list, maximize, 1566 × 742: the right ΔPL% column with every pin head and label inside the tile",
+            a.cut.length === 0 && a.headsOut === 0 && a.heads >= 11 && a.scroll <= 1 && a.fs > 13, JSON.stringify(a));
+        const b = await fit(1400, 742);
+        check("m82 the same tile at 1400 × 742: the type grows only as far as the width allows (min of height and width)",
+            b.cut.length === 0 && b.headsOut === 0 && b.scroll <= 1 && b.fs <= a.fs, JSON.stringify(b));
+    }
+    if (S.m83) {
+        // 1.8.4 ⚡ reads the printed Δ%: −9.96 % prints −10.0 % = an exception at 10 % (ink), Poland −5.5 % is none (grey)
+        const fillOf = (label, t) => { const l = S.m83.body.find(x => x.t === label); const c = l && S.m83.body.find(x => Math.abs(x.y - l.y) < 0.5 && x.t === nb(t) && x.x < l.x);
+            return c ? c.fill : null; };
+        const se = fillOf("Sweden", "-10.0%"); const po = fillOf("Poland", "-5.5%");
+        check("m83 ⚡ on the printed Δ%: Sweden ΔPL% −9.96 % prints −10.0 % and is an exception at 10 % (not grey), Poland −5.5 % greys",
+            se != null && se !== "#8A8886" && po === "#8A8886", `${se} / ${po}`);
     }
     if (S.m74 && S.m75 && S.m76) {
         const p74 = S.m74.charts.find(c => c.pinHeads.length > 0);

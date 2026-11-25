@@ -247,6 +247,9 @@ Stiel 3 px in Gut/Schlecht-Farbe von der Achse bis zur Kopfmitte; Kopf 8 × 8 px
 Quadrat in Tinte (AC voll, FC schraffiert + 1-px-Kontur); Zahl 3 px hinter der
 Kopfkante, ohne „%"-Zeichen (Spaltenkopf trägt „Δ…%"). Wert 0 → Kopf auf der
 Achse, Zahl rechts (T02F „0.0").
+1.8.4: Ist das Δ% nicht aussagekräftig (Referenz 0 oder Vorzeichenwechsel zwischen Wert
+und Referenz), steht statt des Pins „n.a.“ klein, kursiv und grau rechts neben der Achse
+(`data-pnl="mega-na"`); ohne Diagrammbeschriftung entfällt es samt Platz.
 
 ### Kaskaden (Δ-Wasserfall T04, Wert-Kaskade 12A) — eine Funktion
 

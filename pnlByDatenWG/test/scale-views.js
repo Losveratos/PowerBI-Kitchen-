@@ -60,6 +60,16 @@ function classic(id) {
         pinBreak: st.querySelectorAll('[data-pnl="pin-break"]').length,
         // 1.8.4 a capped pin keeps its head; a Δ% without meaning reads "n.a." (no pin)
         pinHead: [...st.querySelectorAll('[data-pnl="pin-head"]')].map(c => c.getAttribute("fill")),
+        // 1.8.4 every head of an AC&FC (FY) pin: hatched (pattern) with its colour as outline, never an empty ring
+        fcHeads: [...st.querySelectorAll('circle[data-pnl-fc]')].map(c => ({ fill: c.getAttribute("fill"), stroke: c.getAttribute("stroke") })),
+        rings: [...st.querySelectorAll("circle")].filter(c => /^#F/i.test(c.getAttribute("fill") || "") && c.getAttribute("stroke")).length,
+        pinHeadAt: [...st.querySelectorAll('[data-pnl="pin-head"]')].map(c => {
+            const tri = c.parentNode.querySelector('[data-pnl="pin-outlier"]');
+            const m = tri ? /M([\d.\-]+),/.exec(tri.getAttribute("d")) : null;
+            return { cx: +c.getAttribute("cx"), tip: m ? +m[1] : null };
+        }),
+        pinNaRow: [...st.querySelectorAll('[data-pnl="pin-na"]')].map(t => ({ t: t.textContent, italic: t.getAttribute("font-style") === "italic",
+            fill: t.getAttribute("fill"), row: (t.closest("[data-pnl-row]") || { getAttribute: () => "" }).getAttribute("data-pnl-row") })),
         pinNa: [...st.querySelectorAll('[data-pnl="pin-na"]')].map(t => t.textContent),
         arrows: [...st.querySelectorAll("text")].filter(t => /▸$/.test(t.textContent)).length,
     };
@@ -133,12 +143,17 @@ function tree(id) {
         check("p1 table: Δ% outliers run into the zone — break mark + triangle, no ▸",
             r.pinOut > 0 && r.pinBreak === r.pinOut && r.arrows === 0, JSON.stringify({ o: r.pinOut, b: r.pinBreak, a: r.arrows }));
         check("p1 table: the note keeps the uniform Δ scale", /uniform Δ scale/.test(r.note), r.note);
-        check("p1 1.8.4 every capped pin keeps its head before the triangle, in the notation of the uncapped heads",
-            r.pinOut > 0 && r.pinHead.length === r.pinOut && r.pinHead.every(f => f === r.pinHead[0] && f && f !== "none"), JSON.stringify(r.pinHead));
+        check("p1 1.8.4 every capped pin keeps its head before the triangle (head centre inside, tip beyond)",
+            r.pinOut > 0 && r.pinHead.length === r.pinOut && r.pinHead.every(f => f && f !== "none")
+            && r.pinHeadAt.every(h => h.tip != null && Math.abs(h.tip - h.cx) > 2), JSON.stringify(r.pinHeadAt));
+        check("p1 1.8.4 the AC&FC (FY) pin heads are hatched like every FC element, not an empty ring (sheet 12G)",
+            r.fcHeads.length > 0 && r.fcHeads.every(h => /^url\(#pnlpinfc/.test(h.fill) && h.stroke) && r.rings === 0,
+            JSON.stringify({ fc: r.fcHeads.slice(0, 3), rings: r.rings }));
         const q = await page.evaluate(classic, "p30");
-        check("p30 1.8.4 classic Δ% pins: Financial income crosses zero, \"n.a.\" instead of a pin; Other revenue +62.7 % capped with its head",
-            q.pinNa.length >= 1 && q.pinNa.every(t => t === "n.a.") && q.pinOut >= 1 && q.pinHead.length === q.pinOut,
-            JSON.stringify({ na: q.pinNa, out: q.pinOut, head: q.pinHead }));
+        check("p30 1.8.4 classic Δ% pins: Financial income crosses zero, \"n.a.\" (italic, soft ink) on its row instead of a pin; Other revenue +62.7 % capped with its filled head",
+            q.pinNaRow.length >= 1 && q.pinNaRow.every(x => x.t === "n.a." && x.italic && /^#8A8886$/i.test(x.fill))
+            && q.pinNaRow.some(x => /fin/.test(x.row)) && q.pinOut >= 1 && q.pinHead.length === q.pinOut
+            && q.pinHead.every(f => f && !/^url/.test(f)), JSON.stringify({ na: q.pinNaRow, out: q.pinOut, head: q.pinHead }));
     }
 
     // ---- driver tree: one px per unit across the cards, ×n exact

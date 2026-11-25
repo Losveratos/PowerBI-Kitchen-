@@ -1382,6 +1382,23 @@ export interface ExceptionRule {
     pct: number;
     abs: number;
     dir: "both" | "up" | "down";
+    /**
+     * 1.8.4 Δ (data units) as the table prints it: in the display unit and its decimals,
+     * back in data units. Absent = the raw Δ (callers without a table format)
+     */
+    rd?: (delta: number) => number;
+    /** 1.8.4 Δ% (or pp) in whole percent as printed with the Δ% decimals. Absent = raw */
+    rp?: (pctPercent: number) => number;
+}
+
+/**
+ * 1.8.4 a number as printed with `d` decimals (half away from zero, like the formatters);
+ * a rounded zero is 0 (no −0)
+ */
+export function roundShown(v: number, d: number): number {
+    const f = Math.pow(10, Math.max(0, d));
+    const r = Math.round(Math.abs(v) * f) / f;
+    return r === 0 ? 0 : v < 0 ? -r : r;
 }
 
 /**
@@ -1405,10 +1422,14 @@ export function isExceptionVariance(row: InputRow, v: Variance, rule: ExceptionR
     const abs = Math.max(0, Number(rule.abs) || 0);
     const eps = 1e-9;
     if (pct <= 0 && abs <= 0) { return true; }
-    if (kpi && row.kfmt === "factor") { return pct > 0 && (v.deltaPct == null || Math.abs(v.deltaPct * 100) >= pct - eps); }
-    if (kpi) { return pct > 0 && Math.abs(v.delta * 100) >= pct - eps; }
-    if (abs > 0 && Math.abs(v.delta) >= abs * (1 - eps)) { return true; }
-    if (pct > 0) { return v.deltaPct == null || Math.abs(v.deltaPct * 100) >= pct - eps; }
+    // 1.8.4 the printed numbers count (rule.rd / rule.rp), like the red threshold of the table:
+    // +9.96 % prints +10.0 % and is an exception at 10 %
+    const P = (x: number): number => Math.abs(rule.rp ? rule.rp(x) : x);
+    const D = (x: number): number => Math.abs(rule.rd ? rule.rd(x) : x);
+    if (kpi && row.kfmt === "factor") { return pct > 0 && (v.deltaPct == null || P(v.deltaPct * 100) >= pct - eps); }
+    if (kpi) { return pct > 0 && P(v.delta * 100) >= pct - eps; }
+    if (abs > 0 && D(v.delta) >= abs * (1 - eps)) { return true; }
+    if (pct > 0) { return v.deltaPct == null || P(v.deltaPct * 100) >= pct - eps; }
     return false;
 }
 
