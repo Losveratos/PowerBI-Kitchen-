@@ -1,6 +1,6 @@
 # Projekt-Status · PowerBI-Kitchen
 
-_Stand: 2026-11-23 · Übergabe-Notiz, damit eine neue Session/Person sofort anknüpfen kann._
+_Stand: 2026-11-24 · Übergabe-Notiz, damit eine neue Session/Person sofort anknüpfen kann._
 
 ## Was ist das
 
@@ -57,6 +57,18 @@ jeweiligen Visual-Ordner.
   `claude/mock-upkitche-rayfin-chartkitchen-roqocc` (dwg-Host-Adapter/
   Fabric-Apps-Spike, Archiv). Alles andere ist gemergt oder zur Löschung
   freigegeben.
+
+## Lernseiten (Stand 24.11.2026)
+
+`power_bi_einsteiger_guide_v4.html`, `fabric_einsteiger_guide_v1.html` und `powerbi_praxis_pfad.html`
+tragen den Stand November 2026: gegen Microsoft Learn, SQLBI und die Ignite-Ankündigungen geprüft,
+Neuerungen seit Oktober eingebaut, Verweise auf Folgen, eigene Beiträge und Library ergänzt.
+Alle Learn-Screenshots liegen lokal unter `assets/learn/` (Quellen in `assets/learn/QUELLEN.txt`),
+keine der drei Seiten lädt Bilder von fremden Servern. Beim nächsten Update zuerst die Stellen mit
+"Stand November 2026" und die im Text offen benannten Widersprüche prüfen (Fabric Apps und Data Agents:
+Preview oder allgemein verfügbar; Org-Apps auf Audiences umstellen; SharePoint-Einbettung ganzer Apps).
+Nach jeder Änderung: `python3 scripts/build_md.py <name>`, `python3 scripts/build_llms_full.py`,
+`node scripts/build_seo.js`.
 
 ## Nützliche Einstiege
 

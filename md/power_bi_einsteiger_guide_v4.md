@@ -6,7 +6,7 @@ EINSTEIGER-GUIDE · POWER BI · END-TO-END
 
 Für alle, die Power BI seit ein bis zwei Jahren nutzen und jetzt den ganzen Weg verstehen wollen — von der Datenanbindung bis zum Sharing. Mit Schritt-für-Schritt-Anleitungen, konkreten Beispielen, und Tiefenfokus auf Query Folding und IBCS.
 
-**v 4 · Einsteiger** · Beta · Stand Oktober 2026 · DE · 10 Sektionen · 102 klickbare Detail-Karten
+**v 4 · Einsteiger** · Beta · Stand November 2026 · DE · 10 Sektionen · 102 klickbare Detail-Karten
 
 Michael Tenner · Power BI · Data Engineering · Daten-WG · [LinkedIn](https://www.linkedin.com/in/michael-tenner-5b885970/)
 
@@ -15,6 +15,10 @@ Michael Tenner · Power BI · Data Engineering · Daten-WG · [LinkedIn](https:/
 Dieser Guide ist **kein Buch**, das du von vorn nach hinten liest. Es ist eine Klick-Erkundung: zehn Sektionen mit jeweils mehreren anklickbaren Karten, jede führt zu einem Detail-Fenster mit Schritt-für-Schritt, Beispielen und Anfänger-Fallen.
 
 Wenn du **1–2 Jahre Power BI** gemacht hast, kennst du die Oberfläche, aber wahrscheinlich noch nicht das *Warum* dahinter. Genau das schließen wir hier. Empfohlene Reihenfolge: **Sektion 1 → 2 → 4 → 5 → 6** abdecken die Kern-Workflows; Sektion 3, 7–10 sind Vertiefung.
+
+Du hast Power BI noch nie geöffnet? Dann starte mit dem [Power BI Praxis-Pfad](../powerbi_praxis_pfad.html): In gut zwei Stunden kommst du von der Installation zum ersten fertigen Bericht, ohne Konto und ohne Vorkenntnisse. Danach liest sich dieser Guide deutlich leichter.
+
+Ein Hinweis zur Oberfläche: Power BI Desktop bietet seit September 2026 einen neuen Power Query Editor als Vorschau an (Stand November 2026). Die Klickpfade in diesem Guide beschreiben den bisherigen Editor. Wie du zwischen beiden umschaltest, steht in der Karte „Power BI Desktop“ in Sektion 1.
 
 Wenn du eine Karte anklickst, öffnet sich ein Modal. Mit `Esc` schließen, oder neben das Fenster klicken.
 
@@ -51,12 +55,22 @@ Power BI Desktop ist die App, die du auf deinem Windows-Rechner installierst. Si
 
 #### Was wo entsteht
 
-- **Power Query Editor** — Datenanbindung und Transformation in M-Code
+- **Power Query Editor** — Datenanbindung und Transformation in M-Code (Home → Transform data); seit September 2026 gibt es zusätzlich einen neuen Editor als Vorschau, siehe unten
 - **Table view** (früher „Data view“) — geladene Tabellen ansehen, Datentypen ändern, berechnete Spalten anlegen
 - **Model view** — Beziehungen, Hierarchien, Display Folders, Calculation Groups; Rollen (RLS) über Modeling → Manage roles
-- **Report view** — Visuals platzieren, formatieren, interaktiv verknüpfen
+- **Report view** — Visuals platzieren, formatieren, interaktiv verknüpfen; Berichtsdesigns (Themes) wählst du seit September 2026 in einem eigenen Reiter **Design** im Menüband (allgemein verfügbar)
 - **DAX query view** — DAX-Abfragen schreiben und testen, Measures prüfen, ohne ein Visual zu bauen
-- **TMDL view** — das Modell als Code (TMDL) scripten und Änderungen gesammelt anwenden; seit September 2025 generally available
+- **TMDL view** — das Modell als Code (TMDL, Tabular Model Definition Language) scripten und Änderungen gesammelt anwenden; in Desktop seit September 2025 allgemein verfügbar, im Service als Vorschau (Stand November 2026)
+
+![TMDL-Ansicht in Power BI Desktop: Eine Tabelle wird aus dem Data-Pane in den Skript-Editor gezogen, darüber die Schaltfläche Apply](../assets/learn/tmdl-view-02.png)
+
+**Abb. · TMDL view in Power BI Desktop** Objekt aus dem Data-Pane in den Editor ziehen, Skript anpassen, mit „Apply“ anwenden. Quelle: [TMDL view · Microsoft Learn](https://learn.microsoft.com/power-bi/transform-model/desktop-tmdl-view) (CC BY 4.0)
+
+> **Neuer Power Query Editor (Vorschau, Stand November 2026):** Desktop bietet zwei Power-Query-Oberflächen: den bisherigen Editor und die *New Power Query experience* (Vorschau seit dem September-2026-Update). Der neue Editor hat unter anderem eine Diagrammansicht, die jede Abfrage als Kästchen mit ihren Schritten zeigt und Abhängigkeiten als Linien, und eine Schemaansicht, in der du nur mit Spaltennamen und Datentypen arbeitest. Einschalten: File → Options and settings → Options → Preview features → *New Power Query experience*; seit dem November-2026-Update auch direkt unter Home → Get Data. Ein Neustart ist nicht nötig. Derselbe Schalter aktiviert auch das neue „Get Data“. Die Klickpfade in diesem Guide beschreiben den bisherigen Editor.
+
+![Neuer Power Query Editor in Power BI Desktop: Diagrammansicht mit mehreren Abfragen als verbundene Kästchen über der Datenvorschau](../assets/learn/query-overview-new-diagram-view.png)
+
+**Abb. · Neuer Power Query Editor mit Diagrammansicht** Oben die Abfragen und ihre Abhängigkeiten, darunter Bearbeitungsleiste und Datenvorschau. Quelle: [Query overview in Power BI Desktop · Microsoft Learn](https://learn.microsoft.com/power-bi/transform-model/desktop-query-overview) (CC BY 4.0)
 
 #### Einstellungen, die du sofort ändern solltest
 
@@ -66,7 +80,7 @@ File → Options and Settings → Options → Data Load. Hier findest du Default
 
 Power BI erzeugt sonst für jede Datums-Spalte eine versteckte Datums-Hierarchie und bläht das Modell auf. **Current File → Auto Date/Time → Haken raus.** Stattdessen eine echte Datums-Dimension verwenden.
 
-![Power BI Desktop Options dialog mit Time Intelligence Sektion und Auto date/time Checkbox](https://learn.microsoft.com/power-bi/transform-model/media/desktop-auto-date-time/auto-date-time-configure-global-options.png)
+![Power BI Desktop Options dialog mit Time Intelligence Sektion und Auto date/time Checkbox](../assets/learn/auto-date-time-configure-global-options.png)
 
 **Abb. · File → Options → Data Load** "Auto date/time" pro Datei oder global deaktivierbar. Quelle: [Auto date/time · Microsoft Learn](https://learn.microsoft.com/power-bi/transform-model/desktop-auto-date-time)
 
@@ -80,7 +94,9 @@ Wenn du Tabular Editor 2 und DAX Studio installierst, erscheinen sie im "Externa
 
 > **Praxis-Beispiel:** Du öffnest Desktop, wählst "Get Data" → "SQL Server", verbindest dich. Power Query Editor öffnet sich (das ist Phase 1: Aufbereitung). Du machst deine Transformationen, klickst "Close & Apply". Jetzt bist du im Table view / Report view und kannst Visualisierungen bauen.
 
-> **Format PBIP · PBIR · TMDL (Stand Oktober 2026):** Über File → Save as → *Power BI Project (.pbip)* speichert Desktop Bericht und Modell als Ordner mit Textdateien statt einer binären `.pbix` — kein Preview-Schalter mehr nötig. Das Modell liegt dann als TMDL vor, der Bericht im Enhanced Report Format **PBIR**. PBIR ist generally available und Standard-Berichtsformat; ältere Berichte (PBIR-Legacy) werden beim Bearbeiten und Speichern automatisch konvertiert (Desktop legt vorher 30 Tage lang ein Backup an). Vorteil: Git-Versionskontrolle, Code-Review, Änderungen per Skript oder KI-Agent. Einschränkung: Sensitivity Labels werden in PBIP nicht unterstützt.
+> **Format PBIP · PBIR · TMDL (Stand November 2026):** Über File → Save as → *Power BI Project (.pbip)* speichert Desktop Bericht und Modell als Ordner mit Textdateien statt einer binären `.pbix` — kein Preview-Schalter mehr nötig. Power BI Projects (PBIP) sind seit dem September-2026-Update allgemein verfügbar; Desktop kann ein Projekt direkt in Visual Studio Code öffnen und erkennt, wenn die Dateien von außen geändert wurden. Das Modell liegt dann als TMDL vor, der Bericht im Enhanced Report Format *PBIR*. PBIR ist generally available und Standard-Berichtsformat; ältere Berichte (PBIR-Legacy) werden beim Bearbeiten und Speichern automatisch konvertiert (Desktop legt vorher 30 Tage lang ein Backup an). Vorteil: Git-Versionskontrolle, Code-Review, Änderungen per Skript oder KI-Agent. Einschränkung: Sensitivity Labels werden in PBIP nicht unterstützt.
+
+**Speichern in OneDrive und SharePoint:** Seit November 2026 ist die Integration allgemein verfügbar. Du kannst `.pbix`-Dateien aus Desktop heraus in OneDrive oder SharePoint öffnen, speichern und teilen und sie dort im Browser ansehen.
 
 **Lizenzhinweis:** Desktop ist immer kostenfrei. Erst das Teilen im Service braucht eine Pro- oder PPU-Lizenz (oder eine Fabric-Kapazität ab F64 für reine Konsumenten).
 
@@ -108,7 +124,7 @@ Der Service läuft auf Microsoft-Servern (erreichbar unter app.powerbi.com). Hie
 - **Embedding** — Berichte in eigene Anwendungen, Teams, SharePoint oder PowerPoint einbetten
 - **Subscriptions** — periodische E-Mail-Snapshots
 
-Modellieren geht inzwischen auch im Browser: Die Web-Modellierung für Import- und Direct-Lake-Modelle ist generally available; Power Query lässt sich für Import-Modelle inzwischen ebenfalls im Browser bearbeiten.
+Modellieren geht inzwischen auch im Browser: Die Web-Modellierung für Import- und Direct-Lake-Modelle ist generally available; Power Query lässt sich für Import-Modelle inzwischen ebenfalls im Browser bearbeiten. Seit dem September-2026-Update kannst du auch DirectQuery-Modelle direkt im Service anlegen und bearbeiten, ohne Umweg über Desktop; mehrere Teammitglieder können dasselbe Modell bearbeiten.
 
 #### Bericht in den Service hochladen
 
@@ -124,7 +140,7 @@ Wenn Berichte fertig sind: Workspace → "Create app" → Audiences definieren �
 
 #### Workspace-Typen
 
-- **My Workspace** — persönlich, nicht teilbar; nur für Experimente
+- **My Workspace** — persönlich: Zugriff hat nur der Besitzer, Rollen für andere gibt es nicht. Einzelne Berichte und Dashboards daraus lassen sich mit Pro oder PPU trotzdem teilen. Für Team-Inhalte ungeeignet, weil alles an einer Person hängt; gut für Experimente
 - **Standard-Workspace** — gemeinsamer Container für Inhalte und Apps
 - **PPU-Workspace** — Premium-Funktionen pro Nutzer; jeder Konsument braucht ebenfalls PPU
 - **Fabric-Workspace** — auf einer Fabric-Kapazität (F-SKU), mit allen Fabric-Workloads; ab F64 dürfen auch Free-Nutzer Power-BI-Inhalte ansehen
@@ -143,9 +159,9 @@ Der Hauptkanal. Vollständige Funktionalität: Filter, Drill, Bookmarks, Persona
 
 #### Power BI Mobile Apps
 
-iOS und Android. Berichte können mit **Phone Layout** speziell für mobile Bildschirme aufbereitet werden. Push-Benachrichtigungen für Data Alerts.
+iOS und Android. Berichte können mit dem **Mobile Layout** (früher „Phone Layout“) speziell für mobile Bildschirme aufbereitet werden. Push-Benachrichtigungen für Data Alerts.
 
-#### Phone Layout erstellen
+#### Mobile Layout erstellen
 
 In Desktop: View → Mobile Layout. Es öffnet sich eine vertikale Smartphone-Ansicht. Visuals aus dem normalen Layout-Pane reinziehen und für Mobile arrangieren.
 
@@ -161,7 +177,7 @@ Nicht alle. KPI-Karten, Säulen-Charts mit wenigen Werten, kurze Tabellen — ja
 - **SharePoint Online** — Bericht oder einzelnes Visual per Webpart einbetten
 - **Teams-Integration** — Berichte als Tab oder im Chat anzeigen
 
-> **Tipp:** Phone Layout früh planen, nicht nachträglich. Visuals und Slicer skalieren auf kleinen Screens schlecht, wenn das Layout nicht explizit angepasst ist. Bei Berichten, die viel mobil konsumiert werden: gleich beim Design parallel ein Phone Layout aufbauen.
+> **Tipp:** Mobile Layout früh planen, nicht nachträglich. Visuals und Slicer skalieren auf kleinen Screens schlecht, wenn das Layout nicht explizit angepasst ist. Bei Berichten, die viel mobil konsumiert werden: gleich beim Design parallel ein Mobile Layout aufbauen.
 
 ### On-Premises Data Gateway
 
@@ -186,7 +202,7 @@ Immer wenn der Service Daten aus einer Quelle holen muss, die nicht direkt aus d
 | --- | --- |
 | **Personal Mode** | Läuft im User-Kontext, nur für Einzelnutzer und nur für Power BI, keine Skalierung. **Nicht für Produktion.** |
 | **Standard Mode** | Service-Konto, mehrere User, Cluster-fähig, zentral verwaltet, auch für Dataflows und Fabric-Pipelines. Die richtige Wahl für Unternehmen. |
-| **VNet Data Gateway** | Von Microsoft betrieben, ohne eigenen Server: verbindet Quellen in einem Azure Virtual Network. Für Azure-Quellen hinter Private Endpoints statt On-Prem-Gateway. |
+| **VNet Data Gateway** | Von Microsoft betrieben, ohne eigenen Server: verbindet Quellen in einem Azure Virtual Network. Für Azure-Quellen hinter Private Endpoints statt On-Prem-Gateway. Nur mit Kapazität verfügbar (P-SKU, F-SKU oder Embedded ab A4; bei F-SKUs empfiehlt Microsoft F8 aufwärts), nicht in reinen Pro- oder PPU-Workspaces. |
 
 #### Gateway installieren
 
@@ -198,13 +214,13 @@ Im Service: Settings → Manage connections and gateways → New connection (On-
 
 #### Cluster bilden
 
-Auf einem zweiten Server denselben Cluster-Namen verwenden. Microsoft empfiehlt mindestens zwei Gateway-Instanzen für Hochverfügbarkeit. Recovery Key sicher dokumentieren — ohne ihn lässt sich das Gateway nicht wiederherstellen oder umziehen.
+Auf dem zweiten Server das Gateway installieren, im Setup *Add to an existing gateway cluster* wählen, das primäre Gateway (das zuerst installierte) auswählen und dessen **Recovery Key** eingeben. Jedes Gateway bekommt dabei einen eigenen Namen, denn Gateway-Namen müssen im Tenant eindeutig sein. Ein Cluster fasst bis zu 10 Mitglieder; Microsoft empfiehlt mindestens zwei für Hochverfügbarkeit. Recovery Key sicher dokumentieren — ohne ihn lässt sich das Gateway nicht wiederherstellen, umziehen oder um weitere Mitglieder ergänzen.
 
 #### Updates einplanen
 
-Microsoft veröffentlicht jeden Monat ein Gateway-Update und supportet nur die **letzten sechs Versionen**. Updates laufen nicht automatisch — der Gateway-Admin muss sie einspielen, im Cluster am besten Knoten für Knoten.
+Microsoft veröffentlicht jeden Monat ein Gateway-Update und supportet nur die **letzten sechs Versionen**. Updates laufen nicht automatisch — der Gateway-Admin muss sie einspielen, im Cluster am besten Knoten für Knoten. Ab der Gateway-Version vom November 2025 lässt sich das Update auch im Power-BI- oder Fabric-Portal im Bereich *Manage Gateways* per Schaltfläche *Update* oder per PowerShell (`Update-DataGatewayClusterMember`) auslösen.
 
-> **Beispiel-Setup:** Du hast einen on-prem SQL Server mit Verkaufsdaten. Im Büro stehen zwei Windows Server: srv-bi-gw01 und srv-bi-gw02. Auf beiden Standard Gateway installieren, gleicher Cluster-Name "Production-GW". Im Service die SQL-Datenquelle einmal anlegen, Cluster auswählen. Beide Server teilen sich die Last automatisch — fällt einer aus, übernimmt der andere.
+> **Beispiel-Setup:** Du hast einen on-prem SQL Server mit Verkaufsdaten. Im Büro stehen zwei Windows Server: srv-bi-gw01 und srv-bi-gw02. Auf srv-bi-gw01 das Standard Gateway als Cluster "Production-GW" installieren, auf srv-bi-gw02 ebenfalls installieren und per Recovery Key diesem Cluster hinzufügen. Im Service die SQL-Datenquelle einmal anlegen, Cluster auswählen. Standardmäßig gehen alle Anfragen an das primäre Gateway; fällt es aus, übernimmt das zweite. Soll sich die Last auf beide verteilen, aktivierst du am Cluster in *Manage connections and gateways* die Option *Distribute requests across all active gateways in this cluster*.
 
 > **Anfänger-Falle:** Personal Mode auf dem eigenen Laptop installieren und glücklich sein. Funktioniert beim Tester, fällt bei Urlaub/Krankheit/Rechnerwechsel aus. Für Produktion immer Standard Mode auf einem Server.
 
@@ -217,7 +233,7 @@ Microsoft veröffentlicht jeden Monat ein Gateway-Update und supportet nur die *
 
 *ARCHITEKTUR · LIZENZEN*
 
-Die Lizenzierung ist eines der häufigsten Stolper-Themen. Wer welche Lizenz braucht, hängt davon ab, was er mit den Inhalten tut — und in welchem Workspace-Typ sie liegen. Stand: Oktober 2026.
+Die Lizenzierung ist eines der häufigsten Stolper-Themen. Wer welche Lizenz braucht, hängt davon ab, was er mit den Inhalten tut — und in welchem Workspace-Typ sie liegen. Stand: November 2026.
 
 #### Pro-Nutzer-Lizenzen und Kapazität
 
@@ -233,11 +249,12 @@ Die Lizenzierung ist eines der häufigsten Stolper-Themen. Wer welche Lizenz bra
 - **Pro reicht meistens** — Pro-User können Inhalte erstellen und mit anderen Pro-Usern teilen; auch inkrementelle Aktualisierung geht mit Pro (nur die Echtzeit-Partition per DirectQuery braucht Premium/PPU)
 - **Erst ab F64 entfällt die Pro-Lizenz für Konsumenten** — auf F2 bis F32 brauchen alle Berichtsleser weiterhin Pro oder PPU. Autoren brauchen immer Pro oder PPU
 - **PPU ist Pro mit Premium-Features** — aber jeder, der Inhalte aus einem PPU-Workspace sieht, braucht ebenfalls PPU
-- **Premium-Kapazität (P-SKUs) läuft aus** — Microsoft verkauft keine neuen P-SKUs mehr; bestehende enden mit der jeweiligen Vertragslaufzeit. Danach: 30 Tage Kulanz, ab Tag 31 gedrosselt, ab Tag 91 blockiert. Workspaces werden nicht automatisch migriert — F-SKU kaufen, Workspaces zuweisen, dann P-SKU kündigen. Pro, PPU und Embedded-SKUs (A/EM) sind nicht betroffen
+- **Premium-Kapazität (P-SKUs) läuft aus** — Microsoft verkauft keine neuen P-SKUs mehr; bestehende enden mit der jeweiligen Vertragslaufzeit. Danach: 30 Tage Kulanz, ab Tag 31 gedrosselt, ab Tag 91 blockiert. Workspaces werden nicht automatisch migriert — F-SKU kaufen, Workspaces zuweisen, dann P-SKU kündigen. Pro, PPU und Embedded-SKUs (A/EM) sind nicht betroffen. Zwei Ausnahmen nennt Microsoft Learn: Sovereign Clouds sind noch nicht betroffen, und Kunden mit laufendem Enterprise Agreement können bestehende P-SKUs bis zum Ende der EA-Laufzeit jährlich verlängern
 - **F-SKUs werden in Azure gekauft** — Pay-as-you-go oder günstiger per Reservierung, skalier- und pausierbar
-- **Copilot** braucht eine bezahlte Kapazität ab F2 (oder P1) — Pro oder PPU allein reichen nicht (Details in Sektion 10)
+- **Copilot** im Bericht, in Desktop und in Fabric braucht eine bezahlte Kapazität ab F2 (oder P1) — Pro oder PPU allein reichen nicht (Details in Sektion 10). Ausnahme ist der neue Einstieg *Microsoft Copilot in Power BI und Fabric* (Vorschau, Stand November 2026): Er braucht laut Learn weder F-SKU noch Premium-Workspace, sein Funktionsumfang hängt von der Copilot-Lizenz ab
+- **Fabric Apps mit Pro** — laut Microsoft Learn (Stand November 2026) dürfen Pro-Nutzer in Pro-Workspaces auch Fabric Apps (Daten-Apps, nicht zu verwechseln mit Workspace-Apps und Org-Apps) erstellen und teilen, die mit Semantikmodellen, Lakehouses, Warehouses und SQL-Datenbanken in Fabric verbunden sind, auch aus Power BI Desktop heraus. Die App-Datenbank ist eine PostgreSQL-Datenbank mit maximal 1 GB, geteilt wird nur mit angemeldeten Nutzern im selben Tenant. Das zugehörige Desktop-Erlebnis *Power BI Desktop for Apps* gibt es seit dem November-2026-Update als Vorschau (Voraussetzungen in Sektion 10 bei Microsoft Fabric)
 
-> **Lizenz-Kalkulation für 100 Konsumenten (Richtwerte):** Option A: 100 × Pro à rund 14 USD/Monat (Listenpreis seit April 2025) ≈ 1.400 USD/Monat. Option B: Fabric F64 — mit Reservierung grob 5.000 USD/Monat, im Pay-as-you-go-Modell deutlich mehr. Rein über gesparte Pro-Lizenzen rechnet sich F64 also erst bei mehreren hundert Konsumenten. Lohnend wird sie früher, wenn du die Kapazität ohnehin brauchst: Fabric-Workloads (Lakehouse, Direct Lake), große Modelle, viele Refreshes, Embedding. Preise unterscheiden sich je Region und Vertrag — vor der Entscheidung aktuell rechnen.
+> **Lizenz-Kalkulation für 100 Konsumenten (Richtwerte):** Option A: 100 × Pro à rund 14 USD/Monat (Listenpreis bei jährlicher Zahlung, Stand November 2026) ≈ 1.400 USD/Monat. Option B: Fabric F64 — Listenpreis mit 1-Jahres-Reservierung rund 5.000 USD/Monat in den meisten US-Regionen (z. B. East US) und rund 6.100 USD/Monat in West Europe und Germany West Central (Stand November 2026); im Pay-as-you-go-Modell deutlich mehr. Rein über gesparte Pro-Lizenzen rechnet sich F64 also erst ab rund 360 (US) bzw. rund 440 (Westeuropa, Deutschland) Konsumenten. Lohnend wird sie früher, wenn du die Kapazität ohnehin brauchst: Fabric-Workloads (Lakehouse, Direct Lake), große Modelle, viele Refreshes, Embedding. Preise unterscheiden sich je Region und Vertrag — vor der Entscheidung mit dem [Azure-Preisrechner](https://azure.microsoft.com/pricing/calculator/) aktuell rechnen.
 
 > **Anfänger-Falle:** Eine kleine F-SKU (z. B. F8) kaufen und erwarten, dass Free-Nutzer damit Berichte sehen dürfen. Das gilt erst ab F64 — darunter brauchen alle Konsumenten Pro oder PPU. Zweite Falle: Kapazität nach Auslastung dimensionieren, ohne die Fabric Capacity Metrics App anzusehen.
 
@@ -245,6 +262,7 @@ Die Lizenzierung ist eines der häufigsten Stolper-Themen. Wer welche Lizenz bra
 
 - **[More than PBIX — warum kleine F-SKUs Teams helfen](https://youtu.be/c90oD4zR1Aw)** · Talk · 40 min · [Knowledge Kitchen](../folgen.html#ep-c90oD4zR1Aw)
 - **[Fabric Architekturen — F64 wegen der Lizenzen, 2 % Auslastung](https://youtu.be/J-lN5JN-F5I)** · Talk · 51 min · [Knowledge Kitchen](../folgen.html#ep-J-lN5JN-F5I)
+- **[#011 · Power BI ohne Fabric? Absolut!](https://youtu.be/gMYj9UTWeWk)** · Short · 33 s · [Knowledge Kitchen](../folgen.html#ep-gMYj9UTWeWk)
 
 ### Microsoft Fabric & OneLake
 
@@ -254,7 +272,7 @@ Microsoft Fabric ist die Plattform-Erweiterung des klassischen Power BI Service.
 
 #### Was ist OneLake?
 
-"OneDrive for Data". Ein logischer Storage über alle Fabric-Workloads — Tabellen liegen einmal im Delta-Parquet-Format und werden von allen Workloads gelesen, ohne Kopien.
+"OneDrive for Data". Ein logischer Storage über alle Fabric-Workloads — Tabellen liegen einmal in einem offenen Tabellenformat (Delta Parquet; Microsoft Learn nennt inzwischen auch Iceberg) und werden von allen Workloads gelesen, ohne Kopien.
 
 #### Was Power-BI-Nutzer wissen müssen
 
@@ -270,9 +288,11 @@ Power BI im klassischen Service läuft weiter — es wird nicht abgekündigt. Ab
 
 > **Tipp für Einsteiger:** Du musst Fabric nicht sofort lernen. Aber: wenn dein Unternehmen eine F-SKU-Capacity hat, schau dir Direct Lake an — das ändert die Storage-Mode-Wahl für viele Szenarien fundamental.
 
-**Status:** Fabric ist seit November 2023 GA. Die Plattform entwickelt sich monatlich weiter — vor Produktiv-Entscheidungen den aktuellen Release Plan prüfen.
+**Status:** Fabric ist seit November 2023 GA. Die Plattform entwickelt sich monatlich weiter — vor Produktiv-Entscheidungen die aktuelle Fabric Roadmap (roadmap.fabric.microsoft.com) prüfen.
 
 > **Tiefer einsteigen:** Dieser Guide bleibt bewusst an der Oberfläche von Fabric — Power BI ist hier der Fokus. Für OneLake, Lakehouse vs. Warehouse, Direct Lake im Detail, ein komplettes End-to-End-Beispiel und Snowflake-Integration: [Microsoft-Fabric-Einsteiger-Guide →](../fabric_einsteiger_guide_v1.html)
+
+Aus der Kitchen: Wie zwei Fabric Apps für Vertriebscontrolling und Finance auf bestehenden Power-BI-Daten entstanden sind, zeigt der Beitrag [Fabric Apps im Heimrevier von Power BI: Vertrieb und Finance](../fabric-apps-controlling-post.html).
 
 **Daten-WG dazu:**
 
@@ -306,14 +326,21 @@ Vier Storage-Modi, vier verschiedene Trade-offs zwischen Performance, Aktualitä
 #### Direct Lake (Fabric) — zwei Varianten
 
 - Power BI lädt Spalten direkt aus Delta-Tabellen im OneLake in den VertiPaq-Speicher — ohne Import-Refresh. Ein „Refresh“ ist nur *Framing*: Metadaten auf den neuesten Delta-Stand setzen, dauert Sekunden
-- **Direct Lake on OneLake** — liest aus einem oder mehreren Fabric-Items, fällt **nie** auf DirectQuery zurück und lässt sich mit Import-Tabellen zu einem Composite Model kombinieren. Für neue Modelle die empfohlene Variante
+- **Direct Lake on OneLake** — liest aus einem oder mehreren Fabric-Items, fällt **nie** auf DirectQuery zurück und lässt sich mit Import-Tabellen zu einem Composite Model kombinieren
 - **Direct Lake on SQL endpoints** — liest über den SQL-Analytics-Endpunkt eines einzelnen Lakehouse/Warehouse; bei SQL-Views, SQL-basierter RLS/OLS oder überschrittenen Guardrails fällt sie auf DirectQuery zurück (steuerbar über die Eigenschaft *Direct Lake behavior*)
 - **Pro:** Performance nahe an Import, große Datenmengen ohne Refresh-Kopie
-- **Contra:** braucht eine Fabric-Kapazität (F-SKU); Guardrails pro SKU (Zeilen, Parquet-Dateien, Modellgröße) — ab einer Grenze greift Fallback (SQL) bzw. schlägt die Abfrage fehl (OneLake)
+- **Contra:** braucht eine Fabric-Kapazität (F-SKU); Guardrails pro SKU (Zeilen, Parquet-Dateien, Modellgröße) — über einer Grenze fällt Direct Lake on SQL (bei aktiviertem Fallback) auf DirectQuery zurück; bei Direct Lake on OneLake schlägt dagegen schon der Refresh (das Framing) fehl, und das Modell ist nicht abfragbar, bis die Delta-Tabellen wieder innerhalb der Guardrails liegen
 
 #### Composite Models
 
-Tabellen mit unterschiedlichen Storage Modes in einem Modell — z. B. Fakten in DirectQuery, Dimensionen in Dual, oder große Direct-Lake-Fakten plus eine kleine Import-Tabelle mit Planwerten. Import + Direct Lake on OneLake kombinierst du (Stand Oktober 2026) in der Web-Modellierung; Desktop kann solche Modelle live bearbeiten.
+Tabellen mit unterschiedlichen Storage Modes in einem Modell — z. B. Fakten in DirectQuery, Dimensionen in Dual, oder große Direct-Lake-Fakten plus eine kleine Import-Tabelle mit Planwerten. Import + Direct Lake on OneLake kombinierst du (Stand November 2026) in der Web-Modellierung; Desktop kann solche Modelle live bearbeiten.
+
+#### Neu rund um Direct Lake und DirectQuery (Stand November 2026)
+
+- **Berechnete Spalten auf Direct Lake on OneLake** (Vorschau) — per DAX in der Web-Modellierung und in Desktop, ohne den Storage Mode zu ändern; die Spalten werden erst zur Abfragezeit berechnet
+- **M-Parameter für Direct Lake on OneLake** (Vorschau, November 2026) — mit Parameterregeln in Deployment Pipelines zeigen Entwicklungs-, Test- und Produktivstufe auf unterschiedliche OneLake-Quellen
+- **Semantic views** (Vorschau, November 2026) — Tabellen, Beziehungen und Kennzahlen werden als YAML-Definition direkt im Lakehouse beschrieben; beim Veröffentlichen entsteht daraus ein verwaltetes, schreibgeschütztes Direct-Lake-on-OneLake-Modell. Semantic views ergänzen Semantikmodelle, sie ersetzen sie nicht
+- **DirectQuery-Modelle im Service** — seit September 2026 direkt im Browser anlegen und bearbeiten
 
 Framing, Guardrails pro F-SKU und die zwei Direct-Lake-Varianten im Detail: [Fabric-Guide → Sektion „Semantik & Direct Lake"](../fabric_einsteiger_guide_v1.html)
 
@@ -331,6 +358,7 @@ Framing, Guardrails pro F-SKU und die zwei Direct-Lake-Varianten im Detail: [Fab
 
 - **[Power BI Update Mai 2025 — Import + Direct Lake kombinieren](https://youtu.be/zkfdfc5fo-E)** · Update · 15 min · [Knowledge Kitchen](../folgen.html#ep-zkfdfc5fo-E)
 - **[Fabric & Power BI Quarterly 2025 Q3 — Composite Models mit Direct Lake](https://youtu.be/lZvpCBMKASM)** · Talk · 57 min · [Knowledge Kitchen](../folgen.html#ep-lZvpCBMKASM)
+- **[#013 · Import, DirectQuery, Direct Lake oder Dual Mode - was ist eigentlich was?](https://youtu.be/u5JMKAM8GB0)** · Short · 85 s · [Knowledge Kitchen](../folgen.html#ep-u5JMKAM8GB0)
 
 ### Weiter vertiefen · Lizenzen, Kapazität und Storage Modes in der Praxis
 
@@ -341,6 +369,7 @@ Wann eine F64 wegen der Lizenzen gekauft wird, warum kleine F-SKUs Teams helfen 
 - **Navision, Data Gateway und Medaillon-Architektur** · Ab 6:11 · Daten-WG Life-Update · Fabric Architekturen · [Knowledge Kitchen](../folgen.html#ep-J-lN5JN-F5I)
 - **Import + Direct Lake in einem Modell kombinieren** · Ab 11:20 · Power BI Update Mai 2025 · [Knowledge Kitchen](../folgen.html#ep-zkfdfc5fo-E)
 - **Composite Models mit Direct Lake** · Ab 38:58 · Fabric & Power BI Quarterly · 2025 Q3 · [Knowledge Kitchen](../folgen.html#ep-lZvpCBMKASM)
+- **Fabric Apps auch für Pro und PPU: Wo die Lizenzgrenze jetzt verläuft** · Ab 15:28 · Fabric & Power BI Quarterly · 2026-4 · [Knowledge Kitchen](../folgen.html#ep-0QZD26KPBcU)
 
 Microsoft Learn · Doku
 
@@ -361,10 +390,18 @@ DatenWG Library
 - [Thema: Fabric-Kapazität](../wissensgraph/thema/fabric-capacity.html)
 - [Thema: Direct Lake](../wissensgraph/thema/direct-lake.html)
 - [Thema: Gateway](../wissensgraph/thema/gateway.html)
+- [Thema: Power BI Desktop](../wissensgraph/thema/power-bi-desktop.html)
+- [Thema: DirectQuery](../wissensgraph/thema/directquery.html)
+
+Aus der Kitchen
+
+- [Power BI Praxis-Pfad: in gut zwei Stunden zum ersten Bericht](../powerbi_praxis_pfad.html)
+- [Microsoft-Fabric-Einsteiger-Guide](../fabric_einsteiger_guide_v1.html)
+- [Fabric Apps im Heimrevier von Power BI: Vertrieb und Finance](../fabric-apps-controlling-post.html)
 
 ## 02 · Power Query *Workflow*
 
-70 % der BI-Arbeitszeit fließt typischerweise in Datenaufbereitung. Sauber gemachte Power Query spart später Stunden bei Modellierung und Performance.
+Ein großer Teil der BI-Arbeitszeit fließt in die Datenaufbereitung. Sauber gemachte Power Query spart später Stunden bei Modellierung und Performance. Die Klickpfade dieser Sektion beschreiben den bisherigen Power Query Editor in Desktop. Wer den neuen Editor (Vorschau, Stand November 2026) eingeschaltet hat, findet manche Befehle an anderer Stelle. Die Sprache M und den Advanced Editor gibt es in beiden Editoren.
 
 > Als erstes: **Verstehe die drei Spalten: Quellen → Staging → Modell.** Das Trennprinzip ist wichtiger als jeder einzelne Klick. Dann klick "Datentypen früh setzen" — das ist der wichtigste Einzeltipp.
 
@@ -380,7 +417,7 @@ Die häufigste Quellart in Einsteiger-Projekten. CSVs aus Exporten, Excel-Listen
 
 ##### Was ist das?
 
-Power Query hat für jeden Dateityp einen nativen Connector — er weiß, wie er CSV-Trennzeichen erkennt, Excel-Sheets auflistet oder JSON-Strukturen aufdröselt. Die Funktion heißt im M-Code immer `<Format>.Document`: `Csv.Document`, `Excel.Workbook`, `Json.Document`.
+Power Query hat für jeden Dateityp einen nativen Connector — er weiß, wie er CSV-Trennzeichen erkennt, Excel-Sheets auflistet oder JSON-Strukturen aufdröselt. Die Funktion heißt im M-Code meist `<Format>.Document` (`Csv.Document`, `Json.Document`, `Parquet.Document`), aber nicht immer: Excel nutzt `Excel.Workbook`, Ordner `Folder.Files`.
 
 ##### Wichtige Connectors
 
@@ -455,17 +492,20 @@ Viele APIs liefern Daten paginiert (Seite 1, 2, 3, ...). In M-Code mit `List.Gen
 
 ```powerquery
 List.Generate(
-  () => [page=1, data=GetPage(1)],
-  each [data][has_more] = true,
-  each [page=[page]+1, data=GetPage([page]+1)]
+  () => [page=1, data=GetPage(1), more=true],
+  each [more],
+  each [page=[page]+1, data=GetPage([page]+1), more=[data][has_more]],
+  each [data]
 )
 ```
+
+Der Trick: `List.Generate` nimmt einen Eintrag nur auf, wenn die Bedingung für genau diesen Eintrag gilt. Prüfst du direkt `has_more` der aktuellen Seite, fällt die letzte Seite (mit `has_more = false`) heraus. Deshalb trägt jeder Eintrag in `more` das Flag der *vorherigen* Seite mit, und der vierte Parameter gibt nur die Daten zurück.
 
 > **Praxis-Beispiel:** Wikipedia-Tabelle "Liste deutscher Großstädte" laden: Get Data → Web → URL der Wikipedia-Seite → Power Query zeigt mehrere Tabellen → die richtige auswählen. Hat 80 Zeilen, ist nach Bevölkerung sortiert, kann ohne weitere Logik importiert werden.
 
 > **Anfänger-Falle:** API-Key direkt in den M-Code schreiben. Sieht im Editor harmlos aus, aber: wenn die `.pbix` geteilt wird, ist der Key sichtbar. Stattdessen: bei Web.Contents die Auth über die Power-Query-Anmeldedaten setzen, oder mit Parametern arbeiten.
 
-> **Rate Limits:** Viele APIs haben Rate Limits (z. B. 100 Requests/Minute). Power Query macht keine eigene Drosselung. Bei großen Datenmengen oder häufigem Refresh: in der Doku der API nach Limits suchen.
+> **Rate Limits:** Viele APIs haben Rate Limits (z. B. 100 Requests/Minute). Power Query drosselt nicht vorab. `Web.Contents` wiederholt aber Anfragen, die mit Status 408, 429, 503, 504 oder 509 scheitern, automatisch bis zu dreimal, mit wachsender Wartezeit oder nach dem `Retry-After`-Header der API. Erst danach schlägt der Refresh fehl. Abschalten lässt sich das über die Option `ManualStatusHandling`. Bei großen Datenmengen oder häufigem Refresh: in der Doku der API nach Limits suchen.
 
 #### Datenbank-Quellen · der Folding-Hebel
 
@@ -492,7 +532,7 @@ Get Data → SQL Server → Server-Name und Datenbank eintragen. **Import-Modus 
 
 ##### Authentifizierung
 
-Drei Optionen: Windows-Authentifizierung (Default in Firmennetzen), Datenbank-Authentifizierung (User/Passwort), Microsoft-Konto (für Azure-Quellen).
+Der SQL-Server-Connector kennt laut Microsoft Learn vier Anmeldearten: Windows-Authentifizierung (Default in Firmennetzen), Datenbank-Authentifizierung (User/Passwort), Organisationskonto (*Organizational account*, also Microsoft Entra ID, sofern der Server das unterstützt) und Service Principal.
 
 ##### Navigator: was laden?
 
@@ -564,7 +604,7 @@ in
 
 ##### Tabelle als Datums-Tabelle markieren
 
-In Desktop: Tabelle im Data-Pane rechtsklicken → Mark as date table → Datums-Spalte auswählen. **Pflicht für die klassischen Time-Intelligence-Funktionen** (TOTALYTD, SAMEPERIODLASTYEAR …), wenn die Beziehung nicht direkt über eine Date-Spalte läuft (z. B. Integer-DateKey `20241231`) — in der Praxis: immer markieren. Die neue kalenderbasierte Time Intelligence (Preview, Stand Oktober 2026) arbeitet mit definierten Kalendern statt der Markierung.
+In Desktop: Tabelle im Data-Pane rechtsklicken → Mark as date table → Datums-Spalte auswählen. **Pflicht für die klassischen Time-Intelligence-Funktionen** (TOTALYTD, SAMEPERIODLASTYEAR …), wenn die Beziehung nicht direkt über eine Date-Spalte läuft (z. B. Integer-DateKey `20241231`) — in der Praxis: immer markieren. Die neue kalenderbasierte Time Intelligence (Preview, Stand November 2026) arbeitet mit definierten Kalendern; Microsoft Learn empfiehlt sie inzwischen gegenüber der klassischen Variante, und die Markierung als Datumstabelle ist dann nur noch in Sonderfällen nötig. Für die klassischen Funktionen bleibt sie Pflicht.
 
 ##### Pflicht-Spalten
 
@@ -918,7 +958,7 @@ Dimensionen sind die "Wer / Was / Wann / Wo" — sie beantworten, wie man die Ke
 
 ##### Was gehört in eine Dimension?
 
-- **Primärschlüssel** — eindeutig, idealerweise Integer (Surrogate Key)
+- **Primärschlüssel** — eindeutig, idealerweise ein einspaltiger Surrogate Key
 - **Business Key** — der externe Schlüssel aus dem Quellsystem (ProduktID, KundenID, ...)
 - **Beschreibende Attribute** — Name, Kategorie, Adresse, alle textuellen Eigenschaften
 - **Hierarchie-Ebenen** — Kategorie > Unterkategorie > Produkt
@@ -1074,6 +1114,7 @@ Power Query im Web, Dataflows für Citizen Developer und der Weg vom M-Code zum 
 - **Power Query im Web für Import-Modelle** · Ab 0:34 · Power BI Update August 2025 · [Knowledge Kitchen](../folgen.html#ep-jTXo4aEr07o)
 - **Dataflows für Citizen Developer – und wo die Aufteilung wehtut** · Ab 13:57 · Daten-WG Life-Update · Fabric Architekturen · [Knowledge Kitchen](../folgen.html#ep-J-lN5JN-F5I)
 - **Pivot, Unpivot & Co.: wofür Dataflows stark bleiben** · Ab 18:22 · 600 SQL-Tabellen in Fabric · [Knowledge Kitchen](../folgen.html#ep-RtUiF1J5XEg)
+- **Der neue Power-Query-Editor: Query Folding und Diagrammansicht** · Ab 0:23 · Power BI Update September 2026 · [Knowledge Kitchen](../folgen.html#ep-3V9DQwfm0GA)
 
 Microsoft Learn · Doku
 
@@ -1091,16 +1132,18 @@ DatenWG Library
 - [Thema: Power Query](../wissensgraph/thema/power-query.html)
 - [Thema: Dataflow](../wissensgraph/thema/dataflow.html)
 - [Thema: Datenqualität](../wissensgraph/thema/datenqualitat.html)
+- [Thema: Excel](../wissensgraph/thema/excel.html)
+- [Thema: SQL Server](../wissensgraph/thema/sql-server.html)
 
 ## 03 · Deep Dive: *Query Folding*
 
-Das Thema, das den Unterschied macht zwischen einem Refresh in 30 Sekunden und einem in sechs Minuten. Microsoft Learn dokumentiert: Vollständig gefoldete Queries sind ca. 12-mal schneller als nicht-gefoldete (Benchmark auf Azure Synapse).
+Das Thema, das den Unterschied macht zwischen einem Refresh in 30 Sekunden und einem in sechs Minuten. In Microsoft Learns Beispielmessung war die vollständig gefoldete Abfrage rund 12-mal schneller als die nicht gefoldete (Dataflow-Refresh gegen Azure Synapse). Das ist ein einzelnes Beispiel, kein fester Faktor.
 
-> Als erstes: **"Was ist Query Folding?"** öffnen — das Konzept. Dann **"View Native Query"** — die schnellste Diagnose in Power BI Desktop. Die Folding-Indikatoren und den Query Plan gibt es in Power Query Online (z. B. Dataflow Gen2).
+> Als erstes: **"Was ist Query Folding?"** öffnen — das Konzept. Dann **"View Native Query"** — die schnellste Diagnose in Power BI Desktop. Die Folding-Indikatoren und den Query Plan beschreibt Microsoft Learn für Power Query Online (z. B. Dataflow Gen2).
 
-**~12×** — Performance-Faktor
+**~12×** — im Learn-Beispiel
 
-**361 Sekunden** ohne Folding versus **31 Sekunden** mit vollständigem Folding — gemessen von Microsoft auf Azure Synapse (DW2000c) mit identischer Datenmenge. Faktor ~12 schneller. Der einzige Unterschied: ob die Engine die Transformation an die Datenquelle delegieren konnte oder selbst durchführen musste.
+**361 Sekunden** ohne Folding versus **31 Sekunden** mit vollständigem Folding — Microsofts Beispiel „die letzten 10 Verkäufe“ aus einer Tabelle mit 3,6 Mio. Zeilen, gemessen als Dataflow-Refresh gegen Azure Synapse (DW2000c). Ohne Folding wurden alle Zeilen übertragen, mit Folding nur 10. Faktor ~12 in diesem Beispiel. Der einzige Unterschied: ob die Engine die Transformation an die Datenquelle delegieren konnte oder selbst durchführen musste.
 
 **Was passiert beim Folding?** Power Query übersetzt deine Schritte in eine native Quell-Query — bei SQL Server in ein einziges `SELECT`-Statement. Filter, Joins und Gruppierungen werden auf der Datenbank ausgeführt, nicht in der Mashup-Engine.
 
@@ -1129,7 +1172,7 @@ Die Datenbank führt die Operation aus, nur das gefilterte Ergebnis kommt zurüc
 
 Datenbanken sind für Filter, Joins und Aggregationen **massiv optimiert** — sie haben Indizes, Statistiken, parallele Verarbeitung. Power Query muss das alles in der Mashup-Engine emulieren, einzeln pro Zeile. Bei großen Datenmengen ist die Datenbank typischerweise um Größenordnungen schneller.
 
-#### Microsoft-Benchmark
+#### Microsoft-Beispielmessung
 
 | Szenario | Dauer |
 | --- | --- |
@@ -1137,9 +1180,9 @@ Datenbanken sind für Filter, Joins und Aggregationen **massiv optimiert** — s
 | Teilweises Folding | 184 Sekunden |
 | Vollständiges Folding | 31 Sekunden |
 
-Identische Datenmenge, identische Endergebnisse — nur die Folding-Stufe ist verschieden. **Faktor ~12** zwischen kein und vollständigem Folding (genau: 361/31 ≈ 11,6).
+Identische Quelltabelle (3,6 Mio. Zeilen), identisches Ergebnis (die letzten 10 Verkäufe), gemessen als Dataflow-Refresh — nur die Folding-Stufe ist verschieden. Ohne Folding wurden alle Zeilen übertragen, mit vollständigem Folding nur 10. **Faktor ~12** zwischen kein und vollständigem Folding (genau: 361/31 ≈ 11,6). Das ist Microsofts Beispielmessung, kein allgemeiner Faktor.
 
-![Chart Refresh-Zeit nach Folding-Grad: kein Folding 361s, partielles Folding 184s, volles Folding 31s](https://learn.microsoft.com/power-query/media/query-folding-basics/outcome-timing.png)
+![Chart Refresh-Zeit nach Folding-Grad: kein Folding 361s, partielles Folding 184s, volles Folding 31s](../assets/learn/outcome-timing.png)
 
 **Abb. · Microsoft Learn Benchmark** Refresh-Zeit nach Folding-Grad (Azure Synapse DW2000c). Quelle: [Query folding examples · Microsoft Learn](https://learn.microsoft.com/power-query/query-folding-examples)
 
@@ -1156,7 +1199,7 @@ Identische Datenmenge, identische Endergebnisse — nur die Folding-Stufe ist ve
 
 *QUERY FOLDING · OPERATIONEN*
 
-Nicht jede Power-Query-Operation foldet. Und sobald eine nicht-foldende Operation in der Pipeline ist, foldet auch **nichts dahinter** mehr.
+Nicht jede Power-Query-Operation foldet. Und sobald eine nicht-foldende Operation in der Pipeline ist, foldet **in der Regel nichts dahinter** mehr. Ausnahmen gibt es, weil die Engine den Gesamtplan optimiert und Schritte umordnen kann — verlassen solltest du dich darauf nicht.
 
 #### Operationen, die foldet (bei DB-Quellen)
 
@@ -1187,17 +1230,17 @@ Nicht jede Power-Query-Operation foldet. Und sobald eine nicht-foldende Operatio
 >
 > **B:** Source → Index hinzufügen → Filter Datum → 50 Mio Zeilen werden geliefert, dann lokal gefiltert
 >
-> Variante A ist 30× schneller. Reihenfolge der Schritte ist Performance-relevant.
+> Variante A ist deutlich schneller, weil nur ein Bruchteil der Zeilen übertragen wird. Reihenfolge der Schritte ist Performance-relevant.
 
 > **Faustregel · Reihenfolge:** Erst alles, was foldet (Filter, Spaltenauswahl, Joins). Erst danach Operationen, die Folding brechen (Index, komplexe Custom Columns, Pivot). So bleibt möglichst viel auf der DB-Seite.
 
-> **Anfänger-Falle:** Custom Column ganz vorn in der Pipeline einbauen ("ich brauche die ja sowieso später"). Damit ist alles dahinter nicht-foldend. Wenn die Custom Column komplex ist, am Ende der Pipeline platzieren.
+> **Anfänger-Falle:** Custom Column ganz vorn in der Pipeline einbauen ("ich brauche die ja sowieso später"). Damit foldet in der Regel alles dahinter nicht mehr. Wenn die Custom Column komplex ist, am Ende der Pipeline platzieren.
 
 ### Step Folding Indicators
 
 *QUERY FOLDING · DIAGNOSE*
 
-Power Query Online zeigt direkt neben jedem Schritt an, ob die Abfrage bis dahin foldet. Wichtig: Laut Microsoft Learn gibt es die Indikatoren **nur in Power Query Online** — also in Dataflow Gen2, Power BI Dataflows und Power Query im Web — nicht im Power Query Editor von Power BI Desktop.
+Power Query Online zeigt direkt neben jedem Schritt an, ob die Abfrage bis dahin foldet. Wichtig: Laut Microsoft Learn gibt es die Indikatoren **nur in Power Query Online** — also in Dataflow Gen2, Power BI Dataflows und Power Query im Web. Im bisherigen Power Query Editor von Power BI Desktop fehlen sie.
 
 #### Die fünf Indikatoren
 
@@ -1217,17 +1260,17 @@ In einem Dataflow Gen2 (oder Power Query im Web): Abfrage auswählen, im Bereich
 
 Der Indikator bewertet die Abfrage *als Ganzes bis zu diesem Schritt*. Der erste Schritt (Source) ist oft „opaque“, der Navigationsschritt foldet dann. Ein „Not folding“ heißt nicht, dass gar nichts foldet — alles bis zum letzten Folding-Indikator läuft auf der Quelle.
 
-![Power Query Applied Steps mit Folding-Indikatoren für alle Schritte](https://learn.microsoft.com/power-query/media/step-folding-indicators/example-step-diagnostics-2.png)
+![Power Query Applied Steps mit Folding-Indikatoren für alle Schritte](../assets/learn/example-step-diagnostics-2.png)
 
 **Abb. · Alle Schritte folden** Optimaler Fall — alle Operationen werden an die Datenbank delegiert. Quelle: [Query folding indicators · Microsoft Learn](https://learn.microsoft.com/power-query/step-folding-indicators)
 
-![Power Query Applied Steps - ein Schritt bricht Folding, danach kein Folding mehr](https://learn.microsoft.com/power-query/media/step-folding-indicators/example-step-diagnostics-3.png)
+![Power Query Applied Steps - ein Schritt bricht Folding, danach kein Folding mehr](../assets/learn/example-step-diagnostics-3.png)
 
 **Abb. · Folding bricht** "Capitalize each word" foldet nie — ab hier laufen die Schritte lokal in der Mashup-Engine. Quelle: [Microsoft Learn](https://learn.microsoft.com/power-query/step-folding-indicators)
 
 #### Und in Power BI Desktop?
 
-Dort prüfst du mit Rechtsklick auf den Schritt → **View Native Query** (nächste Karte) und bei Bedarf mit *Query Diagnostics* (Tools → Start Diagnostics). Ein praktischer Trick: dieselbe Abfrage zur Analyse in einen Dataflow Gen2 kopieren und dort die Indikatoren und den Query Plan ansehen.
+Im bisherigen Editor gibt es die Indikatoren nicht. Desktop hat seit September 2026 zusätzlich einen neuen Power Query Editor als Vorschau (siehe Karte „Power BI Desktop“ in Sektion 1); ob er die Indikatoren zeigt, beschreibt Microsoft Learn bisher nicht (Stand November 2026). Sicher funktioniert: Rechtsklick auf den Schritt → **View Native Query** (nächste Karte) und bei Bedarf mit *Query Diagnostics* (Tools → Start Diagnostics). Ein praktischer Trick: dieselbe Abfrage zur Analyse in einen Dataflow Gen2 kopieren und dort die Indikatoren und den Query Plan ansehen.
 
 > **Praxis-Beispiel · Pipeline-Reparatur:** Du hast eine Pipeline mit 7 Schritten. Ab Schritt 4 zeigt der Indikator „Not folding“.
 >
@@ -1251,7 +1294,7 @@ In Applied Steps: Rechtsklick auf einen Schritt → "View Native Query". Es öff
 - **Diagnostics** — du siehst, was die DB ausführen muss (für DBA-Optimierung)
 - **Verifikation** — Ist der Filter korrekt übersetzt? Sind die Spalten richtig?
 
-![Power Query Applied Steps mit View Native Query Option und Folding-Indikator](https://learn.microsoft.com/power-query/media/native-query-folding/filter-step-folded.png)
+![Power Query Applied Steps mit View Native Query Option und Folding-Indikator](../assets/learn/filter-step-folded.png)
 
 **Abb. · Rechtsklick auf Schritt → View Native Query** Wenn die Option verfügbar ist (nicht ausgegraut), foldet der Schritt. Quelle: [Query folding on native queries · Microsoft Learn](https://learn.microsoft.com/power-query/native-query-folding)
 
@@ -1288,7 +1331,7 @@ Wenn Refresh wegen Folding-SQL langsam ist: Native Query an den DBA. Oft helfen 
 
 > **Anfänger-Falle:** Die ausgegraute "View Native Query"-Option ist kein Bug. Sie zeigt: dieser Schritt foldet nicht — oder der Connector bietet die Anzeige generell nicht an (z. B. manche ODBC-/OData-Quellen). Im zweiten Fall helfen Query Diagnostics, ein Trace auf der Datenbank (z. B. SQL Server Profiler) oder die Folding-Indikatoren in Power Query Online.
 
-> **DirectQuery-Spezial:** Bei DirectQuery muss jeder Schritt folden. View Native Query ist dort Pflicht-Test vor dem Publish. Ohne Folding scheitert die Abfrage zur Laufzeit mit Fehler.
+> **DirectQuery-Spezial:** Bei DirectQuery- und Dual-Tabellen muss die Abfrage folden. Ein Schritt, der das verhindert, erzeugt schon im Power Query Editor einen Fehler — dann den Schritt löschen oder auf Import wechseln. View Native Query hilft, die Ursache zu finden.
 
 ### Query Plan
 
@@ -1385,7 +1428,7 @@ Join zwischen SQL-Tabelle und Excel-Datei foldet niemals. Lösung: die Excel-Dat
 
 #### Strategie 6: Privacy Levels prüfen
 
-Wenn zwei Quellen verschiedene Privacy Levels haben, verhindert Power Query Folding zwischen ihnen aus Sicherheitsgründen. File → Options → Privacy → Privacy levels einheitlich setzen (z. B. alle auf "Organizational").
+Privacy Levels (Datenschutzstufen) legen fest, welche Daten Power Query beim Kombinieren an eine andere Quelle weitergeben darf. Passen die Stufen nicht zueinander, verhindert Power Query Folding zwischen den Quellen. Die Stufe je Quelle (None, Private, Organizational, Public) setzt du unter File → Options and settings → **Data source settings** → Quelle wählen → **Edit Permissions** (im Power Query Editor: Home → Data source settings). Unter Options → Privacy steht nur der Schalter, ob Power Query die Stufen beachtet oder ignoriert. Zur Orientierung: Organizational-Quellen folden in private und andere Organizational-Quellen, nicht in Public-Quellen.
 
 > **Anfänger-Falle:** Native Query über den Dialog (SQL-Statement-Feld) eingeben und danach munter weiter transformieren. Ohne `EnableFolding = true` laufen alle folgenden Schritte lokal. Entweder die ganze Logik ins SQL packen, mit `Value.NativeQuery(…, [EnableFolding = true])` arbeiten — oder besser eine View in der Datenbank anlegen lassen.
 
@@ -1401,7 +1444,7 @@ Folding ist die technische Seite einer alten Regel: so weit vorne wie möglich t
 Microsoft Learn · Doku
 
 - [Query Folding – Grundlagen](https://learn.microsoft.com/power-query/query-folding-basics)
-- [Query folding examples (12×-Benchmark)](https://learn.microsoft.com/power-query/query-folding-examples)
+- [Query folding examples (mit Beispielmessung)](https://learn.microsoft.com/power-query/query-folding-examples)
 - [Query folding indicators (Power Query Online)](https://learn.microsoft.com/power-query/step-folding-indicators)
 - [Query plan (Power Query Online)](https://learn.microsoft.com/power-query/query-plan)
 - [Folding auf nativen Queries (EnableFolding)](https://learn.microsoft.com/power-query/native-query-folding)
@@ -1415,6 +1458,7 @@ DatenWG Library
 - [Thema: Power Query](../wissensgraph/thema/power-query.html)
 - [Thema: Refresh](../wissensgraph/thema/refresh.html)
 - [Thema: Performance](../wissensgraph/thema/performance.html)
+- [Thema: DirectQuery](../wissensgraph/thema/directquery.html)
 
 ## 04 · Datenmodell & *Stern-Schema*
 
@@ -1454,11 +1498,11 @@ Nicht aus Quelldaten ableiten — immer im Power-Query-Code generieren (siehe *"
 
 #### Sortier-Spalte für Monatsname
 
-Nach dem Laden: Im Table view "Monatsname" anklicken → Column tools → "Sort by column" → "Monat" (die numerische Spalte) auswählen. Sonst sortieren Visuals alphabetisch.
+Nach dem Laden: die Spalte "Monatsname" im Data-Pane auswählen → Column tools → "Sort by column" → "Monat" (die numerische Spalte) auswählen. Laut Microsoft Learn gibt es den Reiter Column tools dafür nur im Report view; aus Table view oder Model view also erst in den Report view wechseln. Ohne Sortier-Spalte sortieren Visuals alphabetisch.
 
 #### Als Datums-Tabelle markieren
 
-Table tools → "Mark as date table" → Datumsspalte auswählen. Für die klassischen Time-Intelligence-Funktionen **Pflicht**, sobald die Beziehung nicht über eine Date-Spalte läuft — markier sie einfach immer. Mit der neuen kalenderbasierten Time Intelligence (Preview) definierst du stattdessen Kalender unter „Calendar options“.
+Table tools → "Mark as date table" → Datumsspalte auswählen. Für die klassischen Time-Intelligence-Funktionen **Pflicht**, sobald die Beziehung nicht über eine Date-Spalte läuft — markier sie einfach immer. Mit der neuen kalenderbasierten Time Intelligence (Preview, Stand November 2026) definierst du stattdessen Kalender unter „Calendar options“. Microsoft Learn empfiehlt diesen Ansatz inzwischen gegenüber der klassischen Variante; die Markierung ist dann nur noch in Sonderfällen nötig.
 
 #### Hierarchie erstellen
 
@@ -1545,7 +1589,7 @@ DateKey (FK) · TimeKey (FK) · DimAKey (FK) · DimBKey (FK) · DimCKey (FK) · 
 
 Das Zentrum jedes Stern-Schemas. Enthält die Kennzahlen und die Fremdschlüssel zu allen Dimensionen.
 
-![Power BI Desktop Model View mit Stern-Schema: Sales-Faktentabelle in der Mitte, Date/State/Region/Product Dimensionen außen, 1:n-Beziehungen](https://learn.microsoft.com/power-bi/transform-model/media/desktop-relationships-understand/model-diagram-star-schema.png)
+![Power BI Desktop Model View mit Stern-Schema: Sales-Faktentabelle in der Mitte, Date/State/Region/Product Dimensionen außen, 1:n-Beziehungen](../assets/learn/model-diagram-star-schema.png)
 
 **Abb. · Stern-Schema in Power BI Desktop (Model View)** Adventure-Works-Beispiel: `Sales`-Faktentabelle in der Mitte, vier Dimensionen außen, 1:n-Beziehungen (1-Seite an Dimension, n-Seite an Fakt). Quelle: [Model relationships · Microsoft Learn](https://learn.microsoft.com/power-bi/transform-model/desktop-relationships-understand)
 
@@ -1727,9 +1771,9 @@ IF(
 
 *STAR SCHEMA · PRINZIP*
 
-**Surrogate Keys (Integer)** bevorzugen — kompakter und schneller als Text-Schlüssel.
+**Surrogate Keys** bevorzugen — stabil, wenn sich Schlüssel im Quellsystem ändern.
 
-Microsoft empfiehlt: in Dimensionen Integer-Surrogate-Keys, nicht Business-Keys. Klingt bürokratisch, hat aber konkrete Vorteile.
+Unsere Empfehlung: Dimensionen bekommen einen eigenen, im Modell erzeugten Schlüssel (Surrogate Key) statt des Schlüssels aus dem Quellsystem (Business Key). Klingt bürokratisch, hat aber konkrete Vorteile. Microsoft Learn verlangt das nicht allgemein, sondern nur, wenn eine Dimension keine einzelne eindeutige Spalte hat.
 
 ##### Surrogate vs. Business Key
 
@@ -1737,15 +1781,16 @@ Microsoft empfiehlt: in Dimensionen Integer-Surrogate-Keys, nicht Business-Keys.
 | --- | --- |
 | Künstlich generiert (1, 2, 3, ...) | Kommt aus dem Quellsystem ("ABC-12345") |
 | Integer | Oft Text |
-| Klein | Variabel groß |
 | Stabil | Kann sich ändern |
 
-##### Vier Vorteile von Surrogate Keys
+##### Zwei Vorteile von Surrogate Keys
 
-1. **Speicher** — 4 Bytes pro Integer vs. 30+ Bytes pro Text-Key. Bei 50 Mio Faktzeilen × 5 Fremdschlüsseln: massiv weniger Modellgröße.
-2. **Performance** — Joins über Integer sind die schnellsten überhaupt. VertiPaq komprimiert Integer-Spalten am besten.
-3. **Stabilität** — wenn das Quellsystem Schlüssel ändert (Migration, Konsolidierung), bleibt dein Modell-Schlüssel stabil.
-4. **Eindeutigkeit** — eine Dimension ohne einzelne eindeutige Spalte bekommt per Index-Spalte überhaupt erst eine „1-Seite“ für die Beziehung (so beschreibt es auch die Star-Schema-Guidance auf Microsoft Learn).
+1. **Stabilität** — wenn das Quellsystem Schlüssel ändert (Migration, Konsolidierung), bleibt dein Modell-Schlüssel stabil.
+2. **Eindeutigkeit** — eine Dimension ohne einzelne eindeutige Spalte bekommt per Index-Spalte überhaupt erst eine „1-Seite“ für die Beziehung (so beschreibt es auch die Star-Schema-Guidance auf Microsoft Learn).
+
+##### Und Speicher oder Tempo?
+
+Ein verbreiteter Mythos: Integer-Schlüssel seien im Modell kleiner und schneller als Text-Schlüssel. Für Import-Modelle stimmt das so nicht. Spalten, die an einer Beziehung hängen, speichert die VertiPaq-Engine immer über ein Wörterbuch (Hash-Kodierung): In der Faktentabelle steht nur die Nummer des Wörterbucheintrags, egal ob der Schlüssel Text oder Zahl ist. Zur Abfragezeit macht der Datentyp deshalb laut SQLBI keinen Unterschied; die Größe der Schlüsselspalte in der Faktentabelle hängt von der Zahl unterschiedlicher Werte ab, nicht vom Datentyp. Der Unterschied liegt woanders: Text-Schlüssel brauchen ein größeres Wörterbuch und mehr Zeit beim Refresh.
 
 ##### In Power Query Surrogate erzeugen
 
@@ -1767,9 +1812,9 @@ KundenID (Business Key) bleibt als zusätzliche Spalte erhalten — für Anzeige
 
 In der Faktentabelle den Business Key durch den Surrogate Key ersetzen (per Merge mit der Dimension).
 
-> **Anfänger-Falle:** Business Key als PK in der Dimension behalten. Funktioniert technisch, aber: bei Stammdaten-Migration kannst du im Quellsystem den Schlüssel verlieren. Surrogate macht dich unabhängig.
+> **Anfänger-Falle:** Einen Business Key als PK in der Dimension behalten, obwohl er sich im Quellsystem ändern kann. Funktioniert technisch, aber: bei Stammdaten-Migration kannst du im Quellsystem den Schlüssel verlieren. Surrogate macht dich unabhängig.
 
-> **Tipp:** Bei einfachen Modellen mit kleinen Dimensionen ist der Surrogate-Aufwand kaum spürbar. Bei großen Faktentabellen (10 Mio+ Zeilen) ist er ein deutlicher Performance- und Speicher-Hebel.
+> **Tipp:** Der Aufwand lohnt sich vor allem, wenn sich Schlüssel im Quellsystem ändern können oder mehrere Quellsysteme zusammenkommen. Hat die Dimension schon einen stabilen, eindeutigen Schlüssel, ist der Business Key als Beziehungsspalte völlig in Ordnung.
 
 #### Single-Direction Beziehungen
 
@@ -1891,6 +1936,7 @@ Gezielt an die Stellen, an denen Fakt/Dimension, Role-Playing-Datum und Flat Tab
 - **Sternschema-Aha: bessere Filterlogik, Granularitäten** · Ab 8:37 · Denken in Tabellen · [Knowledge Kitchen](../folgen.html#ep-hbUYMyqb6r8)
 - **One Big Table vs. Stern: Performance, Speicher, Use Cases** · Ab 42:05 · BI Thinkers Talk · Data Modeling [EN] · [Knowledge Kitchen](../folgen.html#ep-uxYFqwe_Wiw)
 - **Warum zu viele Joins Probleme verursachen** · Ab 9:13 · Datenmodellierung ist Governance · [Knowledge Kitchen](../folgen.html#ep-lH_-A8NAQ-k)
+- **Die Magie des Datenmodells & Self-Service-Gedanken** · Ab 7:33 · 10 Jahre BI für alle? · [Knowledge Kitchen](../folgen.html#ep-9wl_PLvgvyc)
 
 Microsoft Learn · Doku
 
@@ -1901,7 +1947,7 @@ Microsoft Learn · Doku
 
 Microsoft Learn · Training
 
-- [Design a semantic model in Power BI](https://learn.microsoft.com/training/modules/design-model-power-bi/)
+- [Configure a Semantic Model in Power BI Desktop](https://learn.microsoft.com/training/modules/configure-semantic-model-power-bi/)
 - [Lernpfad: Model data with Power BI](https://learn.microsoft.com/training/paths/model-data-power-bi/)
 
 DatenWG Library
@@ -1909,10 +1955,17 @@ DatenWG Library
 - [Thema: Datenmodellierung](../wissensgraph/thema/datenmodellierung.html)
 - [Thema: Sternschema](../wissensgraph/thema/sternschema.html)
 - [Thema: Semantic Model](../wissensgraph/thema/semantic-model.html)
+- [Thema: Metadaten](../wissensgraph/thema/metadaten.html)
+- [Thema: Data Vault](../wissensgraph/thema/data-vault.html)
+
+Aus der Kitchen
+
+- [Stern-Schema im Finance-Alltag: Kontendimension und Faktentabelle für das P&L-Visual](../pnl-doku.html#data)
+- [Praxis-Pfad, Exkurs: Warum deine Excel-Tabelle nicht passt](../powerbi_praxis_pfad.html#exkurs)
 
 ## 05 · DAX *· Formelsprache*
 
-DAX ist das Herz der analytischen Auswertung in Power BI. Ohne DAX bleibt man bei einfachen Summen — mit DAX werden Time-Intelligence, dynamische Filter und komplexe Geschäftslogik möglich. Unten findest du dazu 14 **DAX-Rezepte** — vom Vorjahresvergleich bis zu den User-Defined Functions, Stand Oktober 2026.
+DAX ist das Herz der analytischen Auswertung in Power BI. Ohne DAX bleibt man bei einfachen Summen — mit DAX werden Time-Intelligence, dynamische Filter und komplexe Geschäftslogik möglich. Unten findest du dazu 14 **DAX-Rezepte** — vom Vorjahresvergleich bis zu den User-Defined Functions, Stand November 2026.
 
 > Als erstes: **"Measures vs. Calculated Columns"** — das ist die Entscheidung, die du jedes Mal triffst, wenn du DAX schreibst. Dann **"Filter- und Row-Context"** — die zwei Begriffe, ohne die DAX ein Rate-Spiel bleibt.
 
@@ -1970,6 +2023,8 @@ Wenn du eine numerische Spalte in ein Visual ziehst, erzeugt Power BI eine impli
 
 **Stattdessen:** explizite Measures schreiben, z. B. `Menge = SUM(fact_verkauf[Menge])` und `Umsatz = SUM(fact_verkauf[Umsatz])`. Die Modell-Eigenschaft „Discourage implicit measures“ kannst du auch selbst im Model Explorer aktivieren.
 
+**Nebenwirkung:** In Modellen mit deaktivierten impliziten Measures, also auch in jedem Modell mit einer Calculation Group, kann Copilot keine Berichtsseiten erstellen (siehe Karte „Copilot im Bericht“).
+
 > **Anfänger-Falle:** Calculated Columns für Aggregate verwenden ("ist ja einfacher"). Speicher wächst, Performance leidet. Aggregate gehören in Measures.
 
 Microsoft Learn [Calculated Columns, Measures, Visual Calculations im Vergleich](https://learn.microsoft.com/de-de/power-bi/transform-model/desktop-calculations-options) · [Model Explorer · Discourage implicit measures](https://learn.microsoft.com/de-de/power-bi/transform-model/model-explorer)
@@ -2025,7 +2080,7 @@ Wird CALCULATE im Row Context aufgerufen (z. B. innerhalb von `SUMX`), wandelt e
 >
 > Pro Zeile in fact_verkauf wird der Row Context zum Filter Context — die aktuelle Zeile filtert die ganze Faktentabelle auf "Zeilen mit genau diesen Werten". Langsam bei Millionen Zeilen, und falsch, wenn die Faktentabelle identische Zeilen enthält: die werden dann mehrfach gezählt. Iteriere lieber über eine Dimension (`SUMX(VALUES(Kunde[Kunde]), [Umsatz])`) oder über Spalten (`SUMX(fact_verkauf, fact_verkauf[Menge] * fact_verkauf[Preis])`).
 
-> **Anfänger-Falle:** Ganze Tabellen in FILTER packen, obwohl ein Spaltenfilter reicht: `CALCULATE([Umsatz], FILTER(Region, Region[Name] = "Süd"))` iteriert die Tabelle und überschreibt dabei die Filter auf *allen* Region-Spalten. Besser: `CALCULATE([Umsatz], Region[Name] = "Süd")` oder — wenn bestehende Filter erhalten bleiben sollen — `KEEPFILTERS(Region[Name] = "Süd")`. FILTER brauchst du nur, wenn du eine Measure oder mehrere Spalten vergleichst.
+> **Anfänger-Falle:** Ganze Tabellen in FILTER packen, obwohl ein Spaltenfilter reicht: `CALCULATE([Umsatz], FILTER(Region, Region[Name] = "Süd"))` iteriert die Region-Tabelle mit allen Spalten, aber nur mit den Zeilen, die im aktuellen Filterkontext sichtbar sind. Bestehende Filter auf Region bleiben deshalb erhalten: In der Matrix-Zeile „Nord“ ist das Ergebnis leer, weil es dort keine Zeile „Süd“ gibt. Das Verhalten entspricht also `KEEPFILTERS(Region[Name] = "Süd")`, nur teurer. Den Filter auf der Spalte ersetzt erst der einfache Boolean-Filter `CALCULATE([Umsatz], Region[Name] = "Süd")`; alle Region-Filter überschreibt `FILTER(ALL(Region), …)`. Besser also: der Boolean-Filter, wenn die Auswahl ersetzt werden soll, oder `KEEPFILTERS(Region[Name] = "Süd")`, wenn bestehende Filter erhalten bleiben sollen. FILTER brauchst du nur, wenn du eine Measure oder mehrere Spalten vergleichst.
 
 > **Tipp · Lesen lernen:** Bei jeder CALCULATE-Measure mental drei Fragen stellen: 1) Was ist der Ausdruck (Hauptargument)? 2) Welche Filter werden ergänzt/ersetzt/entfernt? 3) Was bleibt vom umgebenden Kontext? Wenn du diese drei Fragen beantworten kannst, hast du die Measure verstanden.
 
@@ -2205,7 +2260,7 @@ Umsatz GJ YTD =
 TOTALYTD ( [Umsatz], 'Datum'[Datum], "6/30" )
 ```
 
-Für Geschäftsjahre, 4-4-5-Kalender oder Wochenlogik gibt es inzwischen die **kalenderbasierte Zeitintelligenz** (Preview, Stand Oktober 2026) — Microsoft Learn empfiehlt sie für neue Modelle. Details im Rezept „Kalenderbasierte Zeitintelligenz“ unten.
+Für Geschäftsjahre, 4-4-5-Kalender oder Wochenlogik gibt es inzwischen die **kalenderbasierte Zeitintelligenz** (Preview, Stand November 2026) — Microsoft Learn empfiehlt sie für neue Modelle. Details im Rezept „Kalenderbasierte Zeitintelligenz“ unten.
 
 > **Praxis-Beispiel · Variance-Bericht:** Visual zeigt nebeneinander: `Umsatz`, `Umsatz VJ`, `Umsatz Δ VJ %`. Mit dynamischen Titeln ("+12 % über Vorjahr"). Das ist der Kern jedes Management-Reports.
 
@@ -2301,9 +2356,13 @@ SUMX mit einfachen Spalten-Ausdrücken (Menge × Preis) ist schnell. Langsam wir
 
 Microsoft Learn [DIVIDE vs. Divisionsoperator](https://learn.microsoft.com/de-de/dax/best-practices/dax-divide-function-operator) · [Fehlerfunktionen richtig einsetzen](https://learn.microsoft.com/de-de/dax/best-practices/dax-error-functions) · [FILTER nicht als Filterargument](https://learn.microsoft.com/de-de/dax/best-practices/dax-avoid-avoid-filter-as-filter-argument)
 
+**Daten-WG dazu:**
+
+- **[#003 · Das größte DAX-No-Go? FORMAT() im Measure!](https://youtu.be/YxS238qvD3s)** · Short · 76 s · [Knowledge Kitchen](../folgen.html#ep-YxS238qvD3s)
+
 ### DAX-Rezepte *· Muster für den Alltag*
 
-Jedes Rezept: wann du es brauchst, die Formel, der Filterkontext-Trick in einem Satz, der typische Fehler und der Learn-Link. Alle Formeln nutzen das Beispielmodell dieses Guides: `fact_verkauf` (Menge, Preis, Umsatz, LieferDatum), `'Datum'` (Datum, Jahr, Quartal, Monatsbeginn), `Region[Name]`, `Produkt[Produkt]` und die Basis-Measure `[Umsatz] = SUM(fact_verkauf[Umsatz])`. Stand Oktober 2026.
+Jedes Rezept: wann du es brauchst, die Formel, der Filterkontext-Trick in einem Satz, der typische Fehler und der Learn-Link. Alle Formeln nutzen das Beispielmodell dieses Guides: `fact_verkauf` (Menge, Preis, Umsatz, LieferDatum), `'Datum'` (Datum, Jahr, Quartal, Monatsbeginn), `Region[Name]`, `Produkt[Produkt]` und die Basis-Measure `[Umsatz] = SUM(fact_verkauf[Umsatz])`. Stand November 2026.
 
 #### Rezept · Vorjahr & Abweichung
 
@@ -2626,6 +2685,8 @@ Visual Calculations rechnen auf der Ergebnismatrix des Visuals — also auf bere
 
 > **Typischer Fehler:** Sie als Modell-Ersatz behandeln: Visual Calculations lassen sich nicht in anderen Visuals wiederverwenden, nicht filtern oder sortieren, sie fehlen im Datenexport, funktionieren nicht in Slicern und Custom Visuals und nicht bei „Im Web veröffentlichen“. Kennzahlen, die mehrere Berichte brauchen, gehören ins Modell. Außerdem rechnet PREVIOUS in Achsenreihenfolge — falsche Sortierung, falscher Vormonat.
 
+Seit dem September-2026-Update funktionieren Visual Calculations auch in Visuals mit Small Multiples (allgemein verfügbar). Small Multiples sind kleine Mehrfachdiagramme: dasselbe Diagramm einmal je Kategorie, etwa je Region.
+
 Microsoft Learn [Visual Calculations · Überblick](https://learn.microsoft.com/de-de/power-bi/transform-model/desktop-visual-calculations-overview) · [Visual Calculations erstellen](https://learn.microsoft.com/de-de/power-bi/transform-model/desktop-visual-calculations-create) · [Training: Visual Calculations](https://learn.microsoft.com/de-de/training/modules/power-bi-visual-calculations/)
 
 #### Rezept · Calculation Groups
@@ -2655,9 +2716,9 @@ RETURN
 
 `SELECTEDMEASURE()` ist ein Platzhalter: Das Element wird um jede Measure „herumgelegt“, die im Visual steht. Wählt der Slicer „VJ“, rechnen `[Umsatz]`, `[Menge]` und `[Marge %]` automatisch als Vorjahr.
 
-> **Typischer Fehler:** Prozent-Measures bekommen ungewollt dieselbe Logik (YTD einer Marge ist Unsinn) — Elemente können Measures nach Name oder Datentyp ausklammern. Bei mehreren Gruppen entscheidet die **Precedence**, welche zuerst greift. Und: Calculation Groups setzen „Implizite Measures vermeiden“ voraus — Spalten-Drag-and-Drop als Wert funktioniert dann nicht mehr (bestehende implizite Measures laufen weiter).
+> **Typischer Fehler:** Prozent-Measures bekommen ungewollt dieselbe Logik (YTD einer Marge ist Unsinn) — Elemente können Measures nach Name oder Datentyp ausklammern. Bei mehreren Gruppen entscheidet die **Precedence**, welche zuerst greift. Und: Calculation Groups setzen „Implizite Measures vermeiden“ voraus — Spalten-Drag-and-Drop als Wert funktioniert dann nicht mehr (bestehende implizite Measures laufen weiter). Nebenwirkung laut Learn: In Modellen mit deaktivierten impliziten Measures kann Copilot keine Berichtsseiten erstellen.
 
-Microsoft Learn [Berechnungsgruppen erstellen](https://learn.microsoft.com/de-de/power-bi/transform-model/calculation-groups) · [Training: Calculation Groups](https://learn.microsoft.com/de-de/training/modules/create-calculation-groups/)
+Microsoft Learn [Berechnungsgruppen erstellen](https://learn.microsoft.com/de-de/power-bi/transform-model/calculation-groups) · [Training: Semantikmodelle skalierbar entwerfen (u. a. Berechnungen)](https://learn.microsoft.com/de-de/training/modules/design-semantic-models-scale/)
 
 #### Rezept · DAX User-Defined Functions (GA)
 
@@ -2696,7 +2757,7 @@ Microsoft Learn [DAX User-Defined Functions](https://learn.microsoft.com/de-de/d
 
 *DAX · REZEPT*
 
-**Wann:** Geschäftsjahre, Retail-Kalender (4-4-5), Wochenlogik oder Kalender mit Lücken (nur Werktage). **Status Oktober 2026: Preview** — in Desktop unter Optionen → Vorschaufeatures → „Enhanced DAX Time Intelligence“ aktivieren. Learn empfiehlt den Ansatz wegen Flexibilität und Performance.
+**Wann:** Geschäftsjahre, Retail-Kalender (4-4-5), Wochenlogik oder Kalender mit Lücken (nur Werktage). **Status November 2026: Preview** — in Desktop unter Optionen → Vorschaufeatures → „Enhanced DAX Time Intelligence“ aktivieren. Learn empfiehlt den Ansatz wegen Flexibilität und Performance.
 
 ##### Formel
 
@@ -2769,6 +2830,7 @@ Expanded Tables sind das Modell hinter Filter- und Row-Context. UDFs + TMDL zeig
 - **Year-to-Date per Visual Calculation (laufende Summe)** · Sprungmarke · Power BI vs. Qlik · Teil 3 · [Knowledge Kitchen](../folgen.html#ep-iTK3xUd8V5I)
 - **Einführung in DAX User-Defined Functions** · Sprungmarke · Deep Dive · DAX UDF + TMDL · [Knowledge Kitchen](../folgen.html#ep-0FPA1k5YiTs)
 - **Neue Kalenderlogik für die DAX-Zeitintelligenz** · Sprungmarke · Power BI Update September 2025 · [Knowledge Kitchen](../folgen.html#ep-6gQiIbyhWEc)
+- **ALLSELECTED: how to use it without getting burned** · Sprungmarke · The Five Pillars of DAX · Francesco Bergamaschi · [Knowledge Kitchen](../folgen.html#ep-nldG2mLwA30)
 
 Weiter vertiefen DAX bei Microsoft Learn & in der Library
 
@@ -2785,7 +2847,7 @@ Microsoft Learn · Training
 - [Lernpfad: DAX in semantischen Modellen](https://learn.microsoft.com/de-de/training/paths/dax-power-bi/)
 - [Modul: DAX-Filterkontext ändern](https://learn.microsoft.com/de-de/training/modules/dax-power-bi-modify-filter/)
 - [Modul: DAX-Zeitintelligenz](https://learn.microsoft.com/de-de/training/modules/dax-power-bi-time-intelligence/)
-- [Modul: Calculation Groups](https://learn.microsoft.com/de-de/training/modules/create-calculation-groups/)
+- [Modul: Semantikmodelle in Fabric skalierbar entwerfen (u. a. Berechnungen)](https://learn.microsoft.com/de-de/training/modules/design-semantic-models-scale/)
 
 DatenWG Library
 
@@ -2804,9 +2866,9 @@ International Business Communication Standards — ein Regelwerk von Rolf Hicher
 
 **Things that mean the same should look the same.** Das ist der zentrale IBCS-Tenet. Wenn Ist-Werte überall solide gefüllt, Plan-Werte überall hohl und Vorjahres-Werte überall schraffiert sind — dann liest sich jedes Diagramm in Sekundenbruchteilen.
 
-**Power BI & IBCS:** Out-of-the-box ist Power BI nicht IBCS-konform. Mit Custom Visuals wie Inforiver oder Zebra BI — beide kostenpflichtig, aber etabliert —, mit Deneb und eigenen Themes lässt sich IBCS sauber umsetzen. In Microsoft Fabric bringt Planning (Fabric IQ) zusätzlich IBCS-zertifizierte Intelligence Sheets mit. Viele SUCCESS-Regeln — Botschaft, Achsen, Farbe, Dichte — gehen schon mit Bordmitteln.
+**Power BI & IBCS:** Out-of-the-box ist Power BI nicht IBCS-konform. Mit Custom Visuals wie Inforiver oder Zebra BI — beide kostenpflichtig, aber etabliert —, mit Deneb und eigenen Themes lässt sich IBCS sauber umsetzen. In Microsoft Fabric bringt Planning (Fabric IQ) zusätzlich IBCS-zertifizierte Intelligence Sheets mit. Viele SUCCESS-Regeln — Botschaft, Achsen, Farbe, Dichte — gehen schon mit Bordmitteln. Die Daten-WG baut eigene, IBCS-inspirierte (nicht zertifizierte) Visuals: [ChartKitchen](../chartkitchen-doku.html) und [P&L Statement](../pnl-doku.html).
 
-**Status (Oktober 2026):** ISO 24896:2026 „Notation for business reporting“ — laut IBCS Association im Juni 2026 veröffentlicht (seit Juli 2024 ISO-Projekt).
+**Status (November 2026):** ISO 24896:2026 „Notation for business reporting“ — laut IBCS Association im Juni 2026 veröffentlicht.
 
 ### Die SUCCESS-Formel
 
@@ -2851,7 +2913,7 @@ RETURN
 
 ##### Titel an Visual binden
 
-Im Format-Bereich: "Titel" → fx-Knopf neben dem Titeltext → Formatstil "Feldwert" → die Measure auswählen. Mit dem Fluent-2-Basisdesign (Standard für neue Berichte seit August 2026) sind auch Untertitel standardmäßig an — ideal für die Quantifizierung.
+Im Format-Bereich: "Titel" → fx-Knopf neben dem Titeltext → Formatstil "Feldwert" → die Measure auswählen. Mit dem Fluent-2-Basisdesign (Standard für neue Berichte seit August 2026) sind laut den Visual-Standards bei Microsoft Learn Titel und Untertitel standardmäßig an, ideal für die Quantifizierung. Einschränkung: Seit dem September-2026-Update sind Titel und Untertitel getrennte Schalter, und bei Matrix, Tabelle und Card sind beide mit dem neuesten Basisdesign standardmäßig aus (Teil der Preview für die On-Object-Bearbeitung). Prüfe den Schalter also je Visual.
 
 > **Praxis-Beispiel:** Statt eines starren Titels "Q3-Umsatz" zeigt der Titel: "Q3-Umsatz: 4,2 M€ · +12 % über Plan". Wenn der Anwender den Filter ändert (z. B. nur Region Süd), passt sich der Titel automatisch an: "Q3-Umsatz Süd: 1,1 M€ · +18 % über Plan". Dynamische Botschaft.
 
@@ -2885,6 +2947,13 @@ Visuelle Eigenschaften (Form, Füllung, Farbe) werden für Bedeutung verwendet �
 - Inforiver oder Zebra BI Custom Visual für Variance-Charts mit Solid/Outlined/Hatched
 - In Microsoft Fabric: Planning (Fabric IQ) bringt IBCS-zertifizierte Intelligence Sheets mit Vorlagen für Säulen, Wasserfälle und Tabellen
 - Bei Bordmitteln: gleicher Farb-Code für gleiche Bedeutung konsequent durchziehen — im Theme-Bereich lassen sich dafür Sentiment-Farben (gut/neutral/schlecht) zentral setzen
+- Eigene Visuals der Daten-WG: [ChartKitchen byDatenWG](../chartkitchen-doku.html) (Säulen, Brücken, Tabellen in einem Visual) und [P&L Statement byDatenWG](../pnl-doku.html) (GuV-Tabelle, Wasserfall, Werttreiberbaum) setzen die Szenario-Notation einheitlich um. Beide sind IBCS-inspiriert, nicht von der IBCS Association zertifiziert.
+
+![Power-BI-Demobericht mit vier KPI-Karten, Säulen für Januar bis Dezember mit Ist gefüllt, Plan als Kontur und Forecast schraffiert sowie einer Brücke vom Vorjahr zum Ist nach Produkt](../doku-assets/pbi/pbi-demo-report.png)
+
+**Abb. · Semantische Notation in einem Power-BI-Bericht** Ist (AC) gefüllt, Plan (PL) als Kontur, Forecast (FC) schraffiert, Vorjahr (PY) grau, und zwar in allen Visuals gleich. Demodaten. Eigene Arbeit mit dem IBCS-inspirierten Custom Visual ChartKitchen byDatenWG, mehr in der [ChartKitchen-Dokumentation](../chartkitchen-doku.html).
+
+Wer die Regeln erst einmal üben will: Der [IBCS-Trainer](../ibcs-trainer.html) der Kitchen fragt die Notation als Quiz ab oder lässt dich in Beispielen den Verstoß finden.
 
 > **Anfänger-Falle:** Pro Bericht eigene Farben wählen ("das sieht doch schöner aus"). Schöner für den Ersteller, schwerer für den Leser. Konsistenz schlägt Schönheit.
 
@@ -3139,6 +3208,10 @@ Native nicht direkt verfügbar, aber Workarounds:
 2. **SVG-Marker** in Tabellen mit DAX
 3. **Annähernde Lösung** — leichtere Farbsättigung statt Schraffur (verliert die strenge IBCS-Notation, aber besser als nichts)
 
+![GuV-Seite nur mit Standard-Visuals: Matrix mit Vorjahr, Plan, Ist und Abweichungen, Säulen je Monat und Balken je Gesellschaft, links sechs Slicer](../assets/posts/finance-reporting-budapest/01-sprosse1-pure.png)
+
+**Abb. · Was mit Bordmitteln geht** Dieselbe GuV-Seite nur mit Standard-Visuals: Matrix, Säulen und Balken funktionieren, aber Plan als Kontur und Forecast als Schraffur fehlen. Demodaten, Beschriftung englisch. Eigene Arbeit, Stufe 1 von 6 im Beitrag [Eine GuV-Seite, sechs Sprossen](../finance-reporting-budapest-post.html), der dieselbe Seite bis zu DAX, SVG, Deneb, Custom Visual und Fabric Apps weiterbaut.
+
 > **Praxis-Beispiel · Forecast-Verlauf:** Säulen-Chart Monatsumsatz: Januar–Oktober solid (ACT), November–Dezember hatched (FC). Mit einem Blick erkennbar: was ist Tatsache, was Prognose. Wenn der FC im November einen Sprung macht, fällt das sofort auf — die Schraffur signalisiert "Vorsicht: Annahme".
 
 > **Tipp:** Wer ohne Custom Visual auskommen muss: PY als helleres Solid (z. B. ACT schwarz, PY 50 % grau) — verletzt zwar die strenge Notation, ist aber visuell klar interpretierbar. Konsistenz innerhalb des Berichts bleibt wichtig.
@@ -3176,11 +3249,25 @@ Pie ist ein Anti-Pattern. Menschen können Winkel nicht gut vergleichen. "33 % o
 
 > **Anfänger-Falle:** Stacked-Bar-Chart, weil "schön kompakt". Funktioniert nur, wenn man die erste Kategorie vergleichen will (die mit gemeinsamer Basislinie). Alle anderen Kategorien haben keine gemeinsame Basis und werden unvergleichlich. Stattdessen mehrere kleine Charts (Small Multiples) oder grouped Bars.
 
+##### Neu: Gantt als Standard-Visual (Preview)
+
+Für Projektpläne gibt es seit dem Oktober-2026-Update ein eingebautes Gantt-Diagramm, noch als Preview. Ein Gantt-Diagramm zeigt Aufgaben als Balken auf einer Zeitachse: Wie lange dauert was, wie weit ist es, wann liegen Meilensteine? Du aktivierst es in Desktop unter Optionen → Vorschaufeatures und startest Desktop neu. Start und Ende dürfen Measures sein; liefert das Ende-Measure einen leeren Wert, zeichnet das Visual einen Meilenstein. Aufgaben lassen sich in bis zu drei Kategorie-Ebenen gruppieren. Mit dem November-2026-Update kamen Spaltensummen, Datenbeschriftungen je Zeile, Korrekturen am Fortschrittsbalken und Tastaturnavigation dazu, ebenfalls als Preview.
+
+![Gantt-Visual in Power BI mit Aufgaben, gruppiert nach den Phasen Planning, Development, Testing und Deployment von Januar bis April 2025, mit Fortschritt in den Balken und Meilenstein-Rauten](../assets/learn/gantt-project-schedule.png)
+
+**Abb. · Das neue Gantt-Visual (Preview)** Aufgaben nach Phasen gruppiert, Fortschritt im Balken, Meilensteine als Rauten, rechts der Format-Bereich. Quelle: [Gantt visual in Power BI · Microsoft Learn](https://learn.microsoft.com/de-de/power-bi/visuals/power-bi-visualization-gantt), Lizenz CC BY 4.0.
+
+Vor dem Standard-Visual brauchte man für Gantt-Diagramme ein Custom Visual oder Deneb. Die Daten-WG pflegt dafür das quelloffene Visual dataKitchenGantt (MIT-Lizenz); was es tut und nicht tut, steht auf der Seite [Sicherheit & Betrieb der byDatenWG-Visuals](../visuals-sicherheit.html). Für Berichte mit Anforderungen an Barrierefreiheit ist es laut dieser Seite derzeit nicht geeignet, weil Tastatursteuerung und Hochkontrast fehlen.
+
+##### Wohin fließt der Wert? Sankey neben dem Wasserfall
+
+Ein Wasserfall beantwortet „wie viel“: vom Umsatz Schritt für Schritt zum Ergebnis. Ein Sankey-Diagramm zeigt mit unterschiedlich breiten Bändern, wohin Werte fließen, etwa welche Umsatzarten in welche Kostenblöcke münden. Wie beide Sichten auf derselben GuV zusammenspielen, zeigt der Beitrag [Sankey trifft IBCS-Wasserfall](../sankey-wasserfall-post.html). Ein Werkzeug, um IBCS-nahe Diagrammtypen im Browser auszuprobieren und als Deneb-Vorlage zu exportieren, ist der [Business Chart Builder](../business-chart-builder.html).
+
 #### Noise eliminieren
 
 *VIZ · SIMPLIFY*
 
-Default-Charts bringen Dekoration mit, die keine Information trägt. Wer das nicht aufräumt, schwächt die Botschaft. Seit August 2026 starten neue Berichte mit dem Fluent-2-Basisdesign: grauer Canvas, abgerundete Ecken, mehr Innenabstand, Titel und Untertitel an, Achsentitel aus. Prüfe jedes dieser Elemente gegen deine Botschaft.
+Default-Charts bringen Dekoration mit, die keine Information trägt. Wer das nicht aufräumt, schwächt die Botschaft. Seit August 2026 starten neue Berichte mit dem Fluent-2-Basisdesign: grauer Canvas, abgerundete Ecken, mehr Innenabstand, Titel und Untertitel an (bei Diagrammen; bei Tabelle, Matrix und Card je nach Version aus), Achsentitel aus. Prüfe jedes dieser Elemente gegen deine Botschaft.
 
 ##### Was raus muss
 
@@ -3201,9 +3288,20 @@ Visual auswählen → „Visual formatieren“ → durch jede Karte klicken: Ach
 
 Menüband „Design“ → „Design anpassen“ öffnet den Theme-Bereich (GA seit August 2026, Desktop und Web): Basisdesign wählen, Farbpalette, Textstile, Visual- und Seiteneigenschaften setzen. Änderungen wirken auf alle Visuals, die keine Einzelformatierung haben.
 
+##### Formatierung als Stilvorlage speichern
+
+Seit dem November-2026-Update allgemein verfügbar: Ein fertig formatiertes Visual speicherst du im Format-Bereich unter „Style presets“ (Stilvorlagen, in der deutschen Doku „Stilvorgaben“) als benannte Vorlage. Sie steht dann allen Visuals desselben Typs im Bericht zur Auswahl, lässt sich als Standard festlegen und wird im Theme gespeichert, reist also mit dem Theme-Export in andere Berichte. Direkte Formatierungen am Visual haben weiter Vorrang; „Reset all style settings to default“ (alle Stileinstellungen zurücksetzen) entfernt sie, ohne bedingte Formatierung und Aktionen zu löschen.
+
 ##### Theme exportieren & wiederverwenden
 
 Im Theme-Bereich als JSON exportieren und in anderen Berichten importieren. Wer per Code arbeitet: Im PBIR-Format (seit 2026 Standard-Berichtsformat) liegt jedes Visual als eigene `visual.json` — Massenänderungen sind dann ein Skript statt hundert Klicks.
+
+##### Weitere Neuerungen 2026
+
+- **Design-Menüband** (allgemein verfügbar seit September 2026): Themes anwenden, importieren und herunterladen an einer Stelle, dazu die neuen Designs „Dark“ und „Soft dark“.
+- **Hintergrundfarbe der Zeichenfläche** (Plot area) für Balken-, Säulen-, Linien-, Flächen-, Kombi-, Ribbon-, Wasserfall- und Streudiagramme, seit Oktober 2026 allgemein verfügbar; seit November 2026 auch mit Transparenz und Hintergrundbild. Sparsam einsetzen: Eine farbige Fläche hinter den Daten ist meist genau das Rauschen, das diese Karte entfernen will.
+
+> **Aus der Kitchen · Design als System:** Wie man Theme, Raster, Kopfband und Filterbereich für viele Berichte verbindlich macht und mit einem Linter prüft, zeigt der Beitrag [Power BI Design Skill: Report-Design als Framework](../powerbi-design-skill.html). Seiten vorab im Workshop skizzieren und als Spezifikation übergeben: [MockupKitchen](../mockupkitchen-post.html).
 
 ##### Theme-JSON Beispiel
 
@@ -3255,7 +3353,15 @@ Visual auswählen → „Visual formatieren“ → „Y-Achse“ → „Bereich�
 
 ##### Mehrere Charts vergleichbar machen
 
-Wenn zwei Charts nebeneinander stehen, die thematisch verglichen werden: gleiche Y-Achse manuell setzen (Maximum auf den größeren Wert beider Charts). Bei Small Multiples ist „Gemeinsame Y-Achse“ standardmäßig an — lass sie an, wenn absolute Werte verglichen werden.
+Wenn zwei Charts nebeneinander stehen, die thematisch verglichen werden: gleiche Y-Achse manuell setzen (Maximum auf den größeren Wert beider Charts). Bei den eingebauten Small Multiples sind die Achsen laut Learn synchronisiert: eine Y-Achse links je Zeile, eine X-Achse unten je Spalte. Prüfe bei Custom Visuals, ob sie eine gemeinsame Skala anbieten und ob sie eingeschaltet ist.
+
+![Zwei Brückendiagramme nebeneinander, Nord und Süd, jede Kachel mit eigener Skala: Süd füllt seine Kachel genauso aus wie Nord](../whitepaper-assets/multiples-vorher.png)
+
+**Abb. · Vorher: jede Kachel mit eigener Skala** Region Süd hat nur ein Drittel des Umsatzes von Nord, füllt ihre Kachel aber genauso aus. Der Vergleich der Balkenlängen täuscht.
+
+![Dieselben zwei Brückendiagramme mit gemeinsamer Skala: Süd ist sichtbar etwa ein Drittel so lang wie Nord](../whitepaper-assets/multiples-nachher.png)
+
+**Abb. · Nachher: gemeinsame Skala** Mit gemeinsamer Skala ist Süd sichtbar ein Drittel von Nord. Demodaten. Eigene Arbeit mit dem Custom Visual ChartKitchen byDatenWG, beschrieben im Bericht [Zehn Tage bis zum marktfähigen Stand](../whitepaper-ki-entwicklung-roi.html).
 
 ##### Skalenbruch (wenn unvermeidbar)
 
@@ -3263,7 +3369,7 @@ Wenn ein Wert massiv größer ist als alle anderen (z. B. Mega-Kunde verzerrt To
 
 > **Anfänger-Falle:** Y-Achse anpassen, um "Detail sichtbar zu machen". Wenn der Unterschied wichtig ist, separates Variance-Chart bauen mit Differenzen oder Prozenten. Die absolute Skala bleibt ehrlich.
 
-Microsoft Learn [X- und Y-Achse anpassen](https://learn.microsoft.com/de-de/power-bi/visuals/power-bi-visualization-customize-x-axis-and-y-axis)
+Microsoft Learn [X- und Y-Achse anpassen](https://learn.microsoft.com/de-de/power-bi/visuals/power-bi-visualization-customize-x-axis-and-y-axis) · [Small Multiples erstellen](https://learn.microsoft.com/de-de/power-bi/visuals/power-bi-visualization-small-multiples)
 
 **Daten-WG dazu:**
 
@@ -3373,7 +3479,7 @@ Eine Matrix mit Conditional Formatting: Hintergrundfarbe nach Wert, Icon-Spalten
 
 ##### 5. KPI-Reihen mit dem Card-Visual
 
-Das neue Card-Visual (GA seit November 2025) zeigt mehrere Kennzahlen in einem Visual — mit Referenzbeschriftungen (z. B. „Δ VJ“) und Bildern. Eine Kachelreihe statt fünf einzelner Karten: weniger Visuals, weniger Abfragen, einheitliche Formatierung.
+Das neue Card-Visual (GA seit November 2025) zeigt mehrere Kennzahlen in einem Visual — mit Referenzbeschriftungen (z. B. „Δ VJ“) und Bildern. Eine Kachelreihe statt fünf einzelner Karten: weniger Visuals, weniger Abfragen, einheitliche Formatierung. Neu seit November 2026 als Preview: eine Trendachse (Trend axis), mit der jede Karte ein kleines Trenddiagramm zeigt, also Wert und Verlauf in einer Kachel.
 
 > **Praxis-Beispiel · Cockpit-Übersicht:** Matrix mit Zeilen pro Region, Spalten: ACT, PL, Diff, Diff %, Trend (Sparkline). 10 Regionen × 5 Spalten = 50 Werte plus 10 Sparklines auf einer Karte. Ein klassisches Säulen-Chart hätte für dieselbe Information 5 Charts gebraucht.
 
@@ -3392,6 +3498,9 @@ Von IBCS-First-Principles bis zu deklarativer Custom-Visualisierung mit Deneb/Ve
 - **Chart-Wahl: Tortendiagramm oder bessere Alternativen?** · Sprungmarke · More than PBIX · [Knowledge Kitchen](../folgen.html#ep-c90oD4zR1Aw)
 - **Sparklines sind GA — was steckt dahinter?** · Sprungmarke · Fabric &amp; Power BI Quarterly · 2025 Q3 · [Knowledge Kitchen](../folgen.html#ep-lZvpCBMKASM)
 - **GA: Berichtsdesign anpassen (Theme-Bereich) und Datumsauswahl im Slicer** · Sprungmarke · Power BI Update August 2026 · [Knowledge Kitchen](../folgen.html#ep-GWCHNmLs72M)
+- **Natives Gantt-Diagramm (Preview): Start und Ende als Measure** · Sprungmarke · Power BI Update Oktober 2026 · [Knowledge Kitchen](../folgen.html#ep-n2j_NJVb-GE)
+- **Der entscheidende Hebel: erst die knackige Botschaft, dann die Details** · Sprungmarke · Objektive Daten gibt es nicht · [Knowledge Kitchen](../folgen.html#ep--_4bfrjRCVo)
+- **[BI Thinkers Talk nr.80: ein IBCS-inspiriertes Custom Visual mit Small Multiples](https://youtu.be/tXBcz_b1PQc)** · Solo · 61 min · [Knowledge Kitchen](../folgen.html#ep-tXBcz_b1PQc)
 
 Weiter vertiefen Visualisierung bei Microsoft Learn & in der Library
 
@@ -3402,12 +3511,22 @@ Microsoft Learn · Doku
 - [Achsen anpassen (Bereich, Runden)](https://learn.microsoft.com/de-de/power-bi/visuals/power-bi-visualization-customize-x-axis-and-y-axis)
 - [Sparklines in Tabelle & Matrix](https://learn.microsoft.com/de-de/power-bi/create-reports/power-bi-sparklines-tables)
 - [IBCS-Vorlagen in Planning (Fabric IQ)](https://learn.microsoft.com/de-de/fabric/iq/plan/intelligence-ibcs/how-to-apply-ibcs-formatting)
+- [Stilvorlagen für Visuals (Style presets)](https://learn.microsoft.com/de-de/power-bi/create-reports/power-bi-visual-style-presets)
+- [Gantt-Visual (Preview)](https://learn.microsoft.com/de-de/power-bi/visuals/power-bi-visualization-gantt)
 
 Microsoft Learn · Training
 
 - [Modul: Power BI-Berichte entwerfen](https://learn.microsoft.com/de-de/training/modules/power-bi-effective-reports/)
 - [Lernpfad: Effektive Berichte in Power BI](https://learn.microsoft.com/de-de/training/paths/power-bi-effective/)
-- [Modul: Visuals in Power BI](https://learn.microsoft.com/de-de/training/modules/visuals-in-power-bi/)
+
+Aus der Kitchen
+
+- [ChartKitchen byDatenWG · Doku](../chartkitchen-doku.html)
+- [IBCS-Trainer · Notation üben](../ibcs-trainer.html)
+- [Business Chart Builder · Deneb-Vorlagen](../business-chart-builder.html)
+- [Eine GuV-Seite, sechs Sprossen](../finance-reporting-budapest-post.html)
+- [Visual-Standards-Rechner: Core, Deneb oder Custom Visual?](../visual-standards-rechner.html)
+- [Custom Visuals prüfen: Sicherheit & Betrieb](../visuals-sicherheit.html)
 
 DatenWG Library
 
@@ -3418,7 +3537,7 @@ DatenWG Library
 
 ## 07 · Interaktivität *· UX*
 
-Statische Berichte beantworten eine Frage. Interaktive Berichte werden zum Analyse-Werkzeug. Mit Drillthrough, Bookmarks, Buttons und Field Parameters wird aus einer Reportseite ein Tool, mit dem Anwender selbst in die Daten eintauchen. Neu dabei: Copilot im Bericht — und Q&A läuft im Februar 2027 aus.
+Statische Berichte beantworten eine Frage. Interaktive Berichte werden zum Analyse-Werkzeug. Mit Drillthrough, Bookmarks, Buttons und Field Parameters wird aus einer Reportseite ein Tool, mit dem Anwender selbst in die Daten eintauchen. Neu dabei: Copilot im Bericht — und Q&A läuft laut Learn im Februar 2027 aus (zuerst war Dezember 2026 angekündigt, Microsoft hat den Zeitplan verlängert).
 
 > Als erstes: **Drillthrough** — die einfachste High-Impact-Interaktion. Anschließend **Field Parameters** — der Game-Changer aus 2022 (Preview) bzw. seit Juli 2025 GA, der viele alte Bookmark-Tricks überflüssig macht.
 
@@ -3534,7 +3653,7 @@ Buttons machen aus einem statischen Bericht ein Tool. Power BI hat eine Reihe vo
 - **Web-URL** — externe URL öffnen
 - **Alle Slicer anwenden / Alle Slicer löschen** — Auswahl sammeln und erst auf Klick abfragen (spart Abfragen)
 - **Datenfunktion** — ruft eine Fabric User Data Function auf (Translytical Task Flows, GA seit März 2026): Datensätze ändern oder Aktionen auslösen, direkt aus dem Bericht
-- **Q&A** — öffnet den Q&A-Explorer. *Auslaufmodell:* Q&A wird laut Learn im Februar 2027 eingestellt; Nachfolger ist Copilot.
+- **Q&A** — öffnet den Q&A-Explorer. *Auslaufmodell:* Q&A wird laut Learn im Februar 2027 eingestellt (zuerst war Dezember 2026 angekündigt, Microsoft hat den Zeitplan verlängert); Nachfolger ist Copilot.
 
 #### Button einfügen
 
@@ -3559,6 +3678,18 @@ Analog für Bookmark-Gruppen. Insert → Buttons → Navigator → Bookmark navi
 > **Praxis-Beispiel · Toggle zwischen Sichten:** Drei Bookmarks: "Tagesbasis", "Monatsbasis", "Jahresbasis" — alle auf einer Bookmark-Gruppe "Zeitebene". Bookmark Navigator daraus generieren. Anwender hat oben drei Pill-Buttons, ein Klick wechselt die Zeitebene aller Visuals.
 
 > **Tipp:** Button-States gestalten: Standard, Hover, Gedrückt, Ausgewählt, Deaktiviert — alle haben eigene Format-Eigenschaften. Mit dem Fluent-2-Basisdesign gibt es dafür Stilvorlagen (Standard, Kontur, Transparent, Symbol & Text). Für reine Filter-Umschalter ist oft der **Button-Slicer** die einfachere Wahl als Button + Bookmark.
+
+#### Slicer: was sich im November 2026 geändert hat
+
+Slicer (Datenschnitte) sind die Auswahlfelder, mit denen Anwender filtern. Mit dem November-2026-Update sind drei Neuerungen allgemein verfügbar:
+
+- **Listen-Slicer mit Dropdown:** Die Liste klappt erst bei Klick auf; gewählte Werte stehen als kleine „Pills“ im Auswahlfeld und lassen sich dort einzeln entfernen. Die Option „Show selected first“ hält die aktive Auswahl oben.
+- **Datumsauswahl als Standard:** Ziehst du eine Datumsspalte in einen Slicer, startet er im Stil „Date picker“: Kalender für einen festen Zeitraum oder relative Auswahl wie „letzter voller Monat“, die mit der Zeit weiterrollt. Hierarchien unterstützt dieser Stil nicht, also die Datumsspalte selbst verwenden.
+- **Slicer-Modus im Theme:** Ob ein Slicer als Datumsauswahl, Dropdown oder Liste startet, lässt sich im benutzerdefinierten Theme festlegen, einheitlich für alle Berichte.
+
+![Datums-Slicer im Stil Date Picker mit Kalender für April 2026, Registern Manuell und Relativ sowie Format-Bereich mit der Option Stil gleich Date Picker](../assets/learn/date-picker.png)
+
+**Abb. · Slicer im Stil „Date picker“** Oben eine relative Auswahl, unten der Kalender für einen manuellen Zeitraum, rechts die Stil-Einstellung im Format-Bereich. Quelle: [Slicers in Power BI · Microsoft Learn](https://learn.microsoft.com/de-de/power-bi/visuals/power-bi-visualization-slicer-visual), Lizenz CC BY 4.0.
 
 Microsoft Learn [Schaltflächen & Aktionen](https://learn.microsoft.com/de-de/power-bi/create-reports/desktop-buttons) · [Alle Slicer anwenden/löschen](https://learn.microsoft.com/de-de/power-bi/create-reports/buttons-apply-all-clear-all-slicers) · [Translytical Task Flows](https://learn.microsoft.com/de-de/power-bi/create-reports/translytical-task-flow-overview)
 
@@ -3606,6 +3737,7 @@ Pro Eintrag genau drei Werte: Anzeigename, Feldverweis, Reihenfolge. Zusätzlich
 
 - **„Werte des ausgewählten Felds anzeigen“** — der Slicer zeigt statt der Feldnamen die Werte, als Hierarchie-Slicer
 - **„Hierarchieebene beibehalten“** (Berichtseinstellung, Januar 2026) — steuert, ob eine aufgeklappte Matrix beim Wechsel aufgeklappt bleibt
+- **Hierarchie-Achse klappt automatisch auf** (allgemein verfügbar seit Oktober 2026) — Balken-, Säulen- und Liniendiagramme erweitern die Achse automatisch, wenn mehrere Spalten gewählt sind, auch wenn sie aus einem Field Parameter kommen. Anwender wechseln die Achsenfelder per Slicer oder über „Personalize this visual“.
 
 > **Tipp · Format-Strings:** Jede Measure bringt ihr eigenes Format mit — gib allen Measures im Parameter saubere Format-Strings (€, %, Stk), dann passt die Achse automatisch. Für einen dynamischen Titel: `SELECTEDVALUE(Kennzahl[Kennzahl])` in einer Titel-Measure.
 
@@ -3714,12 +3846,13 @@ Microsoft Learn [Bedingte Formatierung in Visuals](https://learn.microsoft.com/d
 **Daten-WG dazu:**
 
 - **[Jedes Power BI Visual dynamisch — auch ohne fx-Button](https://youtu.be/c5zxZLRuV_s)** · Tutorial · 6 min · [Knowledge Kitchen](../folgen.html#ep-c5zxZLRuV_s)
+- **[#005 · Bedingte Formatierung? Ich nutze fast immer Measures!](https://youtu.be/KCCs6e0MeWI)** · Short · 48 s · [Knowledge Kitchen](../folgen.html#ep-KCCs6e0MeWI)
 
 ### Copilot im Bericht
 
 *INTERAKTIVITÄT · KI*
 
-Copilot ist in Power BI Desktop und im Service an mehreren Stellen eingebaut — für Anwender, die Fragen an einen Bericht haben, und für Autoren, die schneller bauen wollen. Stand Oktober 2026.
+Copilot ist in Power BI Desktop und im Service an mehreren Stellen eingebaut — für Anwender, die Fragen an einen Bericht haben, und für Autoren, die schneller bauen wollen. Stand November 2026. Diese Karte beschreibt den Copilot-Bereich im geöffneten Bericht; er ist laut Learn allgemein verfügbar und von den unten beschriebenen Abschaltungen nicht betroffen.
 
 #### Für Anwender
 
@@ -3735,14 +3868,19 @@ Copilot ist in Power BI Desktop und im Service an mehreren Stellen eingebaut —
 
 #### Voraussetzungen
 
-- Copilot im Tenant aktiviert (Admin-Einstellungen) und eine bezahlte Fabric-Kapazität in einer unterstützten Region — Trial-SKUs werden nicht unterstützt
+- Copilot im Tenant aktiviert (Admin-Einstellungen) und eine bezahlte Kapazität in einer unterstützten Region: Fabric ab F2 oder Power BI Premium ab P1. Trial-Kapazitäten und kostenlose SKUs werden nicht unterstützt
 - Für Seiten-Erstellung muss Q&A für das Modell eingeschaltet sein; implizite Measures dürfen nicht deaktiviert sein, Live-Verbindungen zu Analysis Services gehen nicht
+
+#### Was sich gerade ändert (Stand November 2026)
+
+- **Standalone-Copilot und App-Copilot werden abgeschaltet:** Der eigenständige Power-BI-Copilot (Vollbild im Web, in Teams und mobil) und der Copilot in Workspace-Apps sind ab dem 15.01.2027 abgeschaltet. Schon am 08.12.2026 wechselt die Tenant-Einstellung für den Standalone-Copilot auf „aus“; Admins können ihn bis zum Abschaltdatum wieder einschalten. Copilot im Bericht und in Desktop bleibt.
+- **Nachfolger „Microsoft Copilot in Power BI und Fabric“ (Preview):** ein Einstieg in der linken Navigation, der Berichte findet und Fragen an Power-BI-Daten über Fabric IQ beantwortet. Er braucht laut Learn weder eine F-SKU noch einen Premium-Workspace; was ein Nutzer damit kann, hängt von seiner Microsoft-Copilot-Lizenz ab, nicht von Free, Pro oder PPU. Die Tenant-Einstellung dafür steht ab dem 08.12.2026 standardmäßig auf „an“. RLS und OLS des Modells gelten weiter.
 
 > **Was das für dein Modell heißt:** Copilot ist nur so gut wie das Semantikmodell: sprechende Tabellen- und Measure-Namen, Beschreibungen, ausgeblendete Hilfsspalten, saubere Beziehungen. Ein Modell, das für Menschen verständlich ist, ist es auch für Copilot.
 
-> **Q&A läuft aus:** Q&A-Visual, Q&A-Button und Q&A auf Dashboards werden laut Learn im Februar 2027 eingestellt. Neue Berichte nicht mehr darauf aufbauen; bestehende Q&A-Elemente durch Copilot oder klassische Visuals ersetzen.
+> **Q&A läuft aus:** Q&A-Visual, Q&A-Button und Q&A auf Dashboards werden laut Learn im Februar 2027 eingestellt. Der zuerst genannte Termin Dezember 2026 (Ankündigung vom Januar 2026) ist überholt: Microsoft hat den Zeitplan auf Februar 2027 verlängert. Neue Berichte nicht mehr darauf aufbauen; bestehende Q&A-Elemente durch Copilot oder klassische Visuals ersetzen.
 
-Microsoft Learn [Copilot in Berichten & Modellen](https://learn.microsoft.com/de-de/power-bi/create-reports/copilot-reports-overview) · [Narrative-Visual mit Copilot](https://learn.microsoft.com/de-de/power-bi/create-reports/copilot-create-narrative) · [Berichte mit Copilot erstellen](https://learn.microsoft.com/de-de/power-bi/create-reports/copilot-create-reports) · [Q&A-Visual (Abkündigung)](https://learn.microsoft.com/de-de/power-bi/visuals/power-bi-visualization-q-and-a)
+Microsoft Learn [Copilot in Berichten & Modellen](https://learn.microsoft.com/de-de/power-bi/create-reports/copilot-reports-overview) · [Narrative-Visual mit Copilot](https://learn.microsoft.com/de-de/power-bi/create-reports/copilot-create-narrative) · [Berichte mit Copilot erstellen](https://learn.microsoft.com/de-de/power-bi/create-reports/copilot-create-reports) · [Q&A-Visual (Abkündigung)](https://learn.microsoft.com/de-de/power-bi/visuals/power-bi-visualization-q-and-a) · [Microsoft Copilot in Power BI und Fabric (Preview)](https://learn.microsoft.com/de-de/fabric/iq/connectors/copilot-power-bi-fabric)
 
 ### Aus dem Kanal · Interaktivität konkret
 
@@ -3755,6 +3893,8 @@ Ein 54-Min-Solo-Deep-Dive verbindet Buttons, Drilling, Navigation und dynamische
 - **Moderne Quickinfos mit Drillthrough-Aktionen** · Sprungmarke · Power BI Update Januar 2026 · [Knowledge Kitchen](../folgen.html#ep-TAM5AAZqh7k)
 - **Quickinfos mit erklärendem Text** · Sprungmarke · Power BI Update Juni 2026 · [Knowledge Kitchen](../folgen.html#ep-5xB_oKdvAwQ)
 - **Q&A ist offiziell abgekündigt** · Sprungmarke · Power BI Update Januar 2026 · [Knowledge Kitchen](../folgen.html#ep-TAM5AAZqh7k)
+- **Listenslicer jetzt auch als Dropdown** · Sprungmarke · Power BI Update Oktober 2026 · [Knowledge Kitchen](../folgen.html#ep-n2j_NJVb-GE)
+- **Translytical Task Flows explained: native, low-cost, and flexible** · Sprungmarke · How to Write Back · [Knowledge Kitchen](../folgen.html#ep-HQaLWjA-E2E)
 
 Weiter vertiefen Interaktivität bei Microsoft Learn & in der Library
 
@@ -3766,11 +3906,12 @@ Microsoft Learn · Doku
 - [Feldparameter](https://learn.microsoft.com/de-de/power-bi/create-reports/power-bi-field-parameters)
 - [Berichtsseiten als QuickInfo](https://learn.microsoft.com/de-de/power-bi/create-reports/desktop-tooltips)
 - [Bedingte Formatierung](https://learn.microsoft.com/de-de/power-bi/visuals/power-bi-visualization-conditional-formatting)
+- [Slicer (inkl. Datumsauswahl)](https://learn.microsoft.com/de-de/power-bi/visuals/power-bi-visualization-slicer-visual)
+- [Microsoft Copilot in Power BI und Fabric (Preview)](https://learn.microsoft.com/de-de/fabric/iq/connectors/copilot-power-bi-fabric)
 
 Microsoft Learn · Training
 
 - [Modul: Berichtsdesign für die User Experience](https://learn.microsoft.com/de-de/training/modules/power-bi-effective-user-experience/)
-- [Modul: Berichtsfilter konfigurieren](https://learn.microsoft.com/de-de/training/modules/power-bi-effective-filters/)
 
 DatenWG Library
 
@@ -3778,6 +3919,7 @@ DatenWG Library
 - [Thema Drillthrough](../wissensgraph/thema/drillthrough.html)
 - [Thema Bookmarks](../wissensgraph/thema/bookmarks.html)
 - [Thema Copilot](../wissensgraph/thema/copilot.html)
+- [Thema Translytical Task Flows](../wissensgraph/thema/translytical-task-flows.html)
 
 ## 08 · Service & *Sharing*
 
@@ -3843,7 +3985,7 @@ Apps sind der Microsoft-empfohlene Weg, Inhalte an Konsumenten zu verteilen. Ein
 
 Eine App kann mehrere Audiences haben — z. B. "Management" sieht andere Berichte als "Vertriebsteam". Aus einer App-Quelle werden mehrere Sichten verteilt.
 
-#### Workspace-App oder Org-App? (Stand Oktober 2026)
+#### Workspace-App oder Org-App? (Stand November 2026)
 
 | Workspace-App (klassisch) | Org-App (Fabric-Item) |
 | --- | --- |
@@ -3852,6 +3994,12 @@ Eine App kann mehrere Audiences haben — z. B. "Management" sieht andere Berich
 | Zugriff nur über die App | Nutzer mit App-Zugriff können enthaltene Items auch per Direktlink öffnen |
 
 Org-Apps sind generally available und funktionieren auch in Pro-Workspaces; bestehende Workspace-Apps laufen unverändert weiter und werden nicht automatisch migriert.
+
+**Neu im November 2026:** Laut dem November-Update lassen sich Org-Apps, die vor Einführung der Audiences angelegt wurden, auf Audiences umstellen. Die Learn-Seite zu Org-Apps schreibt allerdings noch, Audiences gebe es nur in neuen Org-Apps; fehlt dir die Option, lege eine neue Org-App an. Je Org-App sind bis zu 25 Audiences möglich. Die Navigation ordnest du beim Bearbeiten per Drag-and-Drop. Angekündigt, aber noch im Rollout: Fabric Apps als weiterer Inhaltstyp in Org-Apps und eine neue Apps-Seite, die auch Fabric Apps zeigt. Ebenfalls neu laut November-Update: Eine ganze Workspace-App lässt sich samt Navigation in SharePoint Online einbetten; Berechtigungen und Audiences gelten dort weiter. Die Learn-Seite zum Einbetten beschreibt das noch nicht (Stand 24.11.2026).
+
+![Org-App aus Sicht der Anwender mit Reitern für die Audiences All, Leadership und Sales team, linker Navigation und geöffneter Berichtsseite](../assets/learn/org-app-consumer-experience-view.png)
+
+**Abb. · Org-App mit Audiences** Oben die Reiter je Audience, links die Navigation der App, rechts der geöffnete Bericht. Quelle: [Org apps · Microsoft Learn](https://learn.microsoft.com/de-de/power-bi/explore-reports/org-app-items), Lizenz CC BY 4.0; für die Website verkleinert und auf 256 Farben reduziert.
 
 #### App erstellen
 
@@ -3975,7 +4123,7 @@ Ziel-Stage wählen, Items auswählen (alle, selektiv oder per "Select related"),
 
 #### Deployment Rules
 
-Wichtig: Pro Stage können Rules definiert werden — z. B. "in PROD verwende eine andere Datenbank-Connection". So bleibt DEV mit Test-DB, PROD verbindet sich mit Prod-DB.
+Wichtig: Pro Stage können Rules definiert werden — z. B. "in PROD verwende eine andere Datenbank-Connection". So bleibt DEV mit Test-DB, PROD verbindet sich mit Prod-DB. Neu seit November 2026 (Preview): Auch Direct-Lake-on-OneLake-Modelle unterstützen M-Parameter, sodass Parameter-Regeln jede Stage auf eine andere OneLake-Quelle zeigen lassen, ohne die Quellausdrücke von Hand umzuschreiben.
 
 #### Auto-Binding
 
@@ -4053,6 +4201,8 @@ Quelle: Microsoft Learn · *Semantic model SKU limitation*. Die Modellgröße is
 
 > **Anfänger-Falle:** Refresh-Failures ignorieren. Schlägt ein geplanter Refresh **viermal hintereinander** fehl, deaktiviert Power BI den Zeitplan. Plötzlich sind die Daten Tage alt, ohne dass es jemand merkt. Ursache beheben, Zeitplan wieder einschalten — und Fehler-Benachrichtigungen immer aktivieren.
 
+> **Echtzeit statt Zeitplan?** Die alten Echtzeit-Streaming-Modelle in Power BI (Push-, Streaming- und PubNub-Modelle, Streaming-Kacheln) laufen aus: Laut Learn lassen sie sich noch bis zum 31.10.2027 neu anlegen, bestehende sind nicht betroffen. Für neue Echtzeit-Szenarien empfiehlt Microsoft Real-Time Intelligence in Fabric.
+
 ### Sharing-Methoden im Vergleich
 
 *SERVICE · TEILEN*
@@ -4065,6 +4215,7 @@ Vier Wege, Inhalte zu teilen. Jeder mit eigenen Stärken und Use Cases.
 - Audiences für verschiedene Zielgruppen
 - Konsumenten sehen "Production"-Stand (Workspace-App) bzw. den gespeicherten Stand (Org-App)
 - Microsoft-Standard für die breite Verteilung im Unternehmen
+- Laut November-Update 2026 lässt sich eine ganze Workspace-App mit Navigation in SharePoint Online einbetten. Die Learn-Seite zum Einbetten beschreibt das noch nicht (Stand 24.11.2026), also vorher im eigenen Tenant ausprobieren
 
 #### 2. Direct Sharing (Single Item)
 
@@ -4082,8 +4233,9 @@ Vier Wege, Inhalte zu teilen. Jeder mit eigenen Stärken und Use Cases.
 
 #### 4. Subscriptions
 
-- Periodische E-Mail mit Bericht-Snapshot (PDF oder Bild)
-- Täglich, wöchentlich, monatlich
+- Periodische E-Mail mit Vorschaubild der Seite und Link zum Bericht; den vollständigen Bericht als Anhang (PDF oder PowerPoint) gibt es nur für Workspaces auf einer Kapazität oder mit PPU
+- Stündlich, täglich, wöchentlich, monatlich oder „nach Datenaktualisierung“ (einmal täglich)
+- Seit September 2026 ziehen Abonnements automatisch auf eine neue Zustellplattform um: Absender und Formatierung der Mail ändern sich, Zeitpläne und Empfänger bleiben
 - Empfänger ohne Pro/PPU nur, wenn der Inhalt auf einer Kapazität liegt (Free-Konsum: ab F64)
 - Schwächer als interaktiver Bericht — kein Drill, kein Filter
 
@@ -4092,7 +4244,7 @@ Vier Wege, Inhalte zu teilen. Jeder mit eigenen Stärken und Use Cases.
 | Methode | Skalierung · Interaktion | Lizenz der Nutzer |
 | --- | --- | --- |
 | App | Sehr gut · vollständig | Pro/PPU, Free ab F64 |
-| Direct Share | Schlecht · vollständig | Pro/PPU |
+| Direct Share | Schlecht · vollständig | Pro/PPU, Free ab F64 |
 | Embed | Gut · variabel | Je nach Szenario |
 | Abo (Subscription) | Sehr gut · keine | Optional (Kapazität) |
 
@@ -4106,6 +4258,10 @@ Vier Wege, Inhalte zu teilen. Jeder mit eigenen Stärken und Use Cases.
 
 > **Tipp:** Apps + Subscriptions sind oft die richtige Kombination: App für die Power-User mit Interaktion, Subscription für die "Schau-Anwender", die nur die wichtigsten Zahlen brauchen.
 
+> **Angekündigt · Export nach Excel:** Im September-2026-Update hat Microsoft angekündigt („coming soon“), das Limit für den Export „Data with current layout“ (Daten mit aktuellem Layout) aus Tabellen-Visuals von 150.000 auf 500.000 Zeilen anzuheben. Bis es ausgerollt ist, gilt das bisherige Limit.
+
+Microsoft Learn [Berichte abonnieren](https://learn.microsoft.com/de-de/power-bi/collaborate-share/end-user-subscribe) · [In SharePoint Online einbetten](https://learn.microsoft.com/de-de/power-bi/collaborate-share/office-integration/service-embed-report-spo) · [Kapazität und Free-Nutzer](https://learn.microsoft.com/de-de/power-bi/developer/embedded/embedded-capacity)
+
 ### Weiter vertiefen · Apps, Pipelines und Git im Alltag
 
 Org-Apps, Deployment Pipelines und Git-Integration – inklusive der Stolpersteine aus echten Projekten. Klick auf die Zeile öffnet die Folgen-Karte mit Kapiteln, der Zeitstempel springt direkt an die Stelle auf YouTube.
@@ -4114,6 +4270,7 @@ Org-Apps, Deployment Pipelines und Git-Integration – inklusive der Stolperstei
 - **Deployment Pipelines & fehlende Konsistenz** · Ab 6:05 · Microsoft Fabric — braucht das wirklich jemand? · [Knowledge Kitchen](../folgen.html#ep-mTVeZzshLzE)
 - **Zusammenarbeit mit Git & Microsoft Fabric** · Ab 8:36 · More than PBIX · [Knowledge Kitchen](../folgen.html#ep-c90oD4zR1Aw)
 - **Citizen Data Engineer und Deployment Pipelines** · Ab 43:05 · Was ist Self-Service und warum ist das so schwer? · [Knowledge Kitchen](../folgen.html#ep-EVsJ6zyGUWc)
+- **Das neue Monitoring für Aktualisierungen** · Ab 6:48 · Power BI Update September 2026 · [Knowledge Kitchen](../folgen.html#ep-3V9DQwfm0GA)
 
 Microsoft Learn · Doku
 
@@ -4126,7 +4283,7 @@ Microsoft Learn · Doku
 Microsoft Learn · Training
 
 - [Manage workspaces in Power BI service](https://learn.microsoft.com/training/modules/manage-workspaces-power-bi-service/)
-- [Create and manage a Power BI deployment pipeline](https://learn.microsoft.com/en-us/training/modules/power-bi-deployment-pipelines/)
+- [Implement CI/CD in Microsoft Fabric](https://learn.microsoft.com/training/modules/implement-cicd-in-fabric/)
 - [Choose a content distribution method](https://learn.microsoft.com/training/modules/choose-content-distribution-method/)
 
 DatenWG Library
@@ -4135,6 +4292,8 @@ DatenWG Library
 - [Thema: Workspace](../wissensgraph/thema/workspace.html)
 - [Thema: Git](../wissensgraph/thema/git.html)
 - [Thema: Refresh](../wissensgraph/thema/refresh.html)
+- [Thema: Premium](../wissensgraph/thema/premium.html)
+- [Thema: Self-Service BI](../wissensgraph/thema/self-service-bi.html)
 
 ## 09 · Row-Level Security *· RLS*
 
@@ -4170,7 +4329,7 @@ Tabelle wählen (z. B. `dim_region`) → Filter-Ausdruck:
 [RegionName] = "Süd"
 ```
 
-![Power BI Desktop Manage Security Roles Dialog mit Tabellen-Auswahl und Default-Editor für RLS-Filter](https://learn.microsoft.com/power-bi/includes/media/rls-desktop-define-roles/powerbi-security-default-editor.png)
+![Power BI Desktop Manage Security Roles Dialog mit Tabellen-Auswahl und Default-Editor für RLS-Filter](../assets/learn/powerbi-security-default-editor.png)
 
 **Abb. · Manage Roles Dialog (Default Editor)** Tabellen-Auswahl links, Filter-Ausdruck rechts. "Switch to DAX editor" für komplexere Ausdrücke. Quelle: [RLS · Microsoft Learn](https://learn.microsoft.com/fabric/security/service-admin-row-level-security)
 
@@ -4180,7 +4339,7 @@ Modeling → "View as" → Rolle auswählen → der Bericht filtert sich, als w�
 
 #### Im Service Anwender zuweisen
 
-Bericht publishen → im Service am semantischen Modell "..." → "Security" → Rolle auswählen → User oder Sicherheitsgruppe hinzufügen. Das dürfen nur Modell-Owner und Workspace-Admins.
+Bericht publishen → im Service am semantischen Modell "..." → "Security" → Rolle auswählen → User oder Sicherheitsgruppe hinzufügen. Die Option „Security“ sehen laut Learn alle mit der Workspace-Rolle Contributor oder höher, und sie können dort Mitglieder zuweisen; je nach Szenario braucht es zusätzlich Besitz am Modell oder Build-Berechtigung.
 
 > **Praxis-Beispiel:** Drei Regionen, drei Rollen:
 >
@@ -4249,7 +4408,7 @@ dim_region[Name]
 
 Der Ausdruck liefert für jede Zeile von `dim_region` TRUE oder FALSE: TRUE, wenn die Region in der Liste der für den User freigegebenen Regionen steht. Mehrere Regionen pro Person sind kein Problem — anders als bei `LOOKUPVALUE` (siehe „RLS-Anti-Patterns“).
 
-![Power BI Desktop Manage Security Roles Dialog mit DAX-Editor und beispielhaftem DAX-Filterausdruck](https://learn.microsoft.com/power-bi/includes/media/rls-desktop-define-roles/powerbi-security-dax-editor.png)
+![Power BI Desktop Manage Security Roles Dialog mit DAX-Editor und beispielhaftem DAX-Filterausdruck](../assets/learn/powerbi-security-dax-editor.png)
 
 **Abb. · DAX Editor in Manage Roles** Für dynamische Filter mit USERPRINCIPALNAME() / USERNAME() ist der DAX-Editor Pflicht (Switch to DAX editor). Argumente im Editor immer mit Komma trennen — auch bei deutschem Gebietsschema. Quelle: [RLS · Microsoft Learn](https://learn.microsoft.com/fabric/security/service-admin-row-level-security)
 
@@ -4284,6 +4443,8 @@ CONCATENATEX(
 
 > **Tipp:** Der UserPrincipalName ist üblicherweise die E-Mail-Adresse, aber nicht immer — in Microsoft Entra ID können beide abweichen, und nach einer Namensänderung kann sich die UPN ändern. Berechtigungstabelle auf UPN aufbauen, nicht auf der Anzeige-E-Mail.
 
+> **Externe Gäste (B2B):** Für Gastnutzer aus anderen Organisationen liefert `USERPRINCIPALNAME()` je nach Tenant-Konfiguration die externe Mail-Adresse (`user@partner.com`) oder eine Form wie `user_partner.com#EXT#@firma.onmicrosoft.com`. Steht in der Berechtigungstabelle das andere Format, sieht der Gast nichts. „Test as role“ deckt das nicht auf, weil es mit deiner eigenen Identität läuft; Learn empfiehlt, mit dem echten Gastkonto zu testen. Gäste in Entra-Sicherheitsgruppen werden bei RLS-Rollen teils nicht korrekt aufgelöst; dann Gäste direkt per E-Mail-Adresse zur Rolle hinzufügen.
+
 ### View As Role — Pflicht vor Production
 
 *RLS · VALIDIERUNG*
@@ -4294,7 +4455,7 @@ RLS testen, bevor sie publiziert wird. Wer das vergisst, riskiert Datenlecks.
 
 Modeling-Tab → "View as" → "Other user" und/oder eine Rolle wählen → "OK".
 
-![Power BI Desktop View as roles Dialog mit Auswahl-Optionen für Rollen und Other user](https://learn.microsoft.com/power-bi/includes/media/rls-desktop-view-as-roles/powerbi-desktop-rls-view-as-roles-dialog.png)
+![Power BI Desktop View as roles Dialog mit Auswahl-Optionen für Rollen und Other user](../assets/learn/powerbi-desktop-rls-view-as-roles-dialog.png)
 
 **Abb. · "View as" Dialog im Modeling-Tab** Rolle und/oder konkreten User simulieren — Bericht filtert sich entsprechend. Quelle: [RLS Guidance · Microsoft Learn](https://learn.microsoft.com/power-bi/guidance/rls-guidance)
 
@@ -4339,24 +4500,24 @@ RLS-Filter werden auf jede Abfrage angewendet. Schlecht designte RLS macht den g
 #### Drei Performance-Regeln
 
 1. **Filter auf Dimensionen, nicht auf Faktentabelle**
-2. **Integer-Schlüssel statt Text**
+2. **Schlanke Berechtigungstabelle mit stabilen Schlüsseln**
 3. **Bidirektional vermeiden, wenn möglich**
 
 #### 1. Dimension vs. Faktentabelle
 
 ```dax
 // Schlecht — auf 50 Mio Zeilen filtern
-fact_verkauf[Region] = USERPRINCIPALNAME()
+fact_verkauf[VerkaeuferEmail] = USERPRINCIPALNAME()
 
 // Gut — auf kleine Dimension filtern
-dim_region[UserEmail] = USERPRINCIPALNAME()
+dim_verkaeufer[Email] = USERPRINCIPALNAME()
 ```
 
 Die Faktentabelle hat Millionen Zeilen, die Dimension einige Hundert. Filter auf die Dimension propagiert über die Beziehung — viel schneller.
 
-#### 2. Integer statt Text
+#### 2. Schlanke Berechtigungstabelle, stabile Schlüssel
 
-VertiPaq verarbeitet Integer-Spalten massiv schneller als Text-Spalten. Wenn möglich: Berechtigungstabelle nutzt Integer-IDs statt Text-Schlüssel.
+Die Berechtigungstabelle sollte nur enthalten, was die Regel braucht: Anmeldename und den Schlüssel, über den gefiltert wird. Ob dieser Schlüssel Zahl oder Text ist, spielt zur Abfragezeit kaum eine Rolle: VertiPaq, die Speicher-Engine von Power BI, kodiert Spalten in Beziehungen immer über ein Wörterbuch, laut SQLBI unabhängig vom Datentyp. Text-Schlüssel kosten vor allem ein größeres Wörterbuch und etwas mehr Zeit beim Refresh. Wichtiger ist, dass der Schlüssel stabil und eindeutig ist, also die UPN statt eines Anzeigenamens.
 
 #### 3. Bidirektional sparsam
 
@@ -4448,7 +4609,7 @@ Wie in "Dynamische RLS" beschrieben — eine Rolle mit USERPRINCIPALNAME-Filter.
 
 #### Im Service: Gruppe zuweisen
 
-Semantisches Modell → "..." → Security → Rolle auswählen → Mitglied hinzufügen → Gruppe suchen → Add. Erlaubt sind Benutzerkonten, Sicherheitsgruppen, Verteilergruppen und E-Mail-aktivierte Gruppen.
+Semantisches Modell → "..." → Security → Rolle auswählen → Mitglied hinzufügen → Gruppe suchen → Add. Erlaubt sind Benutzerkonten, Sicherheitsgruppen, Verteilergruppen und E-Mail-aktivierte Gruppen. **Achtung:** Microsoft-365-Gruppen werden für RLS-Rollen nicht unterstützt, obwohl sie für Workspace-Rollen zulässig sind. Wer dieselbe Gruppe für beides plant, braucht für RLS eine Sicherheitsgruppe.
 
 > **Praxis-Beispiel · Mitarbeiterwechsel:** Max verlässt das Unternehmen, Lisa kommt neu. Mit Personen-Zuweisung: bei 12 Berichten manuell Lisa hinzufügen und Max entfernen. Mit Gruppen-Zuweisung: HR fügt Lisa zur Gruppe "Vertrieb Nord" hinzu und entfernt Max — alle 12 Berichte automatisch aktualisiert. 12 manuelle Schritte gespart.
 
@@ -4544,18 +4705,18 @@ dim_region[Name]
 RLS-Filter direkt auf die Faktentabelle anwenden:
 
 ```dax
-fact_verkauf[Region] = USERPRINCIPALNAME()
+fact_verkauf[VerkaeuferEmail] = USERPRINCIPALNAME()
 ```
 
-Performance-Desaster bei großen Faktentabellen. Filter auf Dimensionen, propagieren lassen.
+Performance-Desaster bei großen Faktentabellen. Besser: Filter auf Dimensionen setzen (z. B. `dim_verkaeufer[Email] = USERPRINCIPALNAME()` oder die Regel aus „Dynamische RLS“, Variante B) und über die Beziehung propagieren lassen.
 
 #### 3. Admin-Test als Validierung
 
 "Ich bin Admin, sehe alles, also funktioniert RLS" — Admin sieht **alle** Daten, weil Admin-Rolle RLS umgeht. Test muss mit Viewer-Rolle oder "Test as role" erfolgen.
 
-#### 4. Personal Workspace
+#### 4. Anwendern zu viele Workspace-Rechte geben
 
-RLS in einem persönlichen "My Workspace" — funktioniert nicht für andere Anwender. RLS gilt erst, wenn der Bericht in einen geteilten Workspace publiziert wird.
+RLS schränkt laut Learn nur Nutzer mit Leseberechtigung ein (Viewer-Rolle, App-Zugriff, Freigabe). Wer Anwender als Contributor, Member oder Admin in den Workspace holt, „damit sie leichter rankommen“, hebelt RLS für genau diese Personen aus: Sie haben Bearbeitungsrechte am Modell und sehen alle Daten. Konsumenten bekommen deshalb nur Leserechte.
 
 #### 5. Fehlende Edge Cases
 
@@ -4656,6 +4817,10 @@ Beim ersten Refresh im Service werden die Archivpartitionen einmalig befüllt �
 
 > **Anfänger-Falle:** Ohne Query Folding einsetzen. Wenn der RangeStart/RangeEnd-Filter nicht foldet, holt jede Partition die komplette Tabelle und filtert erst danach — der Refresh wird langsamer als vorher. Desktop warnt, wenn das Folding nicht bestätigt werden kann. Den Filter deshalb direkt hinter den Navigationsschritt setzen und per View Native Query prüfen.
 
+**Daten-WG dazu:**
+
+- **[#016 · Power BI: Schluss mit dem vollständigen Daten-Refresh!](https://youtu.be/G6hl4ivg3Mk)** · Short · 114 s · [Knowledge Kitchen](../folgen.html#ep-G6hl4ivg3Mk)
+
 ### Dataflows
 
 *TOOLS · WIEDERVERWENDUNG*
@@ -4685,9 +4850,9 @@ Wie in Desktop: Quellen anbinden, transformieren, Modell-Tabellen vorbereiten. S
 
 Get Data → "Dataflows" → den Dataflow wählen → Tabellen importieren. Semantische Modelle können den Dataflow als Datenquelle nutzen.
 
-#### Dataflow Gen1 vs. Gen2 (Stand Oktober 2026)
+#### Dataflow Gen1 vs. Gen2 (Stand November 2026)
 
-**Power BI Dataflows (Gen1) sind „Legacy“**: weiter unterstützt, aber ohne neue Features. Dataflow Gen2 ist der empfohlene Weg für alle mit Fabric-Kapazität — schneller, mit Fast Copy, besserer inkrementeller Aktualisierung, Data Destinations (Lakehouse, Warehouse u. a.), Git/CI-CD und Pipeline-Orchestrierung. Für Gen1 schreibt Microsoft: Pro- und PPU-Kunden können vorerst bei Gen1 bleiben. Zum Umstieg gibt es einen Upgrade-Assistenten (Preview), der ID, Name, Zeitplan und Verbindungen behält.
+**Power BI Dataflows (Gen1) sind „Legacy“**: weiter unterstützt, aber ohne neue Features. Dataflow Gen2 ist der empfohlene Weg für alle mit Fabric-Kapazität — schneller, mit Fast Copy, besserer inkrementeller Aktualisierung, Data Destinations (Lakehouse, Warehouse u. a.), Git/CI-CD und Pipeline-Orchestrierung. Für Gen1 schreibt Microsoft: Pro- und PPU-Kunden können vorerst bei Gen1 bleiben. Zum Umstieg gibt es einen Upgrade-Assistenten (Preview), der ID, Name, Zeitplan und Verbindungen behält. Seit April 2026 legt Fabric neue Dataflows Gen2 immer mit CI/CD- und Git-Unterstützung an; die frühere Variante ohne diese Unterstützung („Gen2 Classic“) lässt sich nicht mehr neu erstellen, bestehende laufen weiter.
 
 Die Folding-Indikatoren und den Query Plan aus Sektion 3 bekommst du übrigens genau hier — im Power Query Online eines Dataflows.
 
@@ -4708,7 +4873,7 @@ Storage Modes in einem Modell mischen. Performance fast wie Import, Aktualität 
 
 #### Was ist ein Composite Model?
 
-Ein Modell mit Tabellen in unterschiedlichen Storage Modes — oder mit DirectQuery-Tabellen aus mehreren Quellen. Varianten (Stand Oktober 2026):
+Ein Modell mit Tabellen in unterschiedlichen Storage Modes — oder mit DirectQuery-Tabellen aus mehreren Quellen. Varianten (Stand November 2026):
 
 - **Import + DirectQuery (+ Dual)** — in Desktop und im Service
 - **DirectQuery auf ein anderes semantisches Modell** — ein zentrales Modell um eigene Tabellen/Measures erweitern („Make changes to this model“); nur in Desktop
@@ -4755,7 +4920,7 @@ Ob eine Abfrage das Aggregat trifft, zeigt ein Trace mit SQL Server Profiler bzw
 
 Drittwerkzeug, das bei Modellierung in der Breite immer noch schneller ist als Power BI Desktop. TE2 ist kostenfrei und Open Source. Desktop hat aber aufgeholt — vieles, wofür man früher Tabular Editor brauchte, geht heute nativ.
 
-#### Was Desktop inzwischen selbst kann (Stand Oktober 2026)
+#### Was Desktop inzwischen selbst kann (Stand November 2026)
 
 - **Display Folders** — im Model view über die Eigenschaften
 - **Calculation Groups** — Model view → „Calculation group“ (oder per TMDL view)
@@ -4856,7 +5021,7 @@ Advanced-Tab → View Metrics. Zeigt pro Tabelle/Spalte: Speicherverbrauch, Kard
 
 > **Praxis-Beispiel:** Eine Measure dauert 5 Sekunden. Server Timings: 800 ms SE, 4200 ms FE. → DAX-Code ist das Problem. Bei FILTER-Funktion in CALCULATE-Argumenten? Bei verschachtelten Iteratoren? Code refactoren.
 
-> **Tipp · Erst die eingebauten Werkzeuge:** Performance Analyzer (Optimize → Performance Analyzer, inzwischen auch beim Bearbeiten im Web) zeichnet pro Visual die DAX-Query auf — per „Run in DAX query view“ landet sie direkt in der **DAX query view** von Desktop. Dort kannst du sie umbauen, testen und Measures per „Update model“ zurückschreiben. Für Server Timings, Query-Pläne und VertiPaq-Metriken bleibt DAX Studio das Werkzeug der Wahl.
+> **Tipp · Erst die eingebauten Werkzeuge:** Performance Analyzer (in Desktop: Optimize → Performance Analyzer) zeichnet pro Visual die DAX-Query auf — per „Run in DAX query view“ landet sie direkt in der **DAX query view** von Desktop. Beim Bearbeiten im Web gibt es den Performance Analyzer inzwischen auch, dort unter „Ansicht“ (View); „Run in DAX query view“ fehlt im Web, du kopierst die Abfrage und fügst sie in der DAX-Abfrageansicht ein. Dort kannst du sie umbauen, testen und Measures per „Update model“ zurückschreiben. Für Server Timings, Query-Pläne und VertiPaq-Metriken bleibt DAX Studio das Werkzeug der Wahl.
 >
 > ```
 > // DAX query view: alle Measures samt Formel und Ordner auflisten
@@ -4884,7 +5049,7 @@ Automatische Qualitätsprüfung gegen ein Regelwerk. Findet typische Modell-Prob
 - Fehlende Beziehungen zwischen Tabellen
 - Spalten in Faktentabellen, die in Dimensionen gehören
 - Implizite Measures
-- ~80 weitere Regeln
+- und weitere: Das von Microsoft gepflegte Regelset umfasst rund 70 Regeln insgesamt (Performance, Formatierung, DAX-Ausdrücke, Wartung, Fehlervermeidung, Namenskonventionen); Tabular Editor 3 bringt zusätzlich ein eigenes Regelset mit
 
 #### BPA installieren
 
@@ -4900,7 +5065,7 @@ Tools → Best Practice Analyzer → Run. Liste von Verstößen erscheint, sorti
 
 #### Findings korrigieren
 
-Jeden Befund anklicken → "Generate fix script" (wenn vorhanden). TE führt die Korrektur automatisch durch. Bei manuellen Korrekturen: Spalte/Measure ändern, BPA erneut laufen lassen.
+Jeden Befund anklicken. Für Regeln mit einfachem Fix-Ausdruck gibt es zwei Wege: „Apply fix“ führt die Korrektur sofort aus; „Generate fix script“ kopiert ein C#-Skript in die Zwischenablage, das du prüfen und selbst ausführen kannst. Bei manuellen Korrekturen: Spalte/Measure ändern, BPA erneut laufen lassen.
 
 #### Vor Production-Deploy
 
@@ -4908,7 +5073,7 @@ BPA als Schritt im Release-Prozess. Wenn BPA fehlerfrei ist, ist das Modell auf 
 
 > **Praxis-Beispiel:** Neu übernommenes Modell. BPA-Lauf zeigt 47 Findings:
 >
-> - 23 × fehlende Format Strings → "Generate fix script" → automatisch korrigiert
+> - 23 × fehlende Format Strings → "Apply fix" → automatisch korrigiert
 > - 5 × Auto-Date/Time aktiv → manuell deaktivieren
 > - 8 × Float statt Currency → datatype umstellen
 > - 4 × unnötige bidirektionale Beziehungen → prüfen, umstellen
@@ -4926,17 +5091,20 @@ BPA als Schritt im Release-Prozess. Wenn BPA fehlerfrei ist, ist das Modell auf 
 
 *TOOLS · KI*
 
-KI-Unterstützung für Power BI: Fragen an Berichte und Modelle stellen, Zusammenfassungen erzeugen, DAX schreiben und erklären. Stand Oktober 2026 — die Funktionen ändern sich monatlich.
+KI-Unterstützung für Power BI: Fragen an Berichte und Modelle stellen, Zusammenfassungen erzeugen, DAX schreiben und erklären. Stand November 2026 — die Funktionen ändern sich monatlich, und gerade ordnet Microsoft die Copilot-Einstiege neu.
 
 #### Was Copilot kann
 
 - **Copilot-Bereich im Bericht** — Fragen zum Bericht, Zusammenfassungen, Export als PDF/PPT (generally available)
-- **Standalone Copilot** — Vollbild-Erlebnis aus der linken Navigation, sucht über Berichte, Modelle und Apps hinweg (Preview)
+- **Standalone Copilot** (Preview, *Auslaufmodell*) — Vollbild-Erlebnis aus der linken Navigation, sucht über Berichte, Modelle und Apps hinweg. Er wird zusammen mit dem Copilot in Workspace-Apps am 15.01.2027 abgeschaltet; am 08.12.2026 wechselt seine Tenant-Einstellung auf „aus“. Copilot im Bericht und in Desktop bleibt.
+- **Microsoft Copilot in Power BI und Fabric** (Preview, Nachfolger des Standalone Copilot) — Einstieg in der linken Navigation, beantwortet Fragen zu Power-BI-Daten über Fabric IQ; mit Copilot-Premium-Lizenz zusätzlich mit Kontext aus Microsoft 365 (Mails, Termine, Dokumente)
 - **DAX in der DAX query view** — Abfragen und Measures aus natürlicher Sprache schreiben und erklären lassen
 - **Measure-Beschreibungen** — automatisch erzeugt im Model view
 - **Prep data for AI** — AI data schema, AI instructions und verifizierte Antworten am semantischen Modell hinterlegen, damit Copilot die richtigen Felder nutzt
 
 #### Voraussetzungen
+
+Die folgenden Punkte gelten für Copilot im Bericht, in Desktop und für Copilot in Fabric. Der neue „Microsoft Copilot in Power BI und Fabric“ braucht laut Learn weder eine F-SKU noch einen Premium- oder Fabric-Workspace; er erscheint auch in Tenants mit reinen Pro-Workspaces. Was ein Nutzer damit kann, hängt von seiner Microsoft-Copilot-Lizenz ab, nicht von Free, Pro oder PPU. Zugriff auf die Inhalte braucht er trotzdem, und RLS gilt weiter.
 
 - Workspace auf einer **bezahlten Fabric-Kapazität ab F2** oder Premium ab P1 — Trial-Kapazitäten zählen nicht
 - Pro oder PPU allein reicht nicht. Ausweg: eine **Fabric Copilot capacity** — eine Kapazität, die die Copilot-Nutzung bestimmter User zentral abrechnet, auch für Pro-/PPU-Workspaces und Desktop
@@ -4946,6 +5114,12 @@ KI-Unterstützung für Power BI: Fragen an Berichte und Modelle stellen, Zusamme
 #### Fabric Data Agents
 
 Für eigene Frage-Antwort-Assistenten gibt es in Fabric die **Data Agents** (generally available): bis zu fünf Datenquellen — Lakehouse, Warehouse, KQL-Datenbank, semantische Modelle u. a. — plus eigene Anweisungen. Für semantische Modelle reicht Leseberechtigung; die Agenten übernehmen „Prep data for AI“ aus dem Modell und lassen sich z. B. in Microsoft 365 Copilot oder Copilot Studio veröffentlichen.
+
+#### Agentische Entwicklung: KI baut mit
+
+Neben Copilot gibt es seit dem September-2026-Update allgemein verfügbare „agentische“ Werkzeuge: KI-Agenten (laut Learn etwa ein MCP-Client im Agentenmodus wie GitHub Copilot in VS Code) bauen Semantikmodelle und Berichte selbst, über **Skills** (Anleitungen für den Agenten) und den **Power BI Authoring MCP-Server**. MCP (Model Context Protocol) ist ein offener Standard, über den ein Agent Werkzeuge aufruft. Den Authoring-Server gibt es lokal (allgemein verfügbar, für Desktop und PBIP-Dateien) und gehostet von Microsoft (Preview, für Modelle in Fabric-Workspaces). Er ist zum Bauen gedacht, nicht zum Beantworten von Fachfragen: Dafür verweist Learn auf **Fabric IQ** mit eigenem MCP-Endpunkt, der die Berechtigungen, RLS und OLS des Modells beachtet. Seit Oktober 2026 kann der Report-Skill auch unterstützte Custom Visuals einfügen, binden und formatieren.
+
+Auf der Microsoft Ignite im November 2026 angekündigt (Preview): Konnektoren, mit denen man aus ChatGPT und Claude über Fabric IQ Fragen an Power-BI-Kennzahlen stellt. Wie agentische Power-BI-Entwicklung mit Claude im Team aussieht, beschreibt die Daten-WG auf der Seite zu ihrem Inhouse-Training [Power BI on Claude](../power-bi-on-claude.html).
 
 #### Realistische Erwartung
 
@@ -4995,10 +5169,15 @@ Die Plattform-Erweiterung von Power BI. Statt isolierter BI-Lösung: ein einheit
 
 #### Was ist für Power-BI-Nutzer relevant?
 
-1. **Direct Lake** — Storage Mode (siehe Architektur), schneller als DirectQuery, ohne Import-Refresh; für neue Modelle Direct Lake on OneLake
+1. **Direct Lake** — Storage Mode (siehe Architektur), schneller als DirectQuery, ohne Import-Refresh; in den Varianten Direct Lake on OneLake und Direct Lake on SQL
 2. **Lakehouse als Quelle** — statt SQL Server importieren: aus Lakehouse direkt lesen
 3. **Shortcuts** — Daten aus ADLS, S3 oder anderen OneLake-Tenants ohne Kopie referenzieren
 4. **Git-Integration** — Workspace mit Azure DevOps, GitHub oder GitHub Enterprise verbinden, ALM-Prozess
+5. **Semantic views** (Preview seit November 2026) — Tabellen, Beziehungen und gemeinsame Kennzahlen in einer „semantischen Sicht“ definieren; beim Veröffentlichen entsteht daraus ein verwaltetes, schreibgeschütztes Direct-Lake-on-OneLake-Modell, die Sicht bleibt die Quelle der Wahrheit
+
+#### Fabric Apps: eigene Anwendungen auf dem Modell
+
+Fabric Apps sind ein Item-Typ für eigene Web-Anwendungen auf Fabric-Daten, die zum Beispiel per DAX-Abfrage auf ein bestehendes Semantikmodell zugreifen. Mit dem November-2026-Update kommt dazu **Power BI Desktop for Apps** (Preview): eine eigene Anwendung, die du aus Power BI Desktop startest und mit der du aus Semantikmodellen im Service per Chat interaktive Fabric Apps baust, mit Design-Bereich und lokaler Vorschau. Die Update-Seite nennt sie noch „kommend“, [Microsoft Learn](https://learn.microsoft.com/de-de/power-bi/create-reports/desktop-for-apps/overview) beschreibt die Einrichtung aber schon: Power BI Desktop ab Version November 2026 mit eingeschaltetem Vorschaufeature, Windows 11 und ein GitHub-Konto mit GitHub-Copilot-Lizenz. Fabric Apps selbst kannst du laut Learn schon mit einer Pro-Lizenz anlegen: im Power-BI-Portal in einem Pro-Workspace, ohne eigene Kapazität und mit Grenzen (u. a. App-Datenbank bis 1 GB, nur angemeldete Nutzer). Nur das Veröffentlichen aus Power BI Desktop for Apps geht laut dessen Doku vorerst allein in Workspaces auf einer Fabric-Kapazität; Pro-Workspaces sind dort als „coming soon“ angekündigt. Wie zwei solche Apps für Vertriebscontrolling und Finance aussehen und was man vorher wissen sollte, zeigt der Beitrag [Fabric Apps im Heimrevier von Power BI](../fabric-apps-controlling-post.html).
 
 #### Soll man von Power BI Premium auf Fabric umstellen?
 
@@ -5027,9 +5206,9 @@ Power-BI-Modelle werden mit der Zeit langsam — größere Datenmengen, mehr Mea
 
 #### 1. Performance Analyzer (Desktop)
 
-Optimize-Tab → Performance Analyzer (auch beim Bearbeiten im Web verfügbar). "Start recording" → durch den Bericht klicken → die Queries jedes Visuals werden aufgezeichnet. Sortiert nach Dauer. Identifiziert die langsamsten Visuals; „Run in DAX query view“ übergibt die Query zur Analyse.
+Optimize-Tab → Performance Analyzer. "Start recording" → durch den Bericht klicken → die Queries jedes Visuals werden aufgezeichnet. Sortiert nach Dauer. Identifiziert die langsamsten Visuals; „Run in DAX query view“ übergibt die Query in Desktop zur Analyse. Beim Bearbeiten im Web findest du den Performance Analyzer unter „Ansicht“ (View); dort kopierst du die Query und fügst sie selbst in die DAX-Abfrageansicht ein.
 
-![Power BI Desktop Performance Analyzer Pane mit aufgezeichneten Visual-Ladezeiten und DAX-Query-Durationen](https://learn.microsoft.com/power-bi/create-reports/media/desktop-performance-analyzer/performance-analyzer-04.png)
+![Power BI Desktop Performance Analyzer Pane mit aufgezeichneten Visual-Ladezeiten und DAX-Query-Durationen](../assets/learn/performance-analyzer-04.png)
 
 **Abb. · Performance Analyzer Pane** Pro Visual werden DAX query, Direct query, Visual display und Other Zeiten erfasst. Klick auf "Copy query" → Query in DAX Studio analysierbar. Quelle: [Performance Analyzer · Microsoft Learn](https://learn.microsoft.com/power-bi/create-reports/desktop-performance-analyzer)
 
@@ -5075,21 +5254,25 @@ In DAX Studio: Advanced → View Metrics. Zeigt Speicher-Verbrauch pro Spalte. I
 
 ### Aus dem Kanal · Fabric & Tooling in der Praxis
 
-OneLake-Speicherorte, Mirroring ohne ETL und MCP Server für Power-BI-Modelling — drei Folgen für das Drumherum jenseits von Desktop.
+OneLake-Speicherorte, Mirroring ohne ETL, MCP Server für Power-BI-Modelling und Fabric Apps — Folgen für das Drumherum jenseits von Desktop.
 
 - **[Microsoft Fabric: Wo liegen meine Daten wirklich im OneLake?](https://youtu.be/ZVVSPQj9dlc)** · Tutorial · 5 min · [Knowledge Kitchen](../folgen.html#ep-ZVVSPQj9dlc)
 - **[Open Mirroring in Microsoft Fabric — Daten replizieren ohne ETL](https://youtu.be/7j34Ndng0Os)** · Tutorial · 10 min · [Knowledge Kitchen](../folgen.html#ep-7j34Ndng0Os)
 - **[Unboxing MCP Server for Power BI Modelling](https://youtu.be/iinfiHxznOU)** · Deep Dive · 67 min · [Knowledge Kitchen](../folgen.html#ep-iinfiHxznOU)
+- **MS Build: Fabric Apps und Rayfin** · Sprungmarke · Fabric & Power BI Quarterly · 2026-3 · [Knowledge Kitchen](../folgen.html#ep-PW6MP-SDmRk)
 
 ### Weiter vertiefen · Code first: PBIP, TMDL, MCP und Modell-Checks
 
-Wie PBIR/PBIP, TMDL und MCP-Server den Werkzeugkasten verändern – und warum Copilot kein Modell ersetzt. Klick auf die Zeile öffnet die Folgen-Karte mit Kapiteln, der Zeitstempel springt direkt an die Stelle auf YouTube.
+Wie PBIR/PBIP, TMDL und MCP-Server den Werkzeugkasten verändern – und warum Copilot kein Modell ersetzt. Wie agentische Entwicklung im eigenen Team aussieht, zeigt die Seite zum Inhouse-Training [Power BI on Claude](../power-bi-on-claude.html). Klick auf die Zeile öffnet die Folgen-Karte mit Kapiteln, der Zeitstempel springt direkt an die Stelle auf YouTube.
 
 - **PBIR/PBIP & „Code First“ – die GA-Story** · Ab 5:29 · Fabric & Power BI Quarterly · 2026-1 · [Knowledge Kitchen](../folgen.html#ep-TYp5xCAU2AU)
 - **Externe Änderungen (VS Code) live im Desktop übernehmen** · Ab 3:51 · Power BI Update August 2026 · [Knowledge Kitchen](../folgen.html#ep-GWCHNmLs72M)
 - **VS Code + TMDL + MCP: Measures schnell optimieren** · Ab 9:01 · Fabric & Power BI Quarterly · 2026-1 · [Knowledge Kitchen](../folgen.html#ep-TYp5xCAU2AU)
 - **Power BI Fixer: Model Explorer, BPA und Memory Analyzer** · Ab 5:30 · Fabric Workload Demo mit Alexander Korn und Lukasz Obst · [Knowledge Kitchen](../folgen.html#ep-e50qKdVn-24)
 - **Copilot ersetzt keine semantischen Modelle** · Ab 21:35 · Daten-WG Life-Update · State of Power BI, Fabric & AI-Tools · [Knowledge Kitchen](../folgen.html#ep-d3HdhRe_nK8)
+- **Agentic Development für Power BI ist GA** · Ab 10:02 · Power BI Update September 2026 · [Knowledge Kitchen](../folgen.html#ep-3V9DQwfm0GA)
+- **MCP als Standard und die Fragmentierung der KI-Welt** · Ab 10:53 · AI Analytics: Einfach Tokens draufwerfen? · [Knowledge Kitchen](../folgen.html#ep-KeK1Mv0mXfM)
+- **Copilot ist besser als sein Ruf** · Ab 9:19 · Copilot - Besser als sein Ruf? · Enea Licaj · [Knowledge Kitchen](../folgen.html#ep-Xd-qWYqV91k)
 
 Microsoft Learn · Doku
 
@@ -5098,12 +5281,13 @@ Microsoft Learn · Doku
 - [External tools in Power BI Desktop](https://learn.microsoft.com/power-bi/transform-model/desktop-external-tools)
 - [Composite models & Direct Lake](https://learn.microsoft.com/power-bi/transform-model/desktop-composite-models)
 - [Copilot für Power BI – Überblick & Voraussetzungen](https://learn.microsoft.com/power-bi/create-reports/copilot-introduction)
+- [MCP-Server für Power BI (Authoring und Fabric IQ)](https://learn.microsoft.com/power-bi/developer/mcp/mcp-servers-overview)
 
 Microsoft Learn · Training
 
-- [Optimize a model for performance in Power BI](https://learn.microsoft.com/training/modules/optimize-model-power-bi/)
-- [Create calculation groups](https://learn.microsoft.com/training/modules/create-calculation-groups/)
-- [Create and manage Power BI assets (PBIP, XMLA)](https://learn.microsoft.com/training/modules/create-manage-power-bi-assets/)
+- [Optimize Semantic Model Performance](https://learn.microsoft.com/training/modules/optimize-semantic-model-performance/)
+- [Design semantic models for scale in Microsoft Fabric](https://learn.microsoft.com/training/modules/design-semantic-models-scale/)
+- [Manage the Semantic Model Development Lifecycle](https://learn.microsoft.com/training/modules/manage-semantic-model-lifecycle/)
 
 DatenWG Library
 
@@ -5112,6 +5296,7 @@ DatenWG Library
 - [Thema: Tabular Editor](../wissensgraph/thema/tabular-editor.html)
 - [Thema: DAX Studio](../wissensgraph/thema/dax-studio.html)
 - [Thema: Copilot](../wissensgraph/thema/copilot.html)
+- [Thema: Incremental Refresh](../wissensgraph/thema/incremental-refresh.html)
 
 ## Beispiele · *Live Power BI Reports*
 
@@ -5151,21 +5336,30 @@ Power BI Service · Public Embed · [In neuem Tab öffnen →](https://app.power
 
 ### Aus dem Kanal · Reports von Grund auf
 
-Ein knapp einstündiger Solo-Walkthrough vom leeren Power-BI-Canvas zum fertigen Report-Einreichung — Entscheidungen werden laut erklärt.
+Ein knapp einstündiger Solo-Walkthrough vom leeren Power-BI-Canvas zur fertigen Report-Einreichung — Entscheidungen werden laut erklärt. Dazu die Geburtstagsausgabe des BI Thinkers Talk, in der ein IBCS-inspiriertes Custom Visual übergeben und diskutiert wird.
 
 - **[Walkthrough for my first Submission to the Maven Analytics Challenge](https://youtu.be/z3eVRymUp30)** · Solo Deep Dive · 57 min · EN · [Knowledge Kitchen](../folgen.html#ep-z3eVRymUp30)
+- **[BI Thinkers Talk nr.80: Übergabe eines IBCS-inspirierten Custom Visuals](https://youtu.be/tXBcz_b1PQc)** · Solo · 61 min · [Knowledge Kitchen](../folgen.html#ep-tXBcz_b1PQc)
 
 Weiter vertiefen Selbst nachbauen
 
 Microsoft Learn · Training
 
-- [Lernpfad: Power BI-Visuals und -Berichte erstellen](https://learn.microsoft.com/de-de/training/paths/build-power-bi-visuals-reports/)
+- [Lernpfad: Effektive Berichte in Power BI entwerfen](https://learn.microsoft.com/de-de/training/paths/power-bi-effective/)
 - [Modul: Berichtsdesign für die User Experience](https://learn.microsoft.com/de-de/training/modules/power-bi-effective-user-experience/)
 
 Im Guide
 
 - [06 · IBCS & Visualisierung](#viz)
 - [07 · Interaktivität](#inter)
+
+Aus der Kitchen
+
+- [Eine GuV-Seite in sechs Sprossen](../finance-reporting-budapest-post.html)
+- [P&L Statement byDatenWG · Doku](../pnl-doku.html)
+- [Sankey trifft IBCS-Wasserfall](../sankey-wasserfall-post.html)
+- [Wärmestreifen 3D als Custom Visual](../waermestreifen-3d.html)
+- [MockupKitchen: vom Whiteboard zur Power-BI-Seite](../mockupkitchen-post.html)
 
 DatenWG Library
 
@@ -5174,15 +5368,14 @@ DatenWG Library
 
 ## Quellen & *weiterführende Literatur*
 
-Dieser Guide stützt sich auf die offizielle Microsoft-Learn-Dokumentation, die IBCS-Standards von Hichert+Faisst und etablierte Community-Quellen (Marco Russo & Alberto Ferrari / SQLBI, Tabular-Editor- und DAX-Studio-Communities). Jede zitierte Zahl und jede Best-Practice-Empfehlung ist hier rückverfolgbar. **Quellen-Validierung Mai 2026:** Folding-Benchmark, Refresh-Limits, F-SKU-Modellgrößen, Star-Schema-Quotes, RLS-Viewer-Regel, DAX-Variables-Performance und Auto-Date/Time-Empfehlung wurden gegen Microsoft Learn verifiziert. Versionsdaten (Field Parameters Preview Mai 2022/GA Juli 2025, Sparklines Preview Dez 2021/GA Juni 2025, Small Multiples GA Juli 2021, ISO 24896:2026, veröffentlicht Juni 2026) sind im Text präzisiert. **Screenshots:** Die in einzelnen Modal-Karten eingebetteten Screenshots stammen direkt von Microsoft-Learn-CDN und stehen unter der Microsoft-Dokumentations-Lizenz (CC BY 4.0) zur freien Nutzung mit Quellenangabe. Da sich die Plattform monatlich weiterentwickelt, im Zweifel die jeweils aktuellste Quell-Seite konsultieren.
+Dieser Guide stützt sich auf die offizielle Microsoft-Learn-Dokumentation, die IBCS-Standards von Hichert+Faisst und etablierte Community-Quellen (Marco Russo & Alberto Ferrari / SQLBI, Tabular-Editor- und DAX-Studio-Communities). Jede zitierte Zahl und jede Best-Practice-Empfehlung ist hier rückverfolgbar. **Quellen-Validierung Mai 2026:** Folding-Benchmark, Refresh-Limits, F-SKU-Modellgrößen, Star-Schema-Quotes, RLS-Viewer-Regel, DAX-Variables-Performance und Auto-Date/Time-Empfehlung wurden gegen Microsoft Learn verifiziert. Versionsdaten (Field Parameters Preview Mai 2022/GA Juli 2025, Sparklines Preview Dez 2021/GA Juni 2025, Small Multiples GA Juli 2021, ISO 24896:2026, veröffentlicht Juni 2026) sind im Text präzisiert. **Screenshots:** Die in einzelnen Modal-Karten eingebetteten Screenshots von Microsoft Learn liegen als lokale Kopien unter `assets/learn/`, damit beim Lesen keine Bilder von fremden Servern geladen werden; sie stehen unter der Lizenz CC BY 4.0, die Quelle steht jeweils in der Bildunterschrift. Bilder aus eigenen Arbeiten der Daten-WG sind als solche gekennzeichnet und verlinken auf den zugehörigen Beitrag. Da sich die Plattform monatlich weiterentwickelt, im Zweifel die jeweils aktuellste Quell-Seite konsultieren.
 
-**Aktualisierung Oktober 2026:** Architektur, Power Query, Query Folding, Datenmodell, Service, RLS und Tools wurden erneut gegen Microsoft Learn geprüft — u. a. P-SKU-Abkündigung und F-SKU-Lizenzregeln, Pro-Modellgröße (1 GB), PBIP/PBIR (PBIR ist Standard-Berichtsformat), TMDL view und DAX query view (GA), Direct Lake on OneLake vs. on SQL endpoints, Folding-Indikatoren und Query Plan (nur Power Query Online), `Value.NativeQuery` mit `EnableFolding`, Deployment Pipelines (2–10 Stages, PPU/Fabric), Org-Apps, Refresh-Limits (vier Fehlschläge in Folge), OLS per TMDL view, Copilot-Voraussetzungen (bezahlte Kapazität ab F2) und Fabric Data Agents.
+**Aktualisierung November 2026:** Am 24.11.2026 wurde der Guide erneut gegen Microsoft Learn, SQLBI und die Ankündigungen der Microsoft Ignite (November 2026) geprüft und um die Neuerungen bis zum November-2026-Update ergänzt, u. a. Abschaltung des Standalone-Copilot zum 15.01.2027 und der neue Microsoft Copilot in Power BI und Fabric (Preview), Stilvorlagen, Slicer-Neuerungen, das Gantt-Visual (Preview), Org-Apps mit Audiences, Semantic views und agentische Entwicklung mit MCP. Korrigiert wurden u. a. die Wirkung von `FILTER(Region, …)` in CALCULATE, wer RLS-Mitglieder zuweisen darf, Microsoft-365-Gruppen bei RLS, Abo-Optionen und umgezogene Learn-Links. **Aktualisierung Oktober 2026:** Architektur, Power Query, Query Folding, Datenmodell, Service, RLS und Tools wurden erneut gegen Microsoft Learn geprüft — u. a. P-SKU-Abkündigung und F-SKU-Lizenzregeln, Pro-Modellgröße (1 GB), PBIP/PBIR (PBIR ist Standard-Berichtsformat), TMDL view und DAX query view (GA), Direct Lake on OneLake vs. on SQL endpoints, Folding-Indikatoren und Query Plan (nur Power Query Online), `Value.NativeQuery` mit `EnableFolding`, Deployment Pipelines (2–10 Stages, PPU/Fabric), Org-Apps, Refresh-Limits (vier Fehlschläge in Folge), OLS per TMDL view, Copilot-Voraussetzungen (bezahlte Kapazität ab F2) und Fabric Data Agents.
 
 ### Microsoft Learn · Power BI Grundlagen
 
 - [Was ist Power BI? — Übersicht](https://learn.microsoft.com/de-de/power-bi/fundamentals/power-bi-overview)
 - [Power BI Desktop — Einstieg](https://learn.microsoft.com/de-de/power-bi/fundamentals/desktop-getting-started)
-- [Power BI in Microsoft Fabric](https://learn.microsoft.com/de-de/power-bi/fundamentals/fabric-power-bi)
 - [Power BI Premium & Capacity](https://learn.microsoft.com/de-de/power-bi/enterprise/service-premium-what-is)
 - [On-Premises Data Gateway](https://learn.microsoft.com/de-de/power-bi/connect-data/service-gateway-onprem)
 - [Storage Modes: Import, DirectQuery, Direct Lake](https://learn.microsoft.com/de-de/power-bi/connect-data/service-dataset-modes-understand)
@@ -5202,7 +5395,7 @@ Dieser Guide stützt sich auf die offizielle Microsoft-Learn-Dokumentation, die 
 - [Power Query Best Practices](https://learn.microsoft.com/de-de/power-query/best-practices)
 - [M-Sprache · Referenz](https://learn.microsoft.com/de-de/powerquery-m/)
 - [Query Folding — Grundlagen](https://learn.microsoft.com/de-de/power-query/query-folding-basics)
-- [Query Folding — Beispiele & 12×-Benchmark](https://learn.microsoft.com/de-de/power-query/query-folding-examples)
+- [Query Folding — Beispiele & Beispielmessung](https://learn.microsoft.com/de-de/power-query/query-folding-examples)
 - [Step Folding Indicators (nur Power Query Online)](https://learn.microsoft.com/de-de/power-query/step-folding-indicators)
 - [Query Plan — Tiefenanalyse (nur Power Query Online)](https://learn.microsoft.com/de-de/power-query/query-plan)
 - [Query Folding Guidance · Power BI](https://learn.microsoft.com/de-de/power-bi/guidance/power-query-folding)
@@ -5243,7 +5436,11 @@ Dieser Guide stützt sich auf die offizielle Microsoft-Learn-Dokumentation, die 
 - [Field Parameters](https://learn.microsoft.com/de-de/power-bi/create-reports/power-bi-field-parameters)
 - [Report-Page Tooltips](https://learn.microsoft.com/de-de/power-bi/create-reports/desktop-tooltips)
 - [Dynamische Titel · Conditional Formatting](https://learn.microsoft.com/de-de/power-bi/create-reports/desktop-conditional-format-visual-titles)
-- [Small Multiples](https://learn.microsoft.com/de-de/power-bi/create-reports/desktop-small-multiples)
+- [Small Multiples erstellen](https://learn.microsoft.com/de-de/power-bi/visuals/power-bi-visualization-small-multiples)
+- [Stilvorlagen für Visuals (Style presets)](https://learn.microsoft.com/de-de/power-bi/create-reports/power-bi-visual-style-presets)
+- [Slicer · Stile inkl. Datumsauswahl](https://learn.microsoft.com/de-de/power-bi/visuals/power-bi-visualization-slicer-visual)
+- [Gantt-Visual (Preview)](https://learn.microsoft.com/de-de/power-bi/visuals/power-bi-visualization-gantt)
+- [Q&A · Hinweis zur Abkündigung](https://learn.microsoft.com/de-de/power-bi/natural-language/q-and-a-intro)
 
 ### Microsoft Learn · Service · Sharing · RLS
 
@@ -5260,11 +5457,12 @@ Dieser Guide stützt sich auf die offizielle Microsoft-Learn-Dokumentation, die 
 - [Deployment Pipelines – Inhalte deployen (inkl. Rückwärts-Deployment)](https://learn.microsoft.com/fabric/cicd/deployment-pipelines/deploy-content)
 - [Fabric Git integration – unterstützte Provider](https://learn.microsoft.com/fabric/cicd/git-integration/intro-to-git-integration)
 - [Refresh troubleshooting – Limits, Timeouts, deaktivierter Zeitplan](https://learn.microsoft.com/power-bi/connect-data/refresh-troubleshooting-refresh-scenarios)
+- [Berichte abonnieren – Frequenzen, Anhänge, neue Zustellplattform](https://learn.microsoft.com/power-bi/collaborate-share/end-user-subscribe)
 - [Object-level security (OLS) – TMDL view und Tabular Editor](https://learn.microsoft.com/fabric/security/service-admin-object-level-security)
 - [LOOKUPVALUE · DAX-Referenz (Fehler bei mehreren Treffern)](https://learn.microsoft.com/dax/lookupvalue-function-dax)
 - [Sensitivity labels in Power BI](https://learn.microsoft.com/fabric/enterprise/powerbi/service-security-sensitivity-label-overview)
 
-### Microsoft Learn · Tools, KI & Training (Stand Oktober 2026)
+### Microsoft Learn · Tools, KI & Training (Stand November 2026)
 
 - [TMDL view in Power BI Desktop](https://learn.microsoft.com/power-bi/transform-model/desktop-tmdl-view)
 - [DAX query view](https://learn.microsoft.com/power-bi/transform-model/dax-query-view)
@@ -5274,22 +5472,26 @@ Dieser Guide stützt sich auf die offizielle Microsoft-Learn-Dokumentation, die 
 - [Performance Analyzer](https://learn.microsoft.com/power-bi/create-reports/desktop-performance-analyzer)
 - [Copilot für Power BI – Überblick und Voraussetzungen](https://learn.microsoft.com/power-bi/create-reports/copilot-introduction)
 - [Fabric Copilot capacity](https://learn.microsoft.com/fabric/enterprise/fabric-copilot-capacity)
+- [Microsoft Copilot in Power BI und Fabric (Preview) – Lizenzen und Zeitplan der Abschaltung](https://learn.microsoft.com/fabric/iq/connectors/copilot-power-bi-fabric)
+- [MCP-Server für Power BI – Authoring (lokal und gehostet) und Fabric IQ](https://learn.microsoft.com/power-bi/developer/mcp/mcp-servers-overview)
+- [What's new in Power BI – aktuelles Monats-Update](https://learn.microsoft.com/power-bi/fundamentals/whats-new)
+- [Power BI – Archiv der Monats-Updates](https://learn.microsoft.com/power-bi/fundamentals/desktop-latest-update-archive)
 - [Fabric data agent – Konzepte](https://learn.microsoft.com/fabric/data-science/concept-data-agent)
 - [Training: Choose a Power BI model framework](https://learn.microsoft.com/en-us/training/modules/choose-power-bi-model-framework/)
 - [Training: Clean, transform, and load data in Power BI](https://learn.microsoft.com/training/modules/clean-data-power-bi/)
-- [Training: Design a semantic model in Power BI](https://learn.microsoft.com/training/modules/design-model-power-bi/)
+- [Training: Configure a Semantic Model in Power BI Desktop](https://learn.microsoft.com/training/modules/configure-semantic-model-power-bi/)
 - [Training: Manage workspaces in Power BI service](https://learn.microsoft.com/training/modules/manage-workspaces-power-bi-service/)
-- [Training: Create and manage a Power BI deployment pipeline](https://learn.microsoft.com/en-us/training/modules/power-bi-deployment-pipelines/)
+- [Training: Implement CI/CD in Microsoft Fabric](https://learn.microsoft.com/training/modules/implement-cicd-in-fabric/)
 - [Training: Secure data access in Power BI (RLS/OLS)](https://learn.microsoft.com/training/modules/row-level-security-power-bi/)
-- [Training: Optimize a model for performance in Power BI](https://learn.microsoft.com/training/modules/optimize-model-power-bi/)
-- [Training: Create calculation groups](https://learn.microsoft.com/training/modules/create-calculation-groups/)
+- [Training: Optimize Semantic Model Performance](https://learn.microsoft.com/training/modules/optimize-semantic-model-performance/)
+- [Training: Design semantic models for scale in Microsoft Fabric (u. a. Berechnungen)](https://learn.microsoft.com/training/modules/design-semantic-models-scale/)
+- [Training: Manage the Semantic Model Development Lifecycle](https://learn.microsoft.com/training/modules/manage-semantic-model-lifecycle/)
 
 ### IBCS · International Business Communication Standards
 
 - [IBCS Association · Standards-Übersicht](https://www.ibcs.com/)
-- [IBCS Standards · vollständig (CC BY-SA)](https://www.ibcs.com/standards/)
-- [SUCCESS-Formel · die 7 Regeln im Detail](https://www.ibcs.com/success/)
-- [ISO 24896 · Notation for business reporting](https://www.iso.org/standard/79518.html)
+- [IBCS Standards Version 2.0 · vollständig, mit der SUCCESS-Formel (CC BY-SA)](https://www.ibcs.com/ibcs-version-2-0/)
+- [ISO 24896:2026 · Notation for business reporting](https://www.iso.org/standard/88366.html)
 - [Zebra BI · IBCS-Praxis-Guide für Power BI](https://zebrabi.com/ibcs/)
 
 ### Community · SQLBI & Tools
@@ -5297,7 +5499,10 @@ Dieser Guide stützt sich auf die offizielle Microsoft-Learn-Dokumentation, die 
 - [SQLBI · Marco Russo & Alberto Ferrari (DAX-Experten)](https://www.sqlbi.com/)
 - [SQLBI · Star-Schema oder Single Table?](https://www.sqlbi.com/articles/power-bi-star-schema-or-single-table/)
 - [DAX Guide · Funktions-Referenz (SQLBI)](https://dax.guide/)
-- [Buch · The Definitive Guide to DAX (Russo / Ferrari)](https://www.sqlbi.com/books/the-definitive-guide-to-dax-2nd-edition/)
+- [Buch · The Definitive Guide to DAX, Third Edition (Russo / Ferrari)](https://www.sqlbi.com/books/the-definitive-guide-to-dax-third-edition/)
+- [SQLBI · Filter arguments in CALCULATE (Tabellen- vs. Spaltenfilter)](https://www.sqlbi.com/articles/filter-arguments-in-calculate/)
+- [SQLBI · Date oder Integer? Kodierung von Beziehungsspalten in VertiPaq](https://www.sqlbi.com/articles/choosing-between-date-or-integer-to-represent-dates-in-power-bi-and-tabular/)
+- [Tabular Editor · Best Practice Analyzer verwenden (Apply fix, Fix-Skript)](https://docs.tabulareditor.com/en/features/using-bpa.html)
 - [Tabular Editor 2 · kostenfrei, Open Source](https://github.com/TabularEditor/TabularEditor)
 - [Tabular Editor · Offizielle Website (TE2 & TE3)](https://tabulareditor.com/)
 - [DAX Studio · Performance-Diagnose (kostenfrei)](https://daxstudio.org/)
@@ -5306,7 +5511,7 @@ Dieser Guide stützt sich auf die offizielle Microsoft-Learn-Dokumentation, die 
 ### Power BI Blog & Roadmap
 
 - [Power BI Blog · monatliche Updates](https://powerbi.microsoft.com/de-de/blog/)
-- [Microsoft Fabric Release Plan](https://learn.microsoft.com/en-us/fabric/release-plan/)
+- [Microsoft Fabric Roadmap](https://roadmap.fabric.microsoft.com/)
 - [Fabric Community Forum](https://community.fabric.microsoft.com/)
 
 ### DatenWG Library · Themenseiten
@@ -5318,7 +5523,28 @@ Dieser Guide stützt sich auf die offizielle Microsoft-Learn-Dokumentation, die 
 - [Thema: Deployment Pipelines](../wissensgraph/thema/deployment-pipelines.html)
 - [Thema: Row-Level Security](../wissensgraph/thema/row-level-security.html)
 - [Thema: TMDL](../wissensgraph/thema/tmdl.html)
+- [Thema: Incremental Refresh](../wissensgraph/thema/incremental-refresh.html)
+- [Thema: Translytical Task Flows](../wissensgraph/thema/translytical-task-flows.html)
+- [Thema: Premium](../wissensgraph/thema/premium.html)
+- [Thema: Self-Service BI](../wissensgraph/thema/self-service-bi.html)
 - [Wissensgraph – alle Themen](../wissensgraph/index.html)
+
+### Daten-WG Knowledge Kitchen · eigene Beiträge und Werkzeuge
+
+- [ChartKitchen byDatenWG · IBCS-inspiriertes Chart-Visual, Dokumentation](../chartkitchen-doku.html)
+- [P&L Statement byDatenWG · GuV-Visual, Dokumentation](../pnl-doku.html)
+- [Sicherheit & Betrieb der byDatenWG-Visuals (ChartKitchen, P&L Statement, dataKitchenGantt)](../visuals-sicherheit.html)
+- [Eine GuV-Seite, sechs Sprossen: Finance Reporting in Power BI](../finance-reporting-budapest-post.html)
+- [Sankey trifft IBCS-Wasserfall](../sankey-wasserfall-post.html)
+- [Zehn Tage bis zum marktfähigen Stand (Bildquelle Small Multiples)](../whitepaper-ki-entwicklung-roi.html)
+- [IBCS-Trainer · visuelle Regeln spielerisch lernen](../ibcs-trainer.html)
+- [Business Chart Builder · Deneb-Vorlagen im Browser](../business-chart-builder.html)
+- [Visual-Standards-Rechner · Core vs. Deneb vs. 3rd-Party](../visual-standards-rechner.html)
+- [Power BI Design Skill: Report-Design als Framework](../powerbi-design-skill.html)
+- [MockupKitchen · Vom Whiteboard zur Power-BI-Seite](../mockupkitchen-post.html)
+- [Power BI on Claude · Inhouse-Training zur agentischen Entwicklung](../power-bi-on-claude.html)
+- [Fabric Apps im Heimrevier von Power BI: Vertrieb und Finance](../fabric-apps-controlling-post.html)
+- [Wärmestreifen 3D für Power BI](../waermestreifen-3d.html)
 
 ### Daten-WG-Community · Eigene YouTube-Kanäle
 

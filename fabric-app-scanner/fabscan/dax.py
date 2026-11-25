@@ -326,3 +326,178 @@ def literal_comparisons(q: Query) -> list[tuple[int, str]]:
             seen.add((ln, ev))
             uniq.append((ln, ev))
     return uniq
+
+
+# ---------------------------------------------------------------- feste Filter vergleichbar machen
+# Für visibleFilters in fabscan.json: ein fester Filter aus der Abfrage und ein Eintrag der Konfiguration werden auf
+# dieselbe Form gebracht, (tabelle, spalte, operator, werte), alles klein, ohne Anführungszeichen und Leerzeichen.
+
+_COLREF = re.compile(r"""^\s*(?:'((?:[^']|'')+)'|([^\s'\[\]]+(?:\s+[^\s'\[\]]+)*?))?\s*\[\s*((?:[^\]]|\]\])+?)\s*\]\s*$""")
+_NUM = re.compile(r"^[+-]?(\d+(\.\d*)?|\.\d+)([eE][+-]?\d+)?$")
+_OPS = ("==", "<>", ">=", "<=", "=", ">", "<")
+
+
+def norm_column(ref: str) -> tuple[str, str] | None:
+    """'Kalender'[Ist], Kalender[Ist], ' Kalender ' [ Ist ] → ("kalender", "ist"). Ohne Tabelle: ("", spalte)."""
+    m = _COLREF.match(ref or "")
+    if not m:
+        return None
+    table = (m.group(1) or "").replace("''", "'") if m.group(1) is not None else (m.group(2) or "")
+    return re.sub(r"\s+", " ", table.strip()).lower(), re.sub(r"\s+", " ", m.group(3).replace("]]", "]").strip()).lower()
+
+
+def norm_value(v) -> str:
+    """Wert aus DAX oder JSON vergleichbar machen: "Actual" → actual, TRUE() → true, 2026.0 → 2026."""
+    if v is None:
+        return "blank"
+    if isinstance(v, bool):
+        return "true" if v else "false"
+    if isinstance(v, (int, float)):
+        return _num(float(v))
+    s = str(v).strip()
+    if len(s) >= 2 and s[0] == s[-1] == '"':
+        s = s[1:-1].replace('""', '"')
+    elif len(s) >= 2 and s[0] == s[-1] == "'":
+        s = s[1:-1]
+    else:
+        flat = re.sub(r"\s+", "", s).lower()
+        if flat in ("true", "true()", "false", "false()"):
+            return flat.rstrip("()")
+        if flat == "blank()":
+            return "blank"
+        if _NUM.match(flat):
+            return _num(float(flat))
+        if re.match(r"^[a-z.]+\(", flat):    # DATE(2026,1,1), DATEVALUE(…)
+            return flat
+    s = s.strip().lower()
+    return _num(float(s)) if _NUM.match(s) else re.sub(r"\s+", " ", s)
+
+
+def _num(x: float) -> str:
+    return str(int(x)) if x == int(x) else repr(x)
+
+
+def _walk(text: str):
+    """(index, zeichen, tiefe) außerhalb von Strings, 'Tabelle' und [Spalte]; tiefe vor dem Zeichen."""
+    depth, i, n = 0, 0, len(text)
+    while i < n:
+        c = text[i]
+        if c in "\"'":
+            j = i + 1
+            while j < n:
+                if text[j] == c:
+                    if j + 1 < n and text[j + 1] == c:
+                        j += 2
+                        continue
+                    break
+                j += 1
+            i = j + 1
+            continue
+        if c == "[":
+            j = text.find("]", i + 1)
+            while 0 <= j < n - 1 and text[j + 1] == "]":
+                j = text.find("]", j + 2)
+            i = n if j < 0 else j + 1
+            continue
+        yield i, c, depth
+        if c in "({":
+            depth += 1
+        elif c in ")}":
+            depth -= 1
+        i += 1
+
+
+def _scan_top(text: str):
+    """Zeichen auf oberster Ebene (außerhalb von Klammern, Strings, 'Tabelle' und [Spalte]): (index, zeichen)."""
+    for i, c, d in _walk(text):
+        if d == 0 and c not in "({)}":
+            yield i, c
+
+
+def _balanced(text: str) -> bool:
+    depth = 0
+    for _i, c, d in _walk(text):
+        depth = d + (1 if c in "({" else -1 if c in ")}" else 0)
+        if depth < 0:
+            return False
+    return depth == 0
+
+
+def _split_top(text: str, sep: str) -> list[str]:
+    """An sep (",", "&&" oder "AND") auf oberster Ebene trennen."""
+    cuts, last = [], 0
+    for i, _c in _scan_top(text):
+        if i < last:
+            continue
+        if sep == "AND":
+            if re.match(r"(?i)AND\b", text[i:i + 4]) and (i == 0 or not re.match(r"\w", text[i - 1])):
+                cuts.append(text[last:i])
+                last = i + 3
+        elif text.startswith(sep, i):
+            cuts.append(text[last:i])
+            last = i + len(sep)
+    cuts.append(text[last:])
+    return cuts
+
+
+def _unwrap(text: str, func: str) -> str | None:
+    """Inneres von FUNC( … ), wenn die äußere Klammer den ganzen Ausdruck umschließt."""
+    m = re.match(r"(?is)^\s*" + func + r"\s*\(", text)
+    t = text.rstrip()
+    if not m or not t.endswith(")"):
+        return None
+    body = t[m.end():-1]
+    return body if _balanced(body) else None
+
+
+def _values(text: str) -> frozenset | None:
+    t = text.strip()
+    if t.startswith("{") and t.endswith("}"):
+        parts = [p for p in _split_top(t[1:-1], ",") if p.strip()]
+        if not parts or any(p.strip().startswith("(") for p in parts):
+            return None          # Tupel über mehrere Spalten
+        return frozenset(norm_value(p) for p in parts)
+    if not t or t.startswith("(") or re.search(r"\[|\|\||&&", t) or any(c in "=<>" for _, c in _scan_top(t)):
+        return None
+    return frozenset([norm_value(t)])
+
+
+def filter_conditions(expr: str) -> list[tuple[str, str, str, frozenset]] | None:
+    """Fester Filter → Liste von (tabelle, spalte, operator, werte). Formen: TREATAS({…}, 'T'[S]),
+    'T'[S] = Wert, 'T'[S] IN {…}, mehrere mit && oder AND, KEEPFILTERS(…). None, wenn die Form nicht passt."""
+    text = (expr or "").strip()
+    while text.startswith("(") and text.endswith(")") and _balanced(text[1:-1]):
+        text = text[1:-1].strip()
+    if any(c == "|" or (c in "oO" and re.match(r"(?i)OR\b", text[i:i + 3]) and (i == 0 or not re.match(r"\w", text[i - 1])))
+           for i, c in _scan_top(text)):
+        return None             # Oder-Verknüpfung: kein einfacher fester Filter
+    inner = _unwrap(text, "KEEPFILTERS")
+    if inner is not None:
+        return filter_conditions(inner)
+    inner = _unwrap(text, "TREATAS")
+    if inner is not None:
+        args = _split_top(inner, ",")
+        col = norm_column(args[1]) if len(args) == 2 else None
+        vals = _values(args[0]) if len(args) == 2 and args[0].strip().startswith("{") else None
+        return [(col[0], col[1], "in", vals)] if col and vals else None
+    parts = [p for chunk in _split_top(text, "&&") for p in _split_top(chunk, "AND")]
+    if len(parts) > 1:
+        out = []
+        for p in parts:
+            sub = filter_conditions(p)
+            if sub is None:
+                return None
+            out += sub
+        return out
+    for i, _c in _scan_top(text):
+        if re.match(r"(?i)IN\b", text[i:i + 3]) and i > 0 and not re.match(r"\w", text[i - 1]):
+            op, j = "in", i + 2
+        else:
+            op = next((o for o in _OPS if text.startswith(o, i)), None)
+            if op is None:
+                continue
+            j = i + len(op)
+            op = "in" if op in ("=", "==") else op
+        col, vals = norm_column(text[:i]), _values(text[j:])
+        return [(col[0], col[1], op, vals)] if col and vals else None
+    return None

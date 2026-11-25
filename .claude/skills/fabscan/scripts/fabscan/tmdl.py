@@ -46,6 +46,7 @@ class Model:
     # Hilfsspalten (Sortierspalte einer anderen Spalte, Schlüssel einer Beziehung) als (tabelle, spalte), klein.
     # Power BI fragt sie mit ab, ausgeblendet sind sie fast immer: kein Befund SEC-HIDDEN.
     helper_columns: set = field(default_factory=set)
+    folder: str = ""        # absoluter Pfad des *.SemanticModel-Ordners (leer bei Scan-Ergebnis/Abruf)
 
     def add_helper(self, table: str, column: str) -> None:
         if table and column:
@@ -225,7 +226,7 @@ def load_model(folder: str, root: str) -> Model:
     name = os.path.basename(folder.rstrip("/"))
     if name.endswith(".SemanticModel"):
         name = name[: -len(".SemanticModel")]
-    model = Model(name=name, path=os.path.relpath(folder, root))
+    model = Model(name=name, path=os.path.relpath(folder, root), folder=os.path.abspath(folder))
     plat = os.path.join(folder, ".platform")
     if os.path.exists(plat):
         try:
@@ -255,6 +256,10 @@ def load_model(folder: str, root: str) -> Model:
 
 
 def find_models(root: str) -> list[Model]:
+    """Alle *.SemanticModel-Ordner unter root. Zeigt root selbst auf einen Modellordner, nur dieses Modell."""
+    if os.path.basename(os.path.normpath(root)).endswith(".SemanticModel") and os.path.isdir(root):
+        folder = os.path.normpath(root)
+        return [load_model(folder, os.path.dirname(folder))]
     out = []
     for dirpath, dirnames, _ in os.walk(root):
         # versteckte Ordner (.git, .claude/worktrees mit Kopien des Repos, .venv) und Build-Ausgaben überspringen

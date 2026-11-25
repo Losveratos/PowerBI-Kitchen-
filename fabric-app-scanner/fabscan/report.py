@@ -187,6 +187,12 @@ def _plain(f) -> dict:
     head = t["head"].format(n=n, names=_names(f))
     if f.rule == "CALC-TS" and f.severity == "info":
         head = f"An {n} Stellen rechnet der Darstellungscode mit Werten aus den Abfragen (Skalierung, Formatierung)."
+    if f.rule == "QRY-HARDCODED" and f.severity == "info":
+        return {"head": f"Fester Filter, für Nutzer sichtbar: Die Abfragen filtern auf feste Werte ({n}×), die App zeigt sie an.",
+                "why": "Der App-Generator meldet diese Filter in fabscan.json (visibleFilters) als sichtbar. Sie veralten "
+                       "trotzdem still, zum Beispiel zum Jahreswechsel.",
+                "todo": "Nichts zu tun, solange der Hinweis in der App stimmt. Feste Jahre und Monate besser als Auswahl "
+                        "mit Vorgabewert."}
     if f.rule == "SEC-STORAGE" and f.severity == "info":
         head = "Die App merkt sich Einstellungen im Browser."
     if f.rule == "SEC-HIDDEN" and f.severity == "warn":
