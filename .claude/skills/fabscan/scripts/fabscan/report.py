@@ -187,6 +187,13 @@ def _plain(f) -> dict:
     head = t["head"].format(n=n, names=_names(f))
     if f.rule == "CALC-TS" and f.severity == "info":
         head = f"An {n} Stellen rechnet der Darstellungscode mit Werten aus den Abfragen (Skalierung, Formatierung)."
+    if f.rule == "SEC-ANON" and f.severity == "fail":
+        head = "Die App gibt Daten aus Fabric ohne Anmeldung heraus (anonyme Rolle an einem Konnektor)."
+    elif f.rule == "SEC-ANON" and f.title.startswith("App-Daten ohne Anmeldung änderbar"):
+        head = "Die App lässt ihre Daten ohne Anmeldung ändern oder löschen (anonyme Rolle)."
+    if f.rule == "SEC-AUTH" and "Besitzer des App-Items" in (f.detail or ""):
+        return {"head": head, "why": t["why"] + " Die App-Identität ist der Besitzer des App-Items: Wechselt er oder "
+                "verliert er Rechte, ändert sich der Zugriff für alle.", "todo": t["todo"]}
     if f.rule == "QRY-HARDCODED" and f.severity == "info":
         return {"head": f"Fester Filter, für Nutzer sichtbar: Die Abfragen filtern auf feste Werte ({n}×), die App zeigt sie an.",
                 "why": "Der App-Generator meldet diese Filter in fabscan.json (visibleFilters) als sichtbar. Sie veralten "

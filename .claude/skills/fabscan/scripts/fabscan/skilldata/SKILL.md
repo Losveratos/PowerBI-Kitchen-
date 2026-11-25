@@ -57,7 +57,9 @@ Je Befund im App-Code. Danach immer erneut prüfen und sagen, was sich geändert
 | `QRY-SHADOW` | `DEFINE MEASURE` mit Modell-Namen entfernen und das Modell-Measure nutzen. |
 | `QRY-OVERRIDE` | Prüfen, ob gewollt; sonst `ALL`/`REMOVEFILTERS` entfernen oder in der App kennzeichnen. |
 | `SEC-CDN` | Schriften lokal ausliefern (woff2 ins Bundle, `@font-face`), `<link>` zu fonts.googleapis.com entfernen. |
-| `SEC-AUTH` | In `rayfin/rayfin.yml` `auth.type: delegated`. Nur ändern, wenn der Nutzer zustimmt. |
+| `SEC-AUTH` | In `rayfin/rayfin.yml` `auth.type: delegated`. Nur ändern, wenn der Nutzer zustimmt. Bei `application` darauf hinweisen, dass die App-Identität der Besitzer des App-Items ist. |
+| `SEC-ANON` | `@role('anonymous', …)` an der Entität entfernen, wenn die Daten nicht öffentlich sein dürfen; sonst nur `read` oder `create` und Felder per `include`/`exclude` begrenzen. Nur mit Zustimmung ändern. |
+| `SEC-BUILD` | Nur berichten: Build für alle App-Nutzer ist bei delegiertem Modell-Connector nötig; Vergabe und Entzug gehören zum Modell-Owner. |
 | `SEC-STORAGE` | Nur UI-Zustand speichern, keine Abfrageergebnisse. |
 | `SEC-SECRET`, `SEC-TRACKED` | Sofort melden. Nicht im Chat zitieren; Schlüssel austauschen lassen. |
 | `LIN-NO-MODEL` | Erklären, dass das Modell per Fabric-Git ins Repo gehört, oder `--models` nutzen. |

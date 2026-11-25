@@ -73,6 +73,18 @@ RULES = {
         why="Jeder, der die App öffnen darf, sieht alle Daten, die die App sehen darf. Zeilensicherheit je Person greift nicht.",
         todo="Auf delegierten Zugriff umstellen oder schriftlich festhalten, dass alle Nutzer alles sehen dürfen.",
         overall="{n} von {N} Apps lesen mit App-Identität statt als angemeldeter Nutzer."),
+    "SEC-ANON": dict(
+        head="Die App gibt Daten ohne Anmeldung heraus (anonyme Rolle).",
+        why="Jeder, der die Adresse der App kennt, kann diese Daten abrufen oder ändern, auch ohne Fabric-Konto. Es wirkt, "
+            "sobald der Tenant-Schalter für anonymen Zugriff an ist.",
+        todo="Anonyme Rolle entfernen, wenn die Daten nicht öffentlich sein dürfen; sonst nur lesen oder anlegen und die Felder begrenzen.",
+        overall="{n} von {N} Apps geben Daten ohne Anmeldung heraus."),
+    "SEC-BUILD": dict(
+        head="Jeder Nutzer der App braucht Build auf dem Semantikmodell.",
+        why="Build gilt für jeden Weg, nicht nur für die App: Excel, XMLA, REST und eigenes DAX. Entzieht man den Zugriff "
+            "auf die App, bleibt Build bestehen.",
+        todo="Build über eine Gruppe vergeben und beim Entzug mit entfernen. Vertrauliches im Modell per RLS oder OLS schützen.",
+        overall=""),
     "SEC-NO-RLS": dict(
         head="Das Modell hat keine Zeilensicherheit (RLS).",
         why="Wer die App öffnen darf, sieht alle Zeilen. Für Demodaten in Ordnung, für echte Finanz- oder Personaldaten nicht.",
@@ -166,7 +178,7 @@ RULES = {
 
 # Reihenfolge fürs Gesamtbild (wichtigstes zuerst)
 OVERALL_ORDER = ["SEC-SECRET", "SEC-TRACKED", "QRY-SHADOW", "LIN-MISSING-TABLE", "LIN-MISSING-FIELD", "SEC-AUTH",
-                 "CALC-RAW", "DEV-NAME", "CALC-PROJ", "CALC-DEFINE", "QRY-HARDCODED", "DEV-TRANSFORM", "LIN-OTHER-SOURCE",
+                 "SEC-ANON", "CALC-RAW", "DEV-NAME", "CALC-PROJ", "CALC-DEFINE", "QRY-HARDCODED", "DEV-TRANSFORM", "LIN-OTHER-SOURCE",
                  "LIN-NO-MODEL", "SEC-CDN", "SEC-NO-RLS", "SEC-EXTERNAL", "SEC-CLIENT-RLS", "QRY-OVERRIDE", "QRY-REPLACE",
                  "SEC-HIDDEN", "CALC-TS"]
 
@@ -185,6 +197,7 @@ OVERALL_LABEL = {
     "LIN-FULL-TABLE": "ganze Tabellen ungefiltert im Browser",
     "LIN-LOCAL-DATA": "Daten aus mitgelieferten Dateien",
     "SEC-AUTH": "Zugriff mit App-Identität statt als angemeldeter Nutzer",
+    "SEC-ANON": "Daten ohne Anmeldung abrufbar (anonyme Rolle)",
     "SEC-NO-RLS": "Modell ohne Zeilensicherheit (RLS)",
     "SEC-HIDDEN": "ausgeblendete Felder abgefragt",
     "SEC-CDN": "Schriften oder Skripte von fremden Servern (z. B. Google Fonts)",
