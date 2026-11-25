@@ -69,6 +69,20 @@
     'scheme.note': 'Kopfband und Akzent per Klick auf eine Farbe ändern. „Kitchen Basis“ stellt die Vorgabe wieder her, die Firmenfarben bleiben gemerkt.',
     'scheme.lowContrast': 'Akzent {c} hat auf Weiß wenig Kontrast (unter 3:1). Für Text und aktive Elemente besser eine dunklere Farbe wählen.',
 
+    // Kachel-Leiste, Einrichten-Modus, Ansichten, Einfach-Modus (ab 0.8.0)
+    'tb.pick': 'Visual wählen', 'tb.pickEmpty': '+ Visual wählen', 'tb.setup': 'Einrichten', 'tb.done': '✓ Fertig', 'tb.setupOf': 'Einrichten: {t}',
+    'tb.hint': 'Felder von links auf die Kachel ziehen oder rechts den Rollen zuordnen · Esc oder „Fertig“ führt zurück',
+    'app.viewN': 'Ansicht {n}',
+    'pv.sec': 'Ansichten dieser Seite', 'pv.hint': 'Mehrere Fassungen derselben Seite, z. B. Diagramm und Tabelle. Im Kopfband erscheint ein Schalter, in der Präsentation ist er klickbar.',
+    'pv.add': '+ Ansicht anlegen', 'pv.drop': 'Als eigene Seite lösen', 'pv.go': 'Zu dieser Ansicht',
+    'pv.bmWarn': 'Power BI: Der Schalter wird aus Schaltflächen mit Seitennavigation gebaut, die Ansichten sind ausgeblendete Seiten. Sollen Filter beim Wechsel erhalten bleiben, braucht es synchronisierte Slicer oder Lesezeichen.',
+    'pv.needHeader': 'Der Schalter steht im Kopfband. Das Kopfband ist gerade ausgeschaltet.',
+    'simple.on': 'Einfach', 'simple.off': 'Alle Optionen', 'simple.tip': 'Einfach zeigt nur das Wesentliche. Alle Optionen blendet Typografie, Pixelraster, Workshop-Angaben und weitere Einstellungen ein.',
+    'simple.onToast': 'Einfach: nur das Wesentliche. Nichts geht verloren, „Alle Optionen“ zeigt den Rest.', 'simple.offToast': 'Alle Optionen eingeblendet',
+    'scheme.clean': 'Klar', 'scheme.cleanSub': 'IBCS-orientiert, ohne Logo',
+    'exp.issue.viewSwitch': 'Ansichten-Schalter ({n} Ansichten): in Power BI Schaltflächen mit Seitennavigation im Kopfband, die Ansichten als ausgeblendete Seiten.',
+    'exp.issue.appViewSwitch': 'Ansichten-Schalter ({n} Ansichten) ist eine Vorgabe für die App-Shell: umschalten ohne Seitenwechsel, Filter bleiben erhalten.',
+
     // Gespeicherte Filter
     'views.sec': 'Gespeicherte Filter',
     'views.hint': 'Erscheinen als Chips über den Kacheln. In der Präsentation lassen sie sich wegklicken und wieder einschalten.',
@@ -193,6 +207,19 @@
     'scheme.loaded': '{n} colours applied · {name}', 'scheme.none': 'No hex colours found (expected: #RRGGBB)',
     'scheme.note': 'Click a colour to change header and accent. "Kitchen basic" restores the default, the company colours stay remembered.',
     'scheme.lowContrast': 'Accent {c} has little contrast on white (below 3:1). Pick a darker colour for text and active elements.',
+
+    'tb.pick': 'Choose visual', 'tb.pickEmpty': '+ Choose visual', 'tb.setup': 'Set up', 'tb.done': '✓ Done', 'tb.setupOf': 'Set up: {t}',
+    'tb.hint': 'Drag fields from the left onto the tile or assign them to roles on the right · Esc or "Done" takes you back',
+    'app.viewN': 'View {n}',
+    'pv.sec': 'Views of this page', 'pv.hint': 'Several versions of the same page, e.g. chart and table. A switch appears in the header, clickable in presentation mode.',
+    'pv.add': '+ Add a view', 'pv.drop': 'Detach as its own page', 'pv.go': 'Go to this view',
+    'pv.bmWarn': 'Power BI: the switch is built from buttons with page navigation, the views are hidden pages. To keep filters when switching you need synced slicers or bookmarks.',
+    'pv.needHeader': 'The switch lives in the header. The header is currently switched off.',
+    'simple.on': 'Simple', 'simple.off': 'All options', 'simple.tip': 'Simple shows only the essentials. All options brings back typography, pixel grid, workshop details and more settings.',
+    'simple.onToast': 'Simple: essentials only. Nothing is lost, "All options" shows the rest.', 'simple.offToast': 'All options shown',
+    'scheme.clean': 'Clean', 'scheme.cleanSub': 'IBCS-oriented, no logo',
+    'exp.issue.viewSwitch': 'View switch ({n} views): in Power BI buttons with page navigation in the header, the views as hidden pages.',
+    'exp.issue.appViewSwitch': 'View switch ({n} views) is a requirement for the app shell: switch without changing the page, filters are kept.',
 
     'views.sec': 'Saved filters',
     'views.hint': 'Shown as chips above the tiles. In presentation mode they can be dismissed and switched back on.',

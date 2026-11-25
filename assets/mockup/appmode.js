@@ -84,7 +84,7 @@
   .page .tile.k-kpi .t-title,.page .tile.k-card .t-title{font-weight:500;font-size:calc(var(--fs-title,12px) * var(--ui) * var(--tf,1) * .86);opacity:.72;letter-spacing:.01em}
   .page .tile.k-kpi .t-sub,.page .tile.k-card .t-sub{opacity:.6}
   /* Farbschema (Reiter Design): Kitchen Basis oder Firmenfarben */
-  .sch-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+  .sch-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:5px}
   .sch-card{border:1.5px solid var(--line);border-radius:10px;background:var(--bg-card);padding:7px 8px;text-align:left;display:flex;flex-direction:column;gap:5px;min-width:0}
   .sch-card:hover{border-color:var(--line-strong)}
   .sch-card[aria-pressed="true"]{border-color:var(--ink);box-shadow:0 0 0 2px var(--bg-soft)}
@@ -99,6 +99,56 @@
   .sch-pick button{width:22px;height:22px;border-radius:6px;border:1px solid rgba(15,30,46,.25);padding:0}
   .sch-pick button[aria-pressed="true"]{outline:2px solid var(--ink);outline-offset:1px}
   .sch-lbl{font-size:10.5px;color:var(--ink-mute);margin:8px 0 0;text-transform:uppercase;letter-spacing:.05em;font-weight:600}
+  /* Kachel-Leiste: erscheint an der gewählten Kachel (Visual wählen, Einrichten) */
+  .tile-bar{position:fixed;z-index:30;display:none;align-items:center;gap:4px;padding:4px;border-radius:999px;background:rgba(17,29,44,.92);box-shadow:0 8px 26px rgba(15,30,46,.28);color:#fff;font-size:12px;white-space:nowrap}
+  .tile-bar.on{display:flex}
+  .tile-bar button{border:0;background:transparent;color:#fff;border-radius:999px;padding:5px 11px;font-weight:500;display:inline-flex;align-items:center;gap:6px}
+  .tile-bar button:hover{background:rgba(255,255,255,.16)}
+  .tile-bar button.pri{background:var(--accent-strong)}
+  .tile-bar button.pri:hover{background:var(--accent-strong-hover)}
+  .tile-bar .ttl{padding:0 6px 0 10px;opacity:.75;max-width:240px;overflow:hidden;text-overflow:ellipsis}
+  body.present .tile-bar{display:none}
+  /* Einrichten-Modus: die Kachel steht groß im Blick, alles andere tritt zurück */
+  .page.focus .tile:not(.foc){opacity:.14;pointer-events:none;filter:grayscale(1)}
+  .page.focus .zone{opacity:.2;pointer-events:none}
+  .page.focus .gutter,.page.focus .gedge,.page.focus .zcfg{display:none}
+  .page.focus .tile.foc{box-shadow:0 0 0 calc(2px / var(--zoom,1)) var(--accent),0 calc(18px / var(--zoom,1)) calc(60px / var(--zoom,1)) rgba(15,30,46,.22)}
+  body.tile-focus .stage{background:#E9E8E2}
+  body.tile-focus .pagebar,body.tile-focus .stage-bar{visibility:hidden}
+  .focus-hint{position:fixed;z-index:29;left:50%;transform:translateX(-50%);display:none;padding:6px 14px;border-radius:999px;background:var(--bg-card);border:1px solid var(--line);box-shadow:var(--sh);font-size:12px;color:var(--ink-soft)}
+  body.tile-focus .focus-hint{display:block}
+  /* Ansichten-Schalter im Kopfband */
+  .zone.header .vsw{display:flex;margin-left:calc(18px * var(--ui));border:1px solid rgba(15,30,46,.28);border-radius:calc(7px * var(--ui));overflow:hidden;flex:none}
+  .zone.header .vsw span{padding:calc(5px * var(--ui)) calc(12px * var(--ui));font-size:calc(11.5px * var(--ui));white-space:nowrap;border-right:1px solid rgba(15,30,46,.18)}
+  .zone.header .vsw span:last-child{border-right:0}
+  .zone.header .vsw span.act{background:var(--accent);color:#fff}
+  .zone.header.dark .vsw,.zone.header.accent .vsw,.zone.header.custom .vsw{border-color:currentColor}
+  .zone.header.dark .vsw span,.zone.header.accent .vsw span,.zone.header.custom .vsw span{border-right-color:rgba(255,255,255,.3)}
+  .zone.header.accent .vsw span.act{background:#0F1E2E}
+  body.present .page .zone.header .vsw span{cursor:pointer}
+  /* Einfach-Modus: nur das Wesentliche sichtbar */
+  .simple-sw{display:inline-flex;align-items:center;gap:7px;border:1px solid var(--line-strong);border-radius:999px;background:var(--bg-card);padding:4px 11px 4px 6px;font-size:12px;font-weight:500;color:var(--ink-soft)}
+  .simple-sw:hover{background:var(--bg-soft)}
+  .simple-sw i{width:26px;height:15px;border-radius:999px;background:#C9C6BB;position:relative;transition:background .15s;flex:none}
+  .simple-sw i::after{content:"";position:absolute;top:2px;left:2px;width:11px;height:11px;border-radius:50%;background:#fff;transition:transform .15s}
+  .simple-sw[aria-checked="true"]{color:var(--ink)}
+  .simple-sw[aria-checked="true"] i{background:var(--ink)}
+  .simple-sw[aria-checked="true"] i::after{transform:translateX(11px)}
+  /* Farbschema im Dialog Neu */
+  .tg-scheme{display:flex;align-items:center;gap:8px;margin-top:12px;flex-wrap:wrap}
+  .tg-scheme>span{font-size:11px;font-weight:600;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.05em}
+  .tg-scheme button{display:inline-flex;align-items:center;gap:7px;border:1.5px solid var(--line);border-radius:999px;background:var(--bg-card);padding:4px 12px 4px 6px;font-size:12.5px}
+  .tg-scheme button[aria-pressed="true"]{border-color:var(--ink);font-weight:600}
+  .tg-scheme .sw{display:inline-flex;width:38px;height:14px;border-radius:999px;overflow:hidden;border:1px solid var(--line)}
+  .tg-scheme .sw i{flex:1}
+  body.present .simple-sw{display:none}
+  body.simple #btnImportTmdl,body.simple #dsTypo,body.simple #dsA11y,body.simple #secNav,body.simple #btnDiff,body.simple #btnGridCheck,body.simple #btnGridCheck2,body.simple #btnSplitRoot,body.simple .tab[data-tab="report"],
+  body.simple #dsFormat .field:has(#spPixel),body.simple #dsFormat .field:has(#spMargin),body.simple #dsFormat .grid3:has(#spMargin),body.simple #dsFormat .field:has(#defScenario),body.simple #uiScaleInfo,
+  body.simple #secHeader .field:has(#hdNav),body.simple #secHeader .toggle:has(#hdNavAuto),body.simple #secHeader .grid2:has(#hdH),
+  body.simple #secFilter .field:has(#ftHeadShow),body.simple #secFilter .field:has(#ftText),body.simple #secFilter .grid2:has(#ftHeadShow),body.simple #ftCollapsibleRow,
+  body.simple #secFooter .grid2:has(#ffH),body.simple #dsColors .field:has(#dsNative),body.simple #dsSurface .field:has(#dsRadius),
+  body.simple #insEl details[data-grp="variants"],body.simple #insEl details[data-grp="ckopts"],body.simple #insEl details[data-grp="workshop"],body.simple #insEl .field:has(> .engine),
+  body.simple #pageNotes,body.simple label[for="pageNotes"],body.simple #onlyUsed,body.simple label:has(#onlyUsed){display:none!important}
   /* Typauswahl */
   dialog#dlgCatalog{width:min(96vw,1180px);max-width:min(96vw,1180px)}
   .cat-filter{display:flex;flex-wrap:wrap;gap:6px;align-items:center;padding:10px 18px 0}
@@ -171,13 +221,18 @@
     <div class="dlg-head"><div><h2 id="dlgTargetH"></h2><p id="dlgTargetP"></p></div><span class="spacer"></span><button class="btn ghost" data-tgclose data-i18n-title="btn.close" data-i18n-aria="btn.close">✕</button></div>
     <div class="dlg-body">
       <div class="tg-grid" role="radiogroup" aria-labelledby="dlgTargetH">${TARGETS.map(k => `<button type="button" class="tg-card" role="radio" data-tg="${k}" style="--tgc:${TG_COLOR[k]}"><span class="tick">✓</span><span class="art">${art(k)}</span><b data-i18n="target.${k}"></b><p data-i18n="target.${k}.sub"></p><small data-i18n="target.feat.${k}"></small></button>`).join('')}</div>
+      <div class="tg-scheme" id="tgScheme" role="group"><span data-i18n="scheme.sec"></span>
+        <button type="button" data-tgscheme="kitchen"><span class="sw"><i style="background:#0F1E2E"></i><i style="background:#C25A2D"></i><i style="background:#1E8F9E"></i></span><span data-i18n="scheme.kitchen"></span></button>
+        <button type="button" data-tgscheme="clean"><span class="sw"><i style="background:#404040"></i><i style="background:#B3B3B3"></i><i style="background:#FFFFFF"></i></span><span data-i18n="scheme.clean"></span> <small style="color:var(--ink-mute)" data-i18n="scheme.cleanSub"></small></button>
+      </div>
       <label class="toggle" style="margin-top:12px"><input type="checkbox" id="tgOpt"> <span id="tgOptLbl"></span></label>
       <p class="tg-note" id="tgNote" hidden></p>
     </div>
     <div class="dlg-foot" style="flex-direction:column;align-items:stretch"><button class="btn accent full" id="tgGo"></button></div>
   </dialog>`);
   document.body.appendChild(dlg);
-  let dlgMode = 'new', dlgPick = 'pbi';
+  let dlgMode = 'new', dlgPick = 'pbi', dlgScheme = 'kitchen';
+  function pickScheme(k) { dlgScheme = k; $$('[data-tgscheme]', dlg).forEach(b => b.setAttribute('aria-pressed', b.dataset.tgscheme === k ? 'true' : 'false')); }
   function pickCard(k) { dlgPick = k; $$('.tg-card', dlg).forEach(b => { const on = b.dataset.tg === k; b.setAttribute('aria-checked', on ? 'true' : 'false'); b.tabIndex = on ? 0 : -1; }); $('#tgOpt').closest('label').style.display = (dlgMode === 'new' && k !== 'app') ? 'none' : ''; }
   function openTargetDialog(mode) {
     dlgMode = mode; const s = S();
@@ -187,10 +242,12 @@
     $('#tgOptLbl').textContent = t(mode === 'new' ? 'target.dlg.demo' : 'target.dlg.defaults'); $('#tgOpt').checked = true;
     const n = s.pages.reduce((a, p) => a + MK.leaves(p.layout).filter(l => l.visual).length, 0);
     const note = $('#tgNote'); note.hidden = !(mode === 'new' && !MK.isUnchanged() && (n || s.pages.length > 1)); note.textContent = t('target.dlg.replace', { n, p: s.pages.length });
+    $('#tgScheme').style.display = mode === 'new' ? '' : 'none'; pickScheme(s.design.scheme === 'clean' ? 'clean' : 'kitchen');
     pickCard(s.target || 'pbi'); dlg.showModal(); const cur = $('.tg-card[aria-checked="true"]', dlg); if (cur) cur.focus();
   }
   dlg.addEventListener('click', e => {
     const card = e.target.closest('.tg-card'); if (card) { pickCard(card.dataset.tg); return; }
+    const scb = e.target.closest('[data-tgscheme]'); if (scb) { pickScheme(scb.dataset.tgscheme); return; }
     if (e.target.closest('[data-tgclose]')) dlg.close();
   });
   dlg.addEventListener('dblclick', e => { if (e.target.closest('.tg-card')) $('#tgGo').click(); });
@@ -202,7 +259,7 @@
   });
   $('#tgGo').onclick = () => {
     const opt = $('#tgOpt').checked;
-    if (dlgMode === 'new') { MK.reset(); applyTarget(dlgPick, { defaults: true, demo: opt }); MK.fitZoom(); MK.commit({ noUndo: true }); MK.toast(I.t('toast.newProject') + ' · ' + t('target.' + dlgPick)); }
+    if (dlgMode === 'new') { MK.reset(); applyTarget(dlgPick, { defaults: true, demo: opt }); if (dlgScheme === 'clean') applyScheme('clean'); MK.fitZoom(); MK.commit({ noUndo: true }); MK.toast(I.t('toast.newProject') + ' · ' + t('target.' + dlgPick)); }
     else { applyTarget(dlgPick, { defaults: opt }); MK.commit(); MK.toast(t('target.changed', { t: t('target.' + dlgPick) })); }
     dlg.close();
   };
@@ -305,6 +362,11 @@
   // der ChartKitchen-Skizzen (AC dunkel, PY grau, PL Kontur, Abweichung Teal/Rot oder Grün/Rot) bleibt davon unberührt.
   const KITCHEN = { accent: '#C25A2D', header: 'light', headerBg: '#0F1E2E', headerInk: '#FFFFFF', pageBg: 'light', pageBgHex: '#F4F4F1', tileBg: '#FFFFFF', ink: '#0F1E2E', nativePalette: 'neutral' };
   const KITCHEN_SW = ['#0F1E2E', '#C25A2D', '#1E8F9E', '#F4F4F1', '#8C8C8C'];
+  // „Klar": an IBCS orientiert, so wenig Gestaltung wie möglich. Weiße Seite, flache Kacheln ohne Rahmen und Rundung, kein Logo,
+  // Akzent in Dunkelgrau, Abweichungen klassisch Grün/Rot. Farbe trägt nur noch Bedeutung.
+  const CLEAN = { accent: '#404040', header: 'light', headerBg: '#0F1E2E', headerInk: '#FFFFFF', pageBg: 'white', pageBgHex: '#FFFFFF', tileBg: '#FFFFFF', ink: '#1A1A1A', nativePalette: 'neutral', palette: 'ibcs', tile: 'flat', radius: 0 };
+  const CLEAN_SW = ['#404040', '#B3B3B3', '#FFFFFF', '#3A9A5B', '#C8412F'];
+  const KITCHEN_LOOK = { palette: 'teal', tile: 'border', radius: 8 };
   const HEX = /^#[0-9a-fA-F]{6}$/;
   const normHex = v => { let s = String(v == null ? '' : v).trim(); if (/^#[0-9a-fA-F]{3}$/.test(s)) s = '#' + s[1] + s[1] + s[2] + s[2] + s[3] + s[3]; if (/^#[0-9a-fA-F]{8}$/.test(s)) s = s.slice(0, 7); return HEX.test(s) ? s.toUpperCase() : null; };
   const lumOf = h => { const c = [1, 3, 5].map(i => parseInt(h.slice(i, i + 2), 16) / 255).map(x => x <= 0.03928 ? x / 12.92 : Math.pow((x + 0.055) / 1.055, 2.4)); return 0.2126 * c[0] + 0.7152 * c[1] + 0.0722 * c[2]; };
@@ -338,14 +400,20 @@
       d.scheme = 'brand'; d.accent = m.accent; d.header = 'custom'; d.headerBg = m.head; d.headerInk = m.headInk; d.nativePalette = 'brand';
       if (d.brand.background) { d.tileBg = d.brand.background; }
       if (d.brand.foreground && contrast(d.brand.foreground, d.tileBg || '#FFFFFF') >= 4.5) d.ink = d.brand.foreground;
+    } else if (which === 'clean') {
+      const hd = S().chrome.header; if (d.scheme !== 'clean') d.logoBefore = hd.logoPos || 'left';
+      d.scheme = 'clean'; Object.assign(d, CLEAN); hd.logoPos = 'none';
     } else {
       d.scheme = 'kitchen'; Object.assign(d, KITCHEN);
     }
+    // Verlässt man „Klar", kommen Rahmen, Rundung, Teal/Rot und das Logo zurück
+    if (which !== 'clean' && d.logoBefore !== undefined) { Object.assign(d, KITCHEN_LOOK); S().chrome.header.logoPos = d.logoBefore || 'left'; delete d.logoBefore; }
   }
   const sch = el(`<details class="sub" id="dsScheme" open><summary data-i18n="scheme.sec"></summary>
     <p class="hint" style="margin:0 0 6px" data-i18n="scheme.hint"></p>
     <div class="sch-grid" role="group">
       <button type="button" class="sch-card" data-scheme="kitchen"><span class="sch-sw">${KITCHEN_SW.map(c => `<i style="background:${c}"></i>`).join('')}</span><b data-i18n="scheme.kitchen"></b><small data-i18n="scheme.kitchenSub"></small></button>
+      <button type="button" class="sch-card" data-scheme="clean"><span class="sch-sw">${CLEAN_SW.map(c => `<i style="background:${c}"></i>`).join('')}</span><b data-i18n="scheme.clean"></b><small data-i18n="scheme.cleanSub"></small></button>
       <button type="button" class="sch-card" data-scheme="brand"><span class="sch-sw" id="schBrandSw"></span><b id="schBrandName"></b><small id="schBrandSub"></small></button>
     </div>
     <div class="sch-row"><button type="button" class="btn sm" id="schLoad" data-i18n="scheme.load" data-i18n-title="scheme.loadTip"></button><input type="file" id="schFile" accept=".json,.txt,.css,.scss,.xml,application/json,text/plain" hidden></div>
@@ -381,7 +449,7 @@
     const rd = new FileReader(); rd.onload = () => { setBrand(parseColors(String(rd.result || ''), f.name)); e.target.value = ''; }; rd.readAsText(f);
   });
   function renderScheme() {
-    const d = S().design, b = d.brand, has = !!(b && b.colors && b.colors.length), cur = d.scheme === 'brand' && has ? 'brand' : 'kitchen';
+    const d = S().design, b = d.brand, has = !!(b && b.colors && b.colors.length), cur = d.scheme === 'brand' && has ? 'brand' : (d.scheme === 'clean' ? 'clean' : 'kitchen');
     $$('[data-scheme]', sch).forEach(x => x.setAttribute('aria-pressed', x.dataset.scheme === cur ? 'true' : 'false'));
     const sw = $('#schBrandSw'); sw.className = 'sch-sw' + (has ? '' : ' empty'); sw.innerHTML = has ? b.colors.map(c => `<i style="background:${c}"></i>`).join('') : '';
     $('#schBrandName').textContent = has ? (b.name || t('scheme.brand')) : t('scheme.brand');
@@ -397,21 +465,107 @@
     } else $('#schNote').textContent = '';
   }
 
+  // ------------------------------------------------------------------ Kachel-Leiste und Einrichten-Modus
+  // Klick auf eine Kachel zeigt an ihr zwei Wege: „Visual wählen" (Typauswahl) und „Einrichten" (die Kachel groß im Blick,
+  // Felder links ziehen oder rechts zuordnen, dann zurück). Im Einrichten-Modus wird aus der Leiste „Fertig".
+  const tbar = el(`<div class="tile-bar hide-present" id="tileBar" role="toolbar"><span class="ttl" id="tbTitle"></span><button type="button" data-tb="pick"></button><button type="button" class="pri" data-tb="setup"></button></div>`);
+  const fhint = el(`<div class="focus-hint" id="focusHint"></div>`);
+  document.body.appendChild(tbar); document.body.appendChild(fhint);
+  function placeTileBar() {
+    const id = MK.sel, focus = MK.focusId, pageEl = $('#page');
+    const tile = id && pageEl ? pageEl.querySelector('.tile[data-leaf="' + CSS.escape(id) + '"]') : null;
+    if (!tile || document.body.classList.contains('present') || document.querySelector('dialog[open]')) { tbar.classList.remove('on'); return; }
+    const leaf = MK.leaves(MK.page().layout).find(l => l.id === id); const v = leaf && leaf.visual; const def = v ? CAT.byId[v.kind] : null;
+    $('#tbTitle').textContent = focus ? t('tb.setupOf', { t: (v && (v.title || (def && def.label))) || '' }) : '';
+    $('#tbTitle').style.display = focus ? '' : 'none';
+    tbar.querySelector('[data-tb="pick"]').textContent = v ? t('tb.pick') : t('tb.pickEmpty');
+    const sb = tbar.querySelector('[data-tb="setup"]'); sb.textContent = focus ? t('tb.done') : t('tb.setup'); sb.style.display = v ? '' : 'none';
+    tbar.classList.add('on');
+    const r = tile.getBoundingClientRect(), st = $('#stage').getBoundingClientRect(), bw = tbar.offsetWidth || 260, bh = tbar.offsetHeight || 34;
+    let x = r.left + r.width / 2 - bw / 2, y = r.top - bh - 8;
+    if (y < st.top + 6) y = Math.min(r.bottom + 8, st.bottom - bh - 6);
+    x = Math.max(st.left + 6, Math.min(x, st.right - bw - 6));
+    tbar.style.left = Math.round(x) + 'px'; tbar.style.top = Math.round(y) + 'px';
+    fhint.textContent = t('tb.hint'); fhint.style.top = Math.round(st.bottom - 46) + 'px'; fhint.style.left = Math.round(st.left + st.width / 2) + 'px';
+  }
+  tbar.addEventListener('mousedown', e => e.stopPropagation());
+  tbar.addEventListener('click', e => {
+    const b = e.target.closest('[data-tb]'); if (!b) return;
+    if (b.dataset.tb === 'pick') { MK.openCatalog(); return; }
+    if (MK.focusId) MK.unfocusTile(); else MK.focusTile(MK.sel);
+  });
+  { const stg = $('#stage'); if (stg) stg.addEventListener('scroll', placeTileBar, { passive: true }); }
+  // Auswahl per Klick oder Taste zeichnet nicht neu (kein mk:rendered), deshalb hier nachziehen
+  document.addEventListener('click', () => setTimeout(placeTileBar, 0));
+  document.addEventListener('keyup', e => { if (e.key === 'Escape' || e.key === 'Tab' || e.key === 'Enter' || e.key.indexOf('Arrow') === 0) setTimeout(placeTileBar, 0); });
+  window.addEventListener('resize', () => setTimeout(placeTileBar, 60));
+  // Esc beendet zuerst den Einrichten-Modus (vor den Kürzeln des Editors)
+  window.addEventListener('keydown', e => {
+    if (e.key !== 'Escape' || !MK.focusId || document.querySelector('dialog[open]')) return;
+    const tg = e.target; if (tg && tg.matches && tg.matches('input,textarea,select')) return;
+    e.stopImmediatePropagation(); e.preventDefault(); MK.unfocusTile();
+  }, true);
+  // Nach dem Schließen der Typauswahl die Leiste wieder zeigen
+  $$('dialog').forEach(d => d.addEventListener('close', () => setTimeout(placeTileBar, 30)));
+
+  // ------------------------------------------------------------------ Ansichten einer Seite (Reiter Seite)
+  const vbox = el(`<details class="sub" id="pgViews" open><summary><span data-i18n="pv.sec"></span><span class="cnt" id="pvCnt" hidden></span></summary>
+    <p class="hint" style="margin:0 0 6px" data-i18n="pv.hint"></p>
+    <div id="pvList"></div>
+    <div class="row" style="margin-top:6px"><button type="button" class="btn sm" id="pvAdd" data-i18n="pv.add"></button><button type="button" class="btn sm" id="pvDrop" data-i18n="pv.drop" hidden></button></div>
+    <div id="pvWarn"></div>
+  </details>`);
+  { const pl = $('#pageList'); const host = pl ? (pl.closest('.section') || pl) : null; if (host && host.parentElement) host.insertAdjacentElement('beforebegin', vbox); else { const ip = $('#insPage'); if (ip) ip.appendChild(vbox); } }
+  function renderPageViews() {
+    const fam = MK.viewFamily(MK.page()), list = $('#pvList'); if (!list) return; const many = fam.members.length > 1;
+    const typing = list.contains(document.activeElement) && $$('[data-pvlabel]', list).length === fam.members.length;
+    if (!typing) list.innerHTML = many ? fam.members.map(m => `<div class="vw-row" style="grid-template-columns:1fr auto"><input class="ctl" data-pvlabel="${esc(m.id)}" value="${esc(m.viewLabel || m.name)}" title="${esc(m.name)}"><button type="button" data-pvgo="${esc(m.id)}" title="${esc(t('pv.go'))}" style="font-size:12px">${m.id === S().cur ? '●' : '→'}</button></div>`).join('') : '';
+    const cnt = $('#pvCnt'); cnt.hidden = !many; cnt.textContent = fam.members.length;
+    $('#pvDrop').hidden = !MK.page().viewOf;
+    $('#pvWarn').innerHTML = many ? (S().target === 'pbi' ? `<p class="bm-warn">⚠ ${esc(t('pv.bmWarn'))}</p>` : (S().chrome.header.on ? '' : `<p class="bm-warn info">${esc(t('pv.needHeader'))}</p>`)) : '';
+  }
+  vbox.addEventListener('click', e => {
+    if (e.target.closest('#pvAdd')) { MK.addView(); return; }
+    if (e.target.closest('#pvDrop')) { MK.dropView(); return; }
+    const g = e.target.closest('[data-pvgo]'); if (g) MK.gotoPage(g.dataset.pvgo);
+  });
+  vbox.addEventListener('input', e => { const i = e.target.closest('[data-pvlabel]'); if (!i) return; const p = S().pages.find(x => x.id === i.dataset.pvlabel); if (p) { p.viewLabel = i.value; MK.persist(); MK.render({ inspector: false }); } });
+  vbox.addEventListener('change', e => { if (e.target.closest('[data-pvlabel]')) MK.commit({ keep: true }); });
+
+  // ------------------------------------------------------------------ Einfach-Modus
+  // Rückmeldung der Nutzer: das Tool ist viel geworden. „Einfach" blendet aus, was man für die ersten Entwürfe nicht braucht
+  // (Typografie, Pixelraster, Abstände, Barrierefreiheit, Vergleich, Workshop-Angaben, Engine-Wahl). Nichts geht verloren,
+  // die Werte bleiben im Projekt; „Alle Optionen" zeigt alles wieder. Gemerkt je Browser.
+  const SIMPLE_LS = 'mockupkitchen.simple.v1';
+  const ssw = el(`<button type="button" class="simple-sw hide-present" id="btnSimple" role="switch"><i></i><span></span></button>`);
+  { const help = $('#btnHelp'); if (help) help.insertAdjacentElement('beforebegin', ssw); else { const tb = $('.topbar'); if (tb) tb.appendChild(ssw); } }
+  function setSimple(on, quiet) {
+    document.body.classList.toggle('simple', !!on);
+    try { localStorage.setItem(SIMPLE_LS, on ? '1' : '0'); } catch (e) { /* privater Modus */ }
+    ssw.setAttribute('aria-checked', on ? 'true' : 'false');
+    // Stand der Reiter: liegt der aktive Reiter jetzt im Verborgenen, auf „Kachel" wechseln
+    const act = $('.tab.active'); if (on && act && getComputedStyle(act).display === 'none') MK.showTab('el');
+    if (!quiet) MK.toast(t(on ? 'simple.onToast' : 'simple.offToast'));
+  }
+  ssw.addEventListener('click', () => setSimple(!document.body.classList.contains('simple')));
+  function labelSimple() { ssw.querySelector('span').textContent = t('simple.on'); ssw.title = t('simple.tip'); ssw.setAttribute('aria-label', t('simple.on')); }
+  { let st = null; try { st = localStorage.getItem(SIMPLE_LS); } catch (e) { st = null; } labelSimple(); setSimple(st !== '0', true); }
+
   // ------------------------------------------------------------------ Abgleich nach jedem Zeichnen
   function sync() {
     const s = S(), tg = s.target || 'pbi';
     pill.querySelector('.ic').textContent = TG_LETTER[tg]; pill.querySelector('.nm').textContent = t('target.' + tg);
     const sel = $('#rpTarget'); if (sel && document.activeElement !== sel) sel.value = tg;
     const hint = $('#rpTargetHint'); if (hint) hint.textContent = t('target.' + tg + '.hint');
-    renderViews(false); renderScheme();
+    renderViews(false); renderScheme(); renderPageViews(); placeTileBar();
     if (bar && dlgCat && dlgCat.open) buildBar();
   }
   window.addEventListener('mk:rendered', sync);
-  I.onChange(() => { I.apply(dlg); I.apply(sec); I.apply(rpField); I.apply(sch); buildBar(); renderViews(true); sync(); });
-  I.apply(dlg); I.apply(sec); I.apply(rpField); I.apply(sch); I.apply(pill.parentElement || document); { const dn = $('#dsNative'); if (dn) I.apply(dn.parentElement); }
+  I.onChange(() => { I.apply(dlg); I.apply(sec); I.apply(rpField); I.apply(sch); I.apply(vbox); labelSimple(); buildBar(); renderViews(true); sync(); });
+  I.apply(dlg); I.apply(sec); I.apply(rpField); I.apply(sch); I.apply(vbox); I.apply(pill.parentElement || document); { const dn = $('#dsNative'); if (dn) I.apply(dn.parentElement); }
   { const np = $('#hdNavPos'); if (np) I.apply(np.parentElement); }
   buildBar();
   sync();
 
-  window.MK_APPMODE = { applyTarget, openTargetDialog, fitsApp, tagsOf, pick, applyScheme, parseColors, setBrand, brandMapping };
+  window.MK_APPMODE = { applyTarget, openTargetDialog, fitsApp, tagsOf, pick, applyScheme, parseColors, setBrand, brandMapping, setSimple, placeTileBar };
 })();

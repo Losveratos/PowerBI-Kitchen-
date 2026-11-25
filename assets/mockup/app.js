@@ -1,6 +1,6 @@
 /* MockupKitchen · App-Kern v0.2: Zustand (mehrere Seiten), Container-Layout, Rendering, Interaktion, Datenmodell (TMDL/Demo) */
 // Einzige Quelle der Tool-Version: Kopfzeile, meta.version der Spec, AGENT-BRIEF und WORKSHOP-DOKU lesen diesen Wert.
-window.MK_VERSION = '0.7.2';
+window.MK_VERSION = '0.8.0';
 (function () {
   'use strict';
   const CAT = window.MK_CATALOG;
@@ -311,6 +311,8 @@ window.MK_VERSION = '0.7.2';
   }
 
   let S = null, sel = null, zoom = 1, undoStack = [], redoStack = [], lastRects = { leaves: [], gutters: [] };
+  // Einrichten-Modus: eine Kachel groß im Blick (Zoom), der Rest der Seite tritt zurück. focusId = Kachel, zoomBefore = Zoom davor.
+  let focusId = null, zoomBefore = null;
   const page = () => S.pages.find(p => p.id === S.cur) || S.pages[0];
   // Skalierungsfaktor für Schriften/Abstände. canvas.base = logische Breite, auf die sich alle Basismaße beziehen:
   // 1280 (Vorgabe) für Berichtsseiten, 400 für das Handy-Format (1080 px breit entsprechen rund 400 CSS-Pixeln, Faktor 2,7).
@@ -838,12 +840,15 @@ window.MK_VERSION = '0.7.2';
   // opts.inspector === false: das Kachel-Panel stehen lassen (Tippen im Panel, renderPageOnly)
   function render(opts) {
     const { w, h } = S.canvas; const c = S.chrome; const d = S.design; const k = ui();
+    // Einrichten-Modus endet von selbst, wenn die Kachel nicht mehr auf der aktuellen Seite liegt (Seitenwechsel, gelöscht)
+    if (focusId && !leaves(page().layout).some(l => l.id === focusId)) { focusId = null; if (zoomBefore != null) { zoom = zoomBefore; zoomBefore = null; } }
+    const fam = viewFamily(page()), curNavName = fam.root.name;
     // innerHTML ersetzt unten alle Kacheln; lag der Fokus darin, fiele er sonst auf <body> und der nächste Tab begänne oben
     const fa = document.activeElement, faIn = !!fa && fa !== pageEl && pageEl.contains(fa), faTile = faIn && fa.closest('[data-leaf]');
     pageEl.style.width = w + 'px'; pageEl.style.height = h + 'px'; pageEl.style.transform = 'scale(' + zoom + ')';
     // Kacheltitel und Eyebrow folgen derselben Kontrast-Regel wie die Skizze (tileInk: tileHtml, render-png), sonst 1:1 auf dunklem Kachelgrund (B5)
     pageEl.style.setProperty('--ui', k); pageEl.style.setProperty('--zoom', zoom); pageEl.style.setProperty('--tile-r', Math.round(d.radius * k) + 'px'); pageEl.style.setProperty('--page-bg', pageBgOf(d)); pageEl.style.setProperty('--accent', d.accent || '#C25A2D'); pageEl.style.setProperty('--tile-bg', d.tileBg || '#FFFFFF'); pageEl.style.setProperty('--ink-page', tileInk(d).ink); pageEl.style.setProperty('--hdr-bg', d.headerBg || '#0F1E2E'); pageEl.style.setProperty('--hdr-ink', d.headerInk || '#FFFFFF'); const ty = typo(); pageEl.style.setProperty('--fs-title', (ty.title * ty.scale) + 'px'); pageEl.style.setProperty('--fs-sub', (ty.sub * ty.scale) + 'px');
-    pageEl.className = 'page tile-' + (d.tile || 'border') + ' target-' + (S.target || 'pbi'); document.body.dataset.target = S.target || 'pbi';
+    pageEl.className = 'page tile-' + (d.tile || 'border') + ' target-' + (S.target || 'pbi') + (focusId ? ' focus' : ''); document.body.dataset.target = S.target || 'pbi'; document.body.classList.toggle('tile-focus', !!focusId);
     $('#stageInner').style.minWidth = `max(100%, ${Math.round(w * zoom + 56)}px)`; $('#stageInner').style.minHeight = `max(100%, ${Math.round(h * zoom + 56)}px)`;
     pageEl.style.marginRight = (w * zoom - w) + 'px'; pageEl.style.marginBottom = (h * zoom - h) + 'px';
     const all = computeAll(); const z = all.zones;
@@ -851,17 +856,19 @@ window.MK_VERSION = '0.7.2';
     if (z.nav) html += `<div class="zone nav" style="${css(z.nav)}"><i class="logo"></i>${S.pages.filter(p => roleOf(p) === 'nav').map(p => `<i class="${p.id === S.cur ? 'act' : ''}" title="${esc(p.name)}"></i>`).join('')}</div>`;
     if (z.header) {
       const names = navPosOf(c) === 'header' ? navNames(c) : [];
-      const cur = c.header.navAuto ? page().name : names[0];
+      const cur = c.header.navAuto ? curNavName : names[0];
+      // Ansichten-Schalter: Seiten, die Ansichten derselben Seite sind (viewOf), als Schalter im Kopfband
+      const vsw = fam.members.length > 1 ? `<div class="vsw" role="group">${fam.members.map(m => `<span class="${m.id === S.cur ? 'act' : ''}" data-goto="${esc(m.id)}">${esc(m.viewLabel || m.name)}</span>`).join('')}</div>` : '';
       const nav = names.map(n => `<span class="${n === cur ? 'act' : ''}" data-goto="${esc(n)}">${esc(n)}</span>`).join('');
       const logo = pos => c.header.logoPos === pos ? `<div class="logo${pos === 'right' ? ' right' : ''}">LOGO</div>` : '';
       const burger = burgerOn(c) ? `<div class="burger" data-burger="1" title="${esc(t('tip.filterMenu'))}"><i></i><i></i><i></i>${c.filter.on && c.filter.side === 'burger' && c.filter.fields.length ? `<b>${c.filter.fields.length}</b>` : ''}</div>` : '';
-      html += `<div class="zone header ${d.header || 'light'}" style="${css(z.header)}">${burger}${logo('left')}<div style="min-width:0"><div class="ttl">${esc(c.header.title || t('canvas.pageTitle'))}</div>${c.header.sub ? `<div class="sub">${esc(c.header.sub)}</div>` : ''}</div>${nav ? `<div class="nav${c.header.logoPos === 'right' ? ' noauto' : ''}" style="${c.header.logoPos === 'right' ? 'margin-left:auto' : ''}">${nav}</div>` : ''}${logo('right')}</div>`;
+      html += `<div class="zone header ${d.header || 'light'}" style="${css(z.header)}">${burger}${logo('left')}<div style="min-width:0"><div class="ttl">${esc(c.header.title || t('canvas.pageTitle'))}</div>${c.header.sub ? `<div class="sub">${esc(c.header.sub)}</div>` : ''}</div>${vsw}${nav ? `<div class="nav${c.header.logoPos === 'right' ? ' noauto' : ''}" style="${c.header.logoPos === 'right' ? 'margin-left:auto' : ''}">${nav}</div>` : ''}${logo('right')}</div>`;
     }
     if (z.footer && navPosOf(c) === 'tabs') {
       // Tab-Leiste unten (Handy-Format, Ziel App): bis zu fünf Seiten, gleich breit, aktive Seite in Akzentfarbe
       const tabs = navNames(c).slice(0, 5);
-      html += `<div class="zone footer tabs" style="${css(z.footer)}">${tabs.map(n => `<span class="tab${n === page().name ? ' act' : ''}" data-goto="${esc(n)}"><i></i><b>${esc(n)}</b></span>`).join('')}</div>`;
-    } else if (z.footer) { const fnames = navPosOf(c) === 'footer' ? navNames(c) : []; const fnav = fnames.length ? `<div class="nav">${fnames.map(n => `<span class="${n === page().name ? 'act' : ''}" data-goto="${esc(n)}">${esc(n)}</span>`).join('')}</div>` : ''; html += `<div class="zone footer" style="${css(z.footer)}"><span class="ft">${esc(c.footer.text || '')}</span>${fnav}</div>`; }
+      html += `<div class="zone footer tabs" style="${css(z.footer)}">${tabs.map(n => `<span class="tab${n === curNavName ? ' act' : ''}" data-goto="${esc(n)}"><i></i><b>${esc(n)}</b></span>`).join('')}</div>`;
+    } else if (z.footer) { const fnames = navPosOf(c) === 'footer' ? navNames(c) : []; const fnav = fnames.length ? `<div class="nav">${fnames.map(n => `<span class="${n === curNavName ? 'act' : ''}" data-goto="${esc(n)}">${esc(n)}</span>`).join('')}</div>` : ''; html += `<div class="zone footer" style="${css(z.footer)}"><span class="ft">${esc(c.footer.text || '')}</span>${fnav}</div>`; }
     if (z.chips) html += `<div class="zone chips" data-chipzone="1" style="${css(z.chips)}">${chipsHtml()}</div>`;
     // Zahnrad je Zone: oeffnet den passenden Abschnitt im Reiter Rahmen (Doppelklick auf die Zone tut dasselbe)
     ['header', 'nav', 'filter', 'footer'].forEach(key => { const r = z[key]; if (!r) return; const gx = r.x + r.w - 26 * k, gy = key === 'footer' ? r.y + (r.h - 22 * k) / 2 : r.y + 4 * k; html += `<div class="zcfg" data-zcfg="${key}" title="${esc(t('tip.zoneCfg'))}" style="left:${gx}px;top:${gy}px">⚙</div>`; });
@@ -877,6 +884,7 @@ window.MK_VERSION = '0.7.2';
     { const c0 = z.content, eb = (side, st) => `<button type="button" class="gedge ${side}" data-edge="${side}" style="${st}" title="${esc(t('tip.edge'))}" aria-label="${esc(t('tip.edge'))}">+</button>`;
       html += eb('left', `left:${c0.x}px;top:${c0.y + c0.h / 2}px`) + eb('right', `left:${c0.x + c0.w}px;top:${c0.y + c0.h / 2}px`) + eb('top', `left:${c0.x + c0.w / 2}px;top:${c0.y}px`) + eb('bottom', `left:${c0.x + c0.w / 2}px;top:${c0.y + c0.h}px`); }
     pageEl.innerHTML = html;
+    if (focusId) { const fe = pageEl.querySelector(`[data-leaf="${CSS.escape(focusId)}"]`); if (fe) fe.classList.add('foc'); }
     if (faIn) focusCanvas(faTile ? faTile.dataset.leaf : null, sel);
     $('#stageInfo').textContent = t('canvas.info', { w, h, cw: z.content.w, ch: z.content.h, k: k.toFixed(2), z: Math.round(zoom * 100) });
     renderPages(); if (!(opts && opts.inspector === false)) renderInspector(); renderModel(); syncPageInputs();
@@ -892,6 +900,36 @@ window.MK_VERSION = '0.7.2';
     const list = st ? st.chips() : S.views.map(v => ({ id: v.id, kind: 'view', label: v.name || t('app.viewUnnamed'), tip: v.filters || '', on: true }));
     return `<span class="chip-cap">${esc(t('app.chipCap'))}</span>` + list.map(ch => `<span class="chip ${ch.kind}${ch.on ? ' on' : ''}" data-chip="${esc(ch.id)}" data-chipkind="${ch.kind}"${ch.tip ? ` title="${esc(ch.tip)}"` : ''}><i class="dot"></i><span class="tx">${esc(ch.label)}</span><b class="x" data-chipx="${esc(ch.id)}" aria-hidden="true">✕</b></span>`).join('')
       + (st && st.hasFilter() ? `<span class="chip reset" data-chipreset="1">${esc(t('app.chipReset'))}</span>` : '');
+  }
+  // Ansichten einer Seite (ab 0.8.0): p.viewOf = ID der Hauptseite. Familie = Hauptseite plus ihre Ansichten, in Seitenreihenfolge.
+  // Ansichten haben die Rolle detail (stehen nicht in der Navigation) und werden über den Schalter im Kopfband erreicht.
+  function viewFamily(p) {
+    p = p || page(); const root = (p.viewOf && S.pages.find(x => x.id === p.viewOf && !x.viewOf)) || p;
+    return { root, members: [root].concat(S.pages.filter(x => x.viewOf === root.id && x.id !== root.id)) };
+  }
+  function addView() {
+    const fm = viewFamily(page()), root = fm.root, n = fm.members.length + 1;
+    const p = JSON.parse(JSON.stringify(root)); p.id = uid(); p.viewOf = root.id; p.role = 'detail'; p.viewLabel = t('app.viewN', { n });
+    p.name = root.name + ' · ' + p.viewLabel; dropDefault(p, 'name'); delete p.pbir; delete p.views; reId(p.layout);
+    if (!root.viewLabel) root.viewLabel = t('app.viewN', { n: 1 });
+    const last = fm.members[fm.members.length - 1]; S.pages.splice(S.pages.indexOf(last) + 1, 0, p); S.cur = p.id; sel = null; commit(); return p;
+  }
+  function dropView(pid) { const p = S.pages.find(x => x.id === pid) || page(); if (!p.viewOf) return; delete p.viewOf; delete p.viewLabel; delete p.role; commit(); }
+  // Einrichten-Modus: Kachel wählen, so weit hineinzoomen, dass sie die Fläche füllt, und in die Mitte rollen
+  function focusTile(id) {
+    const lr = computeAll().leaves.find(l => l.node.id === id); if (!lr) return false;
+    if (focusId == null) zoomBefore = zoom;
+    focusId = id; sel = id;
+    const r = stage.getBoundingClientRect();
+    zoom = clamp(Math.min((r.width - 140) / lr.rect.w, (r.height - 190) / lr.rect.h), 0.1, 4);
+    showTab('el'); render();
+    const fe = pageEl.querySelector(`[data-leaf="${CSS.escape(id)}"]`); if (fe && fe.scrollIntoView) fe.scrollIntoView({ block: 'center', inline: 'center' });
+    return true;
+  }
+  function unfocusTile() {
+    if (focusId == null) return; focusId = null;
+    if (zoomBefore != null) zoom = zoomBefore; else fitZoom(); zoomBefore = null;
+    render(); stage.scrollTo && stage.scrollTo(0, 0);
   }
   // Seite wechseln (Bühne, Burger-Menü): Name oder ID; kein Rückgängig-Schritt
   function gotoPage(ref) { const p = S.pages.find(x => x.id === ref) || S.pages.find(x => x.name === ref); if (!p || p.id === S.cur) return !!p; S.cur = p.id; sel = null; commit({ noUndo: true }); return true; }
@@ -1786,7 +1824,7 @@ window.MK_VERSION = '0.7.2';
   $('#btnZoomFit').onclick = () => { fitZoom(); render(); };
   $('#btnZoomIn').onclick = () => { zoom = clamp(zoom * 1.15, 0.1, 3); render(); };
   $('#btnZoomOut').onclick = () => { zoom = clamp(zoom / 1.15, 0.1, 3); render(); };
-  window.addEventListener('resize', () => { fitZoom(); render(); });
+  window.addEventListener('resize', () => { if (focusId) { const id = focusId; zoom = zoomBefore != null ? zoomBefore : zoom; fitZoom(); zoomBefore = zoom; focusTile(id); } else { fitZoom(); render(); } });
   $('#btnHelp').onclick = () => $('#dlgHelp').showModal();
   // Pixelgenau pruefen (v0.5.0): Befunde je Seite, Ausrichten, Rand/Zwischenraum anpassen
   function gridCheck(p) { p = p || page(); const geo = computeAll(p); return window.MK_GRIDCHECK ? window.MK_GRIDCHECK.check(p.layout, geo, Math.round(S.spacing.gutter * ui())) : { ok: true, findings: [] }; }
@@ -1873,7 +1911,7 @@ window.MK_VERSION = '0.7.2';
   // Zwischenablage: verweigert der Browser (Rechte, unfokussiertes Dokument, iframe, alter Browser), gibt es eine Meldung statt eines stillen Fehlers
   function copyText(text) { try { return navigator.clipboard.writeText(text); } catch (err) { return Promise.reject(err); } }
   $('#btnUndo').onclick = undo; $('#btnRedo').onclick = redo;
-  function togglePresent(on) { document.body.classList.toggle('present', on); const p = document.body.classList.contains('present'); const b = $('#btnPresent'); b.textContent = p ? t('btn.presentEnd') : t('btn.present'); b.setAttribute('data-i18n', p ? 'btn.presentEnd' : 'btn.present'); setTimeout(() => { fitZoom(); render(); }, 30); }
+  function togglePresent(on) { if (focusId) { focusId = null; zoomBefore = null; } document.body.classList.toggle('present', on); const p = document.body.classList.contains('present'); const b = $('#btnPresent'); b.textContent = p ? t('btn.presentEnd') : t('btn.present'); b.setAttribute('data-i18n', p ? 'btn.presentEnd' : 'btn.present'); setTimeout(() => { fitZoom(); render(); }, 30); }
   $('#btnPresent').onclick = () => togglePresent();
   $$('dialog [data-close]').forEach(b => b.onclick = () => b.closest('dialog').close());
   // Tab-Umlauf in offenen Dialogen (B4). Die native Fokusfalle von showModal() springt in Chromium/Edge am Ende der Reihe
@@ -1961,6 +1999,8 @@ window.MK_VERSION = '0.7.2';
     effScen, sketchOpts, sketchInfo, tileGeom, placeholderChips, hasChips: hasChipsOf,
     // Zielmodus, gespeicherte Filter und Bühne (appmode.js, stage.js)
     TARGETS, commit, render, gotoPage, burgerOn, chipsOn, togglePresent, fitZoom, showTab, uid,
+    // Einrichten-Modus, Typauswahl und Ansichten einer Seite (ab 0.8.0)
+    focusTile, unfocusTile, get focusId() { return focusId; }, get sel() { return sel; }, openCatalog, selectTile, viewFamily, addView, dropView,
     setLang, get lang() { return I18N.lang; }, copyText, tileInk,
     ingestTmdlFiles, setPages, setKind,
     markClean() { cleanPrint = fingerprint(S); }, isUnchanged() { return (cleanPrint !== null && cleanPrint === fingerprint(S)) || isPristine(); },

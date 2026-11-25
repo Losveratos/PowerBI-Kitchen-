@@ -76,7 +76,7 @@
   function buildSpec() {
     const S = MK.state; const c = S.chrome; const d = S.design; const k = MK.ui();
     const L = S.lang || I18N.lang; const T = (key, vars) => TL(L, key, vars);
-    const z = MK.zones(); const issues = []; const links = [];
+    const z = MK.zones(); const issues = []; const links = []; const target0 = (MK.TARGETS || []).includes(S.target) ? S.target : 'pbi';
     const issue = (level, code, text, page, visual) => issues.push({ level, code, text, page: page || null, visual: visual || null });
     const fieldOut = f => Object.assign({ table: f.table, name: f.name, kind: f.kind, ref: fieldRef(f) }, liveFlags(f));
     const pages = S.pages.map((p, pi) => {
@@ -139,7 +139,10 @@
       all.leaves.filter(l => !l.node.visual).forEach(l => issue('warn', 'EMPTY_TILE', T('exp.issue.emptyTile', { x: l.rect.x, y: l.rect.y, w: l.rect.w, h: l.rect.h }), p.name));
       if (!(p.question || '').trim()) issue('info', 'PAGE_NO_QUESTION', T('exp.issue.pageNoQuestion'), p.name);
       const role = MK.roleOf(p);
-      return { id: p.id, index: pi + 1, name: p.name, role, hidden: role !== 'nav', pbir: pbirOf(p.pbir, false), question: p.question || '', notes: p.notes || '', contentRect: all.zones.content, visuals, layoutTree: stripTree(p.layout) };
+      // Ansichten einer Seite (ab 0.8.0): Schalter im Kopfband; viewGroup = ID der Hauptseite
+      const vf = MK.viewFamily ? MK.viewFamily(p) : null; const vOut = vf && vf.members.length > 1 ? { viewGroup: vf.root.id, viewLabel: p.viewLabel || p.name, views: vf.members.map(m => ({ id: m.id, name: m.name, label: m.viewLabel || m.name })) } : {};
+      if (vf && vf.members.length > 1 && vf.root === p) issue('info', target0 === 'app' ? 'APP_VIEW_SWITCH' : 'VIEW_SWITCH', T(target0 === 'app' ? 'exp.issue.appViewSwitch' : 'exp.issue.viewSwitch', { n: vf.members.length }), p.name);
+      return Object.assign(vOut, { id: p.id, index: pi + 1, name: p.name, role, hidden: role !== 'nav', pbir: pbirOf(p.pbir, false), question: p.question || '', notes: p.notes || '', contentRect: all.zones.content, visuals, layoutTree: stripTree(p.layout) });
     });
     const zonesOut = {};
     Object.keys(z).forEach(key => { zonesOut[key] = Object.assign({}, z[key]); });

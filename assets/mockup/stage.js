@@ -148,6 +148,8 @@
   // ------------------------------------------------------------------ Seiten
   const navPages = () => S().pages.filter(p => MK.roleOf(p) === 'nav');
   const curPage = () => MK.page();
+  // Ansichten einer Seite zählen beim Blättern als ihre Hauptseite
+  const rootOf = p => (MK.viewFamily ? MK.viewFamily(p).root : p);
   function go(ref, opts) {
     const s = S(); const from = s.cur; const target = s.pages.find(p => p.id === ref) || s.pages.find(p => p.name === ref); if (!target || target.id === from) return false;
     if (opts && opts.push) ST.history.push(from); else if (!(opts && opts.back)) ST.history = [];
@@ -156,7 +158,7 @@
     MK.gotoPage(target.id); return true;
   }
   function step(d) {
-    const list = navPages(); if (!list.length) return; const i = list.findIndex(p => p.id === S().cur);
+    const list = navPages(); if (!list.length) return; const i = list.findIndex(p => p.id === rootOf(curPage()).id);
     if (i < 0) { if (ST.history.length) back(); else go(list[0].id); return; }
     const n = i + d; if (n < 0 || n >= list.length) return; go(list[n].id);
   }
@@ -243,7 +245,7 @@
     window.addEventListener('mousemove', wake, { passive: true }); window.addEventListener('keydown', wake, true); wake();
   }
   function syncHud() {
-    if (!hud) return; const list = navPages(); const p = curPage(); const i = list.findIndex(x => x.id === p.id);
+    if (!hud) return; const list = navPages(); const p = curPage(); const i = list.findIndex(x => x.id === rootOf(p).id);
     hud.classList.toggle('side', S().canvas.h > S().canvas.w);
     hud.innerHTML = `${ST.history.length ? `<button type="button" data-a="back" title="${esc(t('stage.back'))}">↩</button><span class="sep"></span>` : ''}
       <button type="button" data-a="prev" title="${esc(t('stage.prev'))}" aria-label="${esc(t('stage.prev'))}" ${i <= 0 ? 'disabled' : ''}>‹</button>

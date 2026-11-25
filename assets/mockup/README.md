@@ -3,6 +3,32 @@
 Positionierung (aus dem Review): kein Report-Generator, sondern ein **Anforderungswerkzeug mit deterministischem
 Ausgang**. Der Workshop legt Struktur, Felder und Entscheidungen fest; der Bau ist eine Ableitung.
 
+## Neu in v0.8.0 (25.11.2026, lokal auf `feat/mockup-kitchen`)
+
+Rückmeldung der Nutzer: das Tool ist viel geworden. Diese Fassung macht den Einstieg leichter.
+
+- **Einfach-Modus** (`#btnSimple` in der Kopfleiste, `body.simple`, gemerkt unter `mockupkitchen.simple.v1`, Vorgabe an):
+  blendet aus, was man für die ersten Entwürfe nicht braucht: Reiter Bericht, Typografie, Barrierefreiheit, Pixelraster
+  und Abstände, Seitenleiste links, Feinheiten von Kopfband, Filter und Fußleiste, Engine-Wahl, Varianten,
+  ChartKitchen-Optionen, Workshop-Angaben, Vergleich, TMDL-Knopf (die Ablagefläche links bleibt). Reines CSS in
+  `appmode.js`, nichts geht verloren; der Schalter zeigt alles wieder.
+- **Kachel-Leiste und Einrichten-Modus** (`#tileBar`, `MK.focusTile`/`MK.unfocusTile`): Ein Klick auf eine Kachel zeigt
+  an ihr „Visual wählen“ und „Einrichten“. Einrichten zoomt die Kachel groß in die Mitte, der Rest der Seite tritt
+  zurück; Felder zieht man von links auf die Kachel oder ordnet sie rechts den Rollen zu. „Fertig“ oder Esc führt
+  zurück zum vorigen Zoom.
+- **Farbschema „Klar“** (an IBCS orientiert): dritte Wahl neben Kitchen Basis und Firmenfarben, auch im Dialog „Neu“.
+  Weiße Seite, flache Kacheln ohne Rahmen und Rundung, kein Logo, Akzent in Dunkelgrau, Abweichungen Grün/Rot.
+  Beim Zurückschalten kommen Rahmen, Rundung, Teal/Rot und das Logo wieder.
+- **Ansichten einer Seite** (`p.viewOf`, `p.viewLabel`, `MK.viewFamily`, `MK.addView`, Reiter Seite): mehrere Fassungen
+  derselben Seite, z. B. Diagramm und Tabelle. Im Kopfband erscheint ein Schalter, in der Präsentation ist er
+  klickbar; beim Blättern zählen Ansichten als ihre Hauptseite. Ansichten haben die Rolle `detail`. Export:
+  `pages[].viewGroup`, `viewLabel`, `views[]`, Issues `VIEW_SWITCH` (Power BI: Schaltflächen mit Seitennavigation)
+  bzw. `APP_VIEW_SWITCH` (Vorgabe für die App-Shell).
+- **Essentials-Tour** (`tour.js`, `MK_TOUR.start('essentials'|'app')`, Knopf „Tour“ neben den Vorlagen): zehn Karten
+  mit Spotlight vom Ziel über Vorlagen, Kachel einrichten, Felder, Gestaltung bis Präsentieren und Export; danach
+  wahlweise die kurze App-Tour (Burger-Menü, gespeicherte Filter, Handy-Vorlage, Präsentation). Beim ersten Besuch
+  erscheint unten rechts ein Angebot (`mockupkitchen.tour.v1`). Die Tour ändert nichts am Projekt.
+
 ## Neu in v0.7.2 (24.11.2026, lokal auf `feat/mockup-kitchen`)
 
 Zwei Punkte aus dem ersten Test.

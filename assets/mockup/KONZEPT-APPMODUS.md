@@ -98,7 +98,30 @@ die drei bis fünf wichtigsten Seiten in der Tab-Leiste.
 7. Lint: Mindestgröße je Kachel aus `a11y.js` mit dem Faktor der Seite prüfen (432 × 243 px bei `phone`).
 8. Optional: `pages[].group` für die Tab-Leiste (welche Seiten in die Tabs, welche nur ins Burger-Menü).
 
-## 7. Was sich noch vorgeben ließe (Vorschläge, nicht gebaut)
+## 7. Leichter Einstieg (0.8.0)
+
+Gebaut nach der Rückmeldung „es wird viel“: Einfach-Modus als Vorgabe, Kachel-Leiste mit Einrichten-Modus (Zoom auf
+eine Kachel), Farbschema „Klar“, Essentials-Tour. Für Fabric Apps neu: Ansichten einer Seite mit Schalter im Kopfband
+(dieselbe Seite als Diagramm, Tabelle, Baum), in der Präsentation klickbar. Für die dwg-Seite heißt das: `pages[]` mit
+gleicher `viewGroup` sind eine Seite mit Umschalter, die Filter bleiben beim Wechsel erhalten.
+
+Ideen, die daran anschließen (nicht gebaut):
+
+1. **Rollen-Assistent im Einrichten-Modus:** das Tool schlägt aus dem Modell passende Felder je Rolle vor (ein Klick
+   statt Ziehen), erkennt Szenario-Kennzahlen am Namen und füllt AC, PL, PY.
+2. **Visual-Wechsel je Kachel:** kleiner Schalter an einer einzelnen Kachel (Diagramm oder Tabelle), ohne die ganze
+   Seite als Ansicht zu doppeln.
+3. **Startseite statt leerem Editor:** drei große Einstiege (Vorlage, Tour, eigenes Modell laden) und zuletzt
+   bearbeitete Projekte.
+4. **Befehlspalette (Strg+K):** alles per Suche erreichbar, entlastet die Kopfleiste.
+5. **Geführter Workshop-Modus:** Schritt für Schritt durch Zielgruppe, Frage der Seite, Kacheln, Abnahme, mit
+   Fortschritt; die heutigen Workshop-Angaben wandern dorthin.
+6. **Kommentar- und Abnahme-Ansicht in der Präsentation:** Teilnehmer markieren Kacheln (passt, offen, raus), das
+   Ergebnis landet in der Spec.
+7. **Zustände je Kachel** für Apps (leer, lädt, Fehler), in der Präsentation umschaltbar.
+8. **Hell und Dunkel als Schalter in der Präsentation**, passend zur App-Shell.
+
+## 8. Was sich noch vorgeben ließe (Vorschläge, nicht gebaut)
 
 1. **Zustände je Kachel:** leer, lädt, Fehler, keine Berechtigung. In der Bühne per Taste umschaltbar; für Apps Pflicht.
 2. **Responsive Vorschau:** dieselbe Seite bei 1920, 1280 und unter 900 px (gestapelt), so wie die dwg-Shell skaliert.
