@@ -122,7 +122,7 @@ function readMega(id) {
     const ids = ["m1", "m2", "m3", "m4", "m5", "m6", "m7", "m8", "m9", "m10", "m11", "m12", "m13", "m14", "m15", "m16",
         "m17", "m18", "m19", "m20", "m21", "m22", "m23", "m24", "m25", "m26", "m27", "m28", "m29", "m30", "m31", "m32", "m33",
         "m34", "m35", "m36", "m37", "m38", "m39", "m40", "m41", "m42", "m43", "m44", "m45", "m46", "m47", "m48", "m49", "m50", "m51", "m52", "m53", "m54", "m55", "m56", "m57", "m58", "m59", "m60", "m61", "m62", "m63", "m64", "m65", "m66", "m67", "m68", "m69", "m70", "m71",
-        "m72", "m73", "m74", "m75", "m76", "m77", "m78", "m79", "m80", "m81", "m82", "m83"];
+        "m72", "m73", "m74", "m75", "m76", "m77", "m78", "m79", "m80", "m81", "m82", "m83", "m84", "m85", "m86"];
     const S = {};
     for (const id of ids) {
         S[id] = await page.evaluate(readMega, id);
@@ -465,6 +465,61 @@ function readMega(id) {
         // a hierarchy keeps its blocks (1.5.1 rule): m38 regions still separate their elements
         const ys38 = S.m38.rowY; const st38 = ys38.slice(1).map((y, i) => Math.round(y - ys38[i]));
         check("m38 hierarchy unchanged: region blocks keep their spacer rows", new Set(st38).size > 1, st38.join(","));
+    }
+    if (S.m84 && S.m85 && S.m86 && S.m81) {
+        const steps = id => { const ys = S[id].rowY; return ys.slice(1).map((y, i) => Math.round(y - ys[i])); };
+        // a one-child group folds into one row; as a block of its own it keeps its spacer (step > the flat pitch of m81)
+        const flatPitch = steps("m81")[0];
+        check("m84 a list of one-child groups (region → one customer) keeps its blocks (flatTop from the model)",
+            steps("m84").length > 0 && steps("m84").every(d => d > flatPitch), steps("m84").join(",") + " vs " + flatPitch);
+        check("m85 a mixed list (leaves and one group of two) keeps its blocks", new Set(steps("m85")).size > 1, steps("m85").join(","));
+        const s86 = steps("m86");
+        check("m86 a flat list under ⚡ hide stays dense: one pitch between the customers left, one gap before the total",
+            S.m86.rowY.length >= 3 && S.m86.rowY.length < 9 && new Set(s86.slice(0, -1)).size === 1 && s86[s86.length - 1] > s86[0], s86.join(","));
+    }
+    {
+        // 1.8.4 layout.maximize over a size series: never past the tile (height, width), k never falls with
+        // more width or more height (the search is checked step by step on a 0.02 grid; before: m15
+        // 1320 × 700 ended 34 px below the tile, k swung with every pixel of width)
+        const series = await page.evaluate(() => {
+            const W = [900, 1100, 1300, 1396, 1500, 1700, 1900]; const H = [250, 500, 742, 1100];
+            const out = {};
+            for (const id of ["m15", "m40", "m82", "m5"]) {
+                const src = window.__visuals[id].lastDv;
+                const data = { ...src, metadata: { objects: { ...src.metadata.objects, layout: { maximize: true } } } };
+                const res = [];
+                for (const h of H) {
+                    for (const w of W) {
+                        const d = document.createElement("div"); d.style.cssText = `position:relative;width:${w}px;height:${h}px`;
+                        document.body.appendChild(d);
+                        const v = new PnlByDatenWG.Visual({ element: d, host: makeHost("en-US") });
+                        const t0 = performance.now();
+                        v.update({ dataViews: [data], viewport: { width: w, height: h }, type: 4 });
+                        const ms = performance.now() - t0;
+                        const root = d.querySelector(".pnl-root"); const rr = root.getBoundingClientRect();
+                        let tx = 0;
+                        for (const svg of root.querySelectorAll("svg")) { const R = svg.getBoundingClientRect();
+                            for (const t of svg.querySelectorAll("text")) { tx = Math.max(tx, t.getBoundingClientRect().right - Math.min(R.right, rr.right)); } }
+                        res.push({ w, h, k: v.bodyK, oh: root.scrollHeight - root.clientHeight, ow: Math.max(root.scrollWidth - root.clientWidth, tx), ms });
+                        d.remove();
+                    }
+                }
+                out[id] = res;
+            }
+            return out;
+        });
+        for (const [id, res] of Object.entries(series)) {
+            const over = res.filter(x => (x.k > 1 + 1e-6 && x.ow > 1.5) || (x.oh > 1 && x.k > 0.75));
+            check(`${id} maximize size series (900–1900 × 250–1100): no horizontal or vertical overflow (rows scroll only at the 9 px floor)`,
+                over.length === 0, over.slice(0, 4).map(x => `${x.w}x${x.h} k${x.k.toFixed(3)} oh${x.oh} ow${x.ow.toFixed(1)}`).join(" | "));
+            const byH = {}; const byW = {};
+            for (const x of res) { (byH[x.h] = byH[x.h] || []).push(x); (byW[x.w] = byW[x.w] || []).push(x); }
+            const fallW = Object.values(byH).flatMap(xs => xs.filter((x, i) => i > 0 && x.k < xs[i - 1].k - 0.012).map(x => `${x.w}x${x.h} ${xs[xs.indexOf(x) - 1].k.toFixed(2)}→${x.k.toFixed(2)}`));
+            const fallH = Object.values(byW).flatMap(xs => xs.filter((x, i) => i > 0 && x.k < xs[i - 1].k - 0.012).map(x => `${x.w}x${x.h}`));
+            check(`${id} maximize: k never falls with more width or more height`, fallW.length === 0 && fallH.length === 0, fallW.concat(fallH).join(" | "));
+            const avg = res.reduce((a, x) => a + x.ms, 0) / res.length;
+            notes.push(`  · ${id} maximize series: ${res.length} sizes, ${Math.round(avg)} ms per update on average (incl. a fresh visual)`);
+        }
     }
     if (S.m82) {
         // 1.8.4 layout.maximize grows a short table (flat list without spacer rows) only as far as the

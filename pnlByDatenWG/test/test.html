@@ -112,6 +112,7 @@
 <div class="case"><h4>m77 · 1.8.4 · T04A: ΔPL% n.a. an der Achse der Pin-Spalte (Financial income PL −15 → AC 66) · p30 klassische Tabelle Δ%-Pins: n.a. und gekappter Pin mit Kopf</h4><div class="stage" id="m77" style="width:1320px;height:700px"></div><div class="stage" id="p30" style="width:1100px;height:640px"></div></div>
 <div class="case"><h4>m78 · 1.8.4 · Gleitkomma-Rauschen ist kein Vorzeichenwechsel (Investment income 0.0, ΔPY% −100.0 %) · m79 negativer gekappter Pin mit Kopf · m80 Hochkontrast: gekappte FC-Pins behalten den Kopf</h4><div class="stage" id="m78" style="width:1320px;height:600px"></div><div class="stage" id="m79" style="width:1320px;height:700px"></div><div class="stage" id="m80" style="width:1320px;height:700px"></div></div>
 <div class="case"><h4>m81 · 1.8.4 · T02B auf einer flachen Kundenliste: keine Leerzeilen, Leerzeile nur vor Gesamt · m82 T02C Bierranking 1566 × 742 mit „Fläche maximieren“: wächst nur so weit, wie die Breite reicht · m83 ⚡ auf dem gedruckten Δ% (−9,96 % druckt −10,0 % und ist Ausnahme bei 10 %)</h4><div class="stage" id="m81" style="width:1320px;height:480px"></div><div class="stage" id="m82" style="width:1566px;height:742px"></div><div class="stage" id="m83" style="width:1320px;height:640px"></div></div>
+<div class="case"><h4>m84 · 1.8.4 · Liste aus Einkind-Gruppen behält ihre Blöcke · m85 Mischliste behält ihre Blöcke · m86 flache Liste unter ⚡ ausblenden bleibt dicht</h4><div class="stage" id="m84" style="width:1320px;height:420px"></div><div class="stage" id="m85" style="width:1320px;height:420px"></div><div class="stage" id="m86" style="width:1320px;height:480px"></div></div>
 <div class="case"><h4>m46 · 1.7 · ⚡ Hochkontrast · T02A · Nicht-Ausnahmen gestrichelt ohne Füllung und Muster</h4><div class="stage" id="m46" style="width:1320px;height:800px"></div></div>
 <script src="locales.js"></script>
 <script src="visual.bundle.js"></script>
@@ -694,6 +695,22 @@ runRows("m83", MEGA_DEMO.regions().map(r => r.month === "2026-11" && r.account =
     columns: { template: "T01A", templateApplied: "T01A", showPY: true, showPL: true, showMinuend: true, dPyAbs: true, dPyPct: true,
       dPlAbs: true, dPlPct: true, secondBlock: true, structureSubtotals: false, thresholds: false },
     numbers: { decimals: 0, pctDecimals: 1 }, exceptions: { enabled: true, thresholdPct: 10, reference: "pl" } });
+// m84 / m85 / m86 — 1.8.4 flatTop is read from the model: a list of one-child groups and a mixed list keep their
+// blocks; a flat list under ⚡ hide (quiet customers leave) stays dense
+(function () {
+  const C = (levels, i, pl, ac) => ({ levels, account: "X" + i, sort: i, rowType: "account", formulaDef: null, sign: 1, displayInvert: false,
+    varianceInvert: false, month: "2026-08", comment: null, values: { ac: ac * 1000, pl: pl * 1000 } });
+  const one = [["Nord", "HyperMax", 4210, 3620], ["Süd", "Diskont Sever", 3300, 3440], ["Ost", "Trh Plus", 3050, 3110], ["West", "Sklepik", 1350, 1600]]
+    .map(([g, c, pl, ac], i) => C(["Gesamt", g, c], i, pl, ac));
+  runRows("m84", one, { titleBlock: { ...MT, measureLine: "Umsatz in kEUR", periodLine: "August 2026" }, ...REG, columns: { template: "T02B" } }, "de-DE");
+  const mixed = [C(["Gesamt", "HyperMax"], 0, 4210, 3620), C(["Gesamt", "Diskont Sever"], 1, 3300, 3440),
+    C(["Gesamt", "Ketten", "Trh Plus"], 2, 3050, 3110), C(["Gesamt", "Ketten", "Kaufpark"], 3, 2600, 2770), C(["Gesamt", "Sklepik"], 4, 1350, 1600)];
+  runRows("m85", mixed, { titleBlock: { ...MT, measureLine: "Umsatz in kEUR", periodLine: "August 2026" }, ...REG, columns: { template: "T02B" } }, "de-DE");
+  const cust = [["HyperMax", 4210, 3620], ["Diskont Sever", 3300, 3440], ["Trh Plus", 3050, 3110], ["Sklepik", 1350, 1600],
+    ["Kaufpark", 2600, 2770], ["Billa Nord", 2400, 2510], ["Coop Süd", 2050, 2470], ["Mini Markt", 1500, 1340]];
+  runRows("m86", cust.map(([c, pl, ac], i) => C(["Gesamt", c], i, pl, ac)), { titleBlock: { ...MT, measureLine: "Umsatz in kEUR", periodLine: "August 2026" },
+    ...REG, columns: { template: "T02B" }, exceptions: { enabled: true, thresholdPct: 8, reference: "pl", mode: "hide" } }, "de-DE");
+})();
 // p30 — 1.8.4 classic table, Δ% pins: Financial income crosses zero ("n.a.", no pin), Other revenue +62.7 % capped with its head
 runRows("p30", W1_T03, { titleBlock: { ...MT, periodLine: "2026" }, hierarchy: { defaultLevel: 0 }, columns: { preset: "dpct" } });
 runRows("m65", MEGA_DEMO.statement("T04"), { titleBlock: { ...MT, periodLine: "2026" }, toolbar: { show: false },

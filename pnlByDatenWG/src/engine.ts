@@ -1387,8 +1387,10 @@ export interface ExceptionRule {
      * back in data units. Absent = the raw Δ (callers without a table format)
      */
     rd?: (delta: number) => number;
-    /** 1.8.4 Δ% (or pp) in whole percent as printed with the Δ% decimals. Absent = raw */
+    /** 1.8.4 Δ% in whole percent as printed with the Δ% decimals. Absent = raw */
     rp?: (pctPercent: number) => number;
+    /** 1.8.4 the pp difference of a margin row as printed (its own decimals). Absent = rp */
+    rpp?: (pp: number) => number;
 }
 
 /**
@@ -1421,13 +1423,19 @@ export function isExceptionVariance(row: InputRow, v: Variance, rule: ExceptionR
     const pct = Math.max(0, Number(rule.pct) || 0);
     const abs = Math.max(0, Number(rule.abs) || 0);
     const eps = 1e-9;
-    if (pct <= 0 && abs <= 0) { return true; }
-    // 1.8.4 the printed numbers count (rule.rd / rule.rp), like the red threshold of the table:
-    // +9.96 % prints +10.0 % and is an exception at 10 %
+    // 1.8.4 the printed numbers count (rule.rd / rule.rp / rule.rpp), like the red threshold of the
+    // table: +9.96 % prints +10.0 % and is an exception at 10 %
     const P = (x: number): number => Math.abs(rule.rp ? rule.rp(x) : x);
+    const PP = (x: number): number => Math.abs(rule.rpp ? rule.rpp(x) : rule.rp ? rule.rp(x) : x);
     const D = (x: number): number => Math.abs(rule.rd ? rule.rd(x) : x);
+    // both thresholds 0: every Δ that does not print as 0
+    if (pct <= 0 && abs <= 0) {
+        // (a factor KPI keeps the raw test: its printed decimals are not part of the rule)
+        if (kpi && row.kfmt === "factor") { return true; }
+        return kpi ? PP(v.delta * 100) > 0 : D(v.delta) > 0;
+    }
     if (kpi && row.kfmt === "factor") { return pct > 0 && (v.deltaPct == null || P(v.deltaPct * 100) >= pct - eps); }
-    if (kpi) { return pct > 0 && P(v.delta * 100) >= pct - eps; }
+    if (kpi) { return pct > 0 && PP(v.delta * 100) >= pct - eps; }
     if (abs > 0 && D(v.delta) >= abs * (1 - eps)) { return true; }
     if (pct > 0) { return v.deltaPct == null || P(v.deltaPct * 100) >= pct - eps; }
     return false;

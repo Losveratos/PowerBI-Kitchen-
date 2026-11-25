@@ -4579,10 +4579,13 @@ export class Visual implements IVisual {
             const footer = this.buildFooter();
             this.root.appendChild(footer);
             // 1.7 maximize: type and rows follow the tile height
+            let used = shrink;
             if (this.maxi()) {
-                table = this.fillHeight(table, ui.density === "compact" ? 11 : 13, () => this.buildMega(fmt, shrink));
+                // 1.8.4 a small width overflow comes out of the chart columns (buildMega's shrink) first
+                const fit = this.fillHeight(table, ui.density === "compact" ? 11 : 13, s => this.buildMega(fmt, s), shrink, true);
+                table = fit.el; used = fit.shrink;
             }
-            this.megaFitNotes(fmt, table, notes, shrink, footer);
+            this.megaFitNotes(fmt, table, notes, used, footer);
             this.root.scrollTop = keepScroll;
             this.syncMegaWindow();
         } else {
@@ -4608,7 +4611,7 @@ export class Visual implements IVisual {
                 body = this.fillHeight(body, ui.density === "compact" ? 10 : 11, () => {
                     this.fitK = 1; this.fitPad = CELL_PAD;
                     return this.buildTable(fmt, scan.maxAbsDelta);
-                });
+                }).el;
                 for (let pass = 0; ui.fit && pass < FIT_PASSES; pass++) {
                     if (!this.solveFit(fmt, scan.maxAbsDelta)) { break; }
                     const tighter = this.buildTable(fmt, scan.maxAbsDelta);
@@ -4627,43 +4630,105 @@ export class Visual implements IVisual {
      * until the page fills the tile height — at most ×1.6, at least down to a
      * 9 px body font (`base` = body font size at scale 1), beyond that the
      * rows scroll. Growing never pushes the body past the tile width.
-     * Measures, rebuilds, measures again (rows round to whole pixels).
+     *
+     * 1.8.4 a deterministic search instead of a feedback loop (which swung between
+     * steps, because rows round to whole pixels, and could end on an unchecked
+     * growth step: m15 ended 34 px below the tile edge). Every candidate k is
+     * built and checked: the page fits the height AND the body fits the width
+     * (at k ≤ 1 only the height counts, a body wider than the tile at ×1 scrolls
+     * as before). A small width overflow (≤ 40 px, typically 2 to 3 px of label
+     * room) first comes out of the chart columns, like the first build does
+     * (`build(shrink)`, `canShrink`), instead of costing type size. The result is
+     * the largest checked k that fits, rebuilt if the last build was another one.
+     * Starts from the build at ×1 (render resets bodyK), so the same tile always
+     * gives the same k: monotone in width and height up to pixel steps.
      */
-    private fillHeight(cur: HTMLElement, base: number, build: () => HTMLElement): HTMLElement {
+    private fillHeight(cur: HTMLElement, base: number, build: (shrink: number) => HTMLElement,
+        shrink0 = 0, canShrink = false): { el: HTMLElement; shrink: number } {
         const avail = this.root.clientHeight;
-        if (!avail) { return cur; }
-        const lo = Math.min(1, 9 / (base * this.fontScale()));
+        if (!avail) { return { el: cur, shrink: shrink0 }; }
+        const lo = Math.round(Math.min(1, 9 / (base * this.fontScale())) * 1000) / 1000;
         const hi = 1.6;
-        // 1.8.4 the factor is min(height, width): `capW` only ever falls. A short table (a flat
-        // list without spacer rows) grew to ×1.6 and the next pass, finding it too wide, could
-        // grow it again: T02C in a 1400 px tile ended 119 px wider than the tile. A body already
-        // wider than the tile at ×1 does not grow; a grown one gives width back to ×1 at most.
-        let capW = hi;
-        const rebuild = (k: number): void => {
-            this.bodyK = k;
-            const fresh = build();
+        let curS = shrink0;
+        const put = (k: number, s: number): void => {
+            this.bodyK = k; curS = s;
+            const fresh = build(s);
             this.root.replaceChild(fresh, cur);
             cur = fresh;
         };
-        for (let pass = 0; pass < 6; pass++) {
-            const h = this.rect(cur).height;
-            if (h <= 0) { break; }
-            const room = avail - (this.contentHeight() - h) - 2;
-            const over = this.bodyOverflow(cur);
-            if (over > 1) {
-                capW = Math.min(capW, this.bodyK > 1
-                    ? Math.max(1, this.bodyK * this.root.clientWidth / (this.root.clientWidth + over) - 0.01)
-                    : this.bodyK);
+        const room = (): { h: number; w: number } => ({ h: avail - this.contentHeight(), w: this.bodyOverflow(cur) });
+        // the state at ×1 (as rendered); its small width overflow comes out of the chart columns
+        let base1 = shrink0;
+        let m = room();
+        for (let a = 0; a < 6 && canShrink && m.w > 1 && base1 - shrink0 + m.w <= 40; a++) { base1 += Math.max(2, Math.ceil(m.w)); put(this.bodyK, base1); m = room(); }
+        const k0 = this.bodyK;
+        const h0 = this.rect(cur).height;
+        const wideAt1 = m.w > 1;
+        const upper = wideAt1 ? Math.min(hi, k0) : hi;
+        // one checked candidate: build, absorb a small width overflow, measure. `next` is this
+        // build's own estimate of the largest fitting k (height and width grow about linearly in k)
+        const cw = Math.max(1, this.root.clientWidth);
+        const tried = new Map<number, { ok: boolean; s: number; next: number }>();
+        // the shrink the last candidate needed is the start of the next one (neighbouring k need
+        // about the same): fewer rebuilds; a little more shrink only narrows the chart columns
+        let sPrev = base1;
+        const test = (k: number): { ok: boolean; next: number } => {
+            const kk = Math.round(k * 1000) / 1000;
+            const known = tried.get(kk);
+            if (known) { return known; }
+            let s = Math.max(base1, sPrev);
+            put(kk, s);
+            let r = room();
+            // the chart columns give up to 40 px; the table does not always narrow by the full
+            // amount (columns round, a minimum data span keeps its width), so it tries again
+            for (let a = 0; a < 6 && canShrink && r.w > 1 && s - base1 + r.w <= 40; a++) { s += Math.max(2, Math.ceil(r.w)); put(kk, s); r = room(); }
+            sPrev = s;
+            const hk = Math.max(1, this.rect(cur).height);
+            const kh = kk * (hk + r.h - 2) / hk;
+            const kw = kk > 1 && r.w > 1 ? kk * cw / (cw + r.w) : Infinity;
+            const res = { ok: r.h >= 0 && (kk <= 1 || r.w <= 1), s, next: Math.min(kh, kw) };
+            tried.set(kk, res);
+            return res;
+        };
+        if (h0 <= 0) { return { el: cur, shrink: base1 }; }
+        // k lives on a grid of 0.02 (and the 9 px floor): the same tile always lands on the same
+        // step, and a wider tile never on a lower one (a step that fits stays fitting with more width)
+        const STEP = 0.02;
+        const grid = (k: number): number => Math.max(lo, Math.min(upper, Math.floor(k / STEP + 1e-6) * STEP));
+        // the build at ×1 is the first checked point; the start is its height estimate
+        const k0r = Math.round(k0 * 1000) / 1000;
+        tried.set(k0r, { ok: m.h >= 0, s: base1, next: k0 * (h0 + m.h - 2) / h0 });
+        let good = m.h >= 0 ? k0r : -1;
+        let fail = Infinity;
+        let cand = grid(k0 * (h0 + m.h - 2) / h0);
+        // from the estimate: down along the estimates of the failing builds (after two misses in a
+        // row: halfway to the last fitting step, a width that does not shrink with k misleads the
+        // estimate), up from a fitting one, never past a failed step (≤ 8 builds)
+        let misses = 0;
+        for (let i = 0; i < 8; i++) {
+            if (cand >= fail - 1e-6 || cand <= good + 1e-6) { break; }
+            const t = test(cand);
+            if (t.ok) {
+                misses = 0;
+                good = Math.max(good, cand);
+                const up = grid(Math.max(cand + STEP, Math.min(fail - STEP, t.next)));
+                if (up <= cand + 1e-6 || up >= fail - 1e-6) { break; }
+                cand = up;
+            } else {
+                misses++;
+                fail = Math.min(fail, cand);
+                if (cand <= lo + 1e-6) { break; }
+                let dn = grid(Math.min(t.next, cand - STEP));
+                if (misses >= 2 && good >= 0) { dn = Math.min(dn, grid((good + fail) / 2)); }
+                if (good >= 0 && dn <= good + 1e-6) { break; }
+                cand = dn;
             }
-            const k = Math.max(lo, Math.min(hi, capW, this.bodyK * room / h));
-            if (Math.abs(k - this.bodyK) < 0.01) { break; }
-            rebuild(k);
         }
-        // never past the tile edge: a grown body that still overflows steps back towards ×1
-        for (let i = 0; i < 8 && this.bodyK > 1 && this.bodyOverflow(cur) > 1; i++) {
-            rebuild(Math.max(1, this.bodyK - 0.06));
-        }
-        return cur;
+        // nothing fits (a tall statement): the smallest type, the rows scroll
+        const k = good >= 0 ? Math.round(good * 1000) / 1000 : lo;
+        const s = tried.get(k)?.s ?? base1;
+        if (Math.abs(this.bodyK - k) > 1e-6 || curS !== s) { put(k, s); }
+        return { el: cur, shrink: s };
     }
 
     /**
@@ -6162,6 +6227,8 @@ export class Visual implements IVisual {
                 for (const el of make(node)) { table.appendChild(el); }
             }
         }
+        // 1.8.4 one hatch definition for every AC&FC pin head of this table
+        if (cols.some(c => c.kind === "pin" && c.minuend === "fcfy")) { wrap.appendChild(this.tablePinHatch()); }
         wrap.appendChild(table);
         return wrap;
     }
@@ -6713,6 +6780,33 @@ export class Visual implements IVisual {
         return cell;
     }
 
+    /**
+     * 1.8.4 id of the fine ink hatch of AC&FC pin heads. No instance id: two renders of the same
+     * statement stay byte-identical; ink and paper are part of it, so light and dark never mix
+     */
+    private pinHatchId(): string {
+        return `pnlpinfc${(C.ac + C.paper).replace(/[^0-9a-z]/gi, "")}`;
+    }
+
+    /** 1.8.4 the one <defs> of a classic table with AC&FC pins: the ink hatch of their heads */
+    private tablePinHatch(): SVGSVGElement {
+        const ns = "http://www.w3.org/2000/svg";
+        const svg = document.createElementNS(ns, "svg") as SVGSVGElement;
+        svg.setAttribute("width", "0"); svg.setAttribute("height", "0");
+        svg.setAttribute("aria-hidden", "true"); svg.setAttribute("data-pnl", "pin-defs");
+        svg.style.cssText = "position:absolute;width:0;height:0;overflow:hidden;";
+        const defs = document.createElementNS(ns, "defs");
+        const pat = document.createElementNS(ns, "pattern");
+        pat.setAttribute("id", this.pinHatchId()); pat.setAttribute("width", "2"); pat.setAttribute("height", "2");
+        pat.setAttribute("patternUnits", "userSpaceOnUse"); pat.setAttribute("patternTransform", "rotate(45)");
+        const bg = document.createElementNS(ns, "rect");
+        bg.setAttribute("width", "2"); bg.setAttribute("height", "2"); bg.setAttribute("fill", C.paper);
+        const ln = document.createElementNS(ns, "rect");
+        ln.setAttribute("width", "0.9"); ln.setAttribute("height", "2"); ln.setAttribute("fill", C.ac);
+        pat.appendChild(bg); pat.appendChild(ln); defs.appendChild(pat); svg.appendChild(defs);
+        return svg;
+    }
+
     private deltaPinCell(v: { delta?: number | null; deltaPct: number | null; good: boolean }, c: ColSpec,
         geo: { rowH: number; fs: number; barLabelFs: number; PIN_HALF: number; pinW: number; pinZone: boolean }, fmt: Fmt,
         soft = false): HTMLElement {
@@ -6753,27 +6847,16 @@ export class Visual implements IVisual {
         svg.style.cssText = "display:block;";
         this.drawAxis(svg, ns, mid, h, c.ref!);
         // pin head carries the minuend's scenario fill (IBCS): AC filled; 1.8.4 AC&FC (FY outlook)
-        // hatched like every FC element and like the FY pin heads of sheet 12G (until 1.8.3 an
-        // outline, which reads as plan). The hatch is fine (period 2.4 px) so it shows at r 2.8
+        // as the FY pins of sheet 12G: an ink outline, hatched in ink, the stem alone carries the
+        // variance colour (until 1.8.3 an empty ring, which reads as plan). The hatch pattern is
+        // fine (period 2.0, line 0.9: two stripes at r 2.8) and lives ONCE per table (tablePinHatch)
         const pinHead = (cx: number, r: string): SVGCircleElement => {
             const head = document.createElementNS(ns, "circle");
             head.setAttribute("cx", String(cx)); head.setAttribute("cy", String(h / 2));
             head.setAttribute("r", r);
             if (c.minuend === "fcfy") {
-                // no instance id: two renders of the same statement stay byte-identical (like the Δ bar hatch)
-                const pid = `pnlpinfc${(color + C.paper).replace(/[^0-9a-z]/gi, "")}`;
-                if (!svg.querySelector(`#${pid}`)) {
-                    const defs = document.createElementNS(ns, "defs");
-                    const pat = document.createElementNS(ns, "pattern");
-                    pat.setAttribute("id", pid); pat.setAttribute("width", "2.4"); pat.setAttribute("height", "2.4");
-                    pat.setAttribute("patternUnits", "userSpaceOnUse"); pat.setAttribute("patternTransform", "rotate(45)");
-                    const bg = document.createElementNS(ns, "rect");
-                    bg.setAttribute("width", "2.4"); bg.setAttribute("height", "2.4"); bg.setAttribute("fill", C.paper);
-                    const ln = document.createElementNS(ns, "rect");
-                    ln.setAttribute("width", "1.1"); ln.setAttribute("height", "2.4"); ln.setAttribute("fill", color);
-                    pat.appendChild(bg); pat.appendChild(ln); defs.appendChild(pat); svg.appendChild(defs);
-                }
-                head.setAttribute("fill", `url(#${pid})`); head.setAttribute("stroke", color); head.setAttribute("stroke-width", "1");
+                head.setAttribute("fill", `url(#${this.pinHatchId()})`);
+                head.setAttribute("stroke", C.ac); head.setAttribute("stroke-width", "1");
                 head.setAttribute("data-pnl-fc", "1");
             } else { head.setAttribute("fill", color); }
             svg.appendChild(head);
@@ -11223,20 +11306,15 @@ export class Visual implements IVisual {
             return cur.row.id;
         };
 
-        // 1.8.4 a flat list (every element of the top visible level is one row: customers,
-        // products without a hierarchy) gets no spacer between its rows (T02B / T02C drew
-        // every row as a block of its own, 36 instead of 24 px); the grand total keeps its gap
+        // 1.8.4 a flat list (every element of the top level is a leaf: customers, products
+        // without a hierarchy) gets no spacer between its rows (T02B / T02C drew every row as a
+        // block of its own, 36 instead of 24 px); the grand total keeps its gap. Read from the
+        // MODEL, not from the visible rows: ⚡ hide, hidden zero rows or a folded level never
+        // turn a hierarchy into a flat list (a one-child group or a mixed list keeps its blocks)
         const isGrand = (x: PnlNode): boolean => x === soleRoot || x.row.id === TOTAL_ID;
-        let flatTop = struct;
-        if (flatTop) {
-            const perTop = new Map<string, number>();
-            for (const it of items) {
-                if (!it.node || it.kind === "pct" || isGrand(it.node)) { continue; }
-                const k = topOf(it.node);
-                perTop.set(k, (perTop.get(k) ?? 0) + 1);
-                if (perTop.get(k)! > 1 || it.node.hasChildren) { flatTop = false; break; }
-            }
-        }
+        const modelRoots = model.roots.filter(r => r.row.rowType !== "separator" && !r.isOrphanBucket);
+        const modelTops = modelRoots.length === 1 ? modelRoots[0].children : modelRoots;
+        const flatTop = struct && modelTops.length > 1 && modelTops.every(x => !x.hasChildren);
 
         // comment footnotes are numbered in reading order of this table
         this.comments = [];
@@ -11813,9 +11891,14 @@ export class Visual implements IVisual {
         const exFmt = this.makeFmt(this.scans().maxAbsVal);
         const exDec = this.settings.numbersCard.decimals.value;
         const exPdec = this.settings.numbersCard.pctDecimals.value;
+        // margin rows print their point difference with the pp decimals of the view (mega table: the
+        // sheet margin rule `sheetMdec`, at least one decimal then; classic table: the Δ% decimals)
+        const mdec = this.megaInView() ? this.sheetMdec() : undefined;
+        const exPpdec = mdec != null ? Math.max(1, mdec) : exPdec;
         const rule: ExceptionRule = { pct: x.pct, abs: x.abs, dir: x.dir,
             rd: d => roundShown(d / exFmt.div, exDec) * exFmt.div,
-            rp: p => roundShown(p, exPdec) };
+            rp: p => roundShown(p, exPdec),
+            rpp: p => roundShown(p, exPpdec) };
         let test: (n: PnlNode) => boolean;
         const fixed: Scenario | null = x.ref !== "auto" && this.has[x.ref] ? x.ref : null;
         if (this.megaInView()) {

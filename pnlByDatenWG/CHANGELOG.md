@@ -45,12 +45,15 @@ Punkte sind Notationskorrekturen und ändern das Bild bestehender Berichte gezie
   mit `capBars` für die Δ-Balken). **Wirkung:** Mega-Tabellen mit gekappten Pins zeigen zusätzlich den Kopf;
   sonst unverändert. Auch die klassische Tabelle (feste Kappung bei ±40 %) behält am gekappten Pin den
   Kopf direkt vor dem Dreieck; ihre Geometrie bleibt gleich.
-- **FY-Kopf AC&FC der klassischen Tabelle schraffiert.** Die Pin-Köpfe des FY-Ausblicks (AC&FC) waren ein
-  leerer Ring und lasen sich wie Plan. Jetzt tragen sie eine feine Schraffur (Periode 2,4 px, sichtbar beim
-  Radius 2,8) in ihrer Farbe mit Kontur, wie jedes FC-Element und wie die FY-Pins im Blatt 12G; gekappt und
-  ungekappt, hell und dunkel. Die klassische Tabelle hat keinen Hochkontrast-Pfad (nur Mega-Tabelle und
-  Sankey), dort ändert sich nichts. **Wirkung:** klassische Tabellen mit FY-Block zeigen schraffierte statt
-  leere Pin-Köpfe.
+- **FY-Kopf AC&FC der klassischen Tabelle nach Blatt 12G.** Die Pin-Köpfe des FY-Ausblicks (AC&FC) waren ein
+  leerer Ring und lasen sich wie Plan. Vorlage ist das Referenzblatt 12G: dort sind die FY-Köpfe dunkel
+  umrandet und in Tinte schraffiert, nur der Stiel trägt die Abweichungsfarbe. So zeichnet das Visual sie
+  jetzt, in der runden Form der klassischen Tabelle und wie die FC-Köpfe der Mega-Tabelle: Rand und Schraffur
+  in Tinte (hell #404040, dunkel #D9D9D9), feine Schraffur (Periode 2,0, Strich 0,9; bei Radius 2,8 zwei
+  Streifen), ein gemeinsames Muster je Tabelle; gekappt und ungekappt, hell und dunkel, mit jedem
+  Abweichungsfarben-Preset (blau-orange: nur der Stiel). Die klassische Tabelle hat keinen
+  Hochkontrast-Pfad (nur Mega-Tabelle und Sankey), dort ändert sich nichts. **Wirkung:** klassische
+  Tabellen mit FY-Block zeigen schraffierte Tinten-Köpfe statt leerer Ringe in Abweichungsfarbe.
 - **Zahlen folgen einem Sprachwechsel des Hosts zur Laufzeit.** Das Visual las `host.locale` nur im
   Konstruktor; wechselte der Host die Sprache danach, zogen nur die Texte nach, die Zahlen blieben im
   alten Format. Jetzt übernimmt jedes Update die aktuelle Sprache des Hosts; alle Zahlen nutzen weiter
@@ -60,17 +63,31 @@ Punkte sind Notationskorrekturen und ändern das Bild bestehender Berichte gezie
   Komma, der dwg-Host liefert die Sprache schon im Konstruktor.
 - **Flache Listen ohne Leerzeilen** (übernommen). Strukturdaten ohne Hierarchie unter der Gesamtzeile
   (T02B, T02C auf einer Kundenliste) zeichnen ihre Zeilen dicht (24 statt 36 px je Zeile), die Leerzeile
-  steht nur vor der Gesamtzeile. Mit Hierarchie gilt die Blockregel von 1.5.1 unverändert. **Wirkung:**
+  steht nur vor der Gesamtzeile. Mit Hierarchie gilt die Blockregel von 1.5.1 unverändert. Ob eine Liste
+  flach ist, liest das Visual aus dem Modell (jedes Element der obersten Ebene ein Blatt), nicht aus den
+  sichtbaren Zeilen: ⚡ ausblenden oder ausgeblendete Nullzeilen kippen die Darstellung nicht; eine Liste
+  aus Einkind-Gruppen und eine Mischliste behalten ihre Blöcke. **Wirkung:**
   flache Strukturlisten werden kürzer.
-- **Fläche maximieren hält die Kachelbreite ein** (übernommen). Der Wachstumsfaktor von `layout.maximize`
-  ist das Minimum aus Höhe und Breite und steigt über die Durchläufe nie wieder; gemessen werden auch
-  Beschriftungen, die über ihr SVG hinauslaufen. T02C mit zwei Blöcken in 1400 × 742 px stand mit den
-  dichten Listen 119 px über den Kachelrand. **Wirkung:** Berichte mit `maximize` wachsen höchstens so weit,
-  wie die Breite reicht.
+- **Fläche maximieren: geprüfte Suche statt Regelschleife.** Bis 1.8.3 näherte sich `layout.maximize` dem
+  Schriftfaktor in einer Schleife, die zwischen Stufen pendelte (Zeilen runden auf ganze Pixel) und auf einem
+  ungeprüften Wachstumsschritt enden konnte: m15 (12A) in 1320 × 700 ragte 34 px unter die Kachel, T02C mit
+  dichten Listen in 1400 × 742 px 119 px über den rechten Rand, und der Faktor sprang beim Ändern der Breite
+  um wenige Pixel (1392 → 1,13, 1396 → 1,42). Jetzt baut das Visual jeden Kandidaten auf und prüft ihn: Höhe
+  passt UND Breite passt (bei Faktor ≤ 1 zählt nur die Höhe, eine Tabelle, die schon bei ×1 breiter ist,
+  scrollt wie bisher). Ein kleiner Breitenüberstand (bis 40 px, meist 2 bis 3 px Beschriftung) kommt zuerst
+  aus den Diagrammspalten, wie im Erstaufbau, und kostet keine Schrift mehr (bis dahin bis zu 27 % in m40).
+  Der Faktor liegt auf einem Raster von 0,02; das Ergebnis ist der größte geprüft passende Schritt, nie ein
+  ungeprüfter. Messreihe 900 bis 1900 × 250 bis 1100 px über 12A, T05B, T02A, T02C: kein Überlauf, der
+  Faktor fällt nie mit mehr Breite oder Höhe; im Mittel etwa 70 ms je Update wie vorher, einzelne Größen
+  mit mehrfachem Abgeben von Diagrammplatz bis etwa 270 ms. **Wirkung:** Berichte mit `maximize` laufen nie mehr über die Kachel
+  und nutzen sie meist größer.
 - **⚡ Nur Ausnahmen auf dem gedruckten Wert** (übernommen). Die Schwellen von ⚡ prüfen das gedruckte Δ
-  (Einheit und Dezimalen der Tabelle) und Δ% bzw. pp (Δ%-Dezimalen), wie das Schwellen-Rot: −9,96 % druckt
-  −10,0 % und ist bei 10 % eine Ausnahme. **Wirkung:** Zeilen genau an der Schwelle können ihre Einstufung
-  wechseln.
+  (Einheit und Dezimalen der Tabelle), Δ% (Δ%-Dezimalen) und die pp der Margen mit deren eigenen Dezimalen
+  (Mega-Tabelle in Blattnotation mindestens eine Stelle), wie das Schwellen-Rot: −9,96 % druckt −10,0 % und
+  ist bei 10 % eine Ausnahme. Sind beide Schwellen 0, zählt eine Δ, die als 0 gedruckt wird, nicht als
+  Ausnahme. Nicht umgesetzt: bei Σ-treuer Rundung (`numbers.sumSafeRounding`) prüft ⚡ weiter die gerundete
+  Rohdifferenz, nicht die Differenz der gedruckten Werte (das bräuchte die Rundung des ganzen Baums vor ⚡).
+  **Wirkung:** Zeilen genau an der Schwelle können ihre Einstufung wechseln.
 - **Gerundete Null ohne Vorzeichen in allen Templates** (wie ChartKitchen). Jedes Template schreibt beim
   Anwenden `numbers.roundedZero = plain` (wie die Dezimalen, in derselben Schreibaktion und unter demselben
   Echo-Schutz); damit hängt das Ergebnis nicht mehr vom vorher angewandten Template ab. „Aus“ (klassische
@@ -95,7 +112,11 @@ Tabelle) und p30 (n.a. statt Pin) neu; engine-test „Rauschen ist kein Vorzeich
 (flache Liste), m82 (Maximieren 1566 und 1400 × 742), m83 (⚡ gedruckt), m80 geschärft (Köpfe an derselben
 Stelle wie m74); engine-test ⚡ mit `rd`/`rp`; scale-views p1 (FY-Kopf schraffiert, Kopf vor dem Dreieck) und
 p30 geschärft (n.a. auf der Zeile, kursiv, grau); tree-interact n.a. in Baumkarte, Hover-Panel, Raster,
-Kachel, Tooltip und Mega-Tooltip sowie es-ES „n.d.“ und ja-JP „N/A“. Angepasst: tree-interact „⚡ hide, Sankey“ bündelt jetzt
+Kachel, Tooltip und Mega-Tooltip sowie es-ES „n.d.“ und ja-JP „N/A“. Nachbesserung: mega-shot Messreihe
+Maximieren (m15, m40, m82, m5 über 900 bis 1900 × 250 bis 1100: kein Überlauf, Faktor monoton), m84 bis m86
+(Einkind-Gruppen und Mischliste behalten Blöcke, flache Liste unter ⚡ ausblenden bleibt dicht); scale-views
+p1/p13 und blau-orange (FY-Kopf in Tinte, Stiel in Abweichungsfarbe, ein Muster je Tabelle, kein leerer Ring
+auch auf dunklem Papier); engine-test ⚡ mit pp-Dezimalen und gedruckter Null. Angepasst: tree-interact „⚡ hide, Sankey“ bündelt jetzt
 bei 6 % statt 5 % (mit dem gedruckten Δ% zählt ein Strom mit +4,96 % bei 5 % als Ausnahme, das letzte Paar
 ruhiger Geschwister fiel weg).
 

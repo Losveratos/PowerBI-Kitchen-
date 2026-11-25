@@ -1005,8 +1005,9 @@ Anfangsbestand und `stock` am Endbestand (Formel `[Anfangsbestand]+[Operativ]+�
       `outlierCap(values, factor)` fällt bei 0 oder NaN auf 4 zurück. Die klassische Tabelle hat eine
       eigene, feste Pin-Kappung (±40 %, ohne Schalter); ihr gekappter Pin trägt den Kopf
       (`data-pnl="pin-head"`, gleiche Füllung wie der ungekappte) direkt vor dem Dreieck. Der Kopf
-      eines AC&FC-Pins (FY) ist schraffiert (`data-pnl-fc`, Muster `pnlpinfc…`, Periode 2,4 px) statt
-      eines leeren Rings (Vorlage: Blatt 12G).
+      eines AC&FC-Pins (FY) ist wie im Blatt 12G in Tinte umrandet und schraffiert (`data-pnl-fc`,
+      Muster `pnlpinfc…` aus Tinte und Papier, Periode 2,0, Strich 0,9), nur der Stiel trägt die
+      Abweichungsfarbe; das Muster steht einmal je Tabelle (`svg[data-pnl="pin-defs"]`, `tablePinHatch`).
     - **Sprache:** `syncLocale()` übernimmt `host.locale` zu Beginn jedes `update()` (leer = die zuletzt
       bekannte, im Konstruktor en-US). Zahlformat-Speicher (`treeNf`, `megaNf`) sind nach Sprache und
       Dezimalen geschlüsselt. Damit folgen die Zahlen einem Sprachwechsel des Hosts zur Laufzeit; bis
@@ -1019,12 +1020,18 @@ Anfangsbestand und `stock` am Endbestand (Formel `[Anfangsbestand]+[Operativ]+�
       PBIR: wer ein Template mit `templateApplied` vorkonfiguriert, setzt `numbers.roundedZero` selbst
       (`'plain'`), sonst gilt der Standard `signed`.
     - **Flache Listen:** `megaRows` setzt zwischen Elementen der obersten Ebene keine Leerzeile, wenn
-      jedes Element genau eine Zeile ohne Kinder ist (`flatTop`); die Gesamtzeile behält ihre Leerzeile.
-    - **Maximieren:** `fillHeight` nimmt das Minimum aus Höhe und Breite (`capW` sinkt nur) und misst
-      über `bodyOverflow` auch SVG-Texte jenseits ihres SVG; zum Schluss tritt ein zu breiter Körper in
-      Schritten von 0,06 auf ×1 zurück.
-    - **⚡ gedruckt:** `ExceptionRule.rd`/`rp` runden Δ (Anzeigeeinheit, Dezimalen) und Δ% (Δ%-Dezimalen)
-      wie die Tabelle (`engine.roundShown`), bevor die Schwellen greifen.
+      im MODELL jedes Element der obersten Ebene (unter einer einzigen Wurzel deren Kinder) ein Blatt ist
+      (`flatTop`); die Gesamtzeile behält ihre Leerzeile. ⚡ ausblenden und Nullzeilen ändern das nicht.
+    - **Maximieren:** `fillHeight(cur, base, build(shrink), shrink, canShrink)` sucht den Faktor auf
+      einem Raster von 0,02 ab der Höhenschätzung des Aufbaus bei ×1 und prüft jeden Kandidaten (Höhe
+      passt UND Breite passt über `bodyOverflow`, bei k ≤ 1 nur die Höhe). Die Mega-Tabelle gibt einen
+      Breitenüberstand bis 40 px zuerst aus den Diagrammspalten ab (`buildMega(fmt, shrink)`, bis zu
+      sechs Versuche, weil die Spalten nicht immer um den vollen Betrag schmaler werden). Ergebnis ist
+      der größte geprüft passende Schritt; endet die Suche auf einem anderen Aufbau, wird er neu gebaut.
+    - **⚡ gedruckt:** `ExceptionRule.rd`/`rp`/`rpp` runden Δ (Anzeigeeinheit, Dezimalen), Δ% (Δ%-Dezimalen)
+      und die pp der Margen (Mega-Tabelle: `sheetMdec`, dann mindestens eine Stelle) wie die Tabelle
+      (`engine.roundShown`), bevor die Schwellen greifen; bei beiden Schwellen 0 zählt nur eine Δ, die
+      nicht als 0 gedruckt wird. Σ-treue Rundung bleibt außen vor (⚡ prüft die gerundete Rohdifferenz).
 
 ## Verwandte Dateien
 

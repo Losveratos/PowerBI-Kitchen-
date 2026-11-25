@@ -1111,6 +1111,17 @@ test("1.8.4 relDelta: Δ% n.a. on a sign change and against 0, same-sign negativ
     assert.strictEqual(ex(v4996, { pct: 0, abs: 500, dir: "both" }), false);
     assert.strictEqual(ex(v4996, { pct: 0, abs: 500, dir: "both", rd: d => E.roundShown(d, 0) }), true);
     assert.strictEqual(E.roundShown(-0.04, 1), 0, "a rounded zero is 0, not −0");
+    // margins: the pp difference is printed with its own decimals (rpp; mega table sheet margins: one decimal)
+    const kpiRow = { ...row("m", null, { rowType: "kpi" }) };
+    const vpp = { delta: 0.0996, deltaPct: 0.5, good: true };          // +9.96 pp
+    assert.strictEqual(E.isExceptionVariance(kpiRow, vpp, { pct: 10, abs: 0, dir: "both", rp: p => E.roundShown(p, 2), rpp: p => E.roundShown(p, 1) }), true);
+    assert.strictEqual(E.isExceptionVariance(kpiRow, vpp, { pct: 10, abs: 0, dir: "both", rp: p => E.roundShown(p, 1), rpp: p => E.roundShown(p, 2) }), false);
+    // both thresholds 0: a Δ that prints as 0 is no exception (+0.04 at 0 decimals prints 0), a printed +1 is one
+    const zero = { pct: 0, abs: 0, dir: "both", rd: d => E.roundShown(d, 0), rp: p => E.roundShown(p, 1), rpp: p => E.roundShown(p, 1) };
+    assert.strictEqual(ex({ delta: 0.04, deltaPct: 0.0004, good: true }, zero), false);
+    assert.strictEqual(ex({ delta: 0.6, deltaPct: 0.006, good: true }, zero), true);
+    assert.strictEqual(E.isExceptionVariance(kpiRow, { delta: 0.0004, deltaPct: 0.01, good: true }, zero), false, "+0.04 pp prints 0.0 pp");
+    assert.strictEqual(ex({ delta: 0.04, deltaPct: 0.0004, good: true }, { pct: 0, abs: 0, dir: "both" }), true, "without printers: every non-zero Δ, as before");
     // variance() on a model: the PY window of a cash-flow row that turns from −6 to +10
     const m = E.buildModel([row("wc", null, { values: { ac: 10, py: -6 } })], "U");
     assert.strictEqual(E.variance(m.byId.get("wc"), "py").deltaPct, null);
