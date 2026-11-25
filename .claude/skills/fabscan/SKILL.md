@@ -35,11 +35,16 @@ python3 <SKILL_DIR>/run.py <repo-ordner> -o fabscan-bericht
 - Gibt es einen Ordner für Ausgabedateien (z. B. `/mnt/user-data/outputs` in claude.ai), dorthin schreiben, damit der
   Nutzer den Bericht öffnen kann.
 
-**Danach antworten:** `zusammenfassung.md` lesen und dem Nutzer in Klartext sagen:
-1. das Gesamtbild in zwei, drei Sätzen,
-2. die wichtigsten Befunde (✗ und ⚠) mit App-Namen und Zahlen,
-3. was du als Erstes angehen würdest,
+**Danach antworten:** `zusammenfassung.md` lesen (Abschnitt „Auf einen Blick“ zuerst) und dem Nutzer in Klartext sagen:
+1. die Ampel je Thema (Eine Zahl, Zeilensicherheit, Datenweg, Abfluss, Zuordnung) in zwei, drei Sätzen; „nicht
+   prüfbar“ (?) ausdrücklich nennen, es ist nicht dasselbe wie unauffällig,
+2. die drei wichtigsten Maßnahmen mit App-Namen, wer handelt und grobem Aufwand,
+3. falls vorhanden die Veränderung seit dem letzten Lauf (neu, behoben, neue oder verschwundene Apps),
 4. wo der Bericht liegt.
+
+Für den Trend denselben Ausgabeordner wiederverwenden (fabscan vergleicht mit der `befunde.json` darin und führt
+`verlauf.json` fort) oder `--vorlauf <alte befunde.json>`. Nutzerkennungen bleiben Pseudonyme; `--klarnamen` nur,
+wenn der Nutzer es ausdrücklich will.
 
 Keine Regel-IDs und keine Code-Schnipsel in der Antwort, außer der Nutzer fragt danach.
 

@@ -3,7 +3,7 @@ from __future__ import annotations
 
 from . import dax, rayfin
 from .checks import AppResult, Binding, group, check_app, usage, SEV_ORDER, CATEGORIES
-from .querylog import Client, is_service_principal
+from .querylog import Client, is_service_principal, kennung
 from .tmdl import Model
 
 
@@ -18,13 +18,13 @@ def _find_model(models: list[Model], c: Client) -> Model | None:
     return cand[0] if cand else None
 
 
-def scan_client(c: Client, models: list[Model]) -> AppResult:
+def scan_client(c: Client, models: list[Model], klarnamen: bool = False) -> AppResult:
     sp_users = sorted(u for u in c.users if is_service_principal(u))
     auth = "application" if sp_users and len(sp_users) == len(c.users) else "delegated"
     con = rayfin.Connector(name=c.item_name or c.item_id, type="fabric-semanticmodel", auth=auth, item_id=c.item_id)
     app = AppResult(name=c.label, path=f"{c.workspace} / {c.item_name}", rayfin=None, origin="log")
     app.meta = {"runs": c.runs, "distinct": len(c.texts), "users": len(c.users), "first": c.first, "last": c.last,
-                "workspace": c.workspace, "model": c.item_name, "mdx": c.skipped_mdx, "sp_users": sp_users,
+                "workspace": c.workspace, "model": c.item_name, "mdx": c.skipped_mdx, "sp_users": [kennung(u, klarnamen) for u in sp_users],
                 "dropped": c.dropped}
     b = Binding(con)
     for i, (text, n) in enumerate(c.texts.most_common(), 1):
@@ -43,12 +43,12 @@ def scan_client(c: Client, models: list[Model]) -> AppResult:
         if rls:
             app.add("security", "warn", "SEC-AUTH", "Service Principal fragt ein Modell mit Zeilensicherheit ab" + part,
                     f"{len(sp_users)} technische Identität(en). RLS filtert Service Principals nicht.", app.path, 0,
-                    ", ".join(sp_users[:5]),
+                    ", ".join(kennung(u, klarnamen) for u in sp_users[:5]),
                     "Prüfen, wer die Daten des Clients sieht. Für Endnutzer delegiert abfragen oder die Ausnahme begründen.")
         else:
             app.add("security", "info", "SEC-AUTH", "Abfragen laufen unter einem Service Principal" + part,
                     f"{len(sp_users)} technische Identität(en) statt angemeldeter Nutzer.", app.path, 0,
-                    ", ".join(sp_users[:5]), "")
+                    ", ".join(kennung(u, klarnamen) for u in sp_users[:5]), "")
     if c.skipped_mdx:
         app.add("lineage", "info", "LIN-MDX", f"{c.skipped_mdx} MDX-Abfragen nicht geprüft (z. B. Excel)", "", app.path)
     usage(b)
@@ -57,8 +57,9 @@ def scan_client(c: Client, models: list[Model]) -> AppResult:
     return app
 
 
-def scan_tenant(models: list[Model], clients: list[Client]) -> list[AppResult]:
-    return [scan_client(c, models) for c in clients]
+def scan_tenant(models: list[Model], clients: list[Client], klarnamen: bool = False) -> list[AppResult]:
+    """klarnamen: Nutzerkennungen im Klartext statt als Pseudonym (querylog.kennung)."""
+    return [scan_client(c, models, klarnamen) for c in clients]
 
 
 def model_rows(models: list[Model], apps: list[AppResult]) -> list[dict]:

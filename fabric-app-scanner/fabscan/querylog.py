@@ -107,6 +107,19 @@ def is_mdx(text: str) -> bool:
     return t.startswith("SELECT") or t.startswith("WITH ") or t.startswith("DRILLTHROUGH")
 
 
+def kennung(user: str, klarnamen: bool = False) -> str:
+    """Nutzerkennung für den Bericht. Technische Identitäten (is_service_principal) bleiben, Personen-Kennungen
+    werden zum Pseudonym „Kennung-<8 Zeichen>“ (SHA-256, gleich über Läufe; Salz per Umgebung
+    FABSCAN_PSEUDONYM_SALZ). Klarnamen nur auf Wunsch (--klarnamen)."""
+    u = (user or "").strip()
+    if klarnamen or not u or is_service_principal(u):
+        return u
+    import hashlib
+    import os
+    salt = os.environ.get("FABSCAN_PSEUDONYM_SALZ", "fabscan")
+    return "Kennung-" + hashlib.sha256((salt + "|" + u.lower()).encode("utf-8")).hexdigest()[:8]
+
+
 def is_service_principal(user: str) -> bool:
     """App-ID (GUID, auch mit @Tenant), „app@…“ oder ausdrücklich „serviceprincipal“. Andere Kennungen ohne „@“
     (Systemkonten des Dienstes, leere Platzhalter) zählen nicht als Service Principal."""

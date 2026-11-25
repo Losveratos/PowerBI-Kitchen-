@@ -15,9 +15,10 @@ als Bericht in Klartext:
 fabscan liest nur, führt nichts aus und braucht keine Verbindung zu Fabric. Es läuft mit Python ab 3.10 und hat
 keine weiteren Abhängigkeiten.
 
-**Stand 0.6.3** (25.11.2026): Abruf auch ohne Admin-Rechte, Workspace Monitoring über das Monitoring-Item, Lauf über
+**Stand 0.7.0** (25.11.2026): Abruf auch ohne Admin-Rechte, Workspace Monitoring über das Monitoring-Item, Lauf über
 den ganzen Tenant, Ausnahmen mit Begründung, Abdeckung im Bericht, weniger Fehlalarme, `fabscan.json` je App,
-sichtbare feste Filter und Rayfin-Regeln (anonyme Datenrolle, Build für alle Nutzer, Besitzer-Identität). Was sich je Version
+sichtbare feste Filter, Rayfin-Regeln und ein Bericht für Entscheider: Ampel je Thema, Maßnahmenliste, Trend gegen
+den Vorlauf und Pseudonyme für Nutzerkennungen. Was sich je Version
 geändert hat, steht in [UEBERGABE-0.4.md](UEBERGABE-0.4.md); Recherche und Roadmap liegen unter
 [recherche/](recherche/00-ueberblick.md).
 
@@ -55,6 +56,9 @@ Weitere Befehle:
 | `fabscan --app NAME` | nur eine App |
 | `fabscan --models ../modelle` | Modelle aus einem anderen Ordner (oder direkt `../modelle/X.SemanticModel`) |
 | `fabscan --fail-on fail` | Exit-Code 1 bei kritischen Befunden (für CI) |
+| `fabscan --vorlauf alt/befunde.json` | Trend gegen einen früheren Lauf (Standard: `befunde.json` im Ausgabeordner) |
+| `fabscan --kein-vorlauf` | ohne Trend und ohne `verlauf.json` |
+| `fabscan --klarnamen` | Nutzerkennungen im Klartext statt als Pseudonym (auch bei `fetch`) |
 | `fabscan fetch -w WORKSPACE` | Tenant direkt prüfen (Admin-Scanner-API + Workspace Monitoring), ohne Admin-Rechte die eigenen Workspaces |
 | `fabscan fetch --ohne-admin` | gleich im Workspace-Modus prüfen (normale Fabric-API, Modelle per getDefinition) |
 | `fabscan notebook` | Fabric-Notebook für den Tenant-Scan schreiben |
@@ -162,13 +166,16 @@ Jeder Lauf schreibt einen Ordner:
 
 | Datei | Für wen |
 | --- | --- |
-| `bericht.html` | Menschen: Gesamtbild, Ampel, je App Steckbrief, Datenweg als Bild und „Das Wichtigste“. Fundstellen im Code sind eingeklappt. Eine Datei, ohne externe Ressourcen. |
+| `bericht.html` | Menschen. Oben für Entscheider: Abdeckung, Trend seit dem letzten Lauf, Ampel je Thema, die drei wichtigsten Maßnahmen. Darunter Gesamtbild, Maßnahmenliste, Verlauf und für Entwickler je App Steckbrief, Datenweg als Bild, „Das Wichtigste“ und die eingeklappten Fundstellen. Eine Datei, ohne externe Ressourcen. |
 | `zusammenfassung.md` | Chat, Pull Request, Ticket |
-| `befunde.json`, `befunde.csv` | Weiterverarbeitung: Power BI, Fabric App, Verlauf über die Zeit |
+| `befunde.json`, `befunde.csv` | Weiterverarbeitung: Power BI, Fabric App, Verlauf über die Zeit. `befunde.json` enthält zusätzlich `trend` und `themes` (Ampel je App) |
+| `verlauf.json` | Zeitreihe der letzten 52 Läufe: je Thema, wie viele Apps oder Clients rot, gelb oder grau waren, dazu Abdeckung |
 
-**Datenvertrag** (`schema_version` 2): eine Zeile je Befund mit den Spalten `run_id, run_date, source, scope,
+**Datenvertrag** (`schema_version` 3): eine Zeile je Befund mit den Spalten `run_id, run_date, source, scope,
 client, client_path, workspace, model, category, category_label, severity, rule, title, headline, why, todo,
-occurrences, runs, users, scanner_version, finding_id, status, exception_reason, exception_owner, exception_until`.
+occurrences, runs, users, scanner_version, finding_id, status, exception_reason, exception_owner, exception_until,
+first_seen, theme`. `first_seen` ist der erste Lauf mit diesem Befund (aus dem Vorlauf übernommen, gleich `run_date`
+heißt neu), `theme` das Thema der Ampel.
 `finding_id` bleibt über Läufe gleich, `status` ist `offen`, `akzeptiert` oder `abgelaufen`. Das Notebook schreibt
 dieselben Spalten in die Tabelle `fabscan_findings` (neue Spalten per `mergeSchema`). So kann ein Bericht oder eine
 Fabric App alle Läufe zeigen und „behoben“ von „akzeptiert“ unterscheiden.
@@ -177,6 +184,34 @@ Fabric App alle Läufe zeigen und „behoben“ von „akzeptiert“ unterscheid
 ohne Workspace Monitoring, Modelle (lesbar, nur mit Namen, nicht lesbar), Abfragen und Clients im Zeitraum, dazu
 ungeprüfte MDX-Abfragen, abgeschnittene Abfragen (mehr als 400 verschiedene je Client) und die ausgenommenen
 Berichtsabfragen.
+
+## Ampel je Thema, Maßnahmen und Trend
+
+Statt einer Gesamtnote beantwortet der Bericht fünf Fragen je App oder Client:
+
+| Thema | Frage | ✗ kritisch, wenn | ? nicht prüfbar, wenn |
+| --- | --- | --- | --- |
+| Eine Zahl | Rechnet die App selbst oder verändert sie Kennzahlen? | Measure überschrieben, Modell-Kennzahl anders nachgerechnet | Modell nicht gefunden, nur MDX |
+| Zeilensicherheit | Sieht jeder nur, was er sehen darf? | App-Identität am Modell, Service Principal auf RLS-Modell | Modell nicht gefunden, Rollen nicht lesbar |
+| Datenweg | Kommt alles aus dem Modell? | Feld oder Tabelle fehlt, Quelle am Modell vorbei mit App-Identität | kein Modell zugeordnet |
+| Abfluss | Gehen Daten ohne Anmeldung, an fremde Server, in den Browser? | Geheimnis im Code, anonyme Datenrolle | Tenant: das Log kennt keine Ergebnismengen |
+| Zuordnung | Wie sicher ist, wer der Client ist? | entfällt | Client ohne Anwendungsnamen; im Tenant immer mindestens ⚠ (Name kommt vom Client) |
+
+✓ heißt nur „geprüft und unauffällig“. Ein gefundener Befund geht vor „nicht prüfbar“. Hinweise (ℹ) und bewusst
+akzeptierte Befunde färben nicht.
+
+Die **Maßnahmenliste** bündelt ✗ und ⚠ je Regel über alle Apps (bei Modell-Themen je Modell) zu einer Zeile: was los
+ist, nächster Schritt, wer handelt (App-Team, Modell-Verantwortliche, im Tenant mit Workspace), grober Aufwand,
+betroffene Apps und Status (neu, offen seit, Ausnahme abgelaufen).
+
+Der **Trend** vergleicht über die stabile Befund-ID mit dem Vorlauf: „3 neu, 5 behoben, 12 unverändert,
+2 bewusst akzeptiert“, dazu neue und verschwundene Apps oder Clients. Behoben zählt nur, wenn die App wieder geprüft
+wurde. Standard ist die `befunde.json` im Ausgabeordner, also einfach immer in denselben Ordner schreiben; das Notebook
+nimmt den jüngsten Lauf unter `OUTPUT_DIR` und führt `verlauf.json` dort fort (Parameter `TREND`).
+
+**Nutzerkennungen** erscheinen nur als Pseudonym „Kennung-<8 Zeichen>“ (SHA-256, gleich über Läufe, Salz über die
+Umgebungsvariable `FABSCAN_PSEUDONYM_SALZ`). Technische Identitäten (App-IDs, `app@…`) bleiben lesbar. Klartext nur
+mit `--klarnamen` bzw. im Notebook `KLARNAMEN = True`.
 
 ## Ausnahmen: Befunde bewusst akzeptieren
 
@@ -238,7 +273,7 @@ Eintrag in den Tenant-Logs steckt, hängt davon ab, was der Client meldet.
 
 ```bash
 cd fabric-app-scanner
-python3 -m unittest discover -s tests          # 112 Tests
+python3 -m unittest discover -s tests          # 128 Tests
 python3 -m fabscan skill --ziel ../.claude/skills/fabscan   # Skill im Repo aktualisieren
 python3 -m fabscan skill --zip ../downloads/fabscan-skill.zip
 python3 -m fabscan notebook -o ../downloads/fabscan_tenant.ipynb

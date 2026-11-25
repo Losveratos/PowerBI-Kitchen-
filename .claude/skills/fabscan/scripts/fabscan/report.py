@@ -8,7 +8,7 @@ import re
 import subprocess
 from urllib.parse import quote
 
-from . import __version__
+from . import __version__, themen, verlauf
 from .checks import CATEGORIES, SEV_ORDER, AppResult
 from .texts import OVERALL_LABEL, OVERALL_ORDER, RULES
 
@@ -55,16 +55,14 @@ def to_json(apps: list[AppResult], root: str) -> str:
 
 
 def to_text(apps: list[AppResult]) -> str:
+    """Ampel je Thema als Textzeilen (Konsole): ✗ kritisch, ⚠ prüfen, ✓ unauffällig, ? nicht prüfbar."""
     w = max([len(a.name) for a in apps] + [4])
-    head = "App".ljust(w) + "  " + "  ".join(f"{lbl.split()[0][:10]:<10}" for _, lbl in CATEGORIES)
+    head = "App".ljust(w) + "  " + "  ".join(f"{lbl[:16]:<16}" for _, lbl, _ in themen.THEMES)
     rows = [head, "-" * len(head)]
     for a in apps:
-        cells = []
-        for c, _ in CATEGORIES:
-            st = a.status(c)
-            n = sum(1 for f in a.findings if f.category == c and f.severity == st) if st != "ok" else 0
-            cells.append(f"{SYM[st]} {n if n else '':<8}")
-        rows.append(a.name.ljust(w) + "  " + "  ".join(cells))
+        ts = themen.theme_status(a)
+        rows.append(a.name.ljust(w) + "  " + "  ".join(
+            f"{themen.STATE_SYM[ts[k][0]]} {themen.STATE_SHORT[ts[k][0]]:<14}" for k, _, _ in themen.THEMES))
     return "\n".join(rows)
 
 
@@ -95,10 +93,13 @@ h3{font-size:16px;color:var(--ink);margin:18px 0 8px;font-weight:650}
 .tbl td.c{text-align:center;white-space:nowrap}.tbl a{color:var(--ink);font-weight:600;text-decoration:none}
 .scroll{overflow-x:auto}
 .s{display:inline-flex;align-items:center;gap:5px;font-weight:700}
-.s.fail{color:var(--fail)}.s.warn{color:var(--warn)}.s.info{color:var(--info)}.s.ok{color:var(--ok)}
+.s.fail{color:var(--fail)}.s.warn{color:var(--warn)}.s.info{color:var(--info)}.s.ok{color:var(--ok)}.s.grey{color:var(--mute)}
+.th th:not(:first-child){text-align:center}.th td.c{font-size:17px;white-space:normal;width:16%}.th .why{display:block;font-size:11.5px;font-weight:500;color:var(--mute);max-width:26ch;margin:2px auto 0;line-height:1.3}
+.acts td{font-size:13.5px}.acts td small{display:block;color:var(--soft);margin-top:2px}
+.trend{font-size:15px;color:var(--ink);margin:6px 0 10px}.hist th:not(:first-child){text-align:center}
 .pill{display:inline-block;font-size:11px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;border-radius:99px;padding:2px 9px;
 border:1.5px solid currentColor;white-space:nowrap}
-.pill.fail{color:var(--fail)}.pill.warn{color:var(--warn)}.pill.info{color:var(--info)}.pill.ok{color:var(--ok)}
+.pill.fail{color:var(--fail)}.pill.warn{color:var(--warn)}.pill.info{color:var(--info)}.pill.ok{color:var(--ok)}.pill.grey{color:var(--mute)}
 .app{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px 20px;margin:18px 0}
 .app header{display:flex;flex-wrap:wrap;align-items:baseline;gap:10px 14px}
 .app header h2{border:0;margin:0;padding:0;font-size:21px}
@@ -454,6 +455,67 @@ def _accepted_section(apps: list[AppResult], aus: dict | None) -> str:
     return "".join(P)
 
 
+def _themes_table(apps: list[AppResult], who: str) -> str:
+    e = html.escape
+    P = [f"<div class='scroll'><table class='tbl th'><thead><tr><th>{who}</th>"]
+    P += [f"<th title='{e(q)}'>{e(lbl)}</th>" for _, lbl, q in themen.THEMES]
+    P.append("</tr></thead><tbody>")
+    for a in apps:
+        ts = themen.theme_status(a)
+        P.append(f"<tr><td><a href='#{e(a.name)}'>{e(a.name)}</a></td>")
+        for k, _, _ in themen.THEMES:
+            st, why = ts[k]
+            tip = themen.STATE_LABEL[st] + (": " + "; ".join(why) if why else "")
+            short = why[0] if why and st in ("rot", "grau") else ""
+            P.append(f"<td class='c'><span class='s {themen.STATE_CSS[st]}' title='{e(tip)}'>{themen.STATE_SYM[st]}</span>"
+                     + (f"<span class='why'>{e(_cut(short, 70))}</span>" if short else "") + "</td>")
+        P.append("</tr>")
+    P.append("</tbody></table></div><p class='meta'>✗ kritisch · ⚠ prüfen · ✓ geprüft und unauffällig · ? nicht "
+             "prüfbar. Keine Gesamtnote: Jedes Thema steht für sich. Hinweise (ℹ) und bewusst akzeptierte Befunde färben "
+             "nicht. Gründe stehen im Tooltip.</p>")
+    P.append("<div class='legend'>" + "".join(f"<div><b>{e(lbl)}</b>{e(q)}</div>" for _, lbl, q in themen.THEMES) + "</div>")
+    return "".join(P)
+
+
+def _actions_rows(acts: list[dict]) -> str:
+    e = html.escape
+    P = ["<div class='scroll'><table class='tbl acts'><thead><tr><th></th><th>Was ist los</th><th>Nächster Schritt</th>"
+         "<th>Wer</th><th>Aufwand</th><th>Betroffen</th><th>Status</th></tr></thead><tbody>"]
+    for g in acts:
+        css = themen.STATE_CSS[g["color"]]
+        status = g["status"] + (f" seit {_date(g['since'])}" if g.get("since") else "")
+        who = g["who"] + (f" · Modell {g['model']}" if g.get("model") else "")
+        cl = ", ".join(g["clients"][:5]) + (f" +{len(g['clients']) - 5}" if len(g["clients"]) > 5 else "")
+        P.append(f"<tr><td class='c'><span class='s {css}'>{themen.STATE_SYM[g['color']]}</span></td>"
+                 f"<td>{e(g['head'])}<small>{e(g['why'])}</small></td><td>{e(g['todo'] or '–')}</td><td>{e(who)}</td>"
+                 f"<td class='c'>{e(g['effort'])}</td><td>{e(cl)}<small>{g['occurrences']} Fundstelle{'' if g['occurrences'] == 1 else 'n'}</small></td>"
+                 f"<td>{e(status)}</td></tr>")
+    P.append("</tbody></table></div>")
+    return "".join(P)
+
+
+def _history_section(history: list[dict]) -> str:
+    """Zeitreihe je Thema: wie viele Apps oder Clients rot und gelb waren, je Lauf (die letzten acht)."""
+    if len(history) < 2:
+        return ""
+    e = html.escape
+    runs = history[-8:]
+    P = ["<h2>Verlauf</h2><p class='meta'>Je Lauf und Thema die Zahl der Apps oder Clients mit ✗ und ⚠. Absolute Zahlen "
+         "wachsen mit der Abdeckung, deshalb steht die Zahl der geprüften mit dabei.</p><div class='scroll'><table class='tbl hist'>"
+         "<thead><tr><th>Lauf</th><th>geprüft</th>"]
+    P += [f"<th>{e(lbl)}</th>" for _, lbl, _ in themen.THEMES]
+    P.append("<th>offen</th><th>akzeptiert</th></tr></thead><tbody>")
+    for r in reversed(runs):
+        P.append(f"<tr><td class='mono'>{e(_date(r.get('date', '')))}</td><td class='c'>{r.get('clients', 0)}</td>")
+        for k, _, _ in themen.THEMES:
+            c = (r.get("themes") or {}).get(k, {})
+            P.append(f"<td class='c'><span class='s fail'>{c.get('rot', 0)}</span> · "
+                     f"<span class='s warn'>{c.get('gelb', 0)}</span></td>")
+        P.append(f"<td class='c'>{r.get('open', 0)}</td><td class='c'>{r.get('accepted', 0)}</td></tr>")
+    P.append("</tbody></table></div>")
+    return "".join(P)
+
+
 def to_html(apps: list[AppResult], root: str, title: str = "", tenant: dict | None = None,
             extra: dict | None = None) -> str:
     meta = repo_meta(root) if root else {}
@@ -491,6 +553,23 @@ def to_html(apps: list[AppResult], root: str, title: str = "", tenant: dict | No
     cov = coverage_lines((extra or {}).get("coverage"))
     if cov:
         P.append("<h2>Abdeckung</h2><ul class='cov'>" + "".join(f"<li>{e(x)}</li>" for x in cov) + "</ul>")
+    who = "Client" if tenant else "App"
+    noun = "Clients" if tenant else "Apps"
+    trend = (extra or {}).get("trend")
+    acts = themen.actions(apps, trend)
+    P.append("<h2>Auf einen Blick</h2>")
+    tl = verlauf.trend_line(trend)
+    if tl:
+        P.append(f"<p class='trend'>{e(tl)}</p>")
+    P.append("<h3>Ampel je Thema</h3>" + _themes_table(apps, who))
+    if acts:
+        P.append("<h3>Die drei wichtigsten Maßnahmen</h3><ul class='big'>")
+        for g in acts[:3]:
+            css = themen.STATE_CSS[g["color"]]
+            P.append(f"<li><span class='s {css}'>{themen.STATE_SYM[g['color']]}</span>{e(g['head'])}<small>"
+                     f"<b>Nächster Schritt:</b> {e(g['todo'] or g['why'])} · {e(g['who'])} · Aufwand {e(g['effort'])} · "
+                     f"{len(g['clients'])} {noun if len(g['clients']) != 1 else who}</small></li>")
+        P.append("</ul>")
     P.append("<h2>Gesamtbild</h2><ul class='big'>")
     ov = overall(apps, "Clients" if tenant else "Apps")
     for sev, sent in ov:
@@ -501,8 +580,12 @@ def to_html(apps: list[AppResult], root: str, title: str = "", tenant: dict | No
     if tenant:
         P.append(_tenant_section(tenant))
 
-    who = "Client" if tenant else "App"
-    P.append(f"<h2>Ampel je {who}</h2><div class='scroll'><table class='tbl'><thead><tr><th>{who}</th>")
+    if acts:
+        P.append("<h2>Maßnahmen</h2><p class='meta'>Gleichartige Befunde zu einer Maßnahme gebündelt, je Regel und bei "
+                 "Modell-Themen je Modell. Nur ✗ und ⚠; Hinweise und akzeptierte Befunde stehen weiter unten.</p>"
+                 + _actions_rows(acts))
+    P.append(_history_section((extra or {}).get("history") or []))
+    P.append(f"<h2>Für Entwickler: Prüfbereiche je {who}</h2><div class='scroll'><table class='tbl'><thead><tr><th>{who}</th>")
     P += [f"<th title='{e(EXPLAIN[c])}'>{e(lbl)}</th>" for c, lbl in CATEGORIES]
     P.append("</tr></thead><tbody>")
     for a in apps:

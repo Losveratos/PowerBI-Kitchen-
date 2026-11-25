@@ -36,14 +36,14 @@ class Cli(unittest.TestCase):
         out = os.path.join(self.tmp, "out")
         rc = cli.main([fixture_repo(self.tmp), "-o", out, "-q"])
         self.assertEqual(rc, 0)
-        self.assertEqual(sorted(os.listdir(out)), ["befunde.csv", "befunde.json", "bericht.html", "zusammenfassung.md"])
+        self.assertEqual(sorted(os.listdir(out)), ["befunde.csv", "befunde.json", "bericht.html", "verlauf.json", "zusammenfassung.md"])
         with open(os.path.join(out, "befunde.csv"), encoding="utf-8") as fh:
             rows = list(csv.DictReader(fh))
         self.assertEqual(list(rows[0].keys()), export.COLUMNS)
         self.assertIn("QRY-SHADOW", {r["rule"] for r in rows})
         with open(os.path.join(out, "befunde.json"), encoding="utf-8") as fh:
             data = json.load(fh)
-        self.assertEqual(data["schema_version"], 2)
+        self.assertEqual(data["schema_version"], 3)
         md = open(os.path.join(out, "zusammenfassung.md"), encoding="utf-8").read()
         self.assertIn("bad-app", md)
         self.assertNotIn("demo-geheimnis", md + open(os.path.join(out, "bericht.html"), encoding="utf-8").read())
