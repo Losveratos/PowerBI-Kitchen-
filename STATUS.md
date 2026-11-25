@@ -40,9 +40,10 @@ jeweiligen Visual-Ordner.
 - **P&L Statement:** abgeschnittene Beschriftung „Jan“ in `test:render`, Fix in Arbeit (noch kein PR).
 - **Release ChartKitchen 1.58.0.0 und P&L Statement 1.8.4.0:** Code, Pakete, Downloads und Doku (DE/EN,
   neue Bilder `doku-assets/feature-pin-heads.png`, `feature-table-axis.png`, `feature-cards-158.png`,
-  `assets/docs/pnl/p17` bis `p19`) liegen auf Branch `claude/welle1-notation-cc24ef`; offen sind Merge nach
-  `main` (Doku und Downloads gehen gemeinsam live), die Paketprüfung der Sicherheitsseite für beide Pakete und
-  das Schwester-Repo.
+  `assets/docs/pnl/p17` bis `p19`, Altbilder mit der neuen Notation neu aufgenommen) liegen auf Branch
+  `claude/welle1-notation-cc24ef`. Die Paketprüfung der Sicherheitsseite ist erledigt (496e5d6). Offen sind der
+  Browser-Lauf ohne Netzwerk für 1.58/1.8.4, der Merge nach `main` (Doku und Downloads gehen gemeinsam live),
+  das Schwester-Repo und dwg/Showcase.
 - **Showcase** (dwg-cli) auf ChartKitchen 1.58 und P&L 1.8.4 heben und deployen. Offen ist auch die Doku von
   dwg-cli (Visual-Versionen, Template-Katalog).
 - **Talk „One Model, Three Visual Stacks"** (Budapest BI Forum, 17.11.2026):
