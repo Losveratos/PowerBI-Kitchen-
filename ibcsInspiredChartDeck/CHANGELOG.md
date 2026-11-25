@@ -8,8 +8,9 @@
   deshalb das feinere Muster; es wird erst beim ersten FC-Kopf oder FC-Punkt angelegt, Charts ohne FC bleiben
   SVG-gleich. Gilt für Säulen, Balken, Linie und Wasserfall (erste und zweite Basis, Jahressäule mit AC&FC, Δ%-Stufe
   des Wasserfalls) und für die Δ%-Pins der Tabelle. FC-Punkte (Kreise) der Linie, der R12-Linie, von Dumbbell und
-  Slope sind ebenfalls fein schraffiert statt hohl, die FC-Marken der Serienlinien (C22) in der Farbe ihrer Serie,
-  **auch im Hochkontrast** (diese Marken hatten nie einen eigenen
+  Slope sind ebenfalls fein schraffiert statt hohl, die FC-Marken der Serienlinien (C22) in der Farbe ihrer Serie
+  (bei Marken bis 5 px mit Periode 1,8 px, sonst nur ein Strich; im Hochkontrast bleiben diese hohl wie bisher); Linie,
+  R12, Dumbbell und Slope **auch im Hochkontrast** (diese Marken hatten nie einen eigenen
   Hochkontrast-Zweig). **Bestehende Berichte:** FC-Köpfe und FC-Punkte sehen anders aus (Notationskorrektur).
 - **2 · Pinköpfe szenariocodiert, nur der Stiel in Abweichungsfarbe.** Vorher: Säulen, Balken, Linie und Wasserfall
   färbten den Kopf grün bzw. rot (bei unwesentlichen Abweichungen grau), der Stiel war 1,6 px breit. Nachher wie in
@@ -45,6 +46,7 @@
   Doppellinie beginnen die Δ-Balken an ihrer Außenkante (2,2 px statt 1 px neben der Achse, positiv und negativ gleich,
   mindestens 1 px breit): ein positiver Balken verdeckt die rechte Linie nicht mehr, und kleine Balken (−0,4 bis −21 in
   C14) bleiben sichtbar; ein Papierstreifen über den Balken, wie er im ersten Stand kleine Balken verschluckte, entfällt.
+  Ein Δ von genau null zeichnet an der Doppellinie keinen Balken (an der grauen PY-Achse wie bisher den 1-px-Strich).
   Länge und px je Einheit unverändert. Testmarker `table-var-axis` (`data-basis`). Auch im Hochkontrast (Doppellinie in der
   Hochkontrastfarbe). **Bestehende Berichte:** Tabellen gegen Plan oder FC zeigen die Doppellinie (Notationskorrektur),
   gegen PY keine Änderung.
@@ -101,7 +103,12 @@
   „0,0%“ in Tinte; Knöpfe in Small Multiples und neben aktivem Kommentar-Modus in eigener Kopfzeile), kpi58p bis kpi58r
   (eigene Kopfzeile bei langem Titel, „+1 Δ“ flach, „+2 Δ“ gestapelt), Export-Zwillinge kpi58fx, kpi58lx, kpi58mx;
   geschärft: Knöpfe überdecken in keiner kpi58-Stufe eine Karte (statt nur keine Δ-Zeile); angepasst: c868 (FC-Marken
-  schraffiert statt hohl), c1010 (Balken an der Außenkante statt Papierstreifen). 1009 resjson-Keys je Sprache.
+  schraffiert statt hohl), c1010 (Balken an der Außenkante statt Papierstreifen). Runde 3b: c1090 bis c1101 (ohne Titel
+  1240 × 72, 800 × 56, 800 × 44, 800 × 70 mit Brücke, 760 × 150: kein Kartentext unter dem Rand, kein Knopf über Text;
+  960 × 220 mit Kopfzeile; Kacheln mit Knöpfen im Kachelkopf; Modus-Chip ohne Titel; Δ = 0 ohne Balken; C22 im
+  Hochkontrast; „+n“ mit Referenzwerten, aria-label und Fokus; Marke in 34-px-Karten), c868 prüft die Periode 1,8 px;
+  angepasst c1083 (Knöpfe im Kachelkopf statt Kopfzeile) und kpi58 „Δ-Block überdeckt den Wert nicht“ (findet den Wert
+  als zweiten Text der Karte, weil sehr niedrige Karten ihn verkleinern). 1009 resjson-Keys je Sprache.
 
 ### KPI-Karten
 
@@ -121,15 +128,30 @@ aus dem unabhängigen Review. Keine neue Property.
   höchstens bis zur Kartenmitte, höchstens 120 px·k hinter die Wertspalte (eine breite Karte reißt Wert und Δ nicht
   auseinander) und nie über den rechten Rand. Mit Brücke, Trend oder Bullet bleibt er hinter der Wertspalte.
 - **Sortier- und Ausnahmeknopf mit eigenem Platz (Prüfstand 2, wie Stand B Punkt 8).** Vorher lagen die Knöpfe über
-  der letzten Karte und konnten den Δ-Block berühren. Nachher stehen sie rechts in der Titelzeile des Visuals, wenn
-  das Visual einen Titel hat, keine Small Multiples zeigt, kein Modus-Chip (Kommentar, Struktur, Vergleich) aktiv ist
-  und Titel und Botschaftszeile vor beiden Knöpfen enden (`titleRightX`); sonst in einer eigenen Kopfzeile der Kachel
-  (18 px + 4 px), die Karten rücken darunter. Marker `card-chip-row` (`data-place` = `title` | `strip`). Export ohne
-  Knöpfe unverändert. Die Ausweichlogik des Δ-Blocks vor den Knöpfen entfällt.
+  der letzten Karte und konnten den Δ-Block berühren. Nachher, in dieser Reihenfolge (Marker `card-chip-row`,
+  `data-place`):
+  - `title`: rechts in der Titelzeile des Visuals, wenn das Visual einen Titel hat, keine Small Multiples zeigt, kein
+    Modus-Chip (Kommentar, Struktur, Vergleich) aktiv ist und Titel und Botschaftszeile vor beiden Knöpfen enden
+    (`titleRightX`).
+  - `tile`: bei Small Multiples kompakt (14 px hoch) im Kachelkopf links vom ⤢, über dessen Klickfläche gezeichnet
+    (bleiben klickbar), der Kacheltitel wird davor gekürzt; die Klickfläche des Kacheltitels endet jetzt mit dem
+    Kopf (reichte 3 px in die Kachel). Vorher bekam jede Kachel eine zweite Kopfzeile, die Werte ragten unter den Rand.
+  - `strip`: eigene Kopfzeile der Kachel (18 px + 4 px), die Karten rücken darunter, aber nur, wenn die Karten danach
+    noch die Höhe ihres Layouts haben (flach mindestens 52 px·k bzw. Titel + Wert + 16 px·k, gestapelt Titel, Wert
+    und erste Δ-Zeile).
+  - `card`: sonst kompakt in der rechten oberen Ecke der letzten Karte der ersten Reihe; Δ-Block, Mini-Brücke,
+    Trend, Kommentarnummer, „+n Δ“ und (gestapelt) der Kartentitel der darunter liegenden Karten weichen nach links
+    aus. Reicht das nicht, zeigen die Knöpfe nur „↕“ und „⚠“ (`data-icons`).
+  Ein aktiver Modus-Chip schiebt die Knöpfe nach links, wenn sie auf seiner Höhe liegen (ohne Titel lag der
+  Sortierknopf sonst auf dem Chip). Flache Karten, die für Titel und Wert zu niedrig sind (z. B. 800 × 44 oder ein
+  Band 1240 × 72 mit Titel), verkleinern den Wert, bis er in die Karte passt; bisher ragte er unter den Rand. Export
+  ohne Knöpfe unverändert.
 - **Verdeckte Δ-Zeilen werden gezählt (wie Stand B Punkt 12).** Zeilen ohne Platz (mehr als zwei Zeilen im flachen
   Streifen, niedrige Karte, Block passt nicht) entfallen nicht mehr still: „+n Δ“ steht bei flachen Karten über dem
-  Δ-Block, sonst oben rechts in der Karte, mit Tooltip der verdeckten Zeilen („ΔBM −0,1M€ · −0,5%; …“,
-  `data-icd="card-more"`, `data-n`). Leere Rasterplätze zählen nicht; „PY n.a.“ zählt als Zeile. Zeilenraster,
+  Δ-Block (nie über dem oberen Kartenrand), sonst oben rechts in der Karte, mit Tooltip der verdeckten Zeilen
+  („ΔBM −0,1M€ · −0,5%; …“, `data-icd="card-more"`, `data-n`) und demselben Text als `aria-label`; interaktiv per
+  Tastatur erreichbar, im Export sichtbar ohne Fokus. Sind Referenzwert-Zeilen dabei (`cardRefValues`), heißt die
+  Marke neutral „+n“. Leere Rasterplätze zählen nicht; „PY n.a.“ zählt als Zeile. Zeilenraster,
   „PY n.a.“ und die Regel zur gerundeten Null in Karten bleiben wie oben.
 - **Keine gerundete Null mit Vorzeichen (Prüfstand 3).** Vorher „+0,0M€ · +0,1%“, „−0 · −0,6%“. Nachher druckt eine
   Zahl, die ungleich 0 ist, aber auf 0 rundet, in den Karten immer ohne Vorzeichen (Entscheidung des Autors, keine
@@ -164,10 +186,11 @@ aus dem unabhängigen Review. Keine neue Property.
   direkt hinter der Wertspalte), Abstand höchstens 170 px bei einer Karte, keine
   Null mit Vorzeichen oder in Klammern, nur U+2212 außer im Textpräfix, Farbe von Zeile, Streifen und Tönung bei
   „Δ rundet auf null, Δ% deutlich“ und bei „alles null“, Position der n.a.-Zeilen.
-- Bildschirm und Export: Mit den Knöpfen in eigener Zeile steht der Δ-Block am Bildschirm und im Export an derselben
-  x-Position, Titel werden gleich gekürzt (geprüft an kpi58f, kpi58l, kpi58m gegen Export-Zwillinge). Bekommen die
-  Knöpfe eine eigene Kopfzeile, sind die Karten am Bildschirm 22 px niedriger als im Export (der Export hat keine
-  Knöpfe); in der Titelzeile gibt es keinen Unterschied.
+- Bildschirm und Export (der Export zeichnet keine Knöpfe): Titelzeile und Kachelkopf ändern die Karten nicht,
+  Bildschirm und Export sind gleich (geprüft an kpi58f, kpi58l, kpi58m gegen Export-Zwillinge). Mit eigener Kopfzeile
+  sind die Karten am Bildschirm 22 px niedriger als im Export. In der Kartenecke (niedrige Kacheln ohne Titel) weicht
+  der Δ-Block der Karten unter den Knöpfen am Bildschirm nach links aus, im Export nicht; dort sind Bildschirm und
+  Export also nicht deckungsgleich.
 - Offen (Backlog): Kleinteile (8); `fmtSigned` erkennt eine Null mit Ziffer in der Einheit nicht („+0 tCO2“ in Diagrammen,
   Altbestand).
 

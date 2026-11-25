@@ -49,7 +49,9 @@ flachen Small-Multiples-Kacheln kehrt sich die Δ%-Skala um, positive Pins zeige
 `varAxis(x, basis, avg, overBars)`: PY oder Ø-Basis wie bisher als graues 2-px-Rechteck (bytegleich), sonst
 `drawBaseline(…, "bars")` in einer Gruppe `data-icd="table-var-axis"` mit `data-basis` (`plan` Doppellinie, `fcrev`
 gestrichelte Doppellinie), alle im Hintergrund. Runde 3: an einer Doppellinie setzen die Δ-Balken mit `dOff`/`d2Off` =
-2,2 px an (sonst 1 px wie bisher), negative mit `max(Länge, 1)`; der Papierstreifen über den Balken entfällt. `d2bar` folgt `this.basis2Mode`, auch unter der Ø-Basis (wie die Säulen-Panels;
+2,2 px an (sonst 1 px wie bisher), negative mit `max(Länge, 1)`; der Papierstreifen über den Balken entfällt. Ein Δ
+von genau null zeichnet an der Doppellinie keinen Balken. `fineHatch(cfg, Farbe, Periode)`: Periode 1,8 (Suffix `f`) für
+Serienmarken bis 5 px; C22-FC-Marken im Hochkontrast hohl. `d2bar` folgt `this.basis2Mode`, auch unter der Ø-Basis (wie die Säulen-Panels;
 unter Ø ist die zweite Abweichung heute ohnehin aus). Die Matrix (Mini-Δ-Balken je Block) ist unverändert.
 
 *4 · Scatter.* `chart.scatterTypeTitle` und `chart.scatterScenarioTag` (bool, Standard aus, Gruppe „Scatter / Bubble“
@@ -102,10 +104,19 @@ rückt der Block auf `min(w/2, w − pad − blockMax, base + 120k)`, nie links 
 Review M2): die Knöpfe haben eine eigene Zeile, entschieden in `renderCards` vor dem Raster: Titelzeile (`chipTop` =
 `cardChipRowY` = 6, gesetzt in `render()` nur bei einem Band ohne Small Multiples, mit Titel und ohne aktiven
 Modus-Chip), wenn `titleRightX` (rechtes Ende von Titel- und Botschaftszeile, aus `drawTitleBlock`) + 8k vor dem linken
-Rand beider Knöpfe endet und die Zeile über der ersten Kartenreihe liegt; sonst eigene Kopfzeile (`region` rückt um
-18k + 4k nach unten). Marker `card-chip-row` (`data-place`, `data-y`). `chipLeft`/`chipEnd` entfallen. Verdeckte Zeilen
-(Stand B Punkt 12): `shownRows` je Karte, „+n Δ“ (`card-more`, `data-n`, `<title>` mit den Zeilen, getrennt durch „; “)
-über dem Δ-Block (flach) bzw. oben rechts (gestapelt); `blank` zählt nicht. `refLabelW` gilt für alle
+Rand beider Knöpfe endet und die Zeile über der ersten Kartenreihe liegt. Runde 3b: Small Multiples setzen
+`this.tileHead` je Kachel; `tile` = kompakte Knöpfe (14k, Schrift 9k) im Kachelkopf links vom ⤢, gezeichnet über
+`pendingTileChips` erst in `drawTileHeader` (über der Klickfläche), `tileChipReserve` kürzt den Kacheltitel, die
+Klickfläche ist `h − 1` hoch. Sonst eigene Kopfzeile (`strip`, `region` rückt um 18k + 4k), aber nur wenn
+`cardHFor(h − strip) ≥ needH` (flach `max(52k, Titel + Wert + 16k)`, gestapelt `pad + Titel + Wert + Δ-Zeile + 17k`),
+sonst `card`: kompakte Knöpfe in der Ecke der letzten Karte der ersten Reihe, `chipLeftNow()`/`chipEnd` wie bis Runde 2,
+`rEdge` begrenzt rechts Brücke, Trend, Kommentarnummer, „+n Δ“ und den gestapelten Titel, `flatLay.clear` falsch →
+`chipIcons` („↕“, „⚠“). `modeChipLeft` (aus `drawModeChip`) schiebt die Knöpfe links vom Modus-Chip, wenn sie auf
+seiner Höhe liegen. Flache Karten verkleinern den Wert (`vF`), wenn Titel und Wert sonst nicht in die Karte passen.
+Marker `card-chip-row` (`data-place` = `title` | `tile` | `strip` | `card`, `data-icons`). Verdeckte Zeilen
+(Stand B Punkt 12): `shownRows` je Karte, „+n Δ“ (`card-more`, `data-n`, `<title>` mit den Zeilen, getrennt durch „; “,
+`aria-label`, interaktiv `tabindex`) über dem Δ-Block (flach, nie über dem Kartenrand) bzw. oben rechts (gestapelt);
+`blank` zählt nicht, mit verdeckten Wertzeilen (`plain`) heißt die Marke „+n“. `refLabelW` gilt für alle
 Karten; zwei Zeilen (`twoRows`) liegen in allen Karten auf `yMid − 2k` und `yMid + refF + 4k`. Gerundete Null:
 `cardSigned`/`cardPercent` über `Visual.unsignZero` immer ohne Vorzeichen und ohne Finanz-Klammer (Produktentscheidung, keine Option); `Visual.zeroText` prüft nur die erste Ziffernfolge (Einheiten wie „tCO2“). Farbe, Pfeil,
 Streifen und Tönung vom ungerundeten Δ wie bisher; `readsZero` macht eine Zeile nur neutral, wenn Δ und Δ% (fehlt,

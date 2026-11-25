@@ -7873,6 +7873,7 @@ addStage("c422c", "Review m7 · Blasengröße VJ ohne Vorjahr in der Leseansicht
     if (opts.fc) { values.push(col("forecast", F, "#,0.00")); }
     return { metadata: { columns: [], objects: Object.assign({ chart }, opts.objs || {}) }, categorical: { categories, values } };
   };
+  window.__b17Dv = b17Dv;  // 1.58 round 3b: used by the S4 stage (C22 in high contrast)
   const endV = id => Object.fromEntries(sQ(id, '[data-icd="series-end-label"]').map(t => [t.getAttribute("data-series"), Math.round(Number(t.getAttribute("data-v")))]));
   const overlap = (a, b) => Math.min(a.x + a.width, b.x + b.width) - Math.max(a.x, b.x) > 0.5 && Math.min(a.y + a.height, b.y + b.height) - Math.max(a.y, b.y) > 0.5;
   // die C22-Eigenschaften direkt gesetzt (eine Vorlage überschriebe Varianten derselben Schlüssel)
@@ -11006,8 +11007,9 @@ addStage("c422c", "Review m7 · Blasengröße VJ ohne Vorjahr in der Leseansicht
     const chip = wq("c1083", 'svg g[role="button"] rect').map(r => r.getBBox());
     const cards = wq("c1083", "svg g.icd-cat > rect:first-child").map(r => r.getBBox());
     const hit = chip.filter(cb => cards.some(b => cb.x < b.x + b.width && b.x < cb.x + cb.width && cb.y < b.y + b.height && b.y < cb.y + cb.height));
-    check(rows.length >= 1 && rows.every(r => r.getAttribute("data-place") === "strip") && hit.length === 0,
-      `c1083: Kacheln mit eigener Kopfzeile (${rows.map(r => r.getAttribute("data-place")).join(",")}), keine Überdeckung`);
+    // round 3b (S1): the chips sit in each tile header left of ⤢ (was an extra strip per tile)
+    check(rows.length >= 1 && rows.every(r => r.getAttribute("data-place") === "tile") && hit.length === 0,
+      `c1083: Knöpfe im Kachelkopf (${rows.map(r => r.getAttribute("data-place")).join(",")}), keine Überdeckung`);
   }
   // active mode chip → own header strip
   addStage("c1084", "Runde 3 · KPI-Karten mit aktivem Kommentar-Modus: Knöpfe in eigener Kopfzeile", 960, 220);
@@ -11019,6 +11021,124 @@ addStage("c422c", "Review m7 · Blasengröße VJ ohne Vorjahr in der Leseansicht
   }
 }
 // ---- WELLE1-R3-END
+// ======================================================================
+// 1.58 · Welle 1 Runde 3b (Review zu 391d04f), Stufen c1090 bis c1103
+// M1 Knöpfe nur mit Platz in eigener Kopfzeile, sonst kompakt in der Kartenecke ·
+// S1 Kacheln: Knöpfe im Kachelkopf · S2 links vom Modus-Chip · S3 kein Balken bei Δ = 0 ·
+// S4 C22 im Hochkontrast hohl · K1 bis K4
+// ======================================================================
+{
+  const q = (id, sel) => [...document.querySelectorAll(`#${id} ${sel}`)];
+  const hit = (a, b) => a.x < b.x + b.width - 0.5 && b.x < a.x + a.width - 0.5 && a.y < b.y + b.height - 0.5 && b.y < a.y + a.height - 0.5;
+  const KC = (cats, a, p, l, extra, objs, mult, bm) => dataView(cats,
+    [col("actual", a, "#,0 €"), col("previousYear", p, "#,0 €")].concat(l ? [col("plan", l, "#,0 €")] : []).concat(bm ? [col("benchmark", bm, "#,0 €")] : []),
+    Object.assign({ chart: Object.assign({ orientation: "cards" }, extra || {}) }, objs || {}), mult);
+  const c4 = ["Umsatz", "Finanzierungs-Cashflow", "EBIT", "Tilgung und Dividende"];
+  const a4 = [18.46e6, -4.2e6, 1.302e6, 0.95e6], p4 = [18.44e6, -3.9e6, 1.25e6, 1.01e6], l4 = [18.0e6, -4.3e6, 1.301e6, 0.9e6];
+  const noTitle = { ibcsTitle: { show: false } };
+  const c3 = ["Umsatz", "EBIT", "Cash"], a3 = [18.4e6, 1.3e6, 2e6], bm3 = [18.5e6, 1.4e6, 2.05e6];
+  // every text of a card stays inside its card; no chip covers a text, a card mark or another chip
+  const cardsInside = id => q(id, "svg g.icd-cat").flatMap(g => {
+    const r = g.querySelector("rect").getBBox();
+    return [...g.querySelectorAll("text")].filter(t => t.textContent.trim() && t.style.display !== "none")
+      .map(t => ({ t: t.textContent, b: t.getBBox(), r })).filter(o => o.b.y + o.b.height > o.r.y + o.r.height + 1 || o.b.y < o.r.y - 1);
+  });
+  const chipBoxes = id => q(id, 'svg g[role="button"][data-ck-ctl] rect').map(r => r.getBBox());
+  const chipsOverText = id => {
+    const chips = chipBoxes(id);
+    const texts = q(id, "svg g.icd-cat text").filter(t => t.textContent.trim()).map(t => ({ t: t.textContent, b: t.getBBox() }));
+    const overT = texts.filter(o => chips.some(c => hit(c, o.b))).map(o => o.t);
+    const overC = chips.filter((c, i) => chips.some((d, j) => j !== i && hit(c, d))).length;
+    return { overT, overC, n: chips.length };
+  };
+  const place = id => (q(id, '[data-icd="card-chip-row"]')[0] || { getAttribute: () => "–" }).getAttribute("data-place");
+  const cases = [
+    ["c1090", "ohne Titel, 4 Karten 1240 × 72", 1240, 72, KC(c4, a4, p4, l4, { cardBars: false }, noTitle)],
+    ["c1091", "ohne Titel, 3 Karten 800 × 56", 800, 56, KC(c4.slice(0, 3), a4.slice(0, 3), p4.slice(0, 3), null, { cardBars: false }, noTitle)],
+    ["c1092", "ohne Titel, 3 Karten 800 × 44", 800, 44, KC(c4.slice(0, 3), a4.slice(0, 3), p4.slice(0, 3), null, { cardBars: false }, noTitle)],
+    ["c1093", "ohne Titel, 3 Karten 800 × 70 mit Mini-Brücke", 800, 70, KC(c3, a3, [18e6, 1.25e6, 1.9e6], [18.1e6, 1.2e6, 2.1e6], { comparisonMode: "plan" }, noTitle, null, bm3)],
+    ["c1094", "ohne Titel, 8 Karten in 2 Reihen 760 × 150", 760, 150, KC(["A", "B", "C", "D", "E", "F", "G", "H"], [1, 2, 3, 4, 5, 6, 7, 8].map(v => v * 1e6),
+      [1, 2, 3, 4, 5, 6, 7, 8].map(v => v * 1.1e6), null, { cardBars: false }, noTitle)]
+  ];
+  for (const [id, t, w, h, dv] of cases) {
+    addStage(id, "Runde 3b (M1) · " + t + ": Knöpfe kompakt in der Kartenecke, nichts unter dem Kartenrand", w, h);
+    runCap(id, dv, w, h);
+    const out = cardsInside(id), ov = chipsOverText(id);
+    check(out.length === 0, `${id}: kein Kartentext unter dem Kartenrand (${out.map(o => o.t).join(" | ") || "–"})`);
+    check(ov.n > 0 && ov.overT.length === 0 && ov.overC === 0 && place(id) === "card",
+      `${id}: Knöpfe (${place(id)}) über keinem Text (${ov.overT.join(" | ") || "–"})`);
+  }
+  // with enough height the strip stays (960 × 220 without title)
+  addStage("c1095", "Runde 3b · ohne Titel 960 × 220: genug Höhe, eigene Kopfzeile", 960, 220);
+  runCap("c1095", KC(c4, a4, p4, l4, {}, noTitle), 960, 220);
+  check(place("c1095") === "strip" && cardsInside("c1095").length === 0 && chipsOverText("c1095").overT.length === 0, `c1095: Kopfzeile (${place("c1095")})`);
+  // S1 · small multiples: chips in the tile header, one header per tile, values inside the cards
+  addStage("c1096", "Runde 3b (S1) · KPI-Karten in 3 Kacheln 1200 × 200: Knöpfe im Kachelkopf links vom ⤢", 1200, 200);
+  runCap("c1096", KC(["Umsatz", "EBIT", "Umsatz", "EBIT", "Umsatz", "EBIT"], [18.4e6, 1.3e6, 9e6, .6e6, 5e6, .3e6], [18e6, 1.25e6, 8.6e6, .65e6, 5.1e6, .31e6], null, {}, null,
+    ["Nord", "Nord", "Süd", "Süd", "West", "West"]), 1200, 200);
+  {
+    const rows = q("c1096", '[data-icd="card-chip-row"]');
+    const icons = q("c1096", "svg text").filter(t => t.textContent === "⤢").map(t => t.getBBox());
+    const chips = chipBoxes("c1096");
+    check(rows.length === 3 && rows.every(r => r.getAttribute("data-place") === "tile") && cardsInside("c1096").length === 0
+      && chips.length === 3 && chips.every(c => !icons.some(i => hit(c, i))) && chipsOverText("c1096").overT.length === 0,
+      `c1096: drei Kacheln mit Knopf im Kachelkopf (${rows.map(r => r.getAttribute("data-place")).join(",")}), Werte in den Karten`);
+    // the chips sit on top of the header's hit area (clickable), the hit area ends with the strip
+    const hitRects = q("c1096", 'svg g[role="button"]:not([data-ck-ctl]) > rect').map(r => r.getBBox());
+    const cards = q("c1096", "svg g.icd-cat > rect:first-child").map(r => r.getBBox());
+    check(hitRects.length >= 3 && hitRects.every(h => !cards.some(c => hit(h, c))), "c1096: Klickfläche des Kacheltitels endet vor den Karten");
+    const chipG = q("c1096", 'svg g[role="button"][data-ck-ctl]');
+    check(chipG.every(g => [...document.querySelectorAll("#c1096 svg > *")].indexOf(g) > [...document.querySelectorAll("#c1096 svg > *")].indexOf(q("c1096", 'svg g[role="button"]:not([data-ck-ctl])')[0])),
+      "c1096: Knöpfe nach (über) dem Kachelkopf gezeichnet");
+  }
+  // S2 · no title, active comment mode: chips left of the mode chip
+  addStage("c1097", "Runde 3b (S2) · ohne Titel, Kommentar-Modus 960 × 220: Sortierknopf links vom Modus-Chip", 960, 220);
+  runCap("c1097", KC(c4.slice(0, 2), a4.slice(0, 2), p4.slice(0, 2), null, {}, { ibcsTitle: { show: false }, commentsPanel: { editComments: true } }), 960, 220, { viewMode: 1 });
+  {
+    const all = q("c1097", 'svg g[role="button"][data-ck-ctl] rect').map(r => r.getBBox());
+    const pairs = all.filter((c, i) => all.some((d, j) => j !== i && hit(c, d)));
+    check(all.length >= 2 && pairs.length === 0 && cardsInside("c1097").length === 0, `c1097: ${all.length} Knöpfe ohne Überlappung (${place("c1097")})`);
+  }
+  // S3 · Δ = 0 draws no bar beside a double line
+  addStage("c1098", "Runde 3b (S3) · C14 mit Δ = 0 in Zeile 1: kein Balken an der Doppellinie", 1280, 420);
+  runCap("c1098", dataView(["Z1", "Z2", "Z3"], [col("actual", [1000, 999.6, 1050], "#,0.0"), col("plan", [1000, 1000, 1000], "#,0.0")], { chart: { template: "C14" } }), 1280, 420);
+  {
+    const ax = +q("c1098", '[data-icd="table-var-axis"] line')[0].getAttribute("x1") + 1.2;
+    const rowsG = q("c1098", "svg g.icd-cat").filter(g => /^Z1$/.test((g.querySelector("text") || {}).textContent || ""));
+    const z1bars = rowsG.flatMap(g => [...g.querySelectorAll("rect")].filter(r => Math.abs(+r.getAttribute("x") - ax) < 6 && +r.getAttribute("height") < 20));
+    check(rowsG.length === 1 && z1bars.length === 0, `c1098: Zeile mit Δ = 0 ohne Balken (${z1bars.length})`);
+  }
+  // S4 · C22 FC markers in high contrast hollow as before; K4 · finer hatch on 5-px marks
+  addStage("c1099", "Runde 3b (S4) · C22 im Hochkontrast: FC-Marken hohl wie bisher", 1280, 560, "#000");
+  runCap("c1099", window.__b17Dv({ template: "C22" }, { fc: i => i >= 9 }), 1280, 560, { hc: true });
+  {
+    const fcm = q("c1099", '[data-icd="series-pt"][data-scen="fc"]');
+    check(fcm.length > 0 && fcm.every(e => e.getAttribute("fill") === "#000000"), `c1099: ${fcm.length} FC-Marken hohl im Hochkontrast`);
+    const f868 = q("c868", '[data-icd="series-pt"][data-scen="fc"]')[0];
+    const pat = f868 && document.getElementById((f868.getAttribute("fill") || "").replace(/^url\(#|\)$/g, ""));
+    check(!!pat && +pat.getAttribute("width") === 1.8 && +f868.getAttribute("width") <= 5, `c868 (K4): 5-px-Marke mit Periode ${pat && pat.getAttribute("width")} px`);
+  }
+  // K1 · with reference value rows the mark reads "+n", K2 · never above the card, K3 · aria-label
+  addStage("c1100", "Runde 3b (K1) · Referenzwerte „Alle“: verdeckte Wertzeilen als „+n“ ohne Δ", 1320, 96);
+  runCap("c1100", KC(c3, a3, [18e6, null, 1.9e6], [18.1e6, 1.2e6, null], { cardBars: false, comparisonMode: "plan", cardRefValues: "all" }, null, null, bm3), 1320, 96);
+  addStage("c1101", "Runde 3b (K2) · Karten 34 px hoch mit verdeckter Zeile: Marke in der Karte", 1240, 50);
+  runCap("c1101", KC(c4, a4, p4, l4, { cardBars: false }, noTitle), 1240, 50, { noInteract: true });
+  {
+    const m1 = q("c1100", '[data-icd="card-more"]');
+    check(m1.length > 0 && m1.every(t => /^\+\d+$/.test(t.childNodes[0].nodeValue)) && m1.every(t => /^\+\d+: /.test(t.getAttribute("aria-label") || "")) && m1.every(t => t.getAttribute("tabindex") === "0"),
+      `c1100: „${m1.map(t => t.childNodes[0].nodeValue).join(" / ")}“ mit aria-label und Tastaturfokus`);
+    const m2 = q("c1101", '[data-icd="card-more"]');
+    const outM = m2.filter(t => { const r = t.closest("g.icd-cat").querySelector("rect").getBBox(); return t.getBBox().y < r.y - 0.5; });
+    check(m2.length > 0 && outM.length === 0 && m2.every(t => !t.hasAttribute("tabindex")) && m2.every(t => t.getAttribute("aria-label")),
+      `c1101: ${m2.length} Marken in der Karte, im Export ohne Tastaturfokus, mit aria-label`);
+  }
+  // round 3b: very low flat cards shrink the value; taller ones unchanged (kpi58a value font)
+  {
+    const vf = q("c1092", "svg g.icd-cat text").filter(t => t.getAttribute("font-weight") === "700").map(t => +t.getAttribute("font-size"));
+    check(vf.length > 0 && vf.every(f => f < 19), `c1092: Wert verkleinert auf ${[...new Set(vf)].join("/")} px`);
+  }
+}
+// ---- WELLE1-R3B-END
 </script>
 <script>
 // ======================================================================
@@ -11127,7 +11247,8 @@ addStage("c422c", "Review m7 · Blasengröße VJ ohne Vorjahr in der Leseansicht
   for (const id of ["kpi58a", "kpi58b", "kpi58c", "kpi58d", "kpi58f", "kpi58g", "kpi58h", "kpi58l", "kpi58m", "kpi58n"]) {
     const cs = kCards(id);
     const bad = cs.filter(c => {
-      const val = c.ts.find(t => +t.getAttribute("font-weight") === 700 && +t.getAttribute("font-size") >= 18);
+      // round 3b: the value is the card's second text (title first); very low cards shrink it below 18 px
+      const val = c.ts[1] && +c.ts[1].getAttribute("font-weight") === 700 ? c.ts[1] : null;
       const lb = c.ts.find(t => /^Δ/.test(t.textContent)) || c.ts.find(t => t.textContent === "n.a.");
       if (!val || !lb) { return true; }
       const b = val.getBBox();

@@ -1567,6 +1567,14 @@ export class Visual implements IVisual {
     private titleRightX = 0;
     /** 1.58 (round 3): y of the KPI cards' chip row in the visual's title row (null = own strip) */
     private cardChipRowY: number | null = null;
+    /** 1.58 (round 3b): left edge of an active mode chip (comment, structure, compare) */
+    private modeChipLeft = Infinity;
+    /** 1.58 (round 3b, S1): header strip of the small-multiples tile being rendered */
+    private tileHead: { x: number; y: number; w: number; h: number } | null = null;
+    /** 1.58 (round 3b, S1): KPI chips of a tile, drawn after (on top of) its header strip */
+    private pendingTileChips: (() => void) | null = null;
+    /** 1.58 (round 3b, S1): width the tile header keeps free for those chips */
+    private tileChipReserve = 0;
     /** 1.52.1 (IBCS: at most 3 digits in charts): labels drop decimals from the value
      *  on ("162K", not "161,8K") — off in the table and the P&L statement */
     private digitCap = true;
@@ -7681,6 +7689,7 @@ export class Visual implements IVisual {
         this.ctlInset = this.allowInteractions && s.chartCard.chipMenu.value
             ? Math.round(18 * this.fontK) + 6 : 0;
         this.ctlRight = width - this.ctlInset;
+        this.modeChipLeft = Infinity;
         if (this.allowInteractions) {
             width -= this.ctlInset;
             // sort button (once, top-right of the whole visual) — the only literal "button":
@@ -8038,7 +8047,8 @@ export class Visual implements IVisual {
                 tileFrame(g, t.cell.x, t.cell.y, t.cell.w, t.cell.h);
                 this.lastPanelK = null;
                 this.spanZoom = t.zoom;
-                try { renderCell(g, t.region, t.dom); } finally { this.spanZoom = null; }
+                this.tileHead = { x: t.cell.x, y: t.cell.y, w: t.cell.w, h: groupTitleH };
+                try { renderCell(g, t.region, t.dom); } finally { this.spanZoom = null; this.tileHead = null; }
                 // test marker: px per unit of every tile (base panel; Δ panel of a Δ-only tile)
                 const pk = this.lastPanelK as { main: number | null; abs: number | null; rel: number | null } | null;
                 const vo = cfg.varianceOnly === true && gKind !== "total";
@@ -8061,8 +8071,10 @@ export class Visual implements IVisual {
         }
         if (heroOn) {
             tileFrame(shown[0], 0, topOffset, heroW - 2, availH);
+            this.tileHead = { x: 0, y: topOffset, w: heroW, h: groupTitleH };
             renderCell(shown[0],
                 { x: 2, y: topOffset + groupTitleH, w: heroW - 6, h: availH - groupTitleH - 2 });
+            this.tileHead = null;
             this.drawTileHeader(0, topOffset, heroW, groupTitleH,
                 shown[0].name ?? "", shown[0].name ?? "", cfg, zoomKey(shown[0]));
         }
@@ -8078,8 +8090,10 @@ export class Visual implements IVisual {
             tileFrame(rest[gi], cx, cy, cellW, cellH);
             // cell content first, header strip after — the click target must sit ON TOP
             // of any chart marks (labels can reach into the strip), or clicks get eaten
+            this.tileHead = { x: cx, y: cy, w: cellW, h: groupTitleH };
             renderCell(rest[gi],
                 { x: cx + 2, y: cy + groupTitleH, w: cellW - 4, h: cellH - groupTitleH - 2 });
+            this.tileHead = null;
             this.drawTileHeader(cx, cy, cellW, groupTitleH, title, rest[gi].name ?? "", cfg, zoomKey(rest[gi]));
         }
         this.drawColsFloorHint(colsFloor, width, topOffset + availH, cfg);
@@ -8386,15 +8400,16 @@ export class Visual implements IVisual {
         zoomTip.textContent = `${groupName} ${this.locStr("Btn_Zoom", "enlarge (click the title row)")}`;
         (btn.style as CSSStyleDeclaration & { pointerEvents: string }).pointerEvents = "all";
         // hit area across the full strip (nearly invisible, but clickable everywhere)
+        // 1.58 (round 3b, S1): ends with the strip (was h + 2: reached into the cell)
         this.el("rect", {
-            x: x + 1, y: y + 1, width: Math.max(w - 2, 1), height: h + 2,
+            x: x + 1, y: y + 1, width: Math.max(w - 2, 1), height: Math.max(h - 1, 1),
             fill: cfg.paper, "fill-opacity": 0.01
         }, btn);
         const t = this.el("text", {
             x: x + 6, y: y + gtFont + 1, "font-size": gtFont, fill: cfg.ink,
             "font-family": FONT, "font-weight": 600
         }, btn);
-        t.textContent = this.truncate(title, w - 16 - 14 * k, gtFont);
+        t.textContent = this.truncate(title, w - 16 - 14 * k - this.tileChipReserve, gtFont);
         const icon = this.el("text", {
             x: x + w - 6, y: y + gtFont + 1, "text-anchor": "end",
             "font-size": Math.round(12 * k), fill: cfg.subtle, "font-family": FONT
@@ -8409,6 +8424,10 @@ export class Visual implements IVisual {
             if (e.key !== "Enter" && e.key !== " ") { return; }
             e.preventDefault(); e.stopPropagation(); zoom();
         });
+        // 1.58 (round 3b, S1): KPI chips of this tile sit in the strip left of ⤢, drawn
+        // last so they stay clickable on top of the strip's hit area
+        this.tileChipReserve = 0;
+        if (this.pendingTileChips) { const f = this.pendingTileChips; this.pendingTileChips = null; f(); }
     }
 
     /** back chip when a small-multiples tile is zoomed in; returns consumed height */
@@ -11772,7 +11791,8 @@ export class Visual implements IVisual {
                     this.relText(p), "end", rowFont, sum,
                     p.varRel == null || p.varRel === 0 ? cfg.subtle : colOf(p.varRel, p), g);
             }
-            if (p.varAbs != null && colX["dbar"] && !rowPct && rowChart) {
+            // round 3b (S3): at a double line an exact zero draws no bar (PY keeps its 1-px mark)
+            if (p.varAbs != null && colX["dbar"] && !rowPct && rowChart && !(dOff > 1 && p.varAbs === 0)) {
                 const len = Math.abs(p.varAbs) * dUnit;
                 const h = Math.max(3, rowH * 0.42);
                 const c = colOf(p.varAbs, p);
@@ -11836,7 +11856,7 @@ export class Visual implements IVisual {
                     this.relText(p, true), "end", rowFont, sum,
                     p.var2Rel == null || p.var2Rel === 0 ? cfg.subtle : colOf2(p.var2Rel, p), g);
             }
-            if (hasVar2 && p.var2Abs != null && colX["d2bar"] && !rowPct && rowChart) {
+            if (hasVar2 && p.var2Abs != null && colX["d2bar"] && !rowPct && rowChart && !(d2Off > 1 && p.var2Abs === 0)) {
                 const len = Math.abs(p.var2Abs) * d2Unit;
                 const h = Math.max(3, rowH * 0.42);
                 const c2 = colOf2(p.var2Abs, p);
@@ -13836,10 +13856,16 @@ export class Visual implements IVisual {
         const gap = Math.round(8 * k);
         // 1.58 (round 3, after stand B point 8 + review M2): the chips no longer sit over the
         // last card. In the title row of the visual when the title (and the message line)
-        // end before both chips and there is room above the first card row, otherwise in a
-        // header strip of the tile that the cards give up. Export (no chips): unchanged
-        const chipH = Math.round(18 * k);
-        const chipFont = Math.round(11 * k);
+        // end before both chips and there is room above the first card row; small multiples
+        // in the tile header left of ⤢ (round 3b, S1); otherwise in a header strip of the
+        // tile — round 3b (M1): only when the cards keep the height their layout needs, else
+        // compact in the top right corner of the last card of the first row, the Δ block
+        // keeping clear (as up to round 2), icons only if even that does not fit. Export
+        // (no chips): unchanged
+        let cols = Math.max(1, Math.min(n, Math.floor(region.w / (185 * k)) || 1));
+        // avoid a lonely last row when a squarer grid fits the same width
+        cols = Math.min(cols, Math.ceil(n / Math.ceil(n / cols)));
+        const rows = Math.ceil(n / cols);
         const sortChipOn = this.allowInteractions && region.w >= 220 * k;
         const excChipOn = this.allowInteractions && this.exceptionCapable;
         const sortChipLabels: { [key: string]: string } = {
@@ -13851,28 +13877,60 @@ export class Visual implements IVisual {
         const sortChipLabel = sortChipLabels[cfg.cardSort === "" ? "none" : cfg.cardSort] ?? sortChipLabels["none"];
         const excChipLabel = this.exceptionOn ? this.locStr("Chip_ExceptionOn", "⚠ Exceptions")
             : this.locStr("Chip_ExceptionOff", "⚠ All");
-        const chipsW = (sortChipOn ? this.textWidth(sortChipLabel, chipFont) + Math.round(22 * k) : 0)
-            + (excChipOn ? this.textWidth(excChipLabel, chipFont) + Math.round(22 * k) : 0);
-        const chipRight0 = Math.min(region.x + region.w, this.ctlRight) - Math.round(8 * k);
+        // chip size: full (18 px·k, 11 px·k font) or compact (14 / 9) in a tile header or a card
+        let chipBh = Math.round(18 * k), chipFont = Math.round(11 * k), chipIcons = false;
+        const chipLbl = (t: string) => chipIcons ? t.split(" ")[0] : t;
+        const chipsWNow = () => (sortChipOn ? this.textWidth(chipLbl(sortChipLabel), chipFont) + Math.round(16 * k) : 0)
+            + (sortChipOn && excChipOn ? Math.round(6 * k) : 0)
+            + (excChipOn ? this.textWidth(chipLbl(excChipLabel), chipFont) + Math.round(16 * k) : 0);
+        let chipRight0 = Math.min(region.x + region.w, this.ctlRight) - Math.round(8 * k);
         let chipTop = region.y + Math.round(8 * k) - 2;
-        let chipPlace: "none" | "title" | "strip" = "none";
+        let chipPlace: "none" | "title" | "tile" | "strip" | "card" = "none";
+        // height a card needs for its layout (flat: title + value; stacked: + first Δ row)
+        const padN = Math.round(10 * k) + Math.round(5 * k), titleFN = Math.max(9, cfg.catFont);
+        const valueFN = Math.round(cfg.labelFont * 1.9), refFN = Math.max(9, Math.round(cfg.labelFont * 0.95));
+        const cardHFor = (h: number) => (h - gap) / rows - gap;
+        const cardWNow = (region.w - gap) / cols - gap;
+        const needH = (h: number) => cardHFor(h) < 118 * k && cardWNow >= 250 * k
+            ? Math.max(52 * k, titleFN + valueFN + Math.round(16 * k))
+            : padN + titleFN + valueFN + refFN + Math.round(17 * k);
+        const tileHead = this.tileHead;
+        this.pendingTileChips = null;
         if (sortChipOn || excChipOn) {
             const rowY = this.cardChipRowY;
-            if (rowY != null && rowY + chipH <= region.y + gap / 2 + 1
-                && this.titleRightX + Math.round(8 * k) <= chipRight0 - chipsW) {
+            const strip = Math.round(18 * k) + Math.round(4 * k);
+            const tileChipsW = (() => { chipBh = Math.round(14 * k); chipFont = Math.round(9 * k); const w = chipsWNow();
+                chipBh = Math.round(18 * k); chipFont = Math.round(11 * k); return w; })();
+            if (tileHead && tileHead.w - 16 - 14 * k - tileChipsW - Math.round(6 * k) >= 40 * k) {
+                chipPlace = "tile";
+                chipBh = Math.round(14 * k);
+                chipFont = Math.round(9 * k);
+                chipRight0 = tileHead.x + tileHead.w - 6 - Math.round(14 * k) - Math.round(4 * k);
+                chipTop = tileHead.y + Math.max(1, (tileHead.h - chipBh) / 2);
+                this.tileChipReserve = chipsWNow() + Math.round(6 * k);
+            } else if (rowY != null && rowY + chipBh <= region.y + gap / 2 + 1
+                && this.titleRightX + Math.round(8 * k) <= chipRight0 - chipsWNow()) {
                 chipTop = rowY;
                 chipPlace = "title";
-            } else {
-                const strip = chipH + Math.round(4 * k);
+            } else if (cardHFor(region.h - strip) >= needH(region.h - strip)) {
                 chipTop = region.y + 2;
                 chipPlace = "strip";
                 region = { x: region.x, y: region.y + strip, w: region.w, h: Math.max(region.h - strip, 20) };
+            } else {
+                chipPlace = "card";
+                chipBh = Math.round(14 * k);
+                chipFont = Math.round(9 * k);
+                const cwN = (region.w - gap) / cols;
+                const lastCol = Math.min(cols, n) - 1;
+                chipRight0 = Math.min(chipRight0, region.x + gap / 2 + lastCol * cwN + 2 + cwN - gap - Math.round(5 * k));
+                chipTop = region.y + gap / 2 + 2 + Math.round(3 * k);
+            }
+            // round 3b (S2): an active mode chip (top right of the visual, y 6) keeps the
+            // chips to its left whenever they share its height
+            if (chipTop < 6 + Math.round(18 * k) + 2 && chipTop + chipBh > 4 && Number.isFinite(this.modeChipLeft)) {
+                chipRight0 = Math.min(chipRight0, this.modeChipLeft - Math.round(6 * k));
             }
         }
-        let cols = Math.max(1, Math.min(n, Math.floor(region.w / (185 * k)) || 1));
-        // avoid a lonely last row when a squarer grid fits the same width
-        cols = Math.min(cols, Math.ceil(n / Math.ceil(n / cols)));
-        const rows = Math.ceil(n / cols);
         const cw = (region.w - gap) / cols;
         const ch = (region.h - gap) / rows;
         const good = (v: number, pp?: DataPoint | null) => cfg.isGood(v, pp);
@@ -14048,7 +14106,11 @@ export class Visual implements IVisual {
         // 1.58: ONE Δ column for the whole deck. The column before it holds the widest
         // title (≤ 170 px·k) or value, but no more than lets every card's Δ block fit,
         // and never less than the widest value (the value is not truncated, the title is)
-        const flatLay = !flat ? null : (() => {
+        // round 3b (M1): chips in the corner of the last card of the first row — the cards they
+        // cover horizontally keep their content left of them
+        const chipLeftNow = () => chipPlace === "card" ? chipRight0 - chipsWNow() : Infinity;
+        const firstRowTop = region.y + gap / 2 + 2;
+        const mkFlatLay = () => !flat ? null : (() => {
             const gapV = Math.round(20 * k);
             const valueW = (j: number) => models[j].valueText.length * valueF * 0.58 + (pts[j].isFc ? 24 * k : 0);
             // + a few px: the value column is an estimate (0.58 em per character)
@@ -14061,9 +14123,19 @@ export class Visual implements IVisual {
             const withRows = models.filter(m => drawn(flatRows(m)));
             const blockMax = Math.max(0, ...withRows.map(blockW));
             const twoRows = withRows.some(m => flatRows(m).length === 2);
-            // 1.58 (round 3): the chips have their own row now (title row or header strip),
-            // the Δ block no longer has to keep clear of them
-            const room = Math.min(...withRows.map(m => cardW - 2 * pad - gapV - blockW(m)));
+            // 1.58 (round 3): the chips have their own row (title row, tile header or strip);
+            // round 3b: in the card corner the Δ block of the cards under them ends before them
+            let chipEnd = Infinity;
+            const chipLeft = chipLeftNow();
+            const rowTop = firstRowTop + cardH / 2 + (twoRows ? -Math.round(2 * k) : refF * 0.35) - refF;
+            if (Number.isFinite(chipLeft) && chipTop + chipBh > rowTop - 2) {
+                for (let c = 0; c < Math.min(cols, pts.length); c++) {
+                    const cx = region.x + gap / 2 + c * cw + 2;
+                    if (cx + cardW > chipLeft) { chipEnd = Math.min(chipEnd, chipLeft - 4 - cx); }
+                }
+            }
+            const room = Math.min(chipEnd - blockMax - pad - gapV,
+                ...withRows.map(m => cardW - 2 * pad - gapV - blockW(m)));
             const colW = Math.max(need, Math.min(want, room));
             const base = pad + colW + gapV;
             let refDx = base;
@@ -14074,16 +14146,23 @@ export class Visual implements IVisual {
             const rightFree = !trendOn && !(cfg.cardBars && pts.some(q => q.basis != null))
                 && !(cfg.cardBullet && pts.some(q => q.bm != null));
             if (rightFree) {
-                refDx = Math.max(base, Math.min(cardW / 2, cardW - pad - blockMax, base + 120 * k));
+                refDx = Math.max(base, Math.min(cardW / 2, cardW - pad - blockMax, base + 120 * k, chipEnd - blockMax));
             }
-            return { refDx, titleW: refDx - pad - gapV, blockMax, twoRows };
+            return { refDx, titleW: refDx - pad - gapV, blockMax, twoRows, clear: refDx + blockMax <= chipEnd + 0.5 };
         })();
+        let flatLay = mkFlatLay();
+        // the Δ block cannot clear the full chips: icons only ("↕", "⚠")
+        if (flatLay && !flatLay.clear) { chipIcons = true; flatLay = mkFlatLay(); }
 
         pts.forEach((p, i) => {
             const m = models[i];
             const x = region.x + gap / 2 + (i % cols) * cw + 2;
             const y = region.y + gap / 2 + Math.floor(i / cols) * ch + 2;
             const w = cardW, h = cardH;
+            // round 3b (M1): a first-row card under the corner chips keeps its right-hand
+            // content (bridge, trend, comment number, "+n Δ", stacked title) left of them
+            const underChips = Math.floor(i / cols) === 0 && x + w > chipLeftNow();
+            const rEdge = underChips ? Math.min(x + w - pad, chipLeftNow() - 4) : x + w - pad;
             const g = this.el("g", { "class": "icd-cat" }, this.svg) as SVGGElement;
             const emph = cfg.highlight.has(p.cat.toLowerCase());
             this.el("rect", {
@@ -14128,11 +14207,11 @@ export class Visual implements IVisual {
                 t.textContent = text;
                 return t;
             };
-            const titleValue = (tyTitle: number, tyValue: number, maxW: number) => {
+            const titleValue = (tyTitle: number, tyValue: number, maxW: number, vF = valueF) => {
                 txt(x + pad, tyTitle, this.truncate(p.cat, maxW, titleF), titleF, false, cfg.subtle);
-                txt(x + pad, tyValue, valueText, valueF, true, cfg.ink);
+                txt(x + pad, tyValue, valueText, vF, true, cfg.ink);
                 if (p.isFc) {
-                    const vw = valueText.length * valueF * 0.58;
+                    const vw = valueText.length * vF * 0.58;
                     txt(x + pad + vw + 6 * k, tyValue, "FC", Math.round(9 * k), true, cfg.subtle);
                 }
             };
@@ -14448,9 +14527,12 @@ export class Visual implements IVisual {
             let shownRows: CardRow[] = [];
             let moreX: number | null = null, moreY = 0;
             if (flatLay) {
-                const blockH = titleF + Math.round(4 * k) + valueF;
-                const top = y + Math.max(Math.round(6 * k), (h - blockH) / 2);
-                titleValue(top + titleF, top + titleF + Math.round(4 * k) + valueF, flatLay.titleW);
+                // round 3b (M1): a very low card (800 × 44) shrinks the value font until title
+                // and value (with its descent) fit inside the card; taller cards unchanged
+                const vF = Math.max(9, Math.min(valueF, Math.floor((h - titleF - Math.round(4 * k) - 4) / 1.25)));
+                const blockH = titleF + Math.round(4 * k) + vF;
+                const top = y + (vF < valueF ? Math.max(2, (h - blockH - vF * 0.25) / 2) : Math.max(Math.round(6 * k), (h - blockH) / 2));
+                titleValue(top + titleF, top + titleF + Math.round(4 * k) + vF, flatLay.titleW, vF);
 
                 // 1.58: the Δ block of every card starts at the same relative x
                 let refX = x + flatLay.refDx;
@@ -14481,22 +14563,22 @@ export class Visual implements IVisual {
                     }
                 }
                 // bridge on the right edge when there is still room for it (toggle)
-                const bw2 = Math.min(170 * k, x + w - pad - refX);
+                const bw2 = Math.min(170 * k, rEdge - refX);
                 const bh2 = Math.min(Math.round(34 * k), h - Math.round(12 * k) - legRoom);
                 if (trendOn) {
                     // trend chart in the bridge slot — a little wider, a line needs length
-                    const bwT = Math.min(220 * k, x + w - pad - refX);
+                    const bwT = Math.min(220 * k, rEdge - refX);
                     if (p.trendSeries && bwT >= 90 * k && bh2 >= 16 * k) {
                         const byBottom = y + (h - legRoom + bh2) / 2;
-                        drawTrend(x + w - pad - bwT, byBottom, bwT, bh2);
+                        drawTrend(rEdge - bwT, byBottom, bwT, bh2);
                     }
                 } else if (cfg.cardBars && p.basis != null && bw2 >= 100 * k && bh2 >= 18 * k) {
                     const byBottom = y + (h - legRoom + bh2) / 2;
-                    drawBridge(x + w - pad - bw2, byBottom, bw2, bh2);
+                    drawBridge(rEdge - bw2, byBottom, bw2, bh2);
                 }
             } else {
                 let yCur = y + pad + titleF;
-                titleValue(yCur, yCur + valueF + Math.round(4 * k), w - pad * 2);
+                titleValue(yCur, yCur + valueF + Math.round(4 * k), rEdge - x - pad);
                 yCur += valueF + Math.round(4 * k) + refF + Math.round(9 * k);
                 if (refRows.length > 0 && yCur <= y + h - 4) {
                     refRowAt(x + pad, yCur, refRows[0]);
@@ -14532,20 +14614,27 @@ export class Visual implements IVisual {
 
             // comment marker number, if present
             if (p.commentNo != null) {
-                txt(x + w - pad, y + pad + titleF, this.circledNo(p.commentNo),
+                txt(rEdge, y + pad + titleF, this.circledNo(p.commentNo),
                     Math.round(10 * k), false, cfg.subtle, "end");
             }
             const hidden = refRows.filter(r => r.kind !== "blank" && !shownRows.includes(r));
             if (hidden.length > 0) {
                 const moreF = Math.round(8 * k);
+                // round 3b (K1): "+n Δ" only for Δ rows; with hidden reference VALUE rows the
+                // mark says "+n" neutrally. K2: never above the card's top edge
+                const moreTxt = hidden.some(r => r.kind === "plain") ? `+${hidden.length}` : `+${hidden.length} Δ`;
                 const more = moreX != null
-                    ? txt(moreX, moreY, `+${hidden.length} Δ`, moreF, false, cfg.subtle)
-                    : txt(x + w - Math.round(8 * k), y + Math.round(13 * k), `+${hidden.length} Δ`, moreF, false, cfg.subtle, "end");
+                    ? txt(moreX, Math.max(moreY, y + moreF + 1), moreTxt, moreF, false, cfg.subtle)
+                    : txt(Math.min(x + w - Math.round(8 * k), rEdge), y + Math.round(13 * k), moreTxt, moreF, false, cfg.subtle, "end");
                 more.setAttribute("data-icd", "card-more");
                 more.setAttribute("data-n", String(hidden.length));
-                const tip = this.el("title", {}, more);
-                tip.textContent = hidden.map(r => r.kind === "na" ? `${r.lbl} ${REL_NA}`
+                const tipText = hidden.map(r => r.kind === "na" ? `${r.lbl} ${REL_NA}`
                     : r.kind === "plain" ? `${r.lbl} ${m.fmtV(r.v)}` : `Δ${r.lbl} ${m.refText(r.v, r.rel)}`).join("; ");
+                const tip = this.el("title", {}, more);
+                tip.textContent = tipText;
+                // K3: stays in the export (a visible cut is wanted); readable by keyboard
+                more.setAttribute("aria-label", `${moreTxt}: ${tipText}`);
+                if (this.allowInteractions) { more.setAttribute("tabindex", "0"); }
             }
 
             this.attachInteraction(g, p, cfg);
@@ -14556,70 +14645,70 @@ export class Visual implements IVisual {
         // top-right chip cluster of the tile: sort chip on the outside, ⚠ exception
         // chip to its left — both anchored on the same right edge so they never overlap.
         // Luft zum Kachelrand statt 2px Klebeabstand (Beta-Feedback A. Korn)
-        let chipRight = chipRight0;
         if (chipPlace !== "none") {
-            this.el("g", { "data-icd": "card-chip-row", "data-place": chipPlace, "data-y": chipTop }, this.svg);
+            this.el("g", { "data-icd": "card-chip-row", "data-place": chipPlace, "data-y": chipTop,
+                ...(chipIcons ? { "data-icons": "1" } : {}) }, this.svg);
         }
-        // in-chart sort chip (top-right of the region): cycles none → deviation →
-        // worst → best; persists as an override of the pane dropdown, bookmarkable
-        if (this.allowInteractions && region.w >= 220 * k) {
-            const order = ["none", "deviation", "worst", "best"];
-            const labels: { [key: string]: string } = {
-                none: this.locStr("Chip_SortNone", "↕ Sort"),
-                deviation: this.locStr("Chip_SortDev", "↕ |Δ|"),
-                worst: this.locStr("Chip_SortWorst", "↓ Worst"),
-                best: this.locStr("Chip_SortBest", "↑ Best")
-            };
-            const cur = cfg.cardSort === "" ? "none" : cfg.cardSort;
-            const on = cur !== "none";
-            const label = labels[cur] ?? labels["none"];
-            const font = Math.round(11 * k), bh = Math.round(18 * k);
-            const segW = this.textWidth(label, font) + Math.round(16 * k);
-            const cx = chipRight - segW, cy = chipTop;
-            chipRight -= segW + Math.round(6 * k);
-            const chip = this.el("g", { tabindex: "0", role: "button", "data-ck-ctl": "1" }, this.svg) as SVGGElement;
-            chip.setAttribute("aria-label", this.locStr("Cards_Sort", "Sort by deviation"));
-            const tip = this.el("title", {}, chip);
-            tip.textContent = this.locStr("Cards_Sort", "Sort by deviation");
-            this.el("rect", {
-                x: cx, y: cy, width: segW, height: bh, rx: bh / 2,
-                fill: on ? cfg.colors.ac : cfg.paper,
-                stroke: cfg.hc ? cfg.ink : cfg.subtle, "stroke-width": 1
-            }, chip);
-            const t = this.el("text", {
-                x: cx + segW / 2, y: cy + bh / 2 + font * 0.36, "text-anchor": "middle",
-                "font-size": font, fill: on ? cfg.paper : cfg.ink, "font-family": FONT
-            }, chip);
-            t.textContent = label;
-            // 1.49: without a comparison value (PY/PL/BM) or with a single card the
-            // sort orders cannot differ — locked instead of a silent cycle
-            const sortable = points.length > 1 && points.some(p => p.varAbs != null || p.bm != null);
-            if (!sortable) {
-                this.lockChip(chip, this.locStr("Lock_CardSort",
-                    "No effect: without a comparison value (PY/PL/BM) or with a single card there is nothing to sort"));
-            }
-            (chip as unknown as SVGGraphicsElement).style.cursor = sortable ? "pointer" : "default";
-            const cycle = () => {
-                if (!sortable) { return; }
-                const next = order[(order.indexOf(cur) + 1) % order.length];
-                this.cardSortSel = next;
-                this.pendingCardSort = next;
-                this.host.persistProperties({
-                    merge: [{ objectName: "chart", selector: null, properties: { cardSortSel: next } }]
+        // round 3b: size and placement from the decision above (full, compact, icons only);
+        // in a small-multiples tile the chips are drawn after the tile header (drawTileHeader)
+        const drawChips = () => {
+            let chipRight = chipRight0;
+            // in-chart sort chip: cycles none → deviation → worst → best; persists as an
+            // override of the pane dropdown, bookmarkable
+            if (sortChipOn) {
+                const order = ["none", "deviation", "worst", "best"];
+                const cur = cfg.cardSort === "" ? "none" : cfg.cardSort;
+                const on = cur !== "none";
+                const label = chipLbl(sortChipLabels[cur] ?? sortChipLabels["none"]);
+                const font = chipFont, bh = chipBh;
+                const segW = this.textWidth(label, font) + Math.round(16 * k);
+                const cx = chipRight - segW, cy = chipTop;
+                chipRight -= segW + Math.round(6 * k);
+                const chip = this.el("g", { tabindex: "0", role: "button", "data-ck-ctl": "1" }, this.svg) as SVGGElement;
+                chip.setAttribute("aria-label", this.locStr("Cards_Sort", "Sort by deviation"));
+                const tip = this.el("title", {}, chip);
+                tip.textContent = this.locStr("Cards_Sort", "Sort by deviation");
+                this.el("rect", {
+                    x: cx, y: cy, width: segW, height: bh, rx: bh / 2,
+                    fill: on ? cfg.colors.ac : cfg.paper,
+                    stroke: cfg.hc ? cfg.ink : cfg.subtle, "stroke-width": 1
+                }, chip);
+                const t = this.el("text", {
+                    x: cx + segW / 2, y: cy + bh / 2 + font * 0.36, "text-anchor": "middle",
+                    "font-size": font, fill: on ? cfg.paper : cfg.ink, "font-family": FONT
+                }, chip);
+                t.textContent = label;
+                // 1.49: without a comparison value (PY/PL/BM) or with a single card the
+                // sort orders cannot differ — locked instead of a silent cycle
+                const sortable = points.length > 1 && points.some(p => p.varAbs != null || p.bm != null);
+                if (!sortable) {
+                    this.lockChip(chip, this.locStr("Lock_CardSort",
+                        "No effect: without a comparison value (PY/PL/BM) or with a single card there is nothing to sort"));
+                }
+                (chip as unknown as SVGGraphicsElement).style.cursor = sortable ? "pointer" : "default";
+                const cycle = () => {
+                    if (!sortable) { return; }
+                    const next = order[(order.indexOf(cur) + 1) % order.length];
+                    this.cardSortSel = next;
+                    this.pendingCardSort = next;
+                    this.host.persistProperties({
+                        merge: [{ objectName: "chart", selector: null, properties: { cardSortSel: next } }]
+                    });
+                    this.rerender();
+                };
+                chip.addEventListener("click", (e: MouseEvent) => { e.stopPropagation(); cycle(); });
+                chip.addEventListener("keydown", (e: KeyboardEvent) => {
+                    if (e.key !== "Enter" && e.key !== " ") { return; }
+                    e.preventDefault();
+                    e.stopPropagation();
+                    cycle();
                 });
-                this.rerender();
-            };
-            chip.addEventListener("click", (e: MouseEvent) => { e.stopPropagation(); cycle(); });
-            chip.addEventListener("keydown", (e: KeyboardEvent) => {
-                if (e.key !== "Enter" && e.key !== " ") { return; }
-                e.preventDefault();
-                e.stopPropagation();
-                cycle();
-            });
-        }
-        if (this.allowInteractions && this.exceptionCapable) {
-            this.drawExceptionChip(chipRight, chipTop, cfg);
-        }
+            }
+            if (excChipOn) {
+                this.drawExceptionChip(chipRight, chipTop, cfg, chipBh, chipFont, chipIcons);
+            }
+        };
+        if (chipPlace === "tile") { this.pendingTileChips = drawChips; } else { drawChips(); }
     }
 
     /**
@@ -19505,8 +19594,11 @@ export class Visual implements IVisual {
             const color = colorOf(si);
             const isFc = fc[si][i];
             // 1.58 (round 3, after stand B): FC hatched in the series colour (hollow is the plan)
+            // round 3b (S4): high contrast hollow as before; K4: small marks (≤ 5 px) take a
+            // finer period (1.8 px), the 2.4-px hatch showed a single stroke there
             const style: Record<string, string | number> = isFc
-                ? { fill: `url(#${this.fineHatch(cfg, color)})`, stroke: color, "stroke-width": 1 }
+                ? (cfg.hc ? { fill: cfg.paper, stroke: color, "stroke-width": 1 }
+                    : { fill: `url(#${this.fineHatch(cfg, color, ms <= 5 ? 1.8 : 2.4)})`, stroke: color, "stroke-width": 1 })
                 : { fill: color, stroke: cfg.paper, "stroke-width": 0.6 };
             const attrs = { ...style, "data-icd": "series-pt", "data-series": series[si], "data-i": i,
                 "data-v": Math.round(v * 100) / 100, "data-scen": isFc ? "fc" : "ac" };
@@ -24632,17 +24724,17 @@ export class Visual implements IVisual {
 
     /** 1.58 (round 3, after stand B): the fine FC hatch (period 2.4 px) in a given stroke
      *  colour, once per colour and render; the AC colour keeps the id cfg.patMark */
-    private fineHatch(cfg: ChartConfig, col: string): string {
+    private fineHatch(cfg: ChartConfig, col: string, period = 2.4): string {
         const c = col.trim();
-        const id = c.toUpperCase() === cfg.colors.ac.toUpperCase() ? cfg.patMark
-            : `${cfg.patMark}${c.replace(/[^0-9a-z]/gi, "").toLowerCase()}`;
+        const id = (c.toUpperCase() === cfg.colors.ac.toUpperCase() ? cfg.patMark
+            : `${cfg.patMark}${c.replace(/[^0-9a-z]/gi, "").toLowerCase()}`) + (period !== 2.4 ? "f" : "");
         if (!this.svg.querySelector(`[id="${id}"]`)) {
             const defs = this.svg.querySelector("defs") ?? this.el("defs", {}, this.svg);
             const pm = this.el("pattern", {
-                id, patternUnits: "userSpaceOnUse", width: 2.4, height: 2.4, patternTransform: "rotate(45)"
+                id, patternUnits: "userSpaceOnUse", width: period, height: period, patternTransform: "rotate(45)"
             }, defs);
-            this.el("rect", { width: 2.4, height: 2.4, fill: cfg.paper }, pm);
-            this.el("line", { x1: 0, y1: 0, x2: 0, y2: 2.4, stroke: c, "stroke-width": 1.3 }, pm);
+            this.el("rect", { width: period, height: period, fill: cfg.paper }, pm);
+            this.el("line", { x1: 0, y1: 0, x2: 0, y2: period, stroke: c, "stroke-width": period === 2.4 ? 1.3 : period * 0.54 }, pm);
         }
         return id;
     }
@@ -25485,6 +25577,7 @@ export class Visual implements IVisual {
         // (ja-JP!) liefen sonst aus der Pille (UX-10 teilweise)
         const w = Math.round(this.textWidth(text, font)) + Math.round(16 * k);
         const g = this.el("g", { role: "button", "data-ck-ctl": "1", tabindex: "0" }, this.svg) as SVGGElement;
+        this.modeChipLeft = xRight - w;
         this.el("rect", {
             x: xRight - w, y: 6, width: w, height: bh, rx: bh / 2,
             fill: cfg.hc ? cfg.paper : cfg.colors.ac,
@@ -25553,13 +25646,16 @@ export class Visual implements IVisual {
      * in-chart buttons (bookmarkable). Returns the width it took so a neighbouring
      * chip can step aside; the caller anchors it by its RIGHT edge.
      */
-    private drawExceptionChip(xRight: number, yTop: number, cfg: ChartConfig): number {
+    private drawExceptionChip(xRight: number, yTop: number, cfg: ChartConfig,
+        bhIn?: number, fontIn?: number, iconOnly = false): number {
         const k = this.fontK;
         const on = this.exceptionOn;
-        const bh = Math.round(18 * k), font = Math.round(11 * k);
-        const label = on
+        // 1.58 (round 3b): compact size and icon only for the KPI cards' corner / tile header
+        const bh = bhIn ?? Math.round(18 * k), font = fontIn ?? Math.round(11 * k);
+        const full = on
             ? this.locStr("Chip_ExceptionOn", "⚠ Exceptions")
             : this.locStr("Chip_ExceptionOff", "⚠ All");
+        const label = iconOnly ? full.split(" ")[0] : full;
         const segW = this.textWidth(label, font) + Math.round(16 * k);
         const x = xRight - segW;
         const tipText = this.locStr("ChipTip_Exception",
