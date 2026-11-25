@@ -1230,6 +1230,7 @@ function tidyChecks(geom, tag) {
             name: (e.querySelector('[data-pnl="micro-name"]') || {}).textContent || "",
             nameFs: (e.querySelector('[data-pnl="micro-name"]') || { style: {} }).style.fontSize,
             deltaFs: (e.querySelector('[data-pnl="micro-delta"]') || { style: {} }).style.fontSize,
+            deltaT: (e.querySelector('[data-pnl="micro-delta"]') || {}).textContent || "",
             valueFs: [...e.querySelectorAll("svg text")]
                 .filter(t => t.getAttribute("fill") === "#1A1A1A")
                 .map(t => parseFloat(t.getAttribute("font-size"))),
@@ -1246,7 +1247,11 @@ function tidyChecks(geom, tag) {
         edges.micro.map(m => m.h).join(","));
     check("micro card name and Δ% are set at 11 px",
         edges.micro.every(m => m.nameFs === "11px" && (m.deltaFs === "11px" || m.deltaFs === "")),
-        edges.micro.map(m => m.nameFs + "/" + m.deltaFs).join(" "));
+        edges.micro.map(m => m.name + " " + m.nameFs + "/" + m.deltaFs).join(" | "));
+    // 1.8.4 a card whose Δ% has no meaning (reference 0 or a sign change) reads "n.a." in its place
+    check("1.8.4 a micro card with a Δ% across zero reads \"n.a.\" (pharma demo), every other one a percentage",
+        edges.micro.some(m => m.deltaT === "n.a.") && edges.micro.every(m => m.deltaT === "" || m.deltaT === "n.a." || /%$/.test(m.deltaT)),
+        edges.micro.map(m => m.name + " " + m.deltaT).join(" | "));
     check("the numbers inside a micro chart are drawn at 8.5 px or more",
         edges.micro.some(m => m.valueFs.length > 0)
         && edges.micro.every(m => m.valueFs.every(v => v >= 8.5)),
@@ -2789,7 +2794,9 @@ function tidyChecks(geom, tag) {
         out.t2note = (t2.querySelector('[data-pnl="exc-note"]') || {}).textContent || "";
         window.SK_STAGE("hd-s1", { ...ui("sankey"), ...EXC("gray", 10) }, 1300, 800);
         window.SK_STAGE("hd-s2", { ...ui("sankey"), ...EXC("hide", 10) }, 1300, 800);
-        window.SK_STAGE("hd-s3", { ...ui("sankey"), ...EXC("hide", 5) }, 1300, 800);
+        // 1.8.4 ⚡ reads the printed Δ% (one decimal): at 5 % a stream of +4.96 % now counts as an
+        // exception and the last pair of quiet siblings breaks up; 6 % keeps a bundle to test
+        window.SK_STAGE("hd-s3", { ...ui("sankey"), ...EXC("hide", 6) }, 1300, 800);
         out.s1 = window.READ_SK("hd-s1"); out.s2 = window.READ_SK("hd-s2"); out.s3 = window.READ_SK("hd-s3");
         const excIds = (id) => [...document.querySelectorAll(`#${id} g[data-pnl="sk-node"][data-sk-exc="1"]`)].map(g => g.getAttribute("data-pnl-id")).sort();
         out.s1exc = excIds("hd-s1"); out.s2exc = excIds("hd-s2"); out.s3exc = excIds("hd-s3");
@@ -3068,6 +3075,99 @@ function tidyChecks(geom, tag) {
             hl.zoom.tile && hl.zoom.note === "" && hl.zoom.same, JSON.stringify(hl.zoom));
         check("highlight · one visual: Sankey → table switches to the filter picture (row outside gone, no note) and back",
             hl.swTable.note === "" && !hl.swTable.cm && hl.swBack, JSON.stringify(hl.swTable) + " back " + hl.swBack);
+    }
+
+    // ---- 1.8.4 numbers follow a language switch of the host at runtime (until 1.8.3 the locale was
+    // read once in the constructor: after a switch to de-DE the texts were German, the numbers English)
+    {
+        const roi = await page.evaluate(() => {
+            const objects = { titleBlock: { measureLine: "ROI-Baum" }, toolbar: { show: false }, hierarchy: { defaultLevel: 0 },
+                numbers: { pctDecimals: 2 }, columns: { treeCard: "months", treeStatus: false, treeLevel: 0, treeAllLabels: true },
+                state: { uiState: JSON.stringify({ view: "tree", treeV: 2 }) } };
+            // from: the locale at construction (and first update), loc: the locale of the measured update
+            const mk = (id, from, loc) => {
+                const d = document.createElement("div");
+                d.className = "stage"; d.id = id; d.style.cssText = "width:1300px;height:720px;";
+                document.body.appendChild(d);
+                const host = makeHost(from);
+                const v = new PnlByDatenWG.Visual({ element: d, host });
+                const up = () => v.update({ dataViews: [dvRows(MEGA_DEMO.roi(), objects)], viewport: { width: 1300, height: 720 }, type: 2 });
+                up();
+                if (loc !== from) { host.locale = loc; up(); }
+                // every number on the cards: values, Δ, %, factor (column labels, head values, tooltips of the triangles)
+                const nums = [...d.querySelectorAll("svg text, svg title")].map(t => t.textContent).filter(t => /\d[.,]\d/.test(t));
+                d.remove();
+                return nums;
+            };
+            return { late: mk("roi-switch", "en-US", "de-DE"), now: mk("roi-de", "de-DE", "de-DE"), en: mk("roi-back", "de-DE", "en-US") };
+        });
+        check("1.8.4 numbers follow a language switch of the host at runtime: en-US → de-DE, every card number of the ROI tree with a decimal comma (24,88 · 1,30 · 5,0)",
+            roi.late.length > 20 && roi.late.includes("24,88") && roi.late.includes("1,30") && roi.late.includes("5,0")
+            && !roi.late.some(t => /\d\.\d/.test(t)), roi.late.filter(t => /\d\.\d/.test(t)).concat(roi.late.slice(0, 8)).join(" "));
+        check("1.8.4 after the switch the tree renders exactly like a visual started in de-DE",
+            JSON.stringify(roi.late) === JSON.stringify(roi.now), roi.late.length + " / " + roi.now.length);
+        check("1.8.4 and back: de-DE → en-US prints the decimal point again (24.88 · 1.30)", roi.en.includes("24.88") && roi.en.includes("1.30"),
+            roi.en.slice(0, 8).join(" "));
+    }
+
+    // ---- 1.8.4 "n.a." wherever the tree and its panels print a Δ%: License & milestone income has
+    // no plan (reference 0), so its Δ% vs PL has no meaning — card head, hover panel, scenario grid,
+    // tile head, the tooltip; soft and italic, never in the variance colour; es-ES "n.d.", ja-JP "N/A"
+    {
+        const na = await page.evaluate(async () => {
+            const out = {};
+            const soft = (e) => e && /italic/.test(e.getAttribute("font-style") || e.style.fontStyle || "");
+            window.__naMk = (id, ui, loc, w, h) => {
+                const d = document.createElement("div");
+                d.className = "stage"; d.id = id; d.style.cssText = `width:${w || 1340}px;height:${h || 1000}px;`;
+                document.body.appendChild(d);
+                const v = new PnlByDatenWG.Visual({ element: d, host: makeHost(loc || "en-US") });
+                v.update({ dataViews: [dv({ titleBlock: { measureLine: "n.a." }, state: { uiState: JSON.stringify(Object.assign({ view: "tree", treeV: 2, ref: "pl" }, ui || {})) } })],
+                    viewport: { width: w || 1340, height: h || 1000 }, type: 2 });
+                return { d, v };
+            };
+            // card head (SVG)
+            const t = window.__naMk("na-tree");
+            const heads = [...t.d.querySelectorAll('text[data-pnl="tree-na"]')];
+            out.card = heads.map(e => ({ t: e.textContent, italic: soft(e), fill: e.getAttribute("fill") }));
+            // hover panel: dwell on the card of License & milestone income
+            const card = [...t.d.querySelectorAll("svg > g > g")].find(g => g.querySelector("rect[rx='4']")
+                && [...g.querySelectorAll("text")].some(x => /^License & miles/.test(x.textContent)));
+            out.cardFound = !!card;
+            if (card) { card.dispatchEvent(new MouseEvent("mouseenter")); }
+            await new Promise(r => setTimeout(r, 500));
+            const panel = [...t.d.querySelectorAll("div")].find(x => x.style.zIndex === "40");
+            const pna = panel ? [...panel.querySelectorAll("[data-pnl-na]")] : [];
+            out.panel = pna.map(e => ({ t: e.textContent, italic: soft(e), color: e.style.color, grid: !!e.closest('[data-pnl="scen-grid"]') }));
+            if (card) { card.dispatchEvent(new MouseEvent("mouseleave")); }
+            // tile view of the same row: head and grid
+            const z = window.__naMk("na-tile", { treeZoom: "750110" }, "en-US", 1340, 1100);
+            const center = z.d.querySelector('[data-pnl="zoom-center"]');
+            out.tile = center ? [...center.querySelectorAll("[data-pnl-na]")].map(e => ({ t: e.textContent, italic: soft(e),
+                grid: !!e.closest('[data-pnl="scen-grid"]') })) : null;
+            // the tooltip of the table and the mega table (tipItems)
+            const node = t.v.model.byId.get("750110");
+            const fmt = t.v.makeFmt(1);
+            out.tip = t.v.tipItems(node, fmt, "ytd", null).filter(x => /%$/.test(x.displayName)).map(x => x.displayName + "=" + x.value);
+            out.tipMega = t.v.tipItems(node, fmt, "ytd", { min: "ac", refs: ["pl"] }).filter(x => /%$/.test(x.displayName)).map(x => x.displayName + "=" + x.value);
+            // the other languages
+            out.es = [...window.__naMk("na-es", null, "es-ES").d.querySelectorAll('text[data-pnl="tree-na"]')].map(e => e.textContent);
+            out.ja = [...window.__naMk("na-ja", null, "ja-JP").d.querySelectorAll('text[data-pnl="tree-na"]')].map(e => e.textContent);
+            return out;
+        });
+        const SOFT_INK = /#8A8886|#a6a6a6|rgb\(138, 136, 134\)/i;
+        check("1.8.4 n.a. on the tree card head (SVG): soft ink, italic, never the variance colour",
+            na.card.length >= 1 && na.card.every(c => c.t === "n.a." && c.italic && SOFT_INK.test(c.fill)), JSON.stringify(na.card));
+        check("1.8.4 n.a. in the hover panel: in its head and in the scenario grid, italic, in the soft ink",
+            na.cardFound && na.panel.some(p => !p.grid && p.t === "n.a.") && na.panel.some(p => p.grid && p.t === "n.a.")
+            && na.panel.every(p => p.italic && SOFT_INK.test(p.color)), JSON.stringify(na.panel));
+        check("1.8.4 n.a. in the tile view: head and scenario grid", na.tile && na.tile.some(p => !p.grid && p.t === "n.a.")
+            && na.tile.some(p => p.grid && p.t === "n.a.") && na.tile.every(p => p.italic), JSON.stringify(na.tile));
+        check("1.8.4 n.a. in the tooltip of the table and of the mega table (ΔPL % = n.a.)",
+            na.tip.includes("ΔPL %=n.a.") && na.tipMega.includes("ΔPL %=n.a."), JSON.stringify([na.tip, na.tipMega]));
+        check("1.8.4 n.a. in the report language: es-ES \"n.d.\", ja-JP \"N/A\"",
+            na.es.length >= 1 && na.es.every(x => x === "n.d.") && na.ja.length >= 1 && na.ja.every(x => x === "N/A"),
+            JSON.stringify([na.es, na.ja]));
     }
 
     await page.screenshot({ path: __dirname + "/tree-interact.png", fullPage: false });

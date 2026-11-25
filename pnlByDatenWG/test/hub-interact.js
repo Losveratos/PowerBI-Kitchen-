@@ -503,6 +503,10 @@ function check(label, cond, detail) {
         // the switches match the template: no button
         mk("r1", full);
         out.matchNoBtn = !T.q("r1", '[data-pnl="tb-template-reset"]');
+        // 1.8.4 the preset now carries roundedZero = plain: a report applied before 1.8.4 (nothing stored,
+        // default "signed") or with "signed" set by hand is no deviation, no ↺
+        mk("r1b", { ...full, numbers: { roundedZero: "signed" } });
+        out.rzNoBtn = !T.q("r1b", '[data-pnl="tb-template-reset"]');
         out.pickerThere = !!T.q("r1", '[data-pnl="tb-template"]');
         // one switch off: the button
         const dev = JSON.parse(JSON.stringify(full)); dev.columns.dPlAbs = false;
@@ -516,7 +520,8 @@ function check(label, cond, detail) {
         T.click("r2", "tb-template-reset");
         out.persistN = st.persists.length;
         const m = st.persists[0] && st.persists[0].merge;
-        out.write = m ? { objs: m.map(x => x.objectName), tpl: m[0].properties.template, applied: m[0].properties.templateApplied, dPlAbs: m[0].properties.dPlAbs } : null;
+        out.write = m ? { objs: m.map(x => x.objectName), tpl: m[0].properties.template, applied: m[0].properties.templateApplied, dPlAbs: m[0].properties.dPlAbs,
+            rz: (m.find(x => x.objectName === "numbers") || { properties: {} }).properties.roundedZero } : null;
         out.afterClick = !T.q("r2", '[data-pnl="tb-template-reset"]');
         st.update(JSON.parse(JSON.stringify(dev)));     // a stale update keeps the restored switches (echo guard)
         out.afterStale = !T.q("r2", '[data-pnl="tb-template-reset"]');
@@ -566,6 +571,9 @@ function check(label, cond, detail) {
         return out;
     });
     check("R switches equal to the template: no ↺ button (the picker is there)", R.matchNoBtn && R.pickerThere);
+    check("R 1.8.4 roundedZero in the preset is no deviation: applied before 1.8.4 (not stored) or \"signed\" by hand, no ↺",
+        R.matchNoBtn && R.rzNoBtn);
+    check("R 1.8.4 ↺ writes numbers.roundedZero = plain with the decimals", R.write && R.write.rz === "plain", JSON.stringify(R.write));
     check("R a deviating switch shows \"↺ Zum Template zurück\" with a tooltip naming the template, next to the dropdown",
         R.btn && /Back to template/.test(R.label) && /T03A/.test(R.tip) && R.inGroup, R.label + " | " + R.tip);
     check("R one click = ONE persist: template + templateApplied + every switch (dPlAbs back on) + numbers",

@@ -70,6 +70,9 @@ function readMega(id) {
             arrows: g.querySelectorAll('path:not([data-pnl="mega-break"])').length,
             // 1.5: break marks of capped elements (outlier zone, UN 5.3)
             breaks: g.querySelectorAll('path[data-pnl="mega-break"]').length,
+            // 1.8.4 the head a capped pin keeps (its scenario mark) before the triangle
+            pinHeads: [...g.querySelectorAll('rect[data-pnl="mega-pin-head"]')].map(r => ({ fill: r.getAttribute("fill"), stroke: r.getAttribute("stroke"),
+                x: +r.getAttribute("x"), w: +r.getAttribute("width") })),
             // 1.8.2 ellipse emphasis (12G / 12H): ellipse box and the label it encloses
             ellipses: [...g.querySelectorAll('ellipse[data-pnl="mega-ellipse"]')].map(e => {
                 const cx = +e.getAttribute("cx"), cy = +e.getAttribute("cy"), rx = +e.getAttribute("rx"), ry = +e.getAttribute("ry");
@@ -118,7 +121,8 @@ function readMega(id) {
 
     const ids = ["m1", "m2", "m3", "m4", "m5", "m6", "m7", "m8", "m9", "m10", "m11", "m12", "m13", "m14", "m15", "m16",
         "m17", "m18", "m19", "m20", "m21", "m22", "m23", "m24", "m25", "m26", "m27", "m28", "m29", "m30", "m31", "m32", "m33",
-        "m34", "m35", "m36", "m37", "m38", "m39", "m40", "m41", "m42", "m43", "m44", "m45", "m46", "m47", "m48", "m49", "m50", "m51", "m52", "m53", "m54", "m55", "m56", "m57", "m58", "m59", "m60", "m61", "m62", "m63", "m64", "m65", "m66", "m67", "m68", "m69", "m70", "m71"];
+        "m34", "m35", "m36", "m37", "m38", "m39", "m40", "m41", "m42", "m43", "m44", "m45", "m46", "m47", "m48", "m49", "m50", "m51", "m52", "m53", "m54", "m55", "m56", "m57", "m58", "m59", "m60", "m61", "m62", "m63", "m64", "m65", "m66", "m67", "m68", "m69", "m70", "m71",
+        "m72", "m73", "m74", "m75", "m76", "m77", "m78", "m79", "m80", "m81", "m82", "m83", "m84", "m85", "m86"];
     const S = {};
     for (const id of ids) {
         S[id] = await page.evaluate(readMega, id);
@@ -387,9 +391,182 @@ function readMega(id) {
         check("m58 margin and its Δ keep one decimal as in the sheet (45.3%, +8.6%p)", has("m58", "+8.6%p") && has("m58", "45.3%"),
             S.m58.body.filter(x => /p$|%$/.test(x.t)).map(x => x.t).join(" "));
     }
-    if (S.m47 && S.m59) {
-        check("m47 default: the World ΔPY% that rounds to zero keeps its sign (+0.0%)", has("m47", "+0.0%"));
+    if (S.m47 && S.m59 && S.m34 && S.m10 && S.m11 && S.m8) {
+        // 1.8.4 T01C applied fresh writes numbers.roundedZero = plain (until 1.8.3: "+0.0%"); a report that
+        // applied it before keeps its stored setting, the property default stays "signed" (m34, templateApplied)
+        check("m47 1.8.4 T01C applied fresh: the World ΔPY% that rounds to zero prints 0.0% as the sheet", has("m47", "0.0%") && !has("m47", "+0.0%"));
+        check("m34 T01A applied before 1.8.4 (templateApplied, nothing written): the rounded zero keeps its sign (+0.0%)", has("m34", "+0.0%"));
+        // 1.8.4 every template writes plain (T04A m10, T04B m11); without a template the default "signed" stays (m8)
+        const lbl = (id, t) => S[id].charts.some(c => c.labels.some(l => l.t === t));
+        check("m10 T04A / m11 T04B applied fresh print their rounded-zero Δ plain (0.0, 0.00), m8 without a template keeps +0.0",
+            lbl("m10", "0.0") && !lbl("m10", "+0.0") && !has("m11", "+0.0") && !lbl("m11", "+0.0") && has("m8", "+0.0"));
         check("m59 roundedZero plain: World ΔPY% 0.0% as in the sheet", has("m59", "0.0%") && !has("m59", "+0.0%"));
+    }
+    // ---- 1.8.4 wave 1 (notation) --------------------------------------------------------------
+    if (S.m72 && S.m73) {
+        // the row of a label: every body text on the same baseline
+        const rowOf = (id, label) => { const l = S[id].body.find(x => x.t === label); return l ? S[id].body.filter(x => Math.abs(x.y - l.y) < 0.5).map(x => x.t) : []; };
+        const fin = rowOf("m72", "Financial income, net");
+        check("m72 T03A Δ% n.a. on a sign change: Financial income −15.0 → 69.6 keeps ΔPY +84.6, ΔPY% reads \"n.a.\" (was +564.0%); ΔPL% +5.5% stays",
+            fin.includes(nb("-15.0")) && fin.includes("+84.6") && !fin.some(t => /564/.test(t)) && fin.filter(t => /%$/.test(t)).join() === "+5.5%"
+            && fin.includes("n.a."), fin.join("|"));
+        const naCell = S.m72.body.find(x => x.t === "n.a.");
+        check("m72 \"n.a.\" is soft and italic, not bold", naCell && naCell.italic && !naCell.bold && naCell.fill !== "#1A1A1A", JSON.stringify(naCell));
+        const opex = rowOf("m72", "Operating expenses");
+        check("m72 cost rows (both negative in the calculation) keep their Δ% (+6.6%, +3.0%)", opex.includes("+6.6%") && opex.includes("+3.0%"), opex.join("|"));
+        const inv = rowOf("m72", "Investment income");
+        check("m72 T03A writes roundedZero = plain: Investment income 43.0 → 43.02 prints ΔPY 0.0 / 0.0% (was +0.0 / +0.0%)",
+            inv.includes("0.0") && inv.includes("0.0%") && !inv.some(t => /^[+\u2212]0\.0/.test(t)), inv.join("|"));
+        const red = (id, label, t) => { const l = S[id].body.find(x => x.t === label); const c = l && S[id].body.find(x => Math.abs(x.y - l.y) < 0.5 && x.t === nb(t) && x.x < l.x);
+            return c ? c.fill : null; };
+        const us = red("m73", "USA", "-35"); const cn = red("m73", "China", "-35");
+        check("m73 T01A threshold −35 reads the printed Δ: USA (−34.6) and China (−35.4) both print −35 in the same ink, not red",
+            us != null && us === cn && us !== "#E02B1D", `${us} / ${cn}`);
+        const se = red("m73", "Sweden", "-10.0%");
+        check("m73 Sweden ΔPL% −10.02 % prints −10.0 %: not below −10 %, not red (was red)", se != null && se !== "#E02B1D", String(se));
+        const ge = red("m73", "Germany", "-85");
+        check("m73 Germany ΔPY −85 stays red", ge === "#E02B1D", String(ge));
+    }
+    if (S.m77) {
+        const na77 = await page.evaluate(() => [...document.querySelectorAll('#m77 text[data-pnl="mega-na"]')].map(t => ({ t: t.textContent,
+            y: +t.getAttribute("y"), italic: t.getAttribute("font-style") === "italic" })));
+        const fin77 = S.m77.body.find(x => x.t === "Financial income, net");
+        const pinCol = S.m77.charts.find(c => c.labels.some(l => l.t === "n.a."));
+        check("m77 T04A: the ΔPL% pin column prints \"n.a.\" for Financial income (PL −15 → AC 66.0) and the result rows that cross zero with it, no pin there",
+            // the result rows below cross zero too (PL turns negative through the −15): n.a. there as well
+            na77.length === 3 && na77.every(x => x.t === "n.a." && x.italic) && fin77 && Math.abs(na77[0].y - fin77.y) < 0.5 && pinCol != null,
+            JSON.stringify({ na77, y: fin77 && fin77.y }));
+    }
+    if (S.m78 && S.m79 && S.m80) {
+        const inv = S.m78.body.find(x => x.t === "Investment income");
+        const row78 = inv ? S.m78.body.filter(x => Math.abs(x.y - inv.y) < 0.5).map(x => x.t) : [];
+        check("m78 float noise is no sign change: Investment income AC 0.3−0.1−0.2 prints 0.0, ΔPY% −100.0% (not n.a.)",
+            row78.includes("0.0") && row78.includes(nb("-100.0%")) && !row78.includes("n.a."), row78.join("|"));
+        const p79 = S.m79.charts.find(c => c.pinHeads.length > 0);
+        const ax79 = p79 && p79.axes.length ? Math.min(...p79.axes.map(a => a.x)) : null;
+        check("m79 a negative capped pin keeps its filled AC head left of the axis, before its triangle (Germany −98.2)",
+            p79 != null && p79.pinHeads.length === 1 && ax79 != null && p79.pinHeads[0].x + p79.pinHeads[0].w < ax79
+            && p79.pinHeads[0].fill === "#404040" && p79.breaks === 1 && p79.labels.some(l => l.t === nb("-98.2")),
+            JSON.stringify(p79 && { h: p79.pinHeads, ax79, l: p79.labels.map(l => l.t) }));
+        const p80 = S.m80.charts.find(c => c.pinHeads.length > 0);
+        // the same three rows as in the light palette (m74), each head in front of its triangle, the stem ends in it
+        const p74 = S.m74.charts.find(c => c.pinHeads.length > 0);
+        check("m80 high contrast: the three capped FC pins keep their head (hatch pattern or hollow outline in the foreground), at the same place as m74",
+            p80 != null && p80.pinHeads.length === 3 && p80.pinHeads.every(h => h.fill && (/^url\(/.test(h.fill) || (h.stroke && h.fill !== h.stroke)))
+            && p74 != null && p80.pinHeads.every((h, i) => Math.abs(h.x - p74.pinHeads[i].x) < 0.5) && p80.breaks === 3,
+            JSON.stringify(p80 && p80.pinHeads));
+    }
+    if (S.m81 && S.m38) {
+        // 1.8.4 a flat list: one row pitch between the customers, the spacer only before the total
+        const ys = S.m81.rowY; const steps = ys.slice(1).map((y, i) => Math.round(y - ys[i]));
+        const pitch = steps[0];
+        check("m81 T02B on a flat list: no spacer rows between the 8 customers (one pitch), one gap before the total",
+            ys.length === 9 && steps.slice(0, 7).every(d => d === pitch) && steps[7] > pitch, steps.join(","));
+        // a hierarchy keeps its blocks (1.5.1 rule): m38 regions still separate their elements
+        const ys38 = S.m38.rowY; const st38 = ys38.slice(1).map((y, i) => Math.round(y - ys38[i]));
+        check("m38 hierarchy unchanged: region blocks keep their spacer rows", new Set(st38).size > 1, st38.join(","));
+    }
+    if (S.m84 && S.m85 && S.m86 && S.m81) {
+        const steps = id => { const ys = S[id].rowY; return ys.slice(1).map((y, i) => Math.round(y - ys[i])); };
+        // a one-child group folds into one row; as a block of its own it keeps its spacer (step > the flat pitch of m81)
+        const flatPitch = steps("m81")[0];
+        check("m84 a list of one-child groups (region → one customer) keeps its blocks (flatTop from the model)",
+            steps("m84").length > 0 && steps("m84").every(d => d > flatPitch), steps("m84").join(",") + " vs " + flatPitch);
+        check("m85 a mixed list (leaves and one group of two) keeps its blocks", new Set(steps("m85")).size > 1, steps("m85").join(","));
+        const s86 = steps("m86");
+        check("m86 a flat list under ⚡ hide stays dense: one pitch between the customers left, one gap before the total",
+            S.m86.rowY.length >= 3 && S.m86.rowY.length < 9 && new Set(s86.slice(0, -1)).size === 1 && s86[s86.length - 1] > s86[0], s86.join(","));
+    }
+    {
+        // 1.8.4 layout.maximize over a size series: never past the tile (height, width), k never falls with
+        // more width or more height (the search is checked step by step on a 0.02 grid; before: m15
+        // 1320 × 700 ended 34 px below the tile, k swung with every pixel of width)
+        const series = await page.evaluate(() => {
+            const W = [900, 1100, 1300, 1396, 1500, 1700, 1900]; const H = [250, 500, 742, 1100];
+            const out = {};
+            for (const id of ["m15", "m40", "m82", "m5"]) {
+                const src = window.__visuals[id].lastDv;
+                const data = { ...src, metadata: { objects: { ...src.metadata.objects, layout: { maximize: true } } } };
+                const res = [];
+                for (const h of H) {
+                    for (const w of W) {
+                        const d = document.createElement("div"); d.style.cssText = `position:relative;width:${w}px;height:${h}px`;
+                        document.body.appendChild(d);
+                        const v = new PnlByDatenWG.Visual({ element: d, host: makeHost("en-US") });
+                        const t0 = performance.now();
+                        v.update({ dataViews: [data], viewport: { width: w, height: h }, type: 4 });
+                        const ms = performance.now() - t0;
+                        const root = d.querySelector(".pnl-root"); const rr = root.getBoundingClientRect();
+                        let tx = 0;
+                        for (const svg of root.querySelectorAll("svg")) { const R = svg.getBoundingClientRect();
+                            for (const t of svg.querySelectorAll("text")) { tx = Math.max(tx, t.getBoundingClientRect().right - Math.min(R.right, rr.right)); } }
+                        res.push({ w, h, k: v.bodyK, oh: root.scrollHeight - root.clientHeight, ow: Math.max(root.scrollWidth - root.clientWidth, tx), ms });
+                        d.remove();
+                    }
+                }
+                out[id] = res;
+            }
+            return out;
+        });
+        for (const [id, res] of Object.entries(series)) {
+            const over = res.filter(x => (x.k > 1 + 1e-6 && x.ow > 1.5) || (x.oh > 1 && x.k > 0.75));
+            check(`${id} maximize size series (900–1900 × 250–1100): no horizontal or vertical overflow (rows scroll only at the 9 px floor)`,
+                over.length === 0, over.slice(0, 4).map(x => `${x.w}x${x.h} k${x.k.toFixed(3)} oh${x.oh} ow${x.ow.toFixed(1)}`).join(" | "));
+            const byH = {}; const byW = {};
+            for (const x of res) { (byH[x.h] = byH[x.h] || []).push(x); (byW[x.w] = byW[x.w] || []).push(x); }
+            const fallW = Object.values(byH).flatMap(xs => xs.filter((x, i) => i > 0 && x.k < xs[i - 1].k - 0.012).map(x => `${x.w}x${x.h} ${xs[xs.indexOf(x) - 1].k.toFixed(2)}→${x.k.toFixed(2)}`));
+            const fallH = Object.values(byW).flatMap(xs => xs.filter((x, i) => i > 0 && x.k < xs[i - 1].k - 0.012).map(x => `${x.w}x${x.h}`));
+            check(`${id} maximize: k never falls with more width or more height`, fallW.length === 0 && fallH.length === 0, fallW.concat(fallH).join(" | "));
+            const avg = res.reduce((a, x) => a + x.ms, 0) / res.length;
+            notes.push(`  · ${id} maximize series: ${res.length} sizes, ${Math.round(avg)} ms per update on average (incl. a fresh visual)`);
+        }
+    }
+    if (S.m82) {
+        // 1.8.4 layout.maximize grows a short table (flat list without spacer rows) only as far as the
+        // tile width allows: T02C at 1566 × 742 (the showcase tile) and, rendered again, at 1400 × 742
+        // (before the fix: 119 px past the edge at 1400, ΔPL% of the right block cut off)
+        const fit = async (w, h) => page.evaluate(([w, h]) => {
+            const st = document.getElementById("m82");
+            if (w) { st.style.width = w + "px"; st.style.height = h + "px";
+                const v = window.__visuals.m82; v.update({ dataViews: [v.lastDv], viewport: { width: w, height: h }, type: 4 }); }
+            const sb = st.getBoundingClientRect(); const root = st.firstElementChild;
+            const cut = [];
+            for (const svg of st.querySelectorAll("svg")) { const R = svg.getBoundingClientRect();
+                for (const t of svg.querySelectorAll("text")) { if (t.getBoundingClientRect().right > Math.min(R.right, sb.right) + 0.5) { cut.push(t.textContent); } } }
+            const body = st.querySelector('svg[data-pnl="mega-body"]');
+            const charts = [...body.querySelectorAll('g[data-pnl="mega-chart"]')];
+            const last = charts[charts.length - 1];
+            const heads = [...last.querySelectorAll("rect")].map(r => r.getBoundingClientRect().right);
+            return { cut, scroll: root.scrollWidth - root.clientWidth, headsOut: heads.filter(x => x > sb.right + 0.5).length,
+                heads: heads.length, fs: parseFloat(getComputedStyle(body.querySelector("text")).fontSize) };
+        }, [w, h]);
+        const a = await fit(0, 0);
+        check("m82 T02C flat list, maximize, 1566 × 742: the right ΔPL% column with every pin head and label inside the tile",
+            a.cut.length === 0 && a.headsOut === 0 && a.heads >= 11 && a.scroll <= 1 && a.fs > 13, JSON.stringify(a));
+        const b = await fit(1400, 742);
+        check("m82 the same tile at 1400 × 742: the type grows only as far as the width allows (min of height and width)",
+            b.cut.length === 0 && b.headsOut === 0 && b.scroll <= 1 && b.fs <= a.fs, JSON.stringify(b));
+    }
+    if (S.m83) {
+        // 1.8.4 ⚡ reads the printed Δ%: −9.96 % prints −10.0 % = an exception at 10 % (ink), Poland −5.5 % is none (grey)
+        const fillOf = (label, t) => { const l = S.m83.body.find(x => x.t === label); const c = l && S.m83.body.find(x => Math.abs(x.y - l.y) < 0.5 && x.t === nb(t) && x.x < l.x);
+            return c ? c.fill : null; };
+        const se = fillOf("Sweden", "-10.0%"); const po = fillOf("Poland", "-5.5%");
+        check("m83 ⚡ on the printed Δ%: Sweden ΔPL% −9.96 % prints −10.0 % and is an exception at 10 % (not grey), Poland −5.5 % greys",
+            se != null && se !== "#8A8886" && po === "#8A8886", `${se} / ${po}`);
+    }
+    if (S.m74 && S.m75 && S.m76) {
+        const p74 = S.m74.charts.find(c => c.pinHeads.length > 0);
+        check("m74 T04D: the capped FC pins keep a hatched head before their triangle (+141.2, +145.4, +452.8)",
+            p74 != null && p74.pinHeads.length === 3 && p74.pinHeads.every(h => /^url\(/.test(h.fill || "")) && p74.breaks === 3,
+            JSON.stringify(p74 && p74.pinHeads));
+        const p75 = S.m75.charts.find(c => c.pinHeads.length > 0);
+        check("m75 12H: the capped PL pin keeps its hollow head (+900.0)",
+            p75 != null && p75.pinHeads.length === 1 && p75.pinHeads[0].fill === "#FFFFFF" && p75.pinHeads[0].stroke != null && p75.breaks === 1,
+            JSON.stringify(p75 && p75.pinHeads));
+        const p76 = S.m76.charts.filter(c => c.labels.some(l => l.t === "+452.8"));
+        check("m76 columns.capPins = false: no break mark, no triangle, no outlier head in the pin column; +452.8 at full length",
+            p76.length === 1 && p76[0].breaks === 0 && p76[0].arrows === 0 && p76[0].pinHeads.length === 0, JSON.stringify(p76.map(c => [c.breaks, c.arrows])));
     }
     // ---- 1.8 (B07) ROI tree over years (sheet 11A) -------------------------------------
     {

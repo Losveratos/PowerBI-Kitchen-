@@ -107,6 +107,12 @@
 <div class="case"><h4>m67 · 1.8.3 · 12G mit kleinem Betriebsergebnis: Margenwert auf der Nulllinie mit Papierkasten</h4><div class="stage" id="m67" style="width:1320px;height:760px"></div></div>
 <div class="case"><h4>m68 · 1.8.3 · 12G in Blattnotation: Köpfe YTD / Jahr ohne FY-Titel, Margen ganzzahlig · m69 12H mit FY-Block in Blattnotation: Kopf PL 2025 statt Titel · m70 T03A mit YTD-Block in Blattnotation: kein Jahr im Kopf · m71 12G in Blattnotation mit Δ%-Dezimalen von Hand: Margen mit einer Stelle</h4><div class="stage" id="m68" style="width:1320px;height:760px"></div><div class="stage" id="m69" style="width:1320px;height:800px"></div><div class="stage" id="m70" style="width:1320px;height:800px"></div><div class="stage" id="m71" style="width:1320px;height:760px"></div></div>
 <div class="case"><h4>m65 · 1.8.2 · T04C Ellipse im ΔPY-Wasserfall (Operating result, Gross margin fällt aufs Band zurück) · m66 T03A ohne Diagrammspalte: Band bleibt</h4><div class="stage" id="m65" style="width:1320px;height:700px"></div><div class="stage" id="m66" style="width:1320px;height:600px"></div></div>
+<div class="case"><h4>m72 · 1.8.4 · T03A: Δ% bei Vorzeichenwechsel n.a. (Financial income −15 → 69,6) und gerundete Null ohne Vorzeichen (Investment income 0.0) · m73 T01A Schwelle −35 auf der gedruckten Zahl (USA und China −35 gleich gefärbt, Sweden −10.0 % nicht rot)</h4><div class="stage" id="m72" style="width:1320px;height:620px"></div><div class="stage" id="m73" style="width:1320px;height:640px"></div></div>
+<div class="case"><h4>m74 · 1.8.4 · T04D: gekappter Pin behält den schraffierten FC-Kopf · m75 12H: gekappter Pin behält den hohlen PL-Kopf · m76 T04D mit Kappung aus (columns.capPins = false)</h4><div class="stage" id="m74" style="width:1320px;height:700px"></div><div class="stage" id="m75" style="width:1320px;height:760px"></div><div class="stage" id="m76" style="width:1320px;height:700px"></div></div>
+<div class="case"><h4>m77 · 1.8.4 · T04A: ΔPL% n.a. an der Achse der Pin-Spalte (Financial income PL −15 → AC 66) · p30 klassische Tabelle Δ%-Pins: n.a. und gekappter Pin mit Kopf</h4><div class="stage" id="m77" style="width:1320px;height:700px"></div><div class="stage" id="p30" style="width:1100px;height:640px"></div></div>
+<div class="case"><h4>m78 · 1.8.4 · Gleitkomma-Rauschen ist kein Vorzeichenwechsel (Investment income 0.0, ΔPY% −100.0 %) · m79 negativer gekappter Pin mit Kopf · m80 Hochkontrast: gekappte FC-Pins behalten den Kopf</h4><div class="stage" id="m78" style="width:1320px;height:600px"></div><div class="stage" id="m79" style="width:1320px;height:700px"></div><div class="stage" id="m80" style="width:1320px;height:700px"></div></div>
+<div class="case"><h4>m81 · 1.8.4 · T02B auf einer flachen Kundenliste: keine Leerzeilen, Leerzeile nur vor Gesamt · m82 T02C Bierranking 1566 × 742 mit „Fläche maximieren“: wächst nur so weit, wie die Breite reicht · m83 ⚡ auf dem gedruckten Δ% (−9,96 % druckt −10,0 % und ist Ausnahme bei 10 %)</h4><div class="stage" id="m81" style="width:1320px;height:480px"></div><div class="stage" id="m82" style="width:1566px;height:742px"></div><div class="stage" id="m83" style="width:1320px;height:640px"></div></div>
+<div class="case"><h4>m84 · 1.8.4 · Liste aus Einkind-Gruppen behält ihre Blöcke · m85 Mischliste behält ihre Blöcke · m86 flache Liste unter ⚡ ausblenden bleibt dicht</h4><div class="stage" id="m84" style="width:1320px;height:420px"></div><div class="stage" id="m85" style="width:1320px;height:420px"></div><div class="stage" id="m86" style="width:1320px;height:480px"></div></div>
 <div class="case"><h4>m46 · 1.7 · ⚡ Hochkontrast · T02A · Nicht-Ausnahmen gestrichelt ohne Füllung und Muster</h4><div class="stage" id="m46" style="width:1320px;height:800px"></div></div>
 <script src="locales.js"></script>
 <script src="visual.bundle.js"></script>
@@ -622,6 +628,91 @@ runRows("m70", MEGA_DEMO.regions(), { titleBlock: { ...MT, periodLine: "November
 runRows("m71", MEGA_DEMO.statement12G(), { titleBlock: { ...SSG, periodLine: "2025 as of May" }, toolbar: { show: false },
   hierarchy: { defaultLevel: 0 }, columns: { template: "12G", templateApplied: "12G", showPY: true, showMinuend: true, valueCascade: true,
     dPyBar: true, dPyPin: true, blockKind: "fy" }, numbers: { sheetPctDecimals: true, decimals: 0, pctDecimals: 2 } });
+// ---- 1.8.4 wave 1 (notation) --------------------------------------------------
+// m72 — T03A: Financial income, net turns from PY −15 to AC 69.6 (Δ% n.a.), Investment income 43.0 → 43.02 (0.0 without sign)
+const W1_T03 = MEGA_DEMO.statement("T03").map(r => r.account === "fin" ? { ...r, values: { ...r.values, py: -15 } }
+  : r.account === "inv" ? { ...r, values: { ...r.values, ac: 43.02 } } : r);
+runRows("m72", W1_T03, { titleBlock: { ...MT, periodLine: "2026" }, toolbar: { show: false }, hierarchy: { defaultLevel: 0 },
+  columns: { template: "T03A" } });
+// m73 — T01A, threshold −35: USA ΔPY −34.6 and China −35.4 both print −35 (same colour); Sweden ΔPL% −10.02 % prints −10.0 %
+const W1_REG = MEGA_DEMO.regions().map(r => r.month !== "2026-11" ? r
+  : r.account === "Americas:USA" ? { ...r, values: { ...r.values, ac: 311.4 } }
+  : r.account === "Rest of World:China" ? { ...r, values: { ...r.values, ac: 230.6 } }
+  : r.account === "Europe:Sweden" ? { ...r, values: { ...r.values, ac: 72.88 } } : r);
+runRows("m73", W1_REG, { titleBlock: { ...MT, periodLine: "November 2026" }, ...REG, columns: { template: "T01A", thresholdAbs: -35 } });
+// m74 / m75 — capped pins keep their head: T04D (FC hatched), 12H (PL hollow); m76 T04D with the pin cap switched off
+const W1_T04 = MEGA_DEMO.statement("T04").map(r => r.account === "con" ? { ...r, values: { ...r.values, ac: r.values.ac + 100, fc: r.values.fc + 100 } } : r);
+runRows("m74", W1_T04, { titleBlock: { ...MT, periodLine: "2026" }, toolbar: { show: false }, hierarchy: { defaultLevel: 0 },
+  columns: { template: "T04D" } });
+runRows("m75", MEGA_DEMO.statement("12A").map(r => r.account === "orev" ? { ...r, values: { ...r.values, pl: 60 } } : r),
+  { titleBlock: { ...SSG, periodLine: "PL 2026, ΔPY" }, toolbar: { show: false }, hierarchy: { defaultLevel: 0 }, columns: { template: "12H" } });
+runRows("m76", W1_T04, { titleBlock: { ...MT, periodLine: "2026" }, toolbar: { show: false }, hierarchy: { defaultLevel: 0 },
+  columns: { template: "T04D", templateApplied: "T04D", minuend: "fc", showPL: true, showMinuend: true, dPlWaterfall: true, dPlPin: true,
+    capPins: false }, numbers: { decimals: 2, pctDecimals: 1 } });
+// m77 — T04A: Financial income, net PL −15 → AC 66.0 crosses zero: "n.a." at the axis of the ΔPL% pin column, no pin
+runRows("m77", MEGA_DEMO.statement("T04").map(r => r.account === "fin" ? { ...r, values: { ...r.values, pl: -15 } } : r),
+  { titleBlock: { ...MT, periodLine: "2026" }, toolbar: { show: false }, hierarchy: { defaultLevel: 0 }, columns: { template: "T04A" } });
+// m78 — 1.8.4 float noise is no sign change: Investment income AC 0.3 − 0.1 − 0.2 (−5.6e−17, prints 0.0) against PY 43: ΔPY% −100.0 %
+runRows("m78", MEGA_DEMO.statement("T03").map(r => r.account === "inv" ? { ...r, values: { ...r.values, ac: 0.3 - 0.1 - 0.2 } } : r),
+  { titleBlock: { ...MT, periodLine: "2026" }, toolbar: { show: false }, hierarchy: { defaultLevel: 0 }, columns: { template: "T03A" } });
+// m79 — a negative capped pin keeps its head (T02A, Germany November AC 5 → ΔPL% −98.2 %); m80 high contrast: the capped FC heads stay
+runRows("m79", MEGA_DEMO.regions().map(r => r.month === "2026-11" && r.account === "Europe:Germany" ? { ...r, values: { ...r.values, ac: 5 } } : r),
+  { titleBlock: { ...MT, periodLine: "November 2026" }, ...REG, columns: { template: "T02A" } });
+runRows("m80", W1_T04, { titleBlock: { ...MT, periodLine: "2026" }, toolbar: { show: false }, hierarchy: { defaultLevel: 0 },
+  columns: { template: "T04D" } }, null, { palette: HC });
+// m81 — 1.8.4 a flat customer list (no hierarchy below the grand total): T02B without spacer rows (port of the parallel line)
+(function () {
+  const cust = [["HyperMax", 4210, 3620], ["Diskont Sever", 3300, 3440], ["Trh Plus", 3050, 3110], ["Sklepik", 1350, 1600],
+    ["Kaufpark", 2600, 2770], ["Billa Nord", 2400, 2510], ["Coop Süd", 2050, 2470], ["Mini Markt", 1500, 1340]];
+  const rows = cust.map(([leaf, pl, ac], i) => ({ levels: ["Gesamt", leaf], account: "C" + i, sort: i, rowType: "account",
+    formulaDef: null, sign: 1, displayInvert: false, varianceInvert: false, month: "2026-08", comment: null, values: { ac: ac * 1000, pl: pl * 1000 } }));
+  runRows("m81", rows, { titleBlock: { ...MT, measureLine: "Umsatz in kEUR", periodLine: "August 2026" }, ...REG, columns: { template: "T02B" } }, "de-DE");
+})();
+// m82 — 1.8.4 the beer ranking of the showcase (T02C, flat list, two blocks) in a 1566 × 742 tile with
+// layout.maximize: without spacer rows the table is short, the body grows, but never past the tile width
+(function () {
+  const beers = [["Lev Free", 2250, 2410, 13970, 14740], ["Lev Citrón Radler", 1860, 1900, 10470, 10430],
+    ["Zlatý Lev 12° Dvanáctka", 13740, 13750, 88590, 89130], ["Anniversary 1882", 40, 40, 290, 280],
+    ["Smíchov Hazy IPA", 1040, 1030, 6820, 6390], ["Vltava Pšenice", 1490, 1460, 8930, 8780],
+    ["Karlův IPA", 1440, 1410, 9640, 9560], ["Vyšehrad Tmavý 13°", 1320, 1280, 9380, 9190],
+    ["Černý Lev 11°", 3420, 3370, 23870, 23860], ["Zlatý Lev 10° Desítka", 12490, 11990, 80520, 80920],
+    ["Praha Premium 13°", 5620, 3390, 36220, 26280]];
+  const MONTHS8 = ["2026-01", "2026-02", "2026-03", "2026-04", "2026-05", "2026-06", "2026-07", "2026-08"];
+  const rows = [];
+  beers.forEach(([leaf, plA, acA, plY, acY], i) => MONTHS8.forEach((m, mi) => rows.push({ levels: ["Gesamt", leaf], account: "B" + i,
+    sort: i, rowType: "account", formulaDef: null, sign: 1, displayInvert: false, varianceInvert: false, month: m, comment: null,
+    values: mi === 7 ? { pl: plA, ac: acA } : { pl: (plY - plA) / 7, ac: (acY - acA) / 7 } })));
+  runRows("m82", rows, { titleBlock: { unitLine: "ZLATÝ LEV Brauerei", measureLine: "Absatz in Tsd. hl je Bier, sortiert nach Planabweichung im Monat",
+    periodLine: "Aug 2026 | Jan..Aug 2026 (YTD), AC gegen PL" }, toolbar: { show: true, foldable: true }, hierarchy: { defaultLevel: 0 },
+    layout: { maximize: true },
+    columns: { template: "T02C", templateApplied: "T02C", showPL: true, showMinuend: true, dPlBar: true, dPlPin: true, secondBlock: true,
+      sort: "delta", sortBlock: "period", keepBlockOrder: true, structureTotal: true },
+    numbers: { scaling: "k", unitText: "hl", decimals: 2, pctDecimals: 1 } }, "de-DE");
+})();
+// m83 — 1.8.4 ⚡ on the printed Δ%: Sweden ΔPL% −9.96 % prints −10.0 % and is an exception at 10 % (until 1.8.3 grey)
+runRows("m83", MEGA_DEMO.regions().map(r => r.month === "2026-11" && r.account === "Europe:Sweden" ? { ...r, values: { ...r.values, ac: 72.93 } } : r),
+  { titleBlock: { ...MT, periodLine: "November 2026" }, ...REG,
+    columns: { template: "T01A", templateApplied: "T01A", showPY: true, showPL: true, showMinuend: true, dPyAbs: true, dPyPct: true,
+      dPlAbs: true, dPlPct: true, secondBlock: true, structureSubtotals: false, thresholds: false },
+    numbers: { decimals: 0, pctDecimals: 1 }, exceptions: { enabled: true, thresholdPct: 10, reference: "pl" } });
+// m84 / m85 / m86 — 1.8.4 flatTop is read from the model: a list of one-child groups and a mixed list keep their
+// blocks; a flat list under ⚡ hide (quiet customers leave) stays dense
+(function () {
+  const C = (levels, i, pl, ac) => ({ levels, account: "X" + i, sort: i, rowType: "account", formulaDef: null, sign: 1, displayInvert: false,
+    varianceInvert: false, month: "2026-08", comment: null, values: { ac: ac * 1000, pl: pl * 1000 } });
+  const one = [["Nord", "HyperMax", 4210, 3620], ["Süd", "Diskont Sever", 3300, 3440], ["Ost", "Trh Plus", 3050, 3110], ["West", "Sklepik", 1350, 1600]]
+    .map(([g, c, pl, ac], i) => C(["Gesamt", g, c], i, pl, ac));
+  runRows("m84", one, { titleBlock: { ...MT, measureLine: "Umsatz in kEUR", periodLine: "August 2026" }, ...REG, columns: { template: "T02B" } }, "de-DE");
+  const mixed = [C(["Gesamt", "HyperMax"], 0, 4210, 3620), C(["Gesamt", "Diskont Sever"], 1, 3300, 3440),
+    C(["Gesamt", "Ketten", "Trh Plus"], 2, 3050, 3110), C(["Gesamt", "Ketten", "Kaufpark"], 3, 2600, 2770), C(["Gesamt", "Sklepik"], 4, 1350, 1600)];
+  runRows("m85", mixed, { titleBlock: { ...MT, measureLine: "Umsatz in kEUR", periodLine: "August 2026" }, ...REG, columns: { template: "T02B" } }, "de-DE");
+  const cust = [["HyperMax", 4210, 3620], ["Diskont Sever", 3300, 3440], ["Trh Plus", 3050, 3110], ["Sklepik", 1350, 1600],
+    ["Kaufpark", 2600, 2770], ["Billa Nord", 2400, 2510], ["Coop Süd", 2050, 2470], ["Mini Markt", 1500, 1340]];
+  runRows("m86", cust.map(([c, pl, ac], i) => C(["Gesamt", c], i, pl, ac)), { titleBlock: { ...MT, measureLine: "Umsatz in kEUR", periodLine: "August 2026" },
+    ...REG, columns: { template: "T02B" }, exceptions: { enabled: true, thresholdPct: 8, reference: "pl", mode: "hide" } }, "de-DE");
+})();
+// p30 — 1.8.4 classic table, Δ% pins: Financial income crosses zero ("n.a.", no pin), Other revenue +62.7 % capped with its head
+runRows("p30", W1_T03, { titleBlock: { ...MT, periodLine: "2026" }, hierarchy: { defaultLevel: 0 }, columns: { preset: "dpct" } });
 runRows("m65", MEGA_DEMO.statement("T04"), { titleBlock: { ...MT, periodLine: "2026" }, toolbar: { show: false },
   hierarchy: { defaultLevel: 0 }, columns: { template: "T04C", highlight: "Operating result, Gross margin", highlightStyle: "ellipse" } });
 runRows("m66", MEGA_DEMO.statement("T03"), { titleBlock: { ...MT, periodLine: "2026" }, toolbar: { show: false }, hierarchy: { defaultLevel: 0 },

@@ -6,7 +6,7 @@ Power BI visual · End-user documentation
 
 The IBCS-inspired P&L visual for Power BI: a statement straight from your account dimension — as a classic table or as a mega table with the IBCS templates T01–T04, 12A, 12G and 12H as well as balance sheet and cash flow (T05A/T05B), plus structure bars, row waterfall, value driver tree, Sankey and tile zoom. This documentation leads from the import through data model, views and templates to the complete settings reference.
 
-Version · **1.8.3.0** · As of · **2026-11-01** · IBCS-inspired
+Version · **1.8.4.0** · As of · **2026-11-25** · IBCS-inspired
 
 ## Contents
 
@@ -21,7 +21,7 @@ Version · **1.8.3.0** · As of · **2026-11-01** · IBCS-inspired
 9. [Interaction](#interaction)
 10. [Deviations from the IBCS sheets](#deviations)
 11. [Troubleshooting](#faq)
-12. [Version note 1.8.3.0](#version)
+12. [Version note 1.8.4.0](#version)
 
 ## 01 · What is the visual?
 
@@ -47,7 +47,7 @@ The notation follows the **IBCS® principles**: AC filled in dark gray (#404040)
 
 > **Thank you, IBCS.** This visual is heavily inspired by the ideas of IBCS® – International Business Communication Standards. Without their great resources, exceptional content and, above all, groundbreaking conceptual work, something like this visual would not have been possible. Therefore: thank you. Not sponsored by, licensed by or associated with the IBCS Association.
 
-This guide describes version **1.8.3.0**. Every default in the settings reference has been checked against the visual's settings model. New in 1.8.3: margin values in the value cascade (12G), the notation as in the reference sheet for 11A, 12G and 12H (chapter 08). New in 1.8.2: an ellipse around the Δ number of highlighted rows, the relative change of margins in the Δ% field, and the margin Δ at the axis can be switched off (chapter 08). New in 1.7.1: tile zoom with its own variance zone and scaling indicator, stocks in the tile as stands, AC 0 in unposted months treated as not posted (chapters 06 and 11). New in 1.7: **stocks & flows** with the templates T05A balance sheet and T05B cash flow (chapters 05 and 07), **⚡ Only exceptions** (chapter 09), the cards **Layout** and **Toolbar colours** (chapter 08) and **cross-highlight** in the Sankey (chapters 06 and 09). New in 1.6: the fifth view, Sankey (chapter 06), and the “offer views” switches (chapter 08). New since 1.5: scaling following IBCS 2.0 / ISO 24896 as the default in every view (one scale per unit, outlier zone, scale note; chapter 06), collapsible control bars (☰, chapter 08) and the auto headline as a full sentence. Since 1.3 and 1.4: the start hub (chapter 03) with the template gallery by purpose, “🚀 Get started”, the HD · Full HD · UHD font-size bar and docs button, ☰ Start as the first toolbar button, “↺ Back to template” including re-apply, and the calm landing card for readers.
+This guide describes version **1.8.4.0**. Every default in the settings reference has been checked against the visual's settings model. New in 1.8.4: Δ% “n.a.” at a sign change and at reference 0, threshold red and ⚡ on the printed value, capped pins with their head and an adjustable outlier threshold, the FY head AC&FC as in sheet 12G, flat lists without spacer rows, “Use the whole tile” without overflow and the rounded zero without a sign in every template (chapters 06, 08 and 09, [notation since 1.8.4](#notation184)). New in 1.8.3: margin values in the value cascade (12G), the notation as in the reference sheet for 11A, 12G and 12H (chapter 08). New in 1.8.2: an ellipse around the Δ number of highlighted rows, the relative change of margins in the Δ% field, and the margin Δ at the axis can be switched off (chapter 08). New in 1.7.1: tile zoom with its own variance zone and scaling indicator, stocks in the tile as stands, AC 0 in unposted months treated as not posted (chapters 06 and 11). New in 1.7: **stocks & flows** with the templates T05A balance sheet and T05B cash flow (chapters 05 and 07), **⚡ Only exceptions** (chapter 09), the cards **Layout** and **Toolbar colours** (chapter 08) and **cross-highlight** in the Sankey (chapters 06 and 09). New in 1.6: the fifth view, Sankey (chapter 06), and the “offer views” switches (chapter 08). New since 1.5: scaling following IBCS 2.0 / ISO 24896 as the default in every view (one scale per unit, outlier zone, scale note; chapter 06), collapsible control bars (☰, chapter 08) and the auto headline as a full sentence. Since 1.3 and 1.4: the start hub (chapter 03) with the template gallery by purpose, “🚀 Get started”, the HD · Full HD · UHD font-size bar and docs button, ☰ Start as the first toolbar button, “↺ Back to template” including re-apply, and the calm landing card for readers.
 
 ## 02 · The product family
 
@@ -183,7 +183,7 @@ Readers, PDF export and subscriptions never see the hub, the overlay or the bar.
 
 ### 1 · Import the visual
 
-1. Download the file [`pnlByDatenWG…1.8.3.0.pbiviz`](https://raw.githubusercontent.com/Losveratos/PowerBI-Kitchen-/main/pnlByDatenWG/dist/pnlByDatenWG3F9A7D2C51E64B08A1C4E7F0B92D6358.1.8.3.0.pbiviz) (extension `.pbiviz`, also via the button at the top right).
+1. Download the file [`pnlByDatenWG…1.8.4.0.pbiviz`](https://raw.githubusercontent.com/Losveratos/PowerBI-Kitchen-/main/pnlByDatenWG/dist/pnlByDatenWG3F9A7D2C51E64B08A1C4E7F0B92D6358.1.8.4.0.pbiviz) (extension `.pbiviz`, also via the button at the top right).
 2. In Power BI Desktop: *Visualizations* → *⋯* → *Import a visual from a file* and pick the `.pbiviz`. An older version is replaced.
 3. Draw the visual generously (at least about 1200 × 800 px) — the toolbar and two column blocks need width. Freshly placed, it shows the **start hub** in edit mode (chapter 03): “🚀 Get started” walks you through fields, template and fine-tuning with ticks, “Show demo” opens the example statement on which views, toolbar and templates already work.
 
@@ -294,21 +294,41 @@ The toolbar group *View* switches between table, bars, waterfall, tree and Sanke
 
 ### 01 · Table (classic)
 
-The statement: accounts, subtotals, formula and margin rows with expand and collapse per row. The columns come from the **column preset** — *AC·PY·PL·FC (full)* (AC, % of revenue, PY with ΔPY bar, PL with ΔPL bar and ΔPL% pin), *AC vs reference*, *AC vs PY·PL·FC* (Δ bar and Δ% pin per bound reference), *AC·PY·ΔPY*, *AC·PL·ΔPL*, *ΔPY% · ΔPL%* (pins only) and since 1.2 *Own selection* (AC, PY, PL, FC and Δ as separate switches). Three period blocks: **MTD** (AC against the Δ reference), **YTD** and the **FY outlook** (AC&FC against PL full year, with both FY fields, in the full preset and in the own selection). All Δ bars share one scale across all rows and period blocks. If a Δ% pin exceeds ±40 %, ±40 % take the inner 80 % of the track; the outlier runs into the outer zone, a break mark separates it and a triangle points in the direction of growth (since 1.5). With a bound period, a chip per row opens a monthly sparkline; comments appear as numbered markers with a footnote.
+The statement: accounts, subtotals, formula and margin rows with expand and collapse per row. The columns come from the **column preset** — *AC·PY·PL·FC (full)* (AC, % of revenue, PY with ΔPY bar, PL with ΔPL bar and ΔPL% pin), *AC vs reference*, *AC vs PY·PL·FC* (Δ bar and Δ% pin per bound reference), *AC·PY·ΔPY*, *AC·PL·ΔPL*, *ΔPY% · ΔPL%* (pins only) and since 1.2 *Own selection* (AC, PY, PL, FC and Δ as separate switches). Three period blocks: **MTD** (AC against the Δ reference), **YTD** and the **FY outlook** (AC&FC against PL full year, with both FY fields, in the full preset and in the own selection). All Δ bars share one scale across all rows and period blocks. If a Δ% pin exceeds ±40 %, ±40 % take the inner 80 % of the track; the outlier runs into the outer zone, a break mark separates it and a triangle points in the direction of growth (since 1.5). Since 1.8.4 a capped pin keeps its head right before the triangle, and the heads of the FY outlook (AC&FC) are outlined and hatched in ink as in reference sheet 12G, only the stem carries the variance color (up to 1.8.3 an empty ring that read like plan). If a value crosses zero, the axis shows “n.a.” instead of a pin. With a bound period, a chip per row opens a monthly sparkline; comments appear as numbered markers with a footnote.
 
 ![Classic P&L table](../assets/docs/pnl/p01-tabelle-en.webp)
 
 *Classic table on level 1 with the reader toolbar: view, column preset, Δ reference, periods, unit, density, level, options, ⚡.*
 
+![FY outlook of the classic table](../assets/docs/pnl/p19-fy-kopf-en.webp)
+
+*FY outlook of the classic table (FC against PL): the heads of the ΔPL% pins are outlined and hatched in ink as in sheet 12G, only the stem carries the variance color.*
+
 ### 02 · Mega table
 
-As soon as a column switch of the mega table is on in the table view (value column PY, PL or AC/FC, or any ΔPY/ΔPL display), the visual draws the IBCS table; all switches off = classic table. Value and Δ columns combine freely: Δ as a number, as bars on one zero line, as an **integrated waterfall** (each Δ bar starts where the previous one ended, “=” rows restart from the zero line), Δ % as a number or pin; value columns optionally as **value cascades** (12A). One or two **period blocks** (month · YTD · FY outlook) on one shared scale, **thresholds** (“Δ in red if …”) with a footer, margin rows in italics with Δ in percentage points (pp) instead of Δ %, scenario underlines in the header and closing row. With structure data (regions instead of a P&L) there are subtotal blocks with a spacer row and a sort with “(↓)” at the sorting header, the rows of each block and the blocks themselves in the same direction (since 1.5.2, one-child groups like blocks); rows named “Other …” stay at the bottom; a spacer row follows every element of the top visible level, also between two single rows, and a group with exactly one shown child is one row (“Germany · Saxony”) without a repeated subtotal (1.5.1). Pins cap outliers automatically (Tukey fence Q3 + 4 × IQR, one limit for the whole table); the capped element runs into an outlier zone, separated by a break mark, with a triangle and the number outside. From 150 visible rows the mega table only draws the window around the viewport; the export always draws everything. In mega mode the toolbar hides column preset, Δ reference, periods and fit — the columns come from the format pane.
+As soon as a column switch of the mega table is on in the table view (value column PY, PL or AC/FC, or any ΔPY/ΔPL display), the visual draws the IBCS table; all switches off = classic table. Value and Δ columns combine freely: Δ as a number, as bars on one zero line, as an **integrated waterfall** (each Δ bar starts where the previous one ended, “=” rows restart from the zero line), Δ % as a number or pin; value columns optionally as **value cascades** (12A). One or two **period blocks** (month · YTD · FY outlook) on one shared scale, **thresholds** (“Δ in red if …”) with a footer, margin rows in italics with Δ in percentage points (pp) instead of Δ %, scenario underlines in the header and closing row. With structure data (regions instead of a P&L) there are subtotal blocks with a spacer row and a sort with “(↓)” at the sorting header, the rows of each block and the blocks themselves in the same direction (since 1.5.2, one-child groups like blocks); rows named “Other …” stay at the bottom; a spacer row follows every element of the top visible level, also between two single rows, and a group with exactly one shown child is one row (“Germany · Saxony”) without a repeated subtotal (1.5.1); since 1.8.4 flat lists without a hierarchy below the total (such as a customer list) are dense, with a spacer row only before the total. Pins cap outliers automatically (Tukey fence Q3 + factor × IQR, default 4, one limit for the whole table; switch and factor in the format pane since 1.8.4); the capped element runs into an outlier zone, separated by a break mark, with a triangle and the number outside, and a capped pin keeps its head. From 150 visible rows the mega table only draws the window around the viewport; the export always draws everything. In mega mode the toolbar hides column preset, Δ reference, periods and fit — the columns come from the format pane.
 
 ![Mega table T03A](../assets/docs/pnl/p02-t03a-en.webp)
 
 *T03A — the standard statement: PY · PL · AC, ΔPY and ΔPL as numbers, margin row in percentage points.*
 
 > **Scaling following IBCS 2.0 / ISO 24896 (since 1.5):** Same unit, same scale. All Δ bars and Δ waterfalls of all period blocks (month, YTD, FY) share one scale, all Δ% pins a second one; there is no factor between blocks, even if the month gets short (1.5.1). In 12A, 12G and 12H the Δ bars are drawn on the scale of the value cascades. Only if they would fall below the minimum data area there, a round factor (2, 5, 10, 20 …) applies to all Δ columns of the table: the column head names it (“ΔPY ×5”), and a scale note stands right-aligned above the table. Nothing is ever rescaled silently. Capped outliers run into an outlier zone (12 % of the column) with a break mark, a triangle and the number outside. Comment footnotes always stay visible: if space runs short, the visual sets them in several columns, then reduces the row height and finally keeps the block at the bottom edge while the table scrolls behind it.
+
+**Notation since 1.8.4.** Fixes from the comparison with the reference sheets; they change the picture of existing reports exactly at the faulty spot.
+
+- **Δ% “n.a.”:** Δ% is Δ / |reference|. If the reference is 0 or value and reference carry different signs (financial income −15 → +69.6 used to read +564 %), a subtle grey italic “n.a.” appears: in the Δ% cell, at the axis of a pin column (without a pin), in the tooltip, in the scenario grid and in the head of tree card, hover panel, tile and micro card. If value and reference are both negative it stays a number: cost rows keep their Δ% (costs 100 → 110 give +10 %). A value of 0 is no change of sign (−100 %), floating-point noise around zero counts as 0. Δ itself and its color stay. Up to 1.8.3 the spot stayed empty at reference 0. This also applies to margin rows with “Relative change of margins”: −2 % → +3 % is now “n.a.” instead of +250 %. Sorted by Δ%, n.a. rows come after all numbers, and the materiality in % does not apply to n.a.
+- **Threshold red on the printed value:** “Δ in red if below threshold” compares the rounded number printed in the cell. Two rows that both print −35 carry the same color.
+- **Capped pins keep their head:** a Δ% pin in the outlier zone ends with its head (AC solid, FC hatched, PL outlined), the arrow tip follows as the capping mark. Up to 1.8.3 the tip replaced the head and the plan or FC mark was lost. The column does not get wider for it. Capping and threshold are set with “Outlier arrows for pins” and “Outlier threshold (× IQR)” (chapter 08).
+- **Flat lists:** structure data without a hierarchy below the total (T02B, T02C on a customer list) are dense, with a spacer row only before the total. Whether a list is flat is read from the model, not from the visible rows; with a hierarchy the blocks stay.
+- **Number format:** if the host changes the language at runtime, the numbers now follow as well, not only the texts.
+
+![Mega table T03A with n.a.](../assets/docs/pnl/p17-na-en.webp)
+
+*T03A: financial income turns from −15.0 (PY) to 69.6 (AC), ΔPY% shows “n.a.”.*
+
+![Mega table T04D with capped pins](../assets/docs/pnl/p18-pin-kopf-en.webp)
+
+*T04D: consulting is far above plan; the capped pins end with their hatched FC head, the arrow tip follows as the capping mark.*
 
 ### 03 · Structure bars
 
@@ -466,14 +486,16 @@ The first group of the card since 1.2. Visible in the table view. Every switch a
 | Total row over several roots (1.8) | Structure data whose top level has several rows (regions without a common parent): a bold total row at the end with every value, Δ column, bar and pin. One root is the total already. The templates T01 and T02 switch it on. Visible with structure data. | On / Off · Default Off |
 | Name of the total row (1.8) | Empty = “Total” in the report language, e.g. “World”. Visible when the total row is on. | Text · Default empty |
 | Margin / % rows | KPI rows (margins) in italics, their Δ in percentage points (“+8.6 pp”), without a relative Δ %; margins use the Δ% decimals. Applies to T03 and T04 alike; in T04 the pp number stands at the axis of the Δ bars or the Δ waterfall. Visible with P&L data. | On / Off · Default On |
-| Δ in red if below threshold (+ footer) | Δ numbers below the thresholds turn red; a footer names the rule. Visible as soon as a Δ number column (ΔPY/ΔPL or Δ% as number) is on. | On / Off · Default Off |
+| Δ in red if below threshold (+ footer) | Δ numbers below the thresholds turn red; a footer names the rule. Since 1.8.4 the printed, rounded number decides: same printed number, same color; a number printed exactly on the threshold is not red. Visible as soon as a Δ number column (ΔPY/ΔPL or Δ% as number) is on. | On / Off · Default Off |
 | Threshold Δ (month / single block) | In display units (after k/m scaling). The default −20 means thousands and is converted at m and b scaling (m: −0.02); a value you set applies as typed. Visible while thresholds are on. | Number · Default −20 (k) |
 | Threshold Δ% (month / single block) | In whole percent. Visible while thresholds are on. | Number · Default −10 |
 | Threshold Δ (_YTD block) | Threshold of the second block, in display units. The default −220 means thousands and is converted at m and b scaling (m: −0.22). Visible with thresholds, second block and period. | Number · Default −220 (k) |
 | Threshold Δ% (_YTD block) | Threshold of the second block, in whole percent. Visible with thresholds, second block and period. | Number · Default −10 |
 | Scenario underlines (head + closing) | AC solid, PY gray, PL double, FC hatched under the column heads. | On / Off · Default On |
 | Numbers at bars / pins / cascades | Value labels next to every chart element. Visible as soon as a chart column (Δ bars, pins, waterfall or value cascade) is on. | On / Off · Default On |
-| Outlier arrows for Δ bars too | Pins always cap outliers (Q3 + 4 × IQR); this extends it to the Δ bars. Capped elements run past the regular maximum into an outlier zone, a break mark separates them, a triangle points in the direction of growth, the number stands outside (since 1.5). Visible with ΔPY or ΔPL bars. | On / Off · Default Off |
+| Outlier arrows for Δ bars too | Pins cap outliers (Q3 + factor × IQR, switch and factor in the next two rows); this extends it to the Δ bars. Capped elements run past the regular maximum into an outlier zone, a break mark separates them, a triangle points in the direction of growth, the number stands outside (since 1.5). Visible with ΔPY or ΔPL bars. | On / Off · Default Off |
+| Outlier arrows for pins (1.8.4) | A Δ% pin far beyond the others runs into an outlier zone, is cut by a break mark and ends in a triangle after its head; the head keeps its scenario mark. Off: every pin at full length on one scale. Visible as soon as a pin column is on. | On / Off · Default On (= behavior up to 1.8.3) |
+| Outlier threshold (× IQR) (1.8.4) | A value counts as an outlier beyond Q3 + factor × the interquartile range of its column family (pins; with “Outlier arrows for Δ bars too” also the Δ bars), from 8 values on. Smaller = more arrows. Visible with pin capping or bar capping. | 1 to 20 · Default 4 (= fixed up to 1.8.3) |
 | Sort (structure data) | Per subtotal block; rows named Other … stay at the bottom. Visible with structure data. | Options: Category order \| AC/FC descending \| Δ descending \| Δ% descending (1.8) · Default “Category order” |
 | Sorting block | Which period block decides the order. Visible with structure data, second block, period and a sort other than category order. | Options: Month block \| YTD block · Default “YTD block” |
 | Keep the block order (1.8) | Subtotal blocks (regions) stay in category order, only the rows inside them are sorted, as in the IBCS sheets; single rows between the blocks are ranked among themselves. Off: the blocks are sorted by their total too. Every sorting template switches it on. Visible with structure data with subtotal blocks and a sort other than category order. | On / Off · Default Off |
@@ -589,8 +611,8 @@ The buttons of the report toolbar in your colors. All colors empty = **automatic
 | Decimals (Δ%) | Decimal places of Δ% and margins. A template sets them too (since 1.5 every template to 1). | 0–2 · Default 1 |
 | Notation as in the reference sheet (1.8, up to 1.8.2 “Δ% decimals as in the reference sheet”) | Applying a template writes the Δ% decimals of its reference sheet (T03 and the 12 series whole numbers, T04B to T04E two decimals) instead of one decimal for every template. Since 1.8.3 also the heads: a stacked FY cascade reads “YTD” and “Year” (12G), a single FY block carries its year in the minuend's head instead of a title (“PL 2026” as 12H), the 12G margins are whole while the template's Δ% decimals stand. | On / Off · Default Off |
 | Unit of margin Δ (1.8) | Margins and their Δ: percentage points as “pp” or “%p” (as in the IBCS sheets T03). | Options: pp (percentage points) \| %p · Default “pp” |
-| Rounded zero (1.8) | A Δ that is not zero but rounds to zero: keep its sign (+0.0, the direction stays readable next to a bar) or print 0.0 like the reference sheets. Values never carry a sign at zero, in every view. | Options: Keep the sign \| Without sign · Default “Keep the sign” |
-| Relative change of margins (Δ%) (1.8.2) | Margin rows also print their relative change in the Δ% column, as the sheet T03 does (45.3 % against 36.7 %: Δ +8.6 %p, Δ% +23 %). Computed like value rows, over the absolute reference. | Toggle · default off |
+| Rounded zero (1.8) | A Δ that is not zero but rounds to zero: keep its sign (+0.0, the direction stays readable next to a bar) or print 0.0 like the reference sheets. Values never carry a sign at zero, in every view. Since 1.8.4 every template writes “Without sign” when applied (the preset “Off” writes no number format); a template applied before 1.8.4 keeps its setting until it is applied again and therefore shows no “↺ Back to template”. | Options: Keep the sign \| Without sign · Default “Keep the sign” |
+| Relative change of margins (Δ%) (1.8.2) | Margin rows also print their relative change in the Δ% column, as the sheet T03 does (45.3 % against 36.7 %: Δ +8.6 %p, Δ% +23 %). Computed like value rows, over the absolute reference. Since 1.8.4 a change of sign shows “n.a.” (−2 % → +3 %). | Toggle · default off |
 | Margin Δ at the axis (1.8.2) | Margin rows print their point difference at the axis of a Δ bar or waterfall column (T04). Off: only the margin values, as in the sheets T04. | Toggle · default on |
 | Finance format (parentheses) | Finance convention: negative values in parentheses instead of a minus sign — (1 234) — and zero as “–”. Applies to values, Δ and Δ%; positive Δ keep their “+”. | On / Off · Default Off |
 | Sum-safe rounding | Rounds the value columns with the largest-remainder method so printed children add up exactly to their printed subtotal (formula and margin rows keep exact rounding). The Δ number is then the difference of the printed values. | On / Off · Default Off |
@@ -652,7 +674,7 @@ How much of the tile the statement uses. The switch is off by default; an existi
 
 | Setting | Description | Options / Default |
 | --- | --- | --- |
-| Use the whole tile (maximize) | Minimal outer margins, a toolbar only as tall as needed (group names beside the buttons), compact head and footer lines. Table, mega table and bars scale type and rows to the tile height; tree and Sankey fill the tile. | On / Off · Default Off |
+| Use the whole tile (maximize) | Minimal outer margins, a toolbar only as tall as needed (group names beside the buttons), compact head and footer lines. Table, mega table and bars scale type and rows to the tile height; tree and Sankey fill the tile. Since 1.8.4 the visual checks every size before taking it: height and width fit, and no chart column of the mega table falls below 70 % of its width at ×1 (the type grows before the charts but does not halve them). The table no longer runs over the tile. | On / Off · Default Off |
 
 > **Behavior and limits:**
 >
@@ -741,7 +763,7 @@ The toolbar above the statement shows, per view, only the groups that do somethi
 
 In a P&L with sixty rows, color is only a statement if it is rare. The toolbar group **Exceptions** with the button **⚡** colors only rows whose variance matters; the rest turns gray or steps aside. Readers operate it themselves; authors give defaults in the format card *Exceptions* (chapter 08) or hide the group under Display & toolbar. The default is ⚡ off — then every report renders as before.
 
-- **Rule:** A row is an exception if |Δ%| ≥ threshold (default 5 %, stepper − / + in levels from 1 to 100 %) *or* |Δ| ≥ absolute threshold — one of the two is enough. The button “|Δ| ≥ …” appears as soon as “Materiality from (absolute)” is set and takes over that value. **Margin rows** (KPI) measure in percentage points; the absolute threshold does not apply to them.
+- **Rule:** A row is an exception if |Δ%| ≥ threshold (default 5 %, stepper − / + in levels from 1 to 100 %) *or* |Δ| ≥ absolute threshold — one of the two is enough. The button “|Δ| ≥ …” appears as soon as “Materiality from (absolute)” is set and takes over that value. **Margin rows** (KPI) measure in percentage points; the absolute threshold does not apply to them. Since 1.8.4 ⚡ checks the printed values (Δ in the table's unit and decimals, Δ% and pp with their decimals): −9.96 % prints −10.0 % and is an exception at 10 %; if both thresholds are 0, a Δ printed as 0 does not count. An “n.a.” counts as an exception like a reference of 0 as soon as the percentage threshold is on. With sum-safe rounding ⚡ still checks the rounded raw difference, not the difference of the printed values.
 - **One block is enough:** If any visible Δ of the row (every period block, every reference) is over the threshold, *all* its Δ elements keep their color.
 - **Reference:** *Auto* follows the Δ reference of the view (in the mega table its Δ columns), *PY*, *PL* and *FC* measure against that scenario (only bound scenarios get a button). Tree and Sankey measure AC against the reference in the period-true YTD. Stocks compare balance against balance.
 - **Direction:** ▲ above · ▼ below · ▲▼ both — by the sign of Δ in display orientation, *not* by favorable/unfavorable. The rating keeps its colors: an exception is teal or red as usual.
@@ -816,7 +838,7 @@ Toolbar buttons and the expand/collapse controls of the rows are reachable with 
 The visual rebuilds the reference sheets as closely as possible but deliberately does not reproduce their inconsistencies and misprints. Four deviations are documented (in full in [SPEC-MEGATABLE.md](https://github.com/Losveratos/PowerBI-Kitchen-/blob/main/pnlByDatenWG/SPEC-MEGATABLE.md), section “Bewusst offen / Abweichungen”):
 
 1. **T01A/B — decimal in the YTD block:** the original's YTD ΔPY column prints one decimal (+431.0) while the other columns are integers. That is an inconsistency of the reference; the visual has one decimal rule per table and prints uniformly (+431).
-2. **T02F — early capping:** the original caps Δ% pins already at a jump of 1.35×. The visual's Tukey automatic (Q3 + 4 × IQR) does not cap there — any rule that would hit T02F would wrongly cap in T02A.
+2. **T02F — early capping:** the original caps Δ% pins already at a jump of 1.35×. The visual's Tukey automatic (Q3 + 4 × IQR) does not cap there — any rule that would hit T02F would wrongly cap in T02A. Since 1.8.4 the factor can be set (chapter 08, “Outlier threshold (× IQR)”).
 3. **T03A — misprints of the sheets:** the original prints the ΔPL value (+162.5) by mistake in ΔPY of the group result; the visual calculates correctly (+186.2). The same goes for the financial-income pin in T04C/E (the visual draws −9.59 with the correct sign) and the operating result in 12H.
 4. **12A — arrowheads:** multiple arrowheads on capped values (+983 →→→) are a single arrowhead in the visual; the value stands at the element as a number anyway.
 
@@ -835,6 +857,10 @@ The PL role is not bound — the format pane then hides the ΔPL switches. An FC
 ### The thresholds do not color anything.
 
 Thresholds apply in **display units**, i.e. after k/m scaling. The defaults −20 / −220 mean thousands and since 1.5.1 are converted at m and b scaling (−0.02 / −0.22 m); a value you set applies as typed, so −20 then means −20 million. They also need a Δ number column.
+
+### Δ% shows “n.a.”.
+
+Intended since 1.8.4: if the reference is 0 or the value crosses zero (value and reference with different signs), a percentage would mislead (−15 → +69.6 read +564 %). Δ and its color stay. Cost rows with negative values on both sides keep their Δ%. With ⚡ and a percentage threshold such a row counts as an exception.
 
 ### The column head says “ΔPY ×5”.
 
@@ -932,12 +958,13 @@ Edit mode only: a formula or total mixes stocks and flows without a token fixing
 
 Intended (cross-highlight, since 1.7): the Sankey shows the mark within the total — the whole gray, the marked part colored, “… 923 of 1 685 …” in the footer. All other views behave as if filtered. If the Sankey should filter too, switch the interaction in Power BI Desktop under Format → *Edit interactions* on the triggering visual to the filter icon (chapter 09).
 
-## 12 · Version note 1.8.3.0
+## 12 · Version note 1.8.4.0
 
-This documentation describes **version 1.8.3.0** of 22 November 2026 (GUID `pnlByDatenWG3F9A7D2C51E64B08A1C4E7F0B92D6358`). The visual is not listed in Microsoft AppSource and therefore not certified by Microsoft. Field roles, property names and the saved toolbar state are stable since 1.0; every new setting is off by default or behaves as before. Changed defaults since 1.2: in edit mode without fields the start hub appears instead of the demo statement (1.3); since 1.5 scaling following IBCS 2.0 / ISO 24896 is the default, so existing reports change their picture.
+This documentation describes **version 1.8.4.0** of 25 November 2026 (GUID `pnlByDatenWG3F9A7D2C51E64B08A1C4E7F0B92D6358`). The visual is not listed in Microsoft AppSource and therefore not certified by Microsoft. Field roles, property names and the saved toolbar state are stable since 1.0; every new setting is off by default or behaves as before. Changed defaults since 1.2: in edit mode without fields the start hub appears instead of the demo statement (1.3); since 1.5 scaling following IBCS 2.0 / ISO 24896 is the default, so existing reports change their picture.
 
+- **1.8.4.0 · Notation fixes:** Δ% “n.a.” at a sign change and at reference 0 (cost rows with negative values on both sides keep their Δ%), threshold red and ⚡ on the printed value, capped pins keep their head (new: “Outlier arrows for pins” and “Outlier threshold (× IQR)”), FY head AC&FC of the classic table hatched as in sheet 12G, flat lists without spacer rows, “Use the whole tile” as a checked search without overflow with a lower limit for the chart columns, rounded zero without a sign in every template (the option's default stays “Keep the sign”), numbers follow a language change of the host at runtime. With the defaults a report renders as in 1.8.3, apart from these fixes.
 - **1.8.3.0 · Sheet notation 11A, 12G, 12H:** margin values in italics in the value cascade (12G); in the ROI tree with every period labelled the same decimals on each card, a line between actual and plan, negative actuals middle gray, plan periods light; “Notation as in the reference sheet” with the heads “YTD / Year” and “PL 2026” and whole 12G margins.
-- **1.8.2.0 · Sheet options and faster highlighting:** an ellipse around the Δ number of highlighted rows (12G, 12H, also on the Δ waterfall), the relative change of margins in the Δ% field (T03), the margin Δ at the axis can be switched off (T04); Δ% of a margin with a negative reference now carries the right sign; highlighting from other visuals about twice as fast.
+- **1.8.2.0 · Sheet options and faster highlighting:** an ellipse around the Δ number of highlighted rows (12G, 12H, also on the Δ waterfall), the relative change of margins in the Δ% field (T03), the margin Δ at the axis can be switched off (T04); Δ% of a margin with a negative reference now carries the right sign (since 1.8.4 “n.a.” at a change of sign); highlighting from other visuals about twice as fast.
 - **1.8.1.0 · ROI tree as in the sheet 11A:** division drawn as “:”, a shared operand (net sales) as one card with two edges, gallery preview as a DuPont tree with the sheet's numbers.
 - **1.8.0.0 · IBCS sheets T01C, T01D, T02D and 11A:** new templates T01C, T01D, T02D and the gallery preset ROI tree 11A (value driver tree over years, every period labelled); total row over several roots; sort by Δ% and the block order of the sheets; number format factor or amount for KPI rows; years as the period; margin Δ in pp or %p, Δ% decimals as in the sheet, rounded zero with or without sign; list of sheet errors on the versions of 17/18 November 2026. Without the new switches a report renders as in 1.7.1; a value that rounds to zero now prints without a sign in every view.
 - **1.7.1.0 · Tile zoom to scale:** variances in their own zone with one scale for every Δ and no minimum height, scaling indicator “ΔPL ×n” on the zone label; stock rows in the tile as stands (total column = stand at the end, Δ per month not cumulated); an actuals measure that returns 0 instead of blank for unposted months no longer hides the forecast (trailing months with AC 0 in every row and a forecast count as not posted, hint in edit mode).
@@ -959,13 +986,13 @@ This documentation describes **version 1.8.3.0** of 22 November 2026 (GUID `pnlB
 
 The complete version history is in the [CHANGELOG](https://github.com/Losveratos/PowerBI-Kitchen-/blob/main/pnlByDatenWG/CHANGELOG.md) (German).
 
-**P&L Statement byDatenWG** · Version 1.8.3.0
+**P&L Statement byDatenWG** · Version 1.8.4.0
 
 Sister visual: [ChartKitchen byDatenWG – documentation](../chartkitchen-doku_en.html) · For IT & admins: [Security & deployment](../visuals-sicherheit_en.html)
 
 Contact: Michael Tenner · [michael.tenner84@gmail.com](mailto:michael.tenner84@gmail.com)
 
-Quick start: [pnl-schnellstart_en.html](../pnl-schnellstart_en.html) · Download: [.pbiviz 1.8.3.0](https://raw.githubusercontent.com/Losveratos/PowerBI-Kitchen-/main/pnlByDatenWG/dist/pnlByDatenWG3F9A7D2C51E64B08A1C4E7F0B92D6358.1.8.3.0.pbiviz) · Source code and changelog: [pnlByDatenWG in the repository](https://github.com/Losveratos/PowerBI-Kitchen-/tree/main/pnlByDatenWG) · For AI agents: [AGENT-GUIDE](https://github.com/Losveratos/PowerBI-Kitchen-/blob/main/pnlByDatenWG/AGENT-GUIDE.md)
+Quick start: [pnl-schnellstart_en.html](../pnl-schnellstart_en.html) · Download: [.pbiviz 1.8.4.0](https://raw.githubusercontent.com/Losveratos/PowerBI-Kitchen-/main/pnlByDatenWG/dist/pnlByDatenWG3F9A7D2C51E64B08A1C4E7F0B92D6358.1.8.4.0.pbiviz) · Source code and changelog: [pnlByDatenWG in the repository](https://github.com/Losveratos/PowerBI-Kitchen-/tree/main/pnlByDatenWG) · For AI agents: [AGENT-GUIDE](https://github.com/Losveratos/PowerBI-Kitchen-/blob/main/pnlByDatenWG/AGENT-GUIDE.md)
 
 > Notation follows the IBCS® Standards 2.0 (ISO 24896) of the IBCS Association (CC BY-SA 4.0, ibcs.com). Documented deviation: teal replaces the IBCS variance green to stay readable with red–green color-vision deficiency. IBCS® is a registered trademark of the IBCS Institute. This visual is not certified by the IBCS Association and is not affiliated with it.
 

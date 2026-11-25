@@ -143,7 +143,8 @@ const over3 = list => list.filter(t => t.replace(/[^0-9]/g, "").length > 3);
   const bricks2 = [...document.querySelectorAll("#B5b g.icd-cat")].map(g => [...g.querySelectorAll("rect")].find(x => [GOOD, BAD].includes(fill(x)) || /url\(#icd-hatch-(good|bad)/.test(x.getAttribute("fill") || "")));
   const ks = bricks2.map((b, i) => b && Math.abs(dY[i]) > 0.1 * M ? num(b, "height") / Math.abs(dY[i]) : null).filter(v => v != null);
   const spread = Math.max(...ks) / Math.min(...ks);
-  const caption = texts("B5b").find(t => /Brücke \+ Monatssäulen|bridge \+ monthly columns/.test(t)) || "";
+  // 1.58: the caption reads "PY → AC/FC · axis broken …" (type part only with chart.panelTypeTitles)
+  const caption = texts("B5b").find(t => /^PY → AC/.test(t)) || "";
   const breaks = [...document.querySelectorAll("#B5b line")].filter(l => (l.getAttribute("stroke") || "").toUpperCase() === "#FFFFFF" && l.getAttribute("stroke-width") === "7").length;
   measure(`B5b Bruch: ${mark ? "ab " + mark.getAttribute("data-cut") : "nein"} · Stufen ${r2(Math.max(...ks) * M)} px/M (×${r2(Math.max(...ks) / kA)} gegen ungekürzt) · Streuung ${r2(spread)} · ⫽ ${breaks} · „${caption}“`);
   check(!!mark && breaks >= 2 && spread < 1.03 && /Achse ab|axis broken/.test(caption), "7: Anker mit ⫽ gekürzt, Stufen in einer linearen Skala, Schnitt im Titel");

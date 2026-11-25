@@ -35,7 +35,7 @@ import {
     parseRowTypeInfo, parseBool, parseSign, rowsFromLevels, aggregateMonthly,
     windowValue, stockish, modelHasStock, BuildOptions, StockMode,
     isZeroRow, revenueBase, formulaOperands, nodeResolver, Variance,
-    syntheticTotal, TOTAL_ID, parsePeriod, displayVariance, sumSafeRound, varianceOf, sortMonths,
+    syntheticTotal, TOTAL_ID, parsePeriod, displayVariance, sumSafeRound, varianceOf, relDelta, roundShown, sortMonths,
     FormulaOp, InputRow, LevelInputRow, PeriodSort, PnlModel, PnlNode, Scenario,
     isExceptionVariance, ExceptionRule, markedShare, stackPairs, sameShape, mergeNodes,
     unpostedActualMonths, dropActuals,
@@ -851,7 +851,7 @@ export class Visual implements IVisual {
     private megaPending: {
         applied: string;
         cols: Record<string, boolean | string>;
-        nums: Record<string, number>;
+        nums: Record<string, number | string>;
         /** titleBlock switches a template sets (12G / 12H: headline) */
         title: Record<string, boolean>;
         /** 1.7 statement.stockMode a template sets (T05A / T05B; others take back "allStock") */
@@ -995,6 +995,15 @@ export class Visual implements IVisual {
         options.element.appendChild(this.root);
     }
 
+    /**
+     * 1.8.4 the locale of every number (Intl.NumberFormat), month name and docs link:
+     * the host's current one, the last known one while the host has none
+     */
+    private syncLocale(): void {
+        const loc = this.host?.locale;
+        if (typeof loc === "string" && loc !== "") { this.locale = loc; }
+    }
+
     public update(options: VisualUpdateOptions): void {
         this.events.renderingStarted(options);
         try {
@@ -1002,6 +1011,9 @@ export class Visual implements IVisual {
             if (options.viewport && options.viewport.width > 0) { this.vpW = options.viewport.width; }
             // Smart Start is an edit-mode aid — remember the raw view mode every update
             this.viewMode = options.viewMode ?? null;
+            // 1.8.4 the number culture follows the host's locale on every update: until 1.8.3 it was
+            // read once in the constructor, so a language switch at runtime changed the texts only
+            this.syncLocale();
             const dataView = options.dataViews && options.dataViews[0];
             this.lastDv = dataView;
             this.settings = this.formattingSettingsService.populateFormattingSettingsModel(
@@ -2520,7 +2532,7 @@ export class Visual implements IVisual {
         const delta = a - r;
         let good = delta >= 0;
         if (node.row.varianceInvert) { good = !good; }
-        return { delta, deltaPct: r !== 0 ? delta / Math.abs(r) : null, good };
+        return { delta, deltaPct: relDelta(a, r), good };
     }
 
     /** the "_Aug"-style YTD status month for header labels (IBCS UN 2.2) */
@@ -4567,10 +4579,14 @@ export class Visual implements IVisual {
             const footer = this.buildFooter();
             this.root.appendChild(footer);
             // 1.7 maximize: type and rows follow the tile height
+            let used = shrink;
             if (this.maxi()) {
-                table = this.fillHeight(table, ui.density === "compact" ? 11 : 13, () => this.buildMega(fmt, shrink));
+                // 1.8.4 a small width overflow comes out of the chart columns (buildMega's shrink) first
+                const fit = this.fillHeight(table, ui.density === "compact" ? 11 : 13, s => this.buildMega(fmt, s), shrink, true,
+                    () => (this.megaLast?.charts ?? []).map(c => c.w));
+                table = fit.el; used = fit.shrink;
             }
-            this.megaFitNotes(fmt, table, notes, shrink, footer);
+            this.megaFitNotes(fmt, table, notes, used, footer);
             this.root.scrollTop = keepScroll;
             this.syncMegaWindow();
         } else {
@@ -4596,7 +4612,7 @@ export class Visual implements IVisual {
                 body = this.fillHeight(body, ui.density === "compact" ? 10 : 11, () => {
                     this.fitK = 1; this.fitPad = CELL_PAD;
                     return this.buildTable(fmt, scan.maxAbsDelta);
-                });
+                }).el;
                 for (let pass = 0; ui.fit && pass < FIT_PASSES; pass++) {
                     if (!this.solveFit(fmt, scan.maxAbsDelta)) { break; }
                     const tighter = this.buildTable(fmt, scan.maxAbsDelta);
@@ -4615,30 +4631,125 @@ export class Visual implements IVisual {
      * until the page fills the tile height — at most ×1.6, at least down to a
      * 9 px body font (`base` = body font size at scale 1), beyond that the
      * rows scroll. Growing never pushes the body past the tile width.
-     * Measures, rebuilds, measures again (rows round to whole pixels).
+     *
+     * 1.8.4 a checked search on a grid of 0.02 instead of a feedback loop (which
+     * swung between steps, because rows round to whole pixels, and could end on an
+     * unchecked growth step: m15 ended 34 px below the tile edge). A candidate k > 1
+     * fits when the page fits the height, the body fits the width and (mega table,
+     * `chartW`) no chart column falls below CHART_FLOOR of its width at ×1: the type
+     * grows before the charts, but never at the price of halving them. Each
+     * candidate takes its chart room fresh from 0 (`build(shrink)`): a small width
+     * overflow comes out of the chart columns, at most 40 px in all. The search brackets the largest fitting step and halves until
+     * the steps are neighbours, so a larger tile never gets a smaller step (as long
+     * as a step that fits keeps fitting with more room).
+     * Starts from the build at ×1 (render resets bodyK): the same tile, the same k.
      */
-    private fillHeight(cur: HTMLElement, base: number, build: () => HTMLElement): HTMLElement {
+    private fillHeight(cur: HTMLElement, base: number, build: (shrink: number) => HTMLElement,
+        shrink0 = 0, canShrink = false, chartW?: () => number[]): { el: HTMLElement; shrink: number } {
         const avail = this.root.clientHeight;
-        if (!avail) { return cur; }
-        const lo = Math.min(1, 9 / (base * this.fontScale()));
+        if (!avail) { return { el: cur, shrink: shrink0 }; }
+        const lo = Math.round(Math.min(1, 9 / (base * this.fontScale())) * 1000) / 1000;
         const hi = 1.6;
-        for (let pass = 0; pass < 4; pass++) {
-            const h = this.rect(cur).height;
-            if (h <= 0) { break; }
-            const room = avail - (this.contentHeight() - h) - 2;
-            let k = Math.max(lo, Math.min(hi, this.bodyK * room / h));
-            // a body already wider than the tile does not grow; a grown one gives width back
-            const over = this.root.scrollWidth - this.root.clientWidth;
-            if (k > this.bodyK && over > 1) { k = this.bodyK; }
-            const wide = over > 1 && this.bodyK > 1;
-            if (wide) { k = Math.max(1, Math.min(k, this.bodyK * this.root.clientWidth / this.root.scrollWidth - 0.01)); }
-            if (Math.abs(k - this.bodyK) < 0.01 && !wide) { break; }
-            this.bodyK = k;
-            const fresh = build();
+        const STEP = 0.02;
+        const CHART_FLOOR = 0.7;
+        const SHRINK_MAX = 40;
+        let curS = shrink0;
+        const put = (k: number, s: number): void => {
+            this.bodyK = k; curS = s;
+            const fresh = build(s);
             this.root.replaceChild(fresh, cur);
             cur = fresh;
+        };
+        const room = (): { h: number; w: number } => ({ h: avail - this.contentHeight(), w: this.bodyOverflow(cur) });
+        // the state at ×1, as rendered (the first build already took its chart room)
+        const k0 = this.bodyK;
+        const m = room();
+        const h0 = this.rect(cur).height;
+        if (h0 <= 0) { return { el: cur, shrink: shrink0 }; }
+        const w1 = chartW ? chartW() : [];
+        const upper = m.w > 1 ? Math.min(hi, k0) : hi;
+        const grid = (k: number): number => Math.max(lo, Math.min(upper, Math.floor(k / STEP + 1e-6) * STEP));
+        const key = (k: number): number => Math.round(k * 1000) / 1000;
+        const tried = new Map<number, { ok: boolean; s: number; next: number }>();
+        const test = (k: number): { ok: boolean; next: number } => {
+            const kk = key(k);
+            const known = tried.get(kk);
+            if (known) { return known; }
+            // the chart room fresh from 0 for every candidate, only as far as needed (the first build's
+            // room often came from a vertical scrollbar that the fitted page no longer has)
+            let s = 0;
+            put(kk, s);
+            let r = room();
+            for (let a = 0; a < 6 && canShrink && r.w > 1 && s < SHRINK_MAX; a++) {
+                s = Math.min(SHRINK_MAX, s + Math.max(2, Math.ceil(r.w))); put(kk, s); r = room();
+            }
+            let charts = true;
+            if (kk > 1 && w1.length && chartW) {
+                const wk = chartW();
+                charts = wk.length !== w1.length || wk.every((w, n) => w >= CHART_FLOOR * w1[n] - 0.5);
+            }
+            const hk = Math.max(1, this.rect(cur).height);
+            const kh = kk * (hk + r.h - 2) / hk;
+            const kw = kk > 1 && r.w > 1 ? kk * Math.max(1, this.root.clientWidth) / (Math.max(1, this.root.clientWidth) + r.w) : Infinity;
+            const res = { ok: r.h >= 0 && (kk <= 1 || (r.w <= 1 && charts)), s, next: Math.min(kh, kw) };
+            tried.set(kk, res);
+            return res;
+        };
+        // ×1 itself is checked like every candidate (its chart room fresh as well); a first build
+        // without chart room is that check already
+        if (shrink0 === 0) { tried.set(key(k0), { ok: m.h >= 0, s: 0, next: k0 * (h0 + m.h - 2) / h0 }); }
+        let good = test(k0).ok ? key(k0) : -1;
+        let fail = Infinity;
+        // bracket: from the height estimate, along the builds' own estimates
+        let cand = grid(k0 * (h0 + m.h - 2) / h0);
+        for (let i = 0; i < 6; i++) {
+            if (cand >= fail - 1e-6 || cand <= good + 1e-6) { break; }
+            const t = test(cand);
+            if (t.ok) {
+                good = cand;
+                if (cand >= upper - 1e-6) { break; }
+                cand = grid(Math.max(cand + STEP, Math.min(fail - STEP, t.next)));
+            } else {
+                fail = cand;
+                if (cand <= lo + 1e-6) { break; }
+                cand = grid(Math.min(t.next, cand - STEP));
+            }
         }
-        return cur;
+        // halve until the largest fitting step and the smallest failing one are neighbours
+        if (good < 0 && isFinite(fail) && fail > lo + 1e-6 && test(lo).ok) { good = lo; }
+        for (let i = 0; i < 8 && good >= 0 && isFinite(fail) && fail - good > STEP + 1e-6; i++) {
+            const mid = grid((good + fail) / 2);
+            if (mid <= good + 1e-6 || mid >= fail - 1e-6) { break; }
+            if (test(mid).ok) { good = mid; } else { fail = mid; }
+        }
+        // nothing fits (a tall statement): the smallest type, the rows scroll
+        const k = good >= 0 ? key(good) : lo;
+        const s = tried.get(k)?.s ?? 0;
+        if (Math.abs(this.bodyK - k) > 1e-6 || curS !== s) { put(k, s); }
+        return { el: cur, shrink: s };
+    }
+
+    /**
+     * 1.8.4 how far the statement body reaches past the tile: the horizontal
+     * scroll overflow of the page, and SVG labels that run past the right edge of
+     * their own SVG or of the tile (an SVG clips them silently, so scrollWidth
+     * never sees them; happens when a host font renders wider than measured).
+     * Layout pixels (rect()), so a CSS-scaled stage measures the same.
+     */
+    private bodyOverflow(cur: HTMLElement): number {
+        let over = this.root.scrollWidth - this.root.clientWidth;
+        const rootR = this.rect(this.root).right;
+        const svgs = cur.querySelectorAll("svg");
+        for (let i = 0; i < svgs.length; i++) {
+            const svg = svgs[i];
+            const edge = Math.min(this.rect(svg).right, rootR);
+            const texts = svg.querySelectorAll("text");
+            for (let j = 0; j < texts.length; j++) {
+                const r = this.rect(texts[j]).right;
+                if (r - edge > over) { over = r - edge; }
+            }
+        }
+        return over;
     }
 
     /**
@@ -4996,7 +5107,7 @@ export class Visual implements IVisual {
         const delta = a - r;
         let good = delta >= 0;
         if (node.row.varianceInvert) { good = !good; }
-        return { delta, deltaPct: r !== 0 ? delta / Math.abs(r) : null, good };
+        return { delta, deltaPct: relDelta(a, r), good };
     }
 
     /** which Δ combinations the current view shows (drives the uniform scale) */
@@ -5256,6 +5367,27 @@ export class Visual implements IVisual {
         const sm = templateStockMode(tpl, this.stockTokens(), this.stockMode());
         if (sm != null && sm !== this.stockMode()) { return tpl; }
         return null;
+    }
+
+    /** 1.8.4 the "n.a." of a Δ% without meaning (reference 0 or a sign change, engine.relDelta) */
+    private relNa(): string {
+        return this.tr("UI_RelNa");
+    }
+
+    /** 1.8.4 "n.a." as a soft italic label in a card / tile head (the place of the Δ%) */
+    private relNaEl(px: number, tag: "div" | "span" = "div"): HTMLElement {
+        const e = document.createElement(tag);
+        e.setAttribute("data-pnl-na", "1");
+        e.style.cssText = `font-size:${this.kpx(px)};font-style:italic;color:${C.soft};white-space:nowrap;`;
+        e.textContent = this.relNa();
+        return e;
+    }
+
+    /** 1.8.4 the numbers.roundedZero dropdown set locally (a template writes "plain") */
+    private setRoundedZero(v: string): void {
+        const sl = this.settings.numbersCard.roundedZero;
+        const it = sl.items.find(x => String(x.value) === v);
+        if (it) { sl.value = it; }
     }
 
     /** toolbar template pick: the pane dropdown, its switches and templateApplied in one write */
@@ -6093,6 +6225,8 @@ export class Visual implements IVisual {
                 for (const el of make(node)) { table.appendChild(el); }
             }
         }
+        // 1.8.4 one hatch definition for every AC&FC pin head of this table
+        if (cols.some(c => c.kind === "pin" && c.minuend === "fcfy")) { wrap.appendChild(this.tablePinHatch()); }
         wrap.appendChild(table);
         return wrap;
     }
@@ -6644,12 +6778,56 @@ export class Visual implements IVisual {
         return cell;
     }
 
-    private deltaPinCell(v: { deltaPct: number | null; good: boolean }, c: ColSpec,
+    /** 1.8.4 id of the fine ink hatch of AC&FC pin heads (one per visual, light and dark apart) */
+    private pinHatchId(): string {
+        // the instance id keeps two visuals on one page apart (a hidden twin before this one in the
+        // DOM would lend its pattern and the heads read as empty rings); ink and paper keep light and dark apart
+        return `pnlpinfc${this.uid}${(C.ac + C.paper).replace(/[^0-9a-z]/gi, "")}`;
+    }
+
+    /** 1.8.4 the one <defs> of a classic table with AC&FC pins: the ink hatch of their heads */
+    private tablePinHatch(): SVGSVGElement {
+        const ns = "http://www.w3.org/2000/svg";
+        const svg = document.createElementNS(ns, "svg") as SVGSVGElement;
+        svg.setAttribute("width", "0"); svg.setAttribute("height", "0");
+        svg.setAttribute("aria-hidden", "true"); svg.setAttribute("data-pnl", "pin-defs");
+        svg.style.cssText = "position:absolute;width:0;height:0;overflow:hidden;";
+        const defs = document.createElementNS(ns, "defs");
+        const pat = document.createElementNS(ns, "pattern");
+        pat.setAttribute("id", this.pinHatchId()); pat.setAttribute("width", "2"); pat.setAttribute("height", "2");
+        pat.setAttribute("patternUnits", "userSpaceOnUse"); pat.setAttribute("patternTransform", "rotate(45)");
+        const bg = document.createElementNS(ns, "rect");
+        bg.setAttribute("width", "2"); bg.setAttribute("height", "2"); bg.setAttribute("fill", C.paper);
+        const ln = document.createElementNS(ns, "rect");
+        ln.setAttribute("width", "0.9"); ln.setAttribute("height", "2"); ln.setAttribute("fill", C.ac);
+        pat.appendChild(bg); pat.appendChild(ln); defs.appendChild(pat); svg.appendChild(defs);
+        return svg;
+    }
+
+    private deltaPinCell(v: { delta?: number | null; deltaPct: number | null; good: boolean }, c: ColSpec,
         geo: { rowH: number; fs: number; barLabelFs: number; PIN_HALF: number; pinW: number; pinZone: boolean }, fmt: Fmt,
         soft = false): HTMLElement {
         const cell = this.cell(geo.pinW, "left", geo.fs);
-        if (v.deltaPct == null) { return cell; }
         const w = geo.pinW - 8; const h = geo.rowH - 4; const mid = w / 2;
+        const ns = "http://www.w3.org/2000/svg";
+        if (v.deltaPct == null) {
+            // 1.8.4 a Δ with a Δ% without meaning (reference 0, sign change): "n.a." beside the axis, no pin
+            if (v.delta == null) { return cell; }
+            const svg = document.createElementNS(ns, "svg") as SVGSVGElement;
+            svg.setAttribute("width", String(w)); svg.setAttribute("height", String(h));
+            svg.style.cssText = "display:block;";
+            this.drawAxis(svg, ns, mid, h, c.ref!);
+            const na = document.createElementNS(ns, "text");
+            na.setAttribute("x", String(mid + 4)); na.setAttribute("y", String(h / 2 + geo.fs * 0.32));
+            na.setAttribute("text-anchor", "start");
+            na.setAttribute("font-size", String(geo.barLabelFs)); na.setAttribute("font-family", FONT);
+            na.setAttribute("font-style", "italic"); na.setAttribute("fill", C.soft);
+            na.setAttribute("data-pnl", "pin-na");
+            na.textContent = this.relNa();
+            svg.appendChild(na);
+            cell.appendChild(svg);
+            return cell;
+        }
         const cap = 0.4;
         const clamped = this.capPct(v.deltaPct);
         const overflow = Math.abs(v.deltaPct) > cap;
@@ -6661,11 +6839,26 @@ export class Visual implements IVisual {
         const dir = v.deltaPct >= 0 ? 1 : -1;
         const px = overflow && geo.pinZone ? mid + dir * geo.PIN_HALF : mid + (clamped / cap) * reg;
         const color = soft ? C.soft : v.good ? this.goodColor() : this.badColor();
-        const ns = "http://www.w3.org/2000/svg";
         const svg = document.createElementNS(ns, "svg") as SVGSVGElement;
         svg.setAttribute("width", String(w)); svg.setAttribute("height", String(h));
         svg.style.cssText = "display:block;";
         this.drawAxis(svg, ns, mid, h, c.ref!);
+        // pin head carries the minuend's scenario fill (IBCS): AC filled; 1.8.4 AC&FC (FY outlook)
+        // as the FY pins of sheet 12G: an ink outline, hatched in ink, the stem alone carries the
+        // variance colour (until 1.8.3 an empty ring, which reads as plan). The hatch pattern is
+        // fine (period 2.0, line 0.9: two stripes at r 2.8) and lives ONCE per table (tablePinHatch)
+        const pinHead = (cx: number, r: string): SVGCircleElement => {
+            const head = document.createElementNS(ns, "circle");
+            head.setAttribute("cx", String(cx)); head.setAttribute("cy", String(h / 2));
+            head.setAttribute("r", r);
+            if (c.minuend === "fcfy") {
+                head.setAttribute("fill", `url(#${this.pinHatchId()})`);
+                head.setAttribute("stroke", C.ac); head.setAttribute("stroke-width", "1");
+                head.setAttribute("data-pnl-fc", "1");
+            } else { head.setAttribute("fill", color); }
+            svg.appendChild(head);
+            return head;
+        };
         const needle = document.createElementNS(ns, "line");
         needle.setAttribute("x1", String(mid)); needle.setAttribute("x2", String(px));
         needle.setAttribute("y1", String(h / 2)); needle.setAttribute("y2", String(h / 2));
@@ -6680,6 +6873,8 @@ export class Visual implements IVisual {
             brk.setAttribute("stroke", C.paper); brk.setAttribute("stroke-width", "1.4"); brk.setAttribute("fill", "none");
             brk.setAttribute("data-pnl", "pin-break");
             svg.appendChild(brk);
+            // 1.8.4 the capped pin keeps its head (scenario mark) right before the triangle
+            pinHead(px - dir * 2.8, "2.8").setAttribute("data-pnl", "pin-head");
             const tw = 4.5;
             const tri = document.createElementNS(ns, "path");
             tri.setAttribute("d", `M${px + dir * tw},${h / 2} L${px},${h / 2 - 3.2} L${px},${h / 2 + 3.2} Z`);
@@ -6688,14 +6883,7 @@ export class Visual implements IVisual {
             svg.appendChild(tri);
             tip = px + dir * tw;
         } else {
-            const head = document.createElementNS(ns, "circle");
-            head.setAttribute("cx", String(px)); head.setAttribute("cy", String(h / 2));
-            head.setAttribute("r", overflow ? "2" : "2.8");
-            // pin head carries the minuend's scenario fill (IBCS): FC → outlined
-            if (c.minuend === "fcfy") {
-                head.setAttribute("fill", C.paper); head.setAttribute("stroke", color); head.setAttribute("stroke-width", "1.4");
-            } else { head.setAttribute("fill", color); }
-            svg.appendChild(head);
+            pinHead(px, overflow ? "2" : "2.8");
         }
         const txt = document.createElementNS(ns, "text");
         const anchor = v.deltaPct >= 0 ? "start" : "end";
@@ -8127,6 +8315,8 @@ export class Visual implements IVisual {
             dp.style.cssText = `font-size:${this.kpx(11)};font-weight:700;color:${vColor};white-space:nowrap;`;
             dp.textContent = fmt.pct(va.deltaPct, true);
             head.appendChild(dp);
+        } else if (va) {
+            head.appendChild(this.relNaEl(11));
         }
         box.appendChild(head);
         const sub = document.createElement("div");
@@ -8221,7 +8411,7 @@ export class Visual implements IVisual {
         const pad = this.k(compact ? 0.5 : 1.5);
         const fs = this.k(compact ? 9 : 10);
         const cellPad = this.k(8);
-        const row = (cells: string[], opts?: { bold?: boolean; color?: (string | null)[] }): void => {
+        const row = (cells: string[], opts?: { bold?: boolean; color?: (string | null)[]; na?: boolean[] }): void => {
             const r = document.createElement("div");
             r.style.cssText = "display:table-row;";
             cells.forEach((cTxt, i) => {
@@ -8230,7 +8420,9 @@ export class Visual implements IVisual {
                     `font-family:${FONT};font-variant-numeric:tabular-nums;` +
                     (i === 0 ? `text-align:left;padding-left:0;color:${C.soft};` : "text-align:right;") +
                     (opts?.bold ? "font-weight:700;" : "") +
-                    (opts?.color?.[i] ? `color:${opts.color[i]};font-weight:600;` : "");
+                    (opts?.na?.[i] ? `color:${C.soft};font-style:italic;font-weight:400;`
+                        : opts?.color?.[i] ? `color:${opts.color[i]};font-weight:600;` : "");
+                if (opts?.na?.[i]) { c.setAttribute("data-pnl-na", "1"); }
                 c.textContent = cTxt;
                 r.appendChild(c);
             });
@@ -8247,8 +8439,9 @@ export class Visual implements IVisual {
             const col = v.delta == null ? null : (v.good ? this.goodColor() : this.badColor());
             row([sc.toUpperCase(), num(this.ytdDisplay(node, sc)),
                 dNum(v.delta == null ? null : v.delta * inv),
-                v.deltaPct == null ? "·" : fmt.pct(v.deltaPct * inv, true)],
-            { color: [null, null, col, col] });
+                v.deltaPct == null ? (v.delta == null ? "·" : this.relNa()) : fmt.pct(v.deltaPct * inv, true)],
+            // 1.8.4 "n.a." is soft and italic, never in the variance colour
+            { color: [null, null, col, col], na: [false, false, false, v.delta != null && v.deltaPct == null] });
         }
         if (this.has.fcfy) {
             const fy = variance(node, "plfy", "fcfy");
@@ -8256,8 +8449,8 @@ export class Visual implements IVisual {
             row(["FY FC" + (this.has.plfy ? " · PL" : ""),
                 num(displayValue(node, "fcfy")),
                 this.has.plfy ? dNum(fy.delta == null ? null : fy.delta * inv) : "",
-                this.has.plfy && fy.deltaPct != null ? fmt.pct(fy.deltaPct * inv, true) : ""],
-            { color: [null, null, col, col] });
+                !this.has.plfy || fy.delta == null ? "" : fy.deltaPct != null ? fmt.pct(fy.deltaPct * inv, true) : this.relNa()],
+            { color: [null, null, col, col], na: [false, false, false, this.has.plfy && fy.delta != null && fy.deltaPct == null] });
         }
         return grid;
     }
@@ -8403,6 +8596,22 @@ export class Visual implements IVisual {
             const pt = document.createElementNS(ns, "title");
             pt.textContent = `Δ${this.ui!.ref.toUpperCase()} ${txt}`;
             p.appendChild(pt);
+            g.appendChild(p);
+            pctW = txt.length * ufs * 0.6 + 4 * s;
+            rightX -= pctW;
+        } else if (va) {
+            // 1.8.4 a Δ% without meaning (reference 0, sign change): "n.a." soft and italic in its place
+            const txt = this.relNa();
+            const p = document.createElementNS(ns, "text");
+            p.setAttribute("x", rightX.toFixed(2));
+            p.setAttribute("y", headY.toFixed(2));
+            p.setAttribute("text-anchor", "end");
+            p.setAttribute("font-size", ufs.toFixed(1));
+            p.setAttribute("font-family", FONT);
+            p.setAttribute("font-style", "italic");
+            p.setAttribute("fill", C.soft);
+            p.setAttribute("data-pnl", "tree-na");
+            p.textContent = txt;
             g.appendChild(p);
             pctW = txt.length * ufs * 0.6 + 4 * s;
             rightX -= pctW;
@@ -8849,6 +9058,8 @@ export class Visual implements IVisual {
                 "font-variant-numeric:tabular-nums;";
             dp.textContent = fmt.pct(va.deltaPct, true);
             head.appendChild(dp);
+        } else if (va) {
+            head.appendChild(this.relNaEl(14));
         }
         tile.appendChild(head);
         const sub = document.createElement("div");
@@ -9125,6 +9336,10 @@ export class Visual implements IVisual {
                 `color:${vColor};`;
             dp.textContent = fmt.pct(va.deltaPct, true);
             head.appendChild(dp);
+        } else if (va) {
+            const na = this.relNaEl(11, "span");
+            na.setAttribute("data-pnl", "micro-delta");
+            head.appendChild(na);
         }
         card.appendChild(head);
 
@@ -9200,6 +9415,8 @@ export class Visual implements IVisual {
             const t = tris ? tris[i] : null;
             if (raw == null && r == null) { continue; }
             const dRaw = raw != null && r != null ? raw - r : null;
+            // 1.8.4 n.a. across zero like every Δ% (engine.relDelta)
+            const rel = raw != null && r != null ? relDelta(raw, r) : null;
             pts.push({
                 tag: this.monthLabel(months[i]),
                 v: raw == null ? null : raw * inv,
@@ -9207,7 +9424,7 @@ export class Visual implements IVisual {
                 tri: t == null ? null : t * inv,
                 isFc: a == null && f != null,
                 d: dRaw == null ? null : dRaw * inv,
-                pct: dRaw == null || r == null || r === 0 ? null : (dRaw / Math.abs(r)) * inv,
+                pct: rel == null ? null : rel * inv,
                 good: dRaw == null ? true : (node.row.varianceInvert ? dRaw < 0 : dRaw >= 0),
             });
         }
@@ -9293,7 +9510,7 @@ export class Visual implements IVisual {
         const dTotRaw = dTot * inv;
         const totGood = node.row.varianceInvert ? dTotRaw < 0 : dTotRaw >= 0;
         const totColor = totGood ? this.goodColor() : this.badColor();
-        const pctTot = refSum !== 0 ? (dTot / Math.abs(refSum)) : null;
+        const pctTot = relDelta(vTot, refSum);
         const anyFc = stock ? endFc : fcSum !== 0;
 
         // ---------------- horizontal layout
@@ -10615,7 +10832,7 @@ export class Visual implements IVisual {
             if (!zero && baseV > 0) { tipParts.push(fmt.pct(Math.abs(n.v) / baseV)); }
             if (va && va.delta != null) {
                 tipParts.push(`Δ${refUp} ${this.treeNum(va.delta, fmt)}`
-                    + (va.deltaPct != null ? ` (${fmt.pct(va.deltaPct, true)})` : ""));
+                    + ` (${va.deltaPct != null ? fmt.pct(va.deltaPct, true) : this.relNa()})`);
             }
             const tip = tipParts.join(" · ") + this.selCapNote(n.node);
             const bt = document.createElementNS(ns, "title");
@@ -10803,8 +11020,13 @@ export class Visual implements IVisual {
                 if (!this.megaSliceIs(k, v)) { synced = false; this.megaSliceSet(k, v); }
             }
             for (const [k, v] of Object.entries(pend.nums)) {
+                // 1.8.4 numbers.roundedZero is a dropdown, the decimals are numbers
+                if (k === "roundedZero") {
+                    if (String(nc.roundedZero.value?.value) !== String(v)) { synced = false; this.setRoundedZero(String(v)); }
+                    continue;
+                }
                 const sl = k === "decimals" ? nc.decimals : nc.pctDecimals;
-                if (sl.value !== v) { synced = false; sl.value = v; }
+                if (sl.value !== v) { synced = false; sl.value = Number(v); }
             }
             for (const [k, v] of Object.entries(pend.title)) {
                 const sl = k === "headline" ? this.settings.titleCard.headline : null;
@@ -10841,8 +11063,9 @@ export class Visual implements IVisual {
         const title = sw.title;
         for (const [k, v] of Object.entries(cols)) { this.megaSliceSet(k, v); }
         const nc = this.settings.numbersCard;
-        if (nums.decimals != null) { nc.decimals.value = nums.decimals; }
-        if (nums.pctDecimals != null) { nc.pctDecimals.value = nums.pctDecimals; }
+        if (nums.decimals != null) { nc.decimals.value = Number(nums.decimals); }
+        if (nums.pctDecimals != null) { nc.pctDecimals.value = Number(nums.pctDecimals); }
+        if (nums.roundedZero != null) { this.setRoundedZero(String(nums.roundedZero)); }
         if (title.headline != null) { this.settings.titleCard.headline.value = title.headline; }
         // 1.7 statement.stockMode (T05A: every row a stock without tokens; T05B: auto; the
         // P&L templates take back an "every row a stock") — a changed mode rebuilds the model now
@@ -11080,6 +11303,16 @@ export class Visual implements IVisual {
             return cur.row.id;
         };
 
+        // 1.8.4 a flat list (every element of the top level is a leaf: customers, products
+        // without a hierarchy) gets no spacer between its rows (T02B / T02C drew every row as a
+        // block of its own, 36 instead of 24 px); the grand total keeps its gap. Read from the
+        // MODEL, not from the visible rows: ⚡ hide, hidden zero rows or a folded level never
+        // turn a hierarchy into a flat list (a one-child group or a mixed list keeps its blocks)
+        const isGrand = (x: PnlNode): boolean => x === soleRoot || x.row.id === TOTAL_ID;
+        const modelRoots = model.roots.filter(r => r.row.rowType !== "separator" && !r.isOrphanBucket);
+        const modelTops = modelRoots.length === 1 ? modelRoots[0].children : modelRoots;
+        const flatTop = struct && modelTops.length > 1 && modelTops.every(x => !x.hasChildren);
+
         // comment footnotes are numbered in reading order of this table
         this.comments = [];
         this.commentNo.clear();
@@ -11100,7 +11333,7 @@ export class Visual implements IVisual {
             // a row without a gap), a one-child group and the grand total
             if (prev && prev.node && it.kind !== "pct" && (
                 (prev.kind === "sum" || prev.kind === "formula") && it.kind === "acc"
-                || struct && topOf(prev.node) !== topOf(n)
+                || struct && topOf(prev.node) !== topOf(n) && !(flatTop && !isGrand(prev.node) && !isGrand(n))
             )) {
                 if (out.length && out[out.length - 1].kind !== "gap") { out.push(this.megaGap()); }
             }
@@ -11190,7 +11423,8 @@ export class Visual implements IVisual {
 
     /** locale number text of a non-negative value, narrow space as grouping */
     private megaNum(abs: number, dec: number): string {
-        const key = String(dec);
+        // 1.8.4 keyed by locale too: the locale may change between updates (syncLocale)
+        const key = this.locale + "|" + dec;
         let nf = this.megaNf.get(key);
         if (!nf) {
             nf = new Intl.NumberFormat(this.locale, { minimumFractionDigits: dec, maximumFractionDigits: dec });
@@ -11365,6 +11599,11 @@ export class Visual implements IVisual {
             fixedMax: this.fixedMax() != null ? this.fixedMax()! / div : undefined,
             fixedVarMax: this.fixedVarMax() != null ? this.fixedVarMax()! / div : undefined,
             rowK,
+            // 1.8.4 the outlier cap of the pins (columns.capPins) and its fence factor (columns.capFactor)
+            capPins: this.settings.columnsCard.capPins.value !== false,
+            capFactor: Number(this.settings.columnsCard.capFactor.value) || undefined,
+            // 1.8.4 a Δ% without meaning reads "n.a." in the Δ% cell and at the axis of a pin column
+            naText: this.relNa(),
         });
         this.megaLast = L;
         const ns = "http://www.w3.org/2000/svg";
@@ -11645,7 +11884,18 @@ export class Visual implements IVisual {
         if (this.excFnCache) { return this.excFnCache; }
         if (this.excMemo == null) { this.excMemo = new Map(); }
         const memo = this.excMemo;
-        const rule: ExceptionRule = { pct: x.pct, abs: x.abs, dir: x.dir };
+        // 1.8.4 the printed numbers count: Δ in the unit and decimals of the table, Δ% in its decimals
+        const exFmt = this.makeFmt(this.scans().maxAbsVal);
+        const exDec = this.settings.numbersCard.decimals.value;
+        const exPdec = this.settings.numbersCard.pctDecimals.value;
+        // margin rows print their point difference with the pp decimals of the view (mega table: the
+        // sheet margin rule `sheetMdec`, at least one decimal then; classic table: the Δ% decimals)
+        const mdec = this.megaInView() ? this.sheetMdec() : undefined;
+        const exPpdec = mdec != null ? Math.max(1, mdec) : exPdec;
+        const rule: ExceptionRule = { pct: x.pct, abs: x.abs, dir: x.dir,
+            rd: d => roundShown(d / exFmt.div, exDec) * exFmt.div,
+            rp: p => roundShown(p, exPdec),
+            rpp: p => roundShown(p, exPpdec) };
         let test: (n: PnlNode) => boolean;
         const fixed: Scenario | null = x.ref !== "auto" && this.has[x.ref] ? x.ref : null;
         if (this.megaInView()) {
@@ -12147,7 +12397,8 @@ export class Visual implements IVisual {
                 const sa = this.ssRaw(node, block, min, fmt); const sb = this.ssRaw(node, block, ref, fmt);
                 const d = sa != null && sb != null ? (sa - sb) * (node.row.displayInvert ? -1 : 1) : D.d;
                 out.push({ displayName: name, value: u(fmt.val(d, true)) });
-                if (D.p != null) { out.push({ displayName: name + " %", value: fmt.pct(D.p, true) }); }
+                // 1.8.4 a Δ% without meaning (reference 0, sign change) reads "n.a."
+                out.push({ displayName: name + " %", value: D.p != null ? fmt.pct(D.p, true) : this.relNa() });
                 soft = soft || mat(D.d, D.p);
             } else {
                 const v = varianceOf(a, r, node.row.varianceInvert);
@@ -12157,7 +12408,7 @@ export class Visual implements IVisual {
                     continue;
                 }
                 out.push({ displayName: name, value: u(fmt.val(this.ssDelta(node, block, ref, min, fmt) ?? v.delta, true)) });
-                if (v.deltaPct != null) { out.push({ displayName: name + " %", value: fmt.pct(v.deltaPct, true) }); }
+                out.push({ displayName: name + " %", value: v.deltaPct != null ? fmt.pct(v.deltaPct, true) : this.relNa() });
                 soft = soft || mat(v.delta, v.deltaPct);
             }
         }

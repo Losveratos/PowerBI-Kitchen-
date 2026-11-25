@@ -993,5 +993,19 @@
   "Hint_ScatterPathOrder": "Trayectoria temporal: la categoría no está ordenada por periodo (mantener el objeto visual ordenado por el periodo)",
   "Hint_ScatterShareRatio": "Parte de la burbuja como ratio: se esperan valores de 0 a 1 (0,24, no 24)",
   "Hint_ScatterShareOff": "Parte de la burbuja: sin sectores en el modo de reproducción ni con forma por grupo",
-  "Hint_ScatterTotalOff": "Burbuja total: no en el modo de reproducción ni en la trayectoria temporal"
+  "Hint_ScatterTotalOff": "Burbuja total: no en el modo de reproducción ni en la trayectoria temporal",
+  "Chart_ScatterTypeTitle": "Tipo de gráfico en el título del panel",
+  "Desc_Chart_ScatterTypeTitle": "Dispersión y burbujas: el título gris del panel empieza con «Scatter · AC × nombre X». Las demás partes (○ tamaño de burbuja, color = Δ, puntos fuera de los ejes) se mantienen siempre. Desactivado por defecto.",
+  "Chart_ScatterScenarioTag": "Escenario en el título del eje Y",
+  "Desc_Chart_ScatterScenarioTag": "Dispersión y burbujas: añade la abreviatura del escenario al título del eje Y («Ventas (AC)») y al título automático del gráfico («Ventas · AC»). Es incorrecto cuando el eje muestra una desviación (ΔPL % como medida); sin nombre de medida la abreviatura sigue apareciendo sola en el eje Y. Desactivado por defecto.",
+  "Chart_PanelTypeTitles": "Tipo de gráfico en los títulos de panel",
+  "Desc_Chart_PanelTypeTitles": "Títulos grises de panel que solo nombran el tipo de gráfico: «apilado» sobre columnas, barras y áreas apiladas (con solo AC el título desaparece), «puente + columnas mensuales» en el puente integrado y la guía de lectura del Marimekko. Los títulos de escenario y desviación (AC · FC, ΔPY, ΔPL %), «cuotas en %», el factor y el corte del eje se mantienen. Desactivado por defecto.",
+  "Labels_RoundedZero": "Cero redondeado",
+  "Desc_Labels_RoundedZero": "Una desviación que no es cero pero se redondea a cero: mantener el signo («+0,0», la dirección sigue legible junto al alfiler o la barra) o mostrarla sin signo como en las hojas de referencia («0,0»). Se aplica a Δ, Δ % y pp. Los ceros exactos nunca llevan signo. Por defecto se mantiene el signo.",
+  "Enum_RoundedZero_Signed": "Mantener el signo (+0,0)",
+  "Enum_RoundedZero_Plain": "Sin signo (0,0)",
+  "Chart_PinHeadColor": "Cabeza del pin Δ%",
+  "Desc_Chart_PinHeadColor": "Relleno de la cabeza de los pines Δ%. «Escenario» (predeterminado desde 1.58) dibuja la cabeza en la notación del escenario comparado, como las hojas IBCS 03A, 04A y 06E: AC sólido oscuro, FC con rayado fino, PL hueco; solo el tallo lleva el color de la desviación (en pines muy cortos también la etiqueta). «Color de desviación» rellena la cabeza en verde o rojo (FC rayado en el color de la desviación, PL hueco) en todos los modos: en columnas, barras, línea y cascada como hasta 1.57 (tallo de 1,6 px, cabeza sin reducir), en tabla, puentes y cuenta de resultados ahora en color en lugar de oscuro. La forma de la cabeza se elige en «Forma del pin Δ%». En alto contraste la cabeza mantiene relleno = bueno, hueco = malo.",
+  "Enum_PinHeadColor_Scenario": "Escenario (AC sólido, FC rayado, PL hueco)",
+  "Enum_PinHeadColor_Variance": "Color de desviación (todos los modos, también tabla y puentes)"
 }

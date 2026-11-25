@@ -2,7 +2,7 @@
 
 IBCS-inspiriertes GuV-/P&L-Custom-Visual für Power BI — eigenständiges
 Schwester-Visual von [ChartKitchen byDatenWG](../ibcsInspiredChartDeck/) und der
-[IBCS KPI Card](../ibcsKpiCard/). **Version 1.8.3.0**:
+[IBCS KPI Card](../ibcsKpiCard/). **Version 1.8.4.0**:
 Tabelle mit **Mega-Table** (IBCS-Templates T01–T04, 12A, 12G und 12H, dazu Bilanz T05A und
 Cashflow T05B), Struktur-Bars, Zeilen-Waterfall, **Werttreiberbaum (DuPont)** mit Kachel-Zoom
 und **Sankey**; **Bestand & Fluss** für Bilanz und Cashflow, **⚡ Nur Ausnahmen**, Selektion,
@@ -50,6 +50,7 @@ Toolbar-Zustände sind bookmark-fähig persistiert.
 | Nur Ausnahmen (1.7) | Toolbar-Gruppe **Ausnahmen** mit ⚡: nur Zeilen, deren Δ gegen PL / PY / FC eine Schwelle erreicht (\|Δ%\| ≥ 5 % Standard, optional \|Δ\| absolut aus der Wesentlichkeit — eins von beiden reicht), behalten ihre Farbe; der Rest wird grau (Tabelle, Mega-Table, Balken, Wasserfall, Baum) bzw. — Modus ⊘ — tritt in jeder Ansicht zurück: Detailzeilen verschwinden aus Tabelle, Mega-Table und Balken, Wasserfall und Kaskaden-Templates fassen sie zu „übrige (n)“ zusammen (Kaskade bleibt geschlossen), der Baum klappt ruhige Äste zu „+n“ ein, der Sankey bündelt ruhige Ströme (Summen bleiben, Fußzeile zählt). Richtung ▲ darüber · ▼ darunter · ▲▼ beide. Im Sankey färbt ⚡ nur die Ströme der Ausnahmen (in ihrer Abweichungsfarbe). Leser bedienen es, Zustand lesezeichenfähig, gespiegelt in die Formatkarte **Ausnahmen** (`exceptions.*`); Hochkontrast: Rest gestrichelt |
 | Cross-Highlight (1.7) | Markiert ein anderes Visual einen Teil der Daten, zeigt der **Sankey** den markierten Teil im grauen Gesamt („923 von 1 685“); alle anderen Ansichten verhalten sich **wie gefiltert** (Zeilen ohne markierten Wert verschwinden, keine Fußzeile) |
 | Toolbar-Farben & Fläche (1.7) | Karte **Toolbar-Farben**: Knopf-Hintergrund/-Text, aktiver Knopf, Rahmen — leer = automatisch (hell/dunkel), Hochkontrast ignoriert sie, der Start-Hub bleibt im Familien-Look. Karte **Fläche → Ganze Kachel nutzen**: schmale Ränder, kompakte Toolbar, Tabelle/Mega-Table/Balken skalieren auf die Kachelhöhe (×1,6 bis 9 px), Baum und Sankey füllen die Kachel |
+| Notation (1.8.4) | Δ% „n.a.“ bei Vorzeichenwechsel und Referenz 0 (Kostenzeilen mit beidseitig negativen Werten behalten ihr Δ%), Schwellen-Rot und ⚡ am gedruckten Wert, gekappte Pins behalten ihren Kopf (`columns.capPins`, `columns.capFactor`), FY-Kopf AC&FC der klassischen Tabelle schraffiert nach Blatt 12G, flache Listen ohne Leerzeilen, „Ganze Kachel nutzen“ ohne Überlauf, gerundete Null ohne Vorzeichen in allen Templates, Zahlen folgen einem Sprachwechsel des Hosts |
 
 IBCS-Notation: AC solide `#404040`, PY grau, PL weiß mit Rahmen, FC schraffiert;
 Abweichungen Teal `#0E8585` / Rot `#E02B1D` (dokumentierte Abweichung für
@@ -141,6 +142,8 @@ erzeugt: `node test/gen-demo.js`.
 - 1.6 (erledigt): Sankey, „Ansichten anbieten“
 - 1.7 (erledigt): Bestand & Fluss (T05A/T05B), ⚡ Nur Ausnahmen mit Sammelzeilen, Ganze Kachel nutzen,
   Toolbar-Farben, Cross-Highlight im Sankey
+- 1.8 bis 1.8.4 (erledigt): Templates T01C, T01D, T02D, ROI-Baum 11A, Blatt-Optionen und Blatt-Notation,
+  Notationskorrekturen aus dem Template-Prüfstand (1.8.4)
 - Offen: siehe [`BACKLOG.md`](BACKLOG.md) — u. a. Spalten-Kategorie im Mega-Table, gemischte Einheiten (F8),
   AppSource-Zertifizierung, Top-N
 

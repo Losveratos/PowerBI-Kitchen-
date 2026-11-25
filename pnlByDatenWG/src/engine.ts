@@ -1326,6 +1326,33 @@ export function windowValue(model: PnlModel, node: PnlNode, s: Scenario, lo: num
 
 // ---- variances
 
+/**
+ * 1.8.4 the relative Δ (Δ%) of a minuend `a` against a reference `rv`, both
+ * raw (calculation-signed) or both in the same display orientation:
+ * (a − rv) / |rv|. Null = "n.a." (the visual prints "n.a." in place of the
+ * Δ%, no pin) when
+ *  - the reference is 0, or
+ *  - minuend and reference carry opposite signs (−15 → +69.6 read +564 %, a
+ *    cash flow −6 → +10 read +267 %: no percentage describes a change across
+ *    zero).
+ * Both negative stays a number: a cost row runs calculation-signed negative
+ * against a negative reference (SignConvention −1), and over |rv| its Δ% reads
+ * right (−110 against −100 = −10 %, shown as +10 % cost growth). A minuend of
+ * exactly 0 is no sign change (−100 % / +100 %). The rule of the ChartKitchen
+ * KPI card (basis ≤ 0 ⇒ n.a.) reads display values; here the calculation sign
+ * would make every cost row n.a., so only the sign change counts.
+ */
+export function relDelta(a: number, rv: number): number | null {
+    if (!isFinite(a) || !isFinite(rv)) { return null; }
+    // float noise around zero is zero (0.3 − 0.1 − 0.2 = −5.6e−17 prints 0.0): a minuend
+    // within 1e−9 of the larger magnitude is no sign change, a reference that small is 0
+    const eps = 1e-9 * Math.max(1, Math.abs(a), Math.abs(rv));
+    if (Math.abs(rv) <= eps) { return null; }
+    const av = Math.abs(a) <= eps ? 0 : a;
+    if ((av < 0 && rv > 0) || (av > 0 && rv < 0)) { return null; }
+    return (av - rv) / Math.abs(rv);
+}
+
 export function variance(node: PnlNode, ref: Scenario, minuend: Scenario = "ac"): Variance {
     return varianceOf(node.computed[minuend], node.computed[ref], node.row.varianceInvert);
 }
@@ -1338,7 +1365,7 @@ export function variance(node: PnlNode, ref: Scenario, minuend: Scenario = "ac")
 export function varianceOf(a: number | null, rv: number | null, varianceInvert: boolean): Variance {
     if (a == null || rv == null) { return { delta: null, deltaPct: null, good: true }; }
     const delta = a - rv;
-    const deltaPct = rv !== 0 ? delta / Math.abs(rv) : null;
+    const deltaPct = relDelta(a, rv);
     let good = delta >= 0;
     if (varianceInvert) { good = !good; }
     return { delta, deltaPct, good };
@@ -1355,6 +1382,25 @@ export interface ExceptionRule {
     pct: number;
     abs: number;
     dir: "both" | "up" | "down";
+    /**
+     * 1.8.4 Δ (data units) as the table prints it: in the display unit and its decimals,
+     * back in data units. Absent = the raw Δ (callers without a table format)
+     */
+    rd?: (delta: number) => number;
+    /** 1.8.4 Δ% in whole percent as printed with the Δ% decimals. Absent = raw */
+    rp?: (pctPercent: number) => number;
+    /** 1.8.4 the pp difference of a margin row as printed (its own decimals). Absent = rp */
+    rpp?: (pp: number) => number;
+}
+
+/**
+ * 1.8.4 a number as printed with `d` decimals (half away from zero, like the formatters);
+ * a rounded zero is 0 (no −0)
+ */
+export function roundShown(v: number, d: number): number {
+    const f = Math.pow(10, Math.max(0, d));
+    const r = Math.round(Math.abs(v) * f) / f;
+    return r === 0 ? 0 : v < 0 ? -r : r;
 }
 
 /**
@@ -1362,7 +1408,8 @@ export interface ExceptionRule {
  * varianceOf() or a period block of the visual) of `row` is an exception:
  * |Δ%| ≥ pct OR |Δ| ≥ abs (one of them is enough), in the direction asked.
  * A reference of 0 with a non-zero Δ is an infinite Δ% (an exception as soon
- * as the percent threshold is on). Margin / KPI rows read the percent
+ * as the percent threshold is on); 1.8.4 the same for a Δ% that is n.a. over a
+ * sign change (relDelta), as before when it printed several hundred percent. Margin / KPI rows read the percent
  * threshold in percentage points (Δ pp, ×100); the absolute threshold does
  * not apply to them. With both thresholds at 0 every non-zero Δ counts.
  */
@@ -1376,11 +1423,21 @@ export function isExceptionVariance(row: InputRow, v: Variance, rule: ExceptionR
     const pct = Math.max(0, Number(rule.pct) || 0);
     const abs = Math.max(0, Number(rule.abs) || 0);
     const eps = 1e-9;
-    if (pct <= 0 && abs <= 0) { return true; }
-    if (kpi && row.kfmt === "factor") { return pct > 0 && (v.deltaPct == null || Math.abs(v.deltaPct * 100) >= pct - eps); }
-    if (kpi) { return pct > 0 && Math.abs(v.delta * 100) >= pct - eps; }
-    if (abs > 0 && Math.abs(v.delta) >= abs * (1 - eps)) { return true; }
-    if (pct > 0) { return v.deltaPct == null || Math.abs(v.deltaPct * 100) >= pct - eps; }
+    // 1.8.4 the printed numbers count (rule.rd / rule.rp / rule.rpp), like the red threshold of the
+    // table: +9.96 % prints +10.0 % and is an exception at 10 %
+    const P = (x: number): number => Math.abs(rule.rp ? rule.rp(x) : x);
+    const PP = (x: number): number => Math.abs(rule.rpp ? rule.rpp(x) : rule.rp ? rule.rp(x) : x);
+    const D = (x: number): number => Math.abs(rule.rd ? rule.rd(x) : x);
+    // both thresholds 0: every Δ that does not print as 0
+    if (pct <= 0 && abs <= 0) {
+        // (a factor KPI keeps the raw test: its printed decimals are not part of the rule)
+        if (kpi && row.kfmt === "factor") { return true; }
+        return kpi ? PP(v.delta * 100) > 0 : D(v.delta) > 0;
+    }
+    if (kpi && row.kfmt === "factor") { return pct > 0 && (v.deltaPct == null || P(v.deltaPct * 100) >= pct - eps); }
+    if (kpi) { return pct > 0 && PP(v.delta * 100) >= pct - eps; }
+    if (abs > 0 && D(v.delta) >= abs * (1 - eps)) { return true; }
+    if (pct > 0) { return v.deltaPct == null || P(v.deltaPct * 100) >= pct - eps; }
     return false;
 }
 
@@ -1415,7 +1472,8 @@ export function displayVariance(row: InputRow, a: number | null, rv: number | nu
         const d = v.delta * 100;
         // 1.8.2 like every value row: Δ over |reference| (a / rv − 1 flipped the sign
         // for a negative reference margin: −2 % → +3 % read −250 % next to +5.0 pp)
-        const p = rv !== 0 ? (a - rv) / Math.abs(rv) : null;
+        // 1.8.4 and like every value row n.a. across zero (relDelta)
+        const p = relDelta(a, rv);
         const flip = row.varianceInvert ? -1 : 1;
         return { d, p, good: v.good, impact: d * flip, impactPct: p == null ? null : p * flip, pp: true };
     }

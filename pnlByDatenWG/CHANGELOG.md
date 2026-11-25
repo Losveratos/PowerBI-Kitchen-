@@ -1,5 +1,137 @@
 # Changelog — P&L Statement byDatenWG
 
+## 1.8.4.0 (2026-11-25): Notationskorrekturen Welle 1
+
+Korrekturen aus dem Template-Prüfstand vom 24.11.2026 (Welle 1, Punkte 6 bis 10), dazu flache Listen,
+der Maximieren-Fix und ⚡ auf dem gedruckten Wert aus einer parallelen Linie übernommen. IBCS dient nur
+als Bezug. Neue Eigenschaften stehen per Standard so, dass ein Bericht wie 1.8.3 rendert; die übrigen
+Punkte sind Notationskorrekturen und ändern das Bild bestehender Berichte gezielt an der fehlerhaften Stelle.
+
+- **Δ% bei Vorzeichenwechsel ist n.a.** (`engine.relDelta`). Regel: Δ% = Δ / |Referenz|. „n.a.“
+  ist Δ%, wenn die Referenz 0 ist (bis 1.8.3 eine Leerstelle) oder Wert und Referenz verschiedene Vorzeichen tragen:
+  Finanzergebnis −15 → +69,6 las +564 %, ein Working-Capital-Fluss −6 → +10 las +267 % (Blätter T05B,
+  T03A zeigten so +352,3 %). Beide negativ bleibt eine Zahl: Kostenzeilen rechnen mit SignConvention −1
+  negativ gegen eine negative Referenz, über den Betrag der Referenz liest Δ% richtig (Kosten 100 → 110
+  ergibt +10 %, ein halbierter Verlust +50 %). Ein Wert von 0 ist kein Wechsel (−100 % bzw. +100 %);
+  Gleitkomma-Rauschen um null (0,3 − 0,1 − 0,2 = −5,6e−17, gedruckt 0,0) zählt als 0, eine Referenz in
+  dieser Größe als Referenz 0 (Toleranz 1e−9 des größeren Betrags). **Bewusste Abweichung von der
+  ChartKitchen-Karte:** die Karte setzt n.a. schon bei Basis ≤ 0, weil sie Anzeigewerte liest; P&L rechnet
+  mit dem rechnerischen Vorzeichen, dort wäre jede Kostenzeile (SignConvention −1) n.a., deshalb zählt hier
+  nur der Vorzeichenwechsel. **Darstellung „n.a.“** (wie die
+  ChartKitchen-Karte), für Vorzeichenwechsel und Referenz 0 gleich: dezent kursiv in Grau in der Δ%-Zelle
+  der Mega-Tabelle, an der Achse einer Pin-Spalte (Mega-Tabelle und klassische Tabelle, ohne Pin), im
+  Tooltip, im Szenario-Raster (grau und kursiv, nie in der Abweichungsfarbe), im Kopf von Baumkarte,
+  Hover-Panel, Kachel und Mikrokarte; ohne Diagrammbeschriftung reserviert die Pin-Spalte keinen Platz und
+  druckt nichts; bis 1.8.3 blieb
+  die Stelle bei Referenz 0 leer. Δ selbst und seine Farbe bleiben. Neuer Text `UI_RelNa` (de-DE und en-US
+  „n.a.“, es-ES „n.d.“, ja-JP „N/A“).
+  ⚡ zählt ein n.a. wie eine Referenz 0 als Ausnahme, sobald die Prozent-Schwelle an ist; die
+  Wesentlichkeit in % greift dort nicht; `sort = pct` stellt die Zeile hinter alle Zahlen. Gilt auch für
+  Margenzeilen (`numbers.marginRel`): die Korrektur aus 1.8.2 (Marge −2 % → +3 % = +250 %) ist jetzt n.a.
+  **Wirkung auf bestehende Berichte:** Zeilen, deren Wert die Null kreuzt (Cashflows, Finanz- und
+  Ergebniszeilen um null), zeigen „n.a.“ statt einer Prozentzahl; Zeilen mit Referenz 0 zeigen „n.a.“
+  statt einer Leerstelle (auch 0 gegen 0); alle anderen Zahlen bleiben gleich.
+- **Schwellen-Rot prüft die gedruckte Zahl** (`megatable.ts`, `megaRound`). „Δ rot unter Schwelle“ vergleicht
+  die auf die Dezimalen gerundete Δ bzw. Δ% statt des Rohwerts: USA −34,6 und China −35,4 drucken beide
+  −35 und tragen bei Schwelle −35 dieselbe Farbe (vorher China rot); −10,02 % druckt −10,0 % und ist bei
+  −10 % nicht rot. **Wirkung:** nur Berichte mit `columns.thresholds`; eine Zahl, die gedruckt genau auf der
+  Schwelle steht, ist nicht mehr rot. Hat die Schwelle mehr Stellen als die Anzeige, entscheidet die
+  gedruckte Zahl (Schwelle −20,5 bei 0 Dezimalen: −20,5 druckt −21 und ist rot).
+- **Gekappter Pin behält seine Kopf-Kennung.** Ein Δ%-Pin in der Ausreißerzone endet jetzt mit seinem Kopf
+  (AC voll, FC schraffiert, PL hohl), die Pfeilspitze folgt als Kappungsmarke; bis 1.8.3 ersetzte die
+  Spitze den Kopf und die Plan- bzw. FC-Kennung ging verloren (T04A, T04B, T04D, 12H, T02D). Die Spalte
+  wird dafür nicht breiter. Neue Eigenschaften: `columns.capPins` (Ausreißer-Pfeile für Pins, Standard an)
+  und `columns.capFactor` (Ausreißer-Schwelle Q3 + Faktor × IQR, Standard 4, 1 bis 20; gilt für Pins und
+  mit `capBars` für die Δ-Balken). **Wirkung:** Mega-Tabellen mit gekappten Pins zeigen zusätzlich den Kopf;
+  sonst unverändert. Auch die klassische Tabelle (feste Kappung bei ±40 %) behält am gekappten Pin den
+  Kopf direkt vor dem Dreieck; ihre Geometrie bleibt gleich.
+- **FY-Kopf AC&FC der klassischen Tabelle nach Blatt 12G.** Die Pin-Köpfe des FY-Ausblicks (AC&FC) waren ein
+  leerer Ring und lasen sich wie Plan. Vorlage ist das Referenzblatt 12G: dort sind die FY-Köpfe dunkel
+  umrandet und in Tinte schraffiert, nur der Stiel trägt die Abweichungsfarbe. So zeichnet das Visual sie
+  jetzt, in der runden Form der klassischen Tabelle und wie die FC-Köpfe der Mega-Tabelle: Rand und Schraffur
+  in Tinte (hell #404040, dunkel #D9D9D9), feine Schraffur (Periode 2,0, Strich 0,9; bei Radius 2,8 zwei
+  Streifen), ein gemeinsames Muster je Tabelle; gekappt und ungekappt, hell und dunkel, mit jedem
+  Abweichungsfarben-Preset (blau-orange: nur der Stiel). Die klassische Tabelle hat keinen
+  Hochkontrast-Pfad (nur Mega-Tabelle und Sankey), dort ändert sich nichts. **Wirkung:** klassische
+  Tabellen mit FY-Block zeigen schraffierte Tinten-Köpfe statt leerer Ringe in Abweichungsfarbe. Das Muster
+  trägt die Kennung des Visuals: ein verstecktes zweites Visual davor auf derselben Seite leiht ihm nicht
+  mehr sein Muster (sonst wurden die Köpfe zu leeren Ringen, also zur Plan-Notation).
+- **Zahlen folgen einem Sprachwechsel des Hosts zur Laufzeit.** Das Visual las `host.locale` nur im
+  Konstruktor; wechselte der Host die Sprache danach, zogen nur die Texte nach, die Zahlen blieben im
+  alten Format. Jetzt übernimmt jedes Update die aktuelle Sprache des Hosts; alle Zahlen nutzen weiter
+  denselben Formatierer (`Intl.NumberFormat` mit dieser Sprache), der Formatierer-Speicher der
+  Mega-Tabelle merkt sich die Sprache mit. **Wirkung:** keine für Berichte ohne Sprachwechsel. Der
+  Prüfstand-Befund „4.28“ im ROI-Baum (11A) war ein Lesefehler: Power BI und App zeigen dort 4,28 mit
+  Komma, der dwg-Host liefert die Sprache schon im Konstruktor.
+- **Flache Listen ohne Leerzeilen** (übernommen). Strukturdaten ohne Hierarchie unter der Gesamtzeile
+  (T02B, T02C auf einer Kundenliste) zeichnen ihre Zeilen dicht (24 statt 36 px je Zeile), die Leerzeile
+  steht nur vor der Gesamtzeile. Mit Hierarchie gilt die Blockregel von 1.5.1 unverändert. Ob eine Liste
+  flach ist, liest das Visual aus dem Modell (jedes Element der obersten Ebene ein Blatt), nicht aus den
+  sichtbaren Zeilen: ⚡ ausblenden oder ausgeblendete Nullzeilen kippen die Darstellung nicht; eine Liste
+  aus Einkind-Gruppen und eine Mischliste behalten ihre Blöcke. **Wirkung:**
+  flache Strukturlisten werden kürzer.
+- **Fläche maximieren: geprüfte Suche statt Regelschleife.** Bis 1.8.3 näherte sich `layout.maximize` dem
+  Schriftfaktor in einer Schleife, die zwischen Stufen pendelte (Zeilen runden auf ganze Pixel) und auf einem
+  ungeprüften Wachstumsschritt enden konnte: m15 (12A) in 1320 × 700 ragte 34 px unter die Kachel, T02C mit
+  dichten Listen in 1400 × 742 px 119 px über den rechten Rand, und der Faktor sprang beim Ändern der Breite
+  um wenige Pixel (1392 → 1,13, 1396 → 1,42). Jetzt baut das Visual jeden Kandidaten auf und prüft ihn: Höhe
+  passt UND Breite passt (bei Faktor ≤ 1 zählt nur die Höhe, eine Tabelle, die schon bei ×1 breiter ist,
+  scrollt wie bisher) UND keine Diagrammspalte der Mega-Tabelle fällt unter 70 % ihrer Breite bei ×1: die
+  Schrift wächst vor den Diagrammen, aber halbiert sie nicht (m40 in 1400 × 742: Kaskaden bei 75 % ihrer
+  Breite). Ein kleiner Breitenüberstand kommt zuerst aus den Diagrammspalten, wie im Erstaufbau, und kostet
+  keine Schrift mehr (bis dahin bis zu 27 % in m40). Jeder Kandidat bestimmt diesen Abzug neu ab 0 und nur so
+  weit, wie er gebraucht wird, zusammen höchstens 40 px; der Abzug des Erstaufbaus, der oft nur vom
+  senkrechten Rollbalken kam, wird nicht übernommen (m82 in 1566 × 742: 0 statt 42 px, kein leerer Streifen
+  rechts). Der Faktor liegt auf einem Raster von 0,02; die Suche klammert den größten passenden Schritt ein
+  und halbiert, bis passender und gescheiterter Schritt Nachbarn sind. Ergebnis ist immer ein geprüfter
+  Schritt. Je Update braucht das im Mittel 5 bis 9 Aufbauten, in einzelnen Größen bis etwa 35 (Abgabe von
+  Diagrammplatz eingerechnet).
+  Abnahme-Messreihe 900 bis 1900 × 250 bis 1100 px in 50-px-Schritten über zwölf Bühnen (12A, T05B, T02A,
+  T02C, flache Liste, 12G, T04A, T04B, T03A, T01B, zwei klassische Tabellen): kein Überlauf, der Faktor fällt
+  in keiner Bühne mit mehr Breite oder Höhe; im Mittel 70 bis 100 ms je Update, einzelne Größen bis etwa 570 ms.
+  **Wirkung:** Berichte mit `maximize` laufen nie mehr über die Kachel und nutzen sie meist größer.
+- **⚡ Nur Ausnahmen auf dem gedruckten Wert** (übernommen). Die Schwellen von ⚡ prüfen das gedruckte Δ
+  (Einheit und Dezimalen der Tabelle), Δ% (Δ%-Dezimalen) und die pp der Margen mit deren eigenen Dezimalen
+  (Mega-Tabelle in Blattnotation mindestens eine Stelle), wie das Schwellen-Rot: −9,96 % druckt −10,0 % und
+  ist bei 10 % eine Ausnahme. Sind beide Schwellen 0, zählt eine Δ, die als 0 gedruckt wird, nicht als
+  Ausnahme, auch wenn ihr Δ% sichtbar von 0 abweicht (Δ 0,04 bei 0 Dezimalen druckt 0, die Zeile ist keine
+  Ausnahme). Nicht umgesetzt: bei Σ-treuer Rundung (`numbers.sumSafeRounding`) prüft ⚡ weiter die gerundete
+  Rohdifferenz, nicht die Differenz der gedruckten Werte (das bräuchte die Rundung des ganzen Baums vor ⚡).
+  **Wirkung:** Zeilen genau an der Schwelle können ihre Einstufung wechseln.
+- **Gerundete Null ohne Vorzeichen in allen Templates** (wie ChartKitchen). Jedes Template schreibt beim
+  Anwenden `numbers.roundedZero = plain` (wie die Dezimalen, in derselben Schreibaktion und unter demselben
+  Echo-Schutz); damit hängt das Ergebnis nicht mehr vom vorher angewandten Template ab. „Aus“ (klassische
+  Tabelle) schreibt kein Zahlenformat. Der Standard der Eigenschaft bleibt `signed`. Die Einstellung zählt
+  nicht als Abweichung vom Template: ein vor 1.8.4 angewendetes Template (nichts gespeichert, also
+  `signed`) oder ein von Hand gesetztes `signed` zeigt kein „↺ Zum Template zurück“. **Wirkung:** nur beim
+  nächsten Anwenden eines Templates (Galerie, Dropdown, „↺ Zum Template zurück“, PBIR mit `template`, aber
+  ohne `templateApplied`); Berichte mit gespeichertem `templateApplied` behalten ihre Einstellung.
+
+**Tests:** engine-test „1.8.4 relDelta“ (neu), Margen-Erwartung −2 % → +3 % von +250 % auf n.a. angepasst;
+megatable-test „Schwellen-Rot auf der gedruckten Zahl“, „Pin-Kappung: Schalter und Faktor“, „n.a. in Zelle und
+Pin-Spalte“, „roundedZero in allen Presets“ (neu); hub-test: Template-Zahlen mit `roundedZero` (vier Erwartungen
+angepasst, ein Block neu); hub-interact: kein ↺ wegen `roundedZero`, ↺ schreibt `plain` (neu); mega-shot m72
+bis m80 (neu: Vorzeichenwechsel mit n.a. und gerundete Null T03A, Schwelle T01A, Kopf gekappter Pins T04D und
+12H, Kappung aus, n.a. in der Pin-Spalte T04A, Gleitkomma-Rauschen ist kein Vorzeichenwechsel, negativer
+gekappter Pin mit Kopf, Kopf im hohen Kontrast), m47 angepasst (T01C druckt jetzt 0.0%), m34 (gespeichertes
+Template behält +0.0%) und m8/m10/m11 (Templates plain, ohne Template mit Vorzeichen) neu; mega-interact:
+Template-Schreibvorgang mit `roundedZero`, Echo-Schutz hält `plain` über ein veraltetes Update (neu), Echos
+der Tests tragen `roundedZero` (auch finance-test F9); scale-views p1 (Kopf gekappter Pins der klassischen
+Tabelle) und p30 (n.a. statt Pin) neu; engine-test „Rauschen ist kein Vorzeichenwechsel“ (neu); tree-interact
+„Zahlen folgen einem Sprachwechsel des Hosts zur Laufzeit“ und „Mikrokarte n.a.“ (neu). Runde 3: mega-shot m81
+(flache Liste), m82 (Maximieren 1566 und 1400 × 742), m83 (⚡ gedruckt), m80 geschärft (Köpfe an derselben
+Stelle wie m74); engine-test ⚡ mit `rd`/`rp`; scale-views p1 (FY-Kopf schraffiert, Kopf vor dem Dreieck) und
+p30 geschärft (n.a. auf der Zeile, kursiv, grau); tree-interact n.a. in Baumkarte, Hover-Panel, Raster,
+Kachel, Tooltip und Mega-Tooltip sowie es-ES „n.d.“ und ja-JP „N/A“. Nachbesserung: mega-shot Messreihe
+Maximieren (m15, m40, m82, m5 über 900 bis 1900 × 250 bis 1100: kein Überlauf, Faktor monoton), m84 bis m86
+(Einkind-Gruppen und Mischliste behalten Blöcke, flache Liste unter ⚡ ausblenden bleibt dicht); scale-views
+p1/p13 und blau-orange (FY-Kopf in Tinte, Stiel in Abweichungsfarbe, ein Muster je Tabelle, kein leerer Ring
+auch auf dunklem Papier); engine-test ⚡ mit pp-Dezimalen und gedruckter Null. Letzte Runde: scale-views
+verstecktes Zwillings-Visual (Muster mit Instanzkennung); toolbar-interact und ease-interact vergleichen das
+Markup zweier Visuals ohne die Musterkennung. Angepasst: tree-interact „⚡ hide, Sankey“ bündelt jetzt
+bei 6 % statt 5 % (mit dem gedruckten Δ% zählt ein Strom mit +4,96 % bei 5 % als Ausnahme, das letzte Paar
+ruhiger Geschwister fiel weg).
+
 ## 1.8.3.0 (2026-11-22): Blatt-Notation 11A, 12G und 12H
 
 - **12G: Margenwerte in der Wertkaskade.** Eine Margenzeile zeigt ihren Wert kursiv in jeder

@@ -61,6 +61,8 @@ function check(label, cond, detail) {
                 classic: st.querySelectorAll('[data-pnl="hdr-row"]').length > 0,
                 persists: window.__miPersist.length,
                 last: window.__miPersist[window.__miPersist.length - 1] || null,
+                // 1.8.4 the rounded-zero setting the visual renders with (written by the template)
+                rz: String(window.__mi.settings.numbersCard.roundedZero.value.value),
             };
         };
     });
@@ -76,18 +78,22 @@ function check(label, cond, detail) {
         && cols.dPlBar === true && cols.dPlPin === true && cols.showPL === true && cols.showPY === false
         && cols.secondBlock === true && cols.minuend === "ac" && cols.sort === "cat", JSON.stringify(cols));
     check("1 persist carries decimals 0 / Δ% 1", nums && nums.properties.decimals === 0 && nums.properties.pctDecimals === 1);
+    check("1 1.8.4 the same write carries numbers.roundedZero = plain", nums && nums.properties.roundedZero === "plain", JSON.stringify(nums));
     check("1 renders T02A at once (4 chart columns)", s.mega && s.charts === 4, JSON.stringify(s.heads));
 
     // 2 — a stale update (the host has not echoed yet)
     s = await upd({ ...BASE, columns: { template: "T02A" } });
     check("2 stale update: no second persist", s.persists === 1);
     check("2 stale update: still T02A (echo guard)", s.mega && s.charts === 4);
+    check("2 1.8.4 the echo guard also holds numbers.roundedZero = plain over a stale update", s.rz === "plain", s.rz);
 
     // 3 — the echo arrives
     // the pane keeps the template the author picked, the host adds what the visual wrote
-    const ECHO = { ...BASE, columns: { ...cols, template: "T02A" }, numbers: { decimals: 0, pctDecimals: 1 } };
+    // 1.8.4 the host echoes everything the template wrote, roundedZero included
+    const ECHO = { ...BASE, columns: { ...cols, template: "T02A" }, numbers: { decimals: 0, pctDecimals: 1, roundedZero: "plain" } };
     s = await upd(ECHO);
     check("3 echo: no persist, T02A", s.persists === 1 && s.charts === 4);
+    check("3 1.8.4 after the echo the pane's roundedZero = plain stands", s.rz === "plain", s.rz);
 
     // 4 — the author switches the ΔPL% pins off by hand
     s = await upd({ ...ECHO, columns: { ...ECHO.columns, dPlPin: false } });
@@ -198,7 +204,7 @@ function check(label, cond, detail) {
     check("8 T04B renders at once: waterfall (with connectors) + pins", s.charts === 2 && s.conn === 1, `${s.charts} / ${s.conn}`);
     s = await upd3({ ...BASE, columns: { template: "T04B" } });
     check("8 stale update: guard holds T04B, no second persist", s.persists === 1 && s.charts === 2 && s.conn === 1);
-    const ECHO3 = { ...BASE, columns: { ...c4, template: "T04B" }, numbers: { decimals: 2, pctDecimals: 1 } };
+    const ECHO3 = { ...BASE, columns: { ...c4, template: "T04B" }, numbers: { decimals: 2, pctDecimals: 1, roundedZero: "plain" } };
     s = await upd3(ECHO3);
     check("8 echo: no persist", s.persists === 1 && s.charts === 2);
     s = await upd3({ ...ECHO3, columns: { ...ECHO3.columns, dPlWaterfall: false } });
@@ -299,7 +305,7 @@ function check(label, cond, detail) {
     check("11 12H renders PY | PL cascades and ΔPY only (no ΔPL against itself)",
         JSON.stringify(s.heads) === JSON.stringify(["PY", "PL", "ΔPY", "ΔPY%"]), s.heads.join("|"));
     // an own message beats the generator; the headline switch off returns the bold line
-    const echo12H = { ...BASE, columns: { ...part(s, "columns"), template: "12H" }, numbers: { decimals: 0, pctDecimals: 1 },
+    const echo12H = { ...BASE, columns: { ...part(s, "columns"), template: "12H" }, numbers: { decimals: 0, pctDecimals: 1, roundedZero: "plain" },
         titleBlock: { headline: true, message: "Own message" } };
     s = await upd4(echo12H, "12A");
     check("11 headline shows the own message", s.headline === "Own message" && s.persists === 2);

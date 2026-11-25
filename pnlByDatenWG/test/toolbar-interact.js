@@ -133,7 +133,8 @@ function check(label, cond, detail) {
         };
         T.body = (id) => {
             const root = T.box(id).querySelector(".pnl-root");
-            const html = [...root.children].filter(c => c.getAttribute("data-pnl") !== "head").map(c => c.outerHTML).join("");
+            // 1.8.4 the FY pin hatch carries the instance id: ignore it when comparing two visuals
+            const html = [...root.children].filter(c => c.getAttribute("data-pnl") !== "head").map(c => c.outerHTML).join("").replace(/pnlpinfc\w+/g, "pnlpinfc");
             let h = 0;
             for (let i = 0; i < html.length; i++) { h = (h * 31 + html.charCodeAt(i)) | 0; }
             return h;
@@ -1021,7 +1022,7 @@ function check(label, cond, detail) {
                     return new Set([...tb.children].map(c => Math.round(c.getBoundingClientRect().top))).size; })(),
                 fs: (() => { const c = el.querySelector('[data-pnl-row] > div'); return c ? parseFloat(c.style.fontSize) : 0; })(),
                 megaFs: v.megaLast ? v.megaLast.G.fs : 0,
-                html: el.innerHTML,
+                html: el.innerHTML.replace(/pnlpinfc\w+/g, "pnlpinfc"),
             };
             el.remove();
             return r;

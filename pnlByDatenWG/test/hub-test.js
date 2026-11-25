@@ -36,7 +36,9 @@ test("every template writes exactly the switch set of the pre-1.3 inline code (n
             thresholds: p.thresholds, scenarioMarks: p.scenarioMarks, chartLabels: p.chartLabels,
             capBars: p.capBars, sort: p.sort, sortBlock: p.sortBlock, keepBlockOrder: p.keepBlockOrder, blockKind: p.blockKind, leftBlockKind: "month",
         }, tpl);
-        assert.deepStrictEqual(sw.nums, tpl === "off" ? {} : { decimals: p.decimals, pctDecimals: p.pctDecimals }, tpl + " numbers");
+        // 1.8.4 roundedZero = plain travels with the templates whose sheets print 0.0
+        assert.deepStrictEqual(sw.nums, tpl === "off" ? {} : { decimals: p.decimals, pctDecimals: p.pctDecimals,
+            ...(p.roundedZero ? { roundedZero: p.roundedZero } : {}) }, tpl + " numbers");
         assert.deepStrictEqual(sw.title, p.headline ? { headline: true } : {}, tpl + " headline");
     }
 });
@@ -132,11 +134,24 @@ const caps = JSON.parse(fs.readFileSync(path.join(ROOT, "capabilities.json"), "u
 const locs = ["de-DE", "en-US", "es-ES", "ja-JP"].map(l => JSON.parse(fs.readFileSync(path.join(ROOT, "stringResources", l, "resources.resjson"), "utf8")));
 
 test("1.8 (B14) numbers.sheetPctDecimals: a template writes its sheet's Δ% decimals", () => {
-    assert.deepStrictEqual(M.templateSwitches("T03A").nums, { decimals: 1, pctDecimals: 1 });
-    assert.deepStrictEqual(M.templateSwitches("T03A", false, "auto", true).nums, { decimals: 1, pctDecimals: 0 });
-    assert.deepStrictEqual(M.templateSwitches("T04C", false, "auto", true).nums, { decimals: 2, pctDecimals: 2 });
-    assert.deepStrictEqual(M.templateSwitches("T02A", false, "auto", true).nums, { decimals: 0, pctDecimals: 1 });
+    assert.deepStrictEqual(M.templateSwitches("T03A").nums, { decimals: 1, pctDecimals: 1, roundedZero: "plain" });
+    assert.deepStrictEqual(M.templateSwitches("T03A", false, "auto", true).nums, { decimals: 1, pctDecimals: 0, roundedZero: "plain" });
+    assert.deepStrictEqual(M.templateSwitches("T04C", false, "auto", true).nums, { decimals: 2, pctDecimals: 2, roundedZero: "plain" });
+    assert.deepStrictEqual(M.templateSwitches("T02A", false, "auto", true).nums, { decimals: 0, pctDecimals: 1, roundedZero: "plain" });
     assert.deepStrictEqual(M.templateSwitches("off", false, "auto", true).nums, {});
+});
+
+test("1.8.4 numbers.roundedZero = plain: every template writes it, \"off\" writes no number format", () => {
+    for (const t of Object.keys(M.MEGA_PRESETS)) {
+        assert.strictEqual(M.templateSwitches(t).nums.roundedZero, t === "off" ? undefined : "plain", t);
+    }
+    // the gallery preview carries it like the decimals
+    assert.strictEqual(M.miniObjects({ tpl: "T03A" }, false).numbers.roundedZero, "plain");
+    assert.strictEqual(M.miniObjects({ tpl: "T04B" }, false).numbers.roundedZero, "plain");
+    assert.strictEqual(M.miniObjects({ tpl: "off" }, false).numbers.roundedZero, undefined);
+    // the property default stays "signed" (reports without a template unchanged)
+    const nc = new M.VisualFormattingSettingsModel().numbersCard;
+    assert.strictEqual(String(nc.roundedZero.value.value), "signed");
 });
 
 test("1.4 gallery: five purpose groups in the owner's order (1.7: balance sheet & cash flow), every template exactly once", () => {

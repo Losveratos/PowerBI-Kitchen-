@@ -6,7 +6,7 @@ Power BI visuals · for admins, IT security, data protection
 
 One page for everyone who has to approve a custom visual: what the visuals do, what they do not do, what is stored in the report, how release through the organizational store works, and where the limits are. Factual and verifiable — every statement can be traced to the source code or to Microsoft's documentation, and the checklist in section 07 walks you through the audit.
 
-As of 23 Nov 2026 · privileges: [] in all three visuals · Source code open · not certified by Microsoft
+As of 25 Nov 2026 · privileges: [] in all three visuals · Source code open · not certified by Microsoft
 
 ## 00 · Summary
 
@@ -22,7 +22,7 @@ Three Power BI custom visuals by Michael Tenner (Daten-WG), developed together i
 
 ### ChartKitchen byDatenWG
 
-- **Version:** `1.57.0.0`
+- **Version:** `1.58.0.0`
 - **API:** `5.11.0`
 - **GUID:** `chartKitchenByDatenWGD9DE0F7AD44D41058672C6FBF6F5A18D`
 - **License:** Apache-2.0 (`LICENSE` + `NOTICE`)
@@ -30,7 +30,7 @@ Three Power BI custom visuals by Michael Tenner (Daten-WG), developed together i
 
 ### P&L Statement byDatenWG
 
-- **Version:** `1.8.3.0`
+- **Version:** `1.8.4.0`
 - **API:** `5.11.0`
 - **GUID:** `pnlByDatenWG3F9A7D2C51E64B08A1C4E7F0B92D6358`
 - **License:** MIT (`LICENSE` in the repository root)
@@ -80,7 +80,7 @@ An empty `privileges` array means: no `WebAccess` (no allowed URLs), no `ExportC
 
 * The single hit in dataKitchenGantt is a comment (`gantt.ts`, line 20: “Rendering per DOM node (textContent, no innerHTML)” — in German in the source), not a call. Further patterns with no hits in all three source trees: `importScripts`, `window.open`, `postMessage`, `createObjectURL`, `new Worker`, `iframe`, `DOMParser`, `document.write`, `insertAdjacentHTML`, `outerHTML`, `navigator.`, `FontFace`. The same twelve patterns (for `<script` without the “src” attribute) also give 0 hits in the **built package** (`.pbiviz`, versions and checksums in the next paragraph); the only URLs in the bundle are the SVG namespace `http://www.w3.org/2000/svg`, the documentation addresses of our website (ChartKitchen, P&L) and the support links in the metadata.
 
-**Audit of 23 Nov 2026 (ChartKitchen 1.57.0.0, P&L Statement 1.8.3.0, dataKitchenGantt 2.3.1.0):** packages and SHA-256: `chartKitchenByDatenWGD9DE0F7AD44D41058672C6FBF6F5A18D.1.57.0.0.pbiviz` `191f3953cf87234f52a0da0088c71b4feac80df9a8e9c337e83c7639e366c345` (identical to the download `chartkitchen-byDatenWG-latest.pbiviz`), `pnlByDatenWG3F9A7D2C51E64B08A1C4E7F0B92D6358.1.8.3.0.pbiviz` `602eb476a82dd298ade42e894d5b13c84714fafc1cbf129a4d4577b67ca303ff`, `dataKitchenGanttD7C41F0A93E24B6BA1F3C5E8A20D9B44.2.3.1.0.pbiviz` `18b00775900892b95dc7feecafc1e39891b67df86f9c297f40393f9f42a1df81`. The hit counts above apply to the source of these versions. In the unpacked bundle: 0 hits for the twelve patterns, `privileges` and `externalJS` empty, no `url()`, `@import` or `@font-face` in the stylesheet; the only URLs in the code are the SVG namespace and, for ChartKitchen and P&L Statement, the two docs addresses each. We did not repeat the offline browser run (next paragraph) for these versions. This is an aid for your own review, not a certification.
+**Audit of 25 Nov 2026 (ChartKitchen 1.58.0.0, P&L Statement 1.8.4.0, dataKitchenGantt 2.3.1.0):** packages and SHA-256: `chartKitchenByDatenWGD9DE0F7AD44D41058672C6FBF6F5A18D.1.58.0.0.pbiviz` `02634042a1e4687845633fd1a7f3b81cd9cb6fcfb58e72fb2e3d159b70f89c21` (identical to the download `chartkitchen-byDatenWG-latest.pbiviz`), `pnlByDatenWG3F9A7D2C51E64B08A1C4E7F0B92D6358.1.8.4.0.pbiviz` `9a171a74c3dad398885e1dd62049ec0d3907bcc641d942ad8de73529d493af64`, `dataKitchenGanttD7C41F0A93E24B6BA1F3C5E8A20D9B44.2.3.1.0.pbiviz` `18b00775900892b95dc7feecafc1e39891b67df86f9c297f40393f9f42a1df81`. dataKitchenGantt is unchanged since the audit of 23 Nov 2026: the checksum matches the file in `dataKitchenGantt/dist`, so the bundle audit from then still applies. The hit counts above apply to the source of these versions. In the unpacked ChartKitchen and P&L Statement bundles: 0 hits for the twelve patterns, `privileges` and `externalJS` empty, no `url()`, `@import` or `@font-face` in the stylesheet; the only URLs in the code are the SVG namespace and the two docs addresses each, plus two support links (GitHub) each in the metadata. According to `npm audit --omit=dev`, the runtime dependencies of both visuals have no known vulnerability. We did not repeat the offline browser run (next paragraph) for these versions. This is an aid for your own review, not a certification.
 
 **Browser run for P&L Statement 1.8.2.0, audit of 22 Nov 2026:** package `pnlByDatenWG3F9A7D2C51E64B08A1C4E7F0B92D6358.1.8.2.0.pbiviz`, SHA-256 `df4fef6e2bf552b60c8e96e64e03ee5a118f85eb182167b26af1dcb6d623d1a7`. The hit counts above also applied to the source of this version (ten files in `src/`). In the unpacked bundle: no network API, no `eval`/`new Function`, no `innerHTML`, `privileges` and `externalJS` empty; the only URLs in the code are the SVG namespace and the two docs addresses, plus two support links (GitHub) in the metadata. The packaged bundle ran in a browser without network through 98 test cases (table, mega table, value driver tree, Sankey, tiles, cross-highlighting, start hub, high contrast, empty data) with 518 clicks: 0 network attempts, 0 console errors; “Open docs” only opened the two fixed addresses. According to `npm audit`, the runtime dependencies have no known vulnerability. Result: no findings with these methods. This is an aid for your own review, not a certification.
 
@@ -205,10 +205,10 @@ Then: upload it as an organizational visual in a test environment, test it with 
 
 - **Contact:** Michael Tenner, Daten-WG · [michael.tenner84@gmail.com](mailto:michael.tenner84@gmail.com?subject=Security%20question%20byDatenWG%20visuals). Also for security findings and for questions from your data protection officer.
 - **Bugs and requests:** issues in the [repository](https://github.com/Losveratos/PowerBI-Kitchen-/issues).
-- **State of this page:** 23 Nov 2026 for versions and package audit, all other details of 23 Oct 2026 · ChartKitchen 1.57.0.0 · P&L Statement 1.8.3.0 · dataKitchenGantt 2.3.1.0. Newer releases carry higher version numbers; audit every file according to section 07.
+- **State of this page:** 25 Nov 2026 for versions and package audit, all other details of 23 Oct 2026 · ChartKitchen 1.58.0.0 · P&L Statement 1.8.4.0 · dataKitchenGantt 2.3.1.0. Newer releases carry higher version numbers; audit every file according to section 07.
 - **Warranty:** The visuals are provided without warranty (license texts in the repository). This page is not a legal assurance but an audit aid.
 
-**Security & deployment · byDatenWG visuals** · as of 23 Nov 2026
+**Security & deployment · byDatenWG visuals** · as of 25 Nov 2026
 
 Documentation: [ChartKitchen](../chartkitchen-doku_en.html) · [P&L Statement](../pnl-doku_en.html) · Quick start: [ChartKitchen](../chartkitchen-schnellstart_en.html) · [P&L](../pnl-schnellstart_en.html)
 

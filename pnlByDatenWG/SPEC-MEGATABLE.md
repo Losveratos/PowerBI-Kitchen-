@@ -220,14 +220,18 @@ schraffierte Flächen tragen zusätzlich 1-px-Kontur in derselben Farbe.
   Pins 3.75 / 5.05 px/%-Pkt.; T04B Wasserfall 9.52 px/kEUR; 12A Wert-Kaskade
   0.25 px/kEUR. (Die Statuszeile im Prototyp zeigt k und Kappung live.)
 - **Überlauf-Grenze / Ausreißer:** Tukey-Zaun auf |Werte| der Familie im Block:
-  `Zaun = Q3 + 4·(Q3 − Q1)`, ab 8 Werten; Kappung je Block = größter |Wert| ≤
+  `Zaun = Q3 + 4·(Q3 − Q1)`, ab 8 Werten (1.8.4: Faktor einstellbar über
+  `columns.capFactor`, Standard 4; Pins abschaltbar über `columns.capPins`); Kappung je Block = größter |Wert| ≤
   Zaun. Seit 1.5 gilt EINE Grenze je Familie für die ganze Tabelle: der größte
   reguläre Wert aller Blöcke (ein Block ohne Ausreißer bringt sein Maximum
   ein). Gekappte Elemente laufen bis `x0 ± Kappung·k`, dann weiter durch die
   **Ausreißerzone** (`max(2·Pfeil, 12 % der Spalte)`), ein Bruchzeichen (zwei
   schräge Striche im Papierton, `data-pnl="mega-break"`) kurz hinter dem
-  regulären Maximum, am Ende die Pfeilspitze (9 px) in Wuchsrichtung, keine
-  Kopf-Marke; die Zahl steht außen hinter der Spitze (UN 5.3). Bis 1.4 endete
+  regulären Maximum, am Ende die Pfeilspitze (9 px) in Wuchsrichtung; die Zahl
+  steht außen hinter der Spitze (UN 5.3). Seit 1.8.4 behält ein gekappter Pin
+  seinen Kopf mit der Szenario-Kennung (AC voll, FC schraffiert, PL hohl) direkt
+  vor der Pfeilspitze, am Ende der Ausreißerzone (`data-pnl="mega-pin-head"`);
+  die Spalte wird dafür nicht breiter. Bis 1.8.3 ersetzte die Spitze den Kopf. Bis 1.4 endete
   das gekappte Element genau beim regulären Maximum, die Zahl stand mit
   Weißhalo auf dem Stiel. Default: an für Pins, aus für Δ-Balken (Schalter).
   Trifft 12A (+983/+391 gekappt, +95 passt), T02A (+16.5 passt), T04 (+25.6
@@ -243,6 +247,9 @@ Stiel 3 px in Gut/Schlecht-Farbe von der Achse bis zur Kopfmitte; Kopf 8 × 8 px
 Quadrat in Tinte (AC voll, FC schraffiert + 1-px-Kontur); Zahl 3 px hinter der
 Kopfkante, ohne „%"-Zeichen (Spaltenkopf trägt „Δ…%"). Wert 0 → Kopf auf der
 Achse, Zahl rechts (T02F „0.0").
+1.8.4: Ist das Δ% nicht aussagekräftig (Referenz 0 oder Vorzeichenwechsel zwischen Wert
+und Referenz), steht statt des Pins „n.a.“ klein, kursiv und grau rechts neben der Achse
+(`data-pnl="mega-na"`); ohne Diagrammbeschriftung entfällt es samt Platz.
 
 ### Kaskaden (Δ-Wasserfall T04, Wert-Kaskade 12A) — eine Funktion
 

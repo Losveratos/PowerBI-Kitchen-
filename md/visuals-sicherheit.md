@@ -6,7 +6,7 @@ Power-BI-Visuals · für Admins, IT-Security, Datenschutz
 
 Eine Seite für alle, die ein Custom Visual freigeben müssen: was die Visuals tun, was sie nicht tun, was im Bericht gespeichert wird, wie die Freigabe im Organisations-Store läuft und wo die Grenzen liegen. Sachlich und prüfbar — jede Aussage ist am Quellcode oder an der Microsoft-Dokumentation nachvollziehbar, die Checkliste in Abschnitt 07 führt Sie durch die Prüfung.
 
-Stand 23.11.2026 · privileges: [] in allen drei Visuals · Quellcode offen · nicht von Microsoft zertifiziert
+Stand 25.11.2026 · privileges: [] in allen drei Visuals · Quellcode offen · nicht von Microsoft zertifiziert
 
 ## 00 · Kurzfassung
 
@@ -22,7 +22,7 @@ Drei Power-BI-Custom-Visuals von Michael Tenner (Daten-WG), gemeinsam in einem �
 
 ### ChartKitchen byDatenWG
 
-- **Version:** `1.57.0.0`
+- **Version:** `1.58.0.0`
 - **API:** `5.11.0`
 - **GUID:** `chartKitchenByDatenWGD9DE0F7AD44D41058672C6FBF6F5A18D`
 - **Lizenz:** Apache-2.0 (`LICENSE` + `NOTICE`)
@@ -30,7 +30,7 @@ Drei Power-BI-Custom-Visuals von Michael Tenner (Daten-WG), gemeinsam in einem �
 
 ### P&L Statement byDatenWG
 
-- **Version:** `1.8.3.0`
+- **Version:** `1.8.4.0`
 - **API:** `5.11.0`
 - **GUID:** `pnlByDatenWG3F9A7D2C51E64B08A1C4E7F0B92D6358`
 - **Lizenz:** MIT (`LICENSE` im Repo-Wurzelverzeichnis)
@@ -80,7 +80,7 @@ Ein leeres `privileges`-Array bedeutet: kein `WebAccess` (keine erlaubten URLs),
 
 * Der eine Treffer in dataKitchenGantt ist ein Kommentar (`gantt.ts`, Zeile 20: „Rendering per DOM-Knoten (textContent, kein innerHTML)“), kein Aufruf. Weitere Muster ohne Treffer in allen drei Quellbäumen: `importScripts`, `window.open`, `postMessage`, `createObjectURL`, `new Worker`, `iframe`, `DOMParser`, `document.write`, `insertAdjacentHTML`, `outerHTML`, `navigator.`, `FontFace`. Dieselben zwölf Muster (bei `<script` ohne das Attribut „src“) ergeben auch im **gebauten Paket** (`.pbiviz`, Versionen und Prüfsummen im nächsten Absatz) 0 Treffer; die einzigen URLs im Bundle sind der SVG-Namensraum `http://www.w3.org/2000/svg`, die Dokumentations-Adressen unserer Website (ChartKitchen, P&L) und die Support-Links in den Metadaten.
 
-**Prüfung vom 23.11.2026 (ChartKitchen 1.57.0.0, P&L Statement 1.8.3.0, dataKitchenGantt 2.3.1.0):** Pakete und SHA-256: `chartKitchenByDatenWGD9DE0F7AD44D41058672C6FBF6F5A18D.1.57.0.0.pbiviz` `191f3953cf87234f52a0da0088c71b4feac80df9a8e9c337e83c7639e366c345` (identisch mit dem Download `chartkitchen-byDatenWG-latest.pbiviz`), `pnlByDatenWG3F9A7D2C51E64B08A1C4E7F0B92D6358.1.8.3.0.pbiviz` `602eb476a82dd298ade42e894d5b13c84714fafc1cbf129a4d4577b67ca303ff`, `dataKitchenGanttD7C41F0A93E24B6BA1F3C5E8A20D9B44.2.3.1.0.pbiviz` `18b00775900892b95dc7feecafc1e39891b67df86f9c297f40393f9f42a1df81`. Die Trefferzahlen oben gelten für den Quellstand dieser Versionen. Im entpackten Bundle: 0 Treffer der zwölf Muster, `privileges` und `externalJS` leer, im Stylesheet kein `url()`, kein `@import` und kein `@font-face`; einzige URLs im Code sind der SVG-Namensraum und bei ChartKitchen und P&L Statement je die zwei Doku-Adressen. Den Browser-Lauf ohne Netzwerk (nächster Absatz) haben wir für diese Versionen nicht wiederholt. Das ist eine Prüfhilfe, keine Zertifizierung.
+**Prüfung vom 25.11.2026 (ChartKitchen 1.58.0.0, P&L Statement 1.8.4.0, dataKitchenGantt 2.3.1.0):** Pakete und SHA-256: `chartKitchenByDatenWGD9DE0F7AD44D41058672C6FBF6F5A18D.1.58.0.0.pbiviz` `02634042a1e4687845633fd1a7f3b81cd9cb6fcfb58e72fb2e3d159b70f89c21` (identisch mit dem Download `chartkitchen-byDatenWG-latest.pbiviz`), `pnlByDatenWG3F9A7D2C51E64B08A1C4E7F0B92D6358.1.8.4.0.pbiviz` `9a171a74c3dad398885e1dd62049ec0d3907bcc641d942ad8de73529d493af64`, `dataKitchenGanttD7C41F0A93E24B6BA1F3C5E8A20D9B44.2.3.1.0.pbiviz` `18b00775900892b95dc7feecafc1e39891b67df86f9c297f40393f9f42a1df81`. dataKitchenGantt ist seit der Prüfung vom 23.11.2026 unverändert: Die Prüfsumme stimmt mit der Datei in `dataKitchenGantt/dist` überein, die Bundle-Prüfung von damals gilt damit weiter. Die Trefferzahlen oben gelten für den Quellstand dieser Versionen. Im entpackten Bundle von ChartKitchen und P&L Statement: 0 Treffer der zwölf Muster, `privileges` und `externalJS` leer, im Stylesheet kein `url()`, kein `@import` und kein `@font-face`; einzige URLs im Code sind der SVG-Namensraum und je die zwei Doku-Adressen, dazu stehen je zwei Support-Links (GitHub) in den Metadaten. Die Laufzeit-Abhängigkeiten beider Visuals haben laut `npm audit --omit=dev` keine bekannte Schwachstelle. Den Browser-Lauf ohne Netzwerk (nächster Absatz) haben wir für diese Versionen nicht wiederholt. Das ist eine Prüfhilfe, keine Zertifizierung.
 
 **Browser-Lauf für P&L Statement 1.8.2.0, Prüfung vom 22.11.2026:** Paket `pnlByDatenWG3F9A7D2C51E64B08A1C4E7F0B92D6358.1.8.2.0.pbiviz`, SHA-256 `df4fef6e2bf552b60c8e96e64e03ee5a118f85eb182167b26af1dcb6d623d1a7`. Die Trefferzahlen oben galten auch für den Quellstand dieser Version (zehn Dateien in `src/`). Im entpackten Bundle: keine Netzwerk-API, kein `eval`/`new Function`, kein `innerHTML`, `privileges` und `externalJS` leer; einzige URLs im Code sind der SVG-Namensraum und die zwei Doku-Adressen, dazu stehen zwei Support-Links (GitHub) in den Metadaten. Das gepackte Bundle lief in einem Browser ohne Netzwerk durch 98 Testfälle (Tabelle, Mega-Tabelle, Treiberbaum, Sankey, Kacheln, Kreuz-Hervorhebung, Start-Hub, Hochkontrast, leere Daten) mit 518 Bedienklicks: 0 Netzwerkversuche, 0 Konsolenfehler; „Doku öffnen“ rief nur die zwei festen Adressen auf. Die Laufzeit-Abhängigkeiten haben laut `npm audit` keine bekannte Schwachstelle. Ergebnis: keine Auffälligkeiten mit diesen Methoden. Das ist eine Prüfhilfe, keine Zertifizierung.
 
@@ -205,10 +205,10 @@ Danach: in einer Testumgebung als Organisationsvisual hochladen, mit den Tenant-
 
 - **Kontakt:** Michael Tenner, Daten-WG · [michael.tenner84@gmail.com](mailto:michael.tenner84@gmail.com?subject=Sicherheitsfrage%20byDatenWG-Visuals). Auch für Sicherheitsfunde und für Fragen des Datenschutzbeauftragten.
 - **Fehler und Wünsche:** Issues im [Repository](https://github.com/Losveratos/PowerBI-Kitchen-/issues).
-- **Stand dieser Seite:** 23.11.2026 für Versionen und Paketprüfung, die übrigen Angaben vom 23.10.2026 · ChartKitchen 1.57.0.0 · P&L Statement 1.8.3.0 · dataKitchenGantt 2.3.1.0. Neuere Releases tragen höhere Versionsnummern; prüfen Sie jede Datei nach Abschnitt 07.
+- **Stand dieser Seite:** 25.11.2026 für Versionen und Paketprüfung, die übrigen Angaben vom 23.10.2026 · ChartKitchen 1.58.0.0 · P&L Statement 1.8.4.0 · dataKitchenGantt 2.3.1.0. Neuere Releases tragen höhere Versionsnummern; prüfen Sie jede Datei nach Abschnitt 07.
 - **Gewährleistung:** Die Visuals werden ohne Gewähr bereitgestellt (Lizenztexte im Repository). Diese Seite ist keine Zusicherung im Rechtssinn, sondern eine Prüfhilfe.
 
-**Sicherheit & Betrieb · byDatenWG-Visuals** · Stand 23.11.2026
+**Sicherheit & Betrieb · byDatenWG-Visuals** · Stand 25.11.2026
 
 Dokumentation: [ChartKitchen](../chartkitchen-doku.html) · [P&L Statement](../pnl-doku.html) · Schnellstart: [ChartKitchen](../chartkitchen-schnellstart.html) · [P&L](../pnl-schnellstart.html)
 

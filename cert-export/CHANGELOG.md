@@ -1,5 +1,215 @@
 # Changelog · ChartKitchen byDatenWG
 
+## 1.58.0.0 (2026-11-25, Welle 1 aus dem Template-Prüfstand: Notation und KPI-Karten)
+
+- **1 · FC-Pinköpfe schraffiert statt hohl.** Vorher: Δ%-Pins an Forecast-Perioden hatten einen hohlen Kopf; hohl ist
+  aber die Plan-Kennung. Nachher trägt der Kopf eine feine FC-Schraffur (Periode 2,4 px, Strich 1,3 px, Rand in Tinte).
+  Das Säulenmuster (Periode 5 px) ließ Köpfe mit Radius 2,5 bis 4,5 px leer oder als einzelnen Strich („⊘“) erscheinen,
+  deshalb das feinere Muster; es wird erst beim ersten FC-Kopf oder FC-Punkt angelegt, Charts ohne FC bleiben
+  SVG-gleich. Gilt für Säulen, Balken, Linie und Wasserfall (erste und zweite Basis, Jahressäule mit AC&FC, Δ%-Stufe
+  des Wasserfalls) und für die Δ%-Pins der Tabelle. FC-Punkte (Kreise) der Linie, der R12-Linie, von Dumbbell und
+  Slope sind ebenfalls fein schraffiert statt hohl, die FC-Marken der Serienlinien (C22) in der Farbe ihrer Serie
+  (bei Marken bis 5 px mit Periode 1,8 px, sonst nur ein Strich; im Hochkontrast bleiben diese hohl wie bisher); Linie,
+  R12, Dumbbell und Slope **auch im Hochkontrast** (diese Marken hatten nie einen eigenen
+  Hochkontrast-Zweig). **Bestehende Berichte:** FC-Köpfe und FC-Punkte sehen anders aus (Notationskorrektur).
+- **2 · Pinköpfe szenariocodiert, nur der Stiel in Abweichungsfarbe.** Vorher: Säulen, Balken, Linie und Wasserfall
+  färbten den Kopf grün bzw. rot (bei unwesentlichen Abweichungen grau), der Stiel war 1,6 px breit. Nachher wie in
+  Tabelle und Brücken: Kopf AC dunkel gefüllt (Tinte), FC fein schraffiert, Plan gegen Plan (Blatt 13C, `var-plan`)
+  hohl mit Tintenrand; der Stiel bleibt grün, rot oder grau und ist jetzt 2 px breit wie die Pins der Tabelle (Stufe
+  des Wasserfalls mit Full-HD-Schrift wie bisher etwas breiter). Bei kurzen Pins wird der Kopf kleiner, damit mindestens
+  3 px farbiger Stiel sichtbar bleiben (Untergrenze 2 px); das gilt auch für die Δ%-Pins der Tabelle. Bleibt
+  trotzdem weniger als 3 px farbiger Stiel (Pin kürzer als Kopf + 3 px, etwa ±0,3 % neben einem 20-%-Ausreißer,
+  Small Multiples 4 × 12 auf 960 × 560 oder die Δ%-Stufe eines flachen GuV-Wasserfalls), trägt die Δ%-Beschriftung
+  dieses Pins die Abweichungsfarbe (gut/schlecht; unwesentlich und null bleiben in Tinte), wie in der Kompakt-Kachel;
+  die Kopfkennung bleibt. Gilt für erste und zweite Basis, Stufe, Jahressäule und Tabelle, rund und eckig, nicht im
+  Hochkontrast (`pinLabelInk`). Der FC-Referenzpunkt der KPI-Trendlinie ist ebenfalls fein schraffiert statt hohl. Beides gilt für
+  runde und eckige Köpfe gleich: `chart.pinStyle` (Automatisch, Rund, Quadratisch, Standard Automatisch) bleibt
+  unverändert wählbar. Neue Methoden `pinHeadScen(cfg, "ac" | "fc" | "pl")` und `pinHeadR(r, Länge)`, Kopf mit
+  `data-pin` (Testmarker). **Hochkontrast unverändert:** dort trägt der Kopf weiter gut/schlecht (gefüllt/hohl), weil gut
+  und schlecht im Hochkontrast dieselbe Farbe haben; FC-Köpfe bleiben dort hohl, Stiel 1,6 px. **Bestehende Berichte:**
+  alle Δ%-Pins in Säulen, Balken, Linie, Wasserfall und Jahressäule zeigen dunkle Köpfe und breitere Stiele
+  (Notationskorrektur).
+  - **Liest die Beschriftung null** („0,0%“ mit `plain`, „−0,0%“ mit `signed`), bleibt sie auch am kurzen Pin in Tinte:
+    die Farbe folgt der gedruckten Zahl, nie Rot oder Grün neben einer Null.
+  - **Alte Anzeige wählbar:** neue Property `chart.pinHeadColor` (Gruppe „Darstellung“, „Kopf der Δ%-Pins“, `scenario`
+    | `variance`, Standard `scenario`). `variance` stellt den Kopf von 1.57 in der Abweichungsfarbe her (Stiel 1,6 px,
+    Kopf nicht verkleinert, keine farbige Beschriftung kurzer Pins), FC dabei in der Abweichungsfarbe fein schraffiert
+    statt hohl, und färbt wie Stand B auch die Köpfe in Tabelle, Integrierter Brücke, Kategorie-Brücke und GuV. Die
+    Kopfform (`chart.pinStyle`) bleibt davon unabhängig. Keine Vorlage schreibt die Property. Hochkontrast unverändert.
+  - **Brücken und GuV:** FC-Köpfe der Integrierten Brücke (C05), der Kategorie-Brücke (C06, C17) und des
+    GuV-Statements (Sicht AC&FC) tragen jetzt die feine Schraffur statt des 5-px-Musters, das sie leer erscheinen ließ;
+    die Kategorie-Brücke kennzeichnet FC-Zeilen damit erstmals am Kopf. AC-Köpfe dort bleiben bytegleich.
+- **3 · Abweichungsachse der Tabelle nach Basis (C14 bis C16).** Vorher: die Achsen der Spalten Δ, Δ % und der
+  zweiten Δ-Spalte waren immer eine graue 2-px-Linie. Nachher wie die Δ-Panels der Säulen: Basis PL Doppellinie,
+  Basis FC Vormonat (`fcrev`) gestrichelte Doppellinie, Basis PY grau wie bisher (SVG-gleich), Ø-Basis grau für die
+  erste Δ-Spalte; die zweite Δ-Spalte folgt der zweiten Basis (wie die Säulen, auch unter der Ø-Basis). An einer
+  Doppellinie beginnen die Δ-Balken an ihrer Außenkante (2,2 px statt 1 px neben der Achse, positiv und negativ gleich,
+  mindestens 1 px breit): ein positiver Balken verdeckt die rechte Linie nicht mehr, und kleine Balken (−0,4 bis −21 in
+  C14) bleiben sichtbar; ein Papierstreifen über den Balken, wie er im ersten Stand kleine Balken verschluckte, entfällt.
+  Ein Δ von genau null zeichnet an der Doppellinie keinen Balken (an der grauen PY-Achse wie bisher den 1-px-Strich).
+  Länge und px je Einheit unverändert. Testmarker `table-var-axis` (`data-basis`). Auch im Hochkontrast (Doppellinie in der
+  Hochkontrastfarbe). **Bestehende Berichte:** Tabellen gegen Plan oder FC zeigen die Doppellinie (Notationskorrektur),
+  gegen PY keine Änderung.
+- **4 · Scatter ohne „Scatter · AC × …“ und ohne „AC“.** Neue Properties im Objekt `chart`, Gruppe „Scatter / Bubble“:
+  `scatterTypeTitle` (Charttyp im Paneltitel, Standard aus) und `scatterScenarioTag` (Szenario an der Y-Achse und im
+  automatischen Titel, Standard aus). Vorher stand über jedem Scatter „Scatter · AC × X-Name“, an der Y-Achse
+  „Name (AC)“ und im automatischen Diagrammtitel „Name · AC“; bei einer Abweichungsachse (C18: ΔPL % als Measure) ist
+  „AC“ falsch. Übrige Titelteile (○ Blasengröße, Farbe = Δ, Punkte außerhalb) bleiben; ohne Measure-Namen steht das
+  Kürzel an der Y-Achse weiter allein; ein selbst gesetzter Zeitraum im IBCS-Titel bleibt unberührt. Die Titelzeile
+  behält ihre Höhe, die Plotfläche verschiebt sich nicht. Vorlagen C09, C10, C18, C23, C24 setzen beide ausdrücklich
+  aus. **Bestehende Berichte (Entscheidung: Standard aus für alle):** jeder Scatter und jede Bubble ohne gesetzte
+  Property verliert den grauen Typ-Titel und das „AC“ an Y-Achse und automatischem Titel. Wer beides behalten will,
+  schaltet die zwei Schalter an.
+- **5 · Technische Paneltitel aus.** Neue Property `chart.panelTypeTitles` (Gruppe „Darstellung“, Standard aus,
+  sichtbar bei Säulen, Balken und Integrierter Brücke). Aus heißt: kein „AC · gestapelt“ über gestapelten Säulen,
+  Balken und Flächen (bei gemischten Szenarien bleiben die Kürzel „AC · FC“, bei 100 % bleibt „Anteile in %“), keine
+  Leseanleitung „Werte · Länge = Anteil, Dicke = Summe“ im Marimekko, „PY → AC/FC“ statt „PY → AC/FC · Brücke +
+  Monatssäulen“ in der Integrierten Brücke (Faktor und Achsenschnitt bleiben). Szenario- und Abweichungstitel (ΔPY,
+  ΔPL %) bleiben immer. Der Platz der Titelzeile bleibt (keine Skala verschiebt sich). Vorlagen C01, C02, C05, C07,
+  C25 setzen den Schalter ausdrücklich aus. Pareto, Dumbbell und der Wasserfall („PY → AC“) sind nicht betroffen.
+  **Bestehende Berichte (Entscheidung: Standard aus für alle):** diese Untertitel verschwinden in jedem Bericht ohne
+  gesetzte Property; mit dem Schalter an sieht alles aus wie in 1.57.
+- **10 · Gerundete Null ohne Vorzeichen in allen Vorlagen.** Neue Property `labels.roundedZero` (`signed` | `plain`,
+  Standard `signed`), wie `numbers.roundedZero` im P&L-Visual. `plain`: ein Δ, das nicht null ist, aber auf null
+  rundet, druckt ohne Vorzeichen und ohne Finanzklammer („0,00M“, „0,0%“, „0,0Pp“, „0%“ statt „+0,00M“, „−0,0%“,
+  „(0,00M)“, „+0%“); exakte Nullen hatten nie ein Vorzeichen, mit `plain` entfällt auch das „±“ des GuV-Statements.
+  Wirkt in `fmtSigned` und `fmtPercent` (alle Δ-, Δ %- und Netto-Beschriftungen), in den Pp- und Rundungs-Texten von
+  Tabelle und Matrix, in Pp und ganzzahligem Δ % des GuV-Statements, im Index-Δ der Serienlinien (dort war die
+  gerundete Null schon immer ohne Vorzeichen) und in den Pp-Labels der Differenzmarker. **Alle Vorlagen** (C01 bis
+  C25) setzen `plain` (im selben Merge als Objekt `labels`). Exportiert für eigene Texte: `deltaSign(v, body, plain)`
+  und `Visual.roundedZeroPlain()`. Die KPI-Karten nutzen das nicht: sie drucken eine gerundete Null immer ohne
+  Vorzeichen (`Visual.unsignZero`), unabhängig von `labels.roundedZero`. **Bestehende Berichte:** keine Änderung (Standard `signed`); Berichte, die eine
+  Vorlage schon angewandt haben, bekommen `plain` erst beim erneuten Anwenden. Der Chip „↺ Zum Template zurück“
+  erscheint dadurch nicht: Schlüssel, die eine Vorlage erst in 1.58 bekommen hat (`panelTypeTitles`,
+  `scatterTypeTitle`, `scatterScenarioTag`, `labels.roundedZero`), zählen nicht als Abweichung, solange sie den
+  Pane-Standard tragen (`TPL_SINCE_158`).
+- **Tests:** neue Stufen c1000 bis c1033 (Pinköpfe C03, C04, C12, C19, zweite Basis, Hochkontrast, Linie, Tabelle;
+  Δ-Achsen der Tabelle mit PL, PY, fcrev und zweiter Basis; Scatter C18, C09 und mit beiden Schaltern an samt
+  gleicher Achsenlage; Typ-Titel C01, C05, C25, C07, 100-%-Balken mit gleicher Geometrie; gerundete Null C04, C14,
+  direkt gesetzt, `deltaSign`) und c1040 bis c1062 nach dem Review (24 Säulen mit r = 2,5 rund und eckig samt
+  Pixelprobe in `test/shot.js`, die die Stufe im Browser 4-fach rastert und in jedem FC-Kopf dunkle Pixel verlangt;
+  kurze Pins rund und eckig; eckige Köpfe zweite Basis, Jahressäule, runde Köpfe Tabelle, eckiger Plan-Kopf;
+  Dunkelmodus; Small Multiples mit Re-Render; Export; Bestandsberichte C14 und C01 ohne Chip, echte Abweichung mit
+  Chip; GuV-Statement signed und plain; negative gerundete Null; Finanzformat; Pp in der Tabelle) und c1063 bis
+  c1066 nach der zweiten Prüfung (Small Multiples 4 × 12, GuV-Wasserfall 960 × 420, zweite Basis und Jahressäule mit
+  kleinen Δ, FC-Referenzpunkt der KPI-Trendlinie; Prüfung „Abweichungsfarbe am Pin oder an seiner Beschriftung“ auch an
+  c1000, c1001, c1003, c1004, c1042 bis c1044, c1046, c1048; c1040/c1041 jetzt mit ungekapptem r = 2,5), dazu Prüfungen an
+  c600, c701, c1002 (genau 7 Köpfe) und c1005 (genau 7 hohle Köpfe, Stiel 1,6 px). Angepasst: c278c, c829, c976
+  (prüfen den Typ-Titel und schalten ihn dafür an), c959 (Paneltitel über „○“), Notation Punkt 7 (B5b findet die
+  Beschriftung über „PY → AC“), c262 (drei Merge-Einträge: chart, scale, labels), c195, c222, c223, c229 (das
+  Host-Echo enthält jetzt auch das Objekt `labels`, wie es Power BI zurückgibt). Runde 3 (Stand B portiert): c1070
+  bis c1084 (`pinHeadColor = variance` rund und eckig, kurze Pins, Tabelle, C05, C06, GuV, Hochkontrast; feine
+  FC-Schraffur in C05 und GuV; kleine Δ-Balken der Tabelle an der Doppellinie, PY bytegleich; Beschriftung „−0,0%“ und
+  „0,0%“ in Tinte; Knöpfe in Small Multiples und neben aktivem Kommentar-Modus in eigener Kopfzeile), kpi58p bis kpi58r
+  (eigene Kopfzeile bei langem Titel, „+1 Δ“ flach, „+2 Δ“ gestapelt), Export-Zwillinge kpi58fx, kpi58lx, kpi58mx;
+  geschärft: Knöpfe überdecken in keiner kpi58-Stufe eine Karte (statt nur keine Δ-Zeile); angepasst: c868 (FC-Marken
+  schraffiert statt hohl), c1010 (Balken an der Außenkante statt Papierstreifen). Runde 3b: c1090 bis c1101 (ohne Titel
+  1240 × 72, 800 × 56, 800 × 44, 800 × 70 mit Brücke, 760 × 150: kein Kartentext unter dem Rand, kein Knopf über Text;
+  960 × 220 mit Kopfzeile; Kacheln mit Knöpfen im Kachelkopf; Modus-Chip ohne Titel; Δ = 0 ohne Balken; C22 im
+  Hochkontrast; „+n“ mit Referenzwerten, aria-label und Fokus; Marke in 34-px-Karten), c868 prüft die Periode 1,8 px;
+  angepasst c1083 (Knöpfe im Kachelkopf statt Kopfzeile) und kpi58 „Δ-Block überdeckt den Wert nicht“ (findet den Wert
+  als zweiten Text der Karte, weil sehr niedrige Karten ihn verkleinern). Runde 3c: c1110 bis c1122 (Ausnahmeknopf in
+  der Kartenecke 800 × 56, 800 × 44, 800 × 70 mit Brücke, 400 × 400 Full HD; Kommentar-Modus ohne Titel 1240 × 72,
+  800 × 70, 760 × 150, 900 × 64 mit Band; gestapelt 900 × 64 und 520 × 70; „+n Δ“ gestapelt am Kartenrand − 8 px wie in
+  391d04f; 8 Kacheln mit Kommentar-Modus; 22-px-Karten), jeweils mit der Abnahme des Reviews: kein Knopf über Text oder
+  Knopf, jeder Knopf klickbar, kein Kartentext außerhalb der Karte. Messung des Reviews über 397 Fälle: 46 statt 120
+  Befunde, keiner mehr mit Knopf über Text außer zwei Altfällen mit Titel (800 × 44 mit Titel, Modus-Chip über
+  langem Titel). 1009 resjson-Keys je Sprache.
+
+### KPI-Karten
+
+Befund des Template-Prüfstands (Kartenband aller 47 Showcase-Seiten), Punkte 1, 3, 4, 5 und 6, mit den Korrekturen
+aus dem unabhängigen Review. Keine neue Property.
+
+- **Δ-Block an fester x-Position (Prüfstand 1).** Vorher hing der Δ-Block im flachen Layout an Titel- und Wertbreite
+  der einzelnen Karte, jede Karte begann ΔPL/ΔPY an anderer Stelle, die Reihe wirkte ausgefranst. Nachher rechnet
+  `renderCards` die Texte aller Karten vorab (`cardModel`) und setzt den Δ-Block aller Karten an dieselbe relative x:
+  hinter die breiteste Titel- oder Wertspalte des Kartenbands (Titel höchstens 170 px·k, gekürzt), aber nicht weiter,
+  als der Δ-Block jeder Karte noch passt (mit 5 px·k Reserve, die Wertbreite ist geschätzt), und nie enger als der
+  breiteste Wert (der Wert wird nicht gekürzt). Die Label-Spalte („ΔPY“) hat eine Breite für alle Karten, die
+  Δ-Werte stehen untereinander. Passt der Block einer Karte nicht, entfällt er wie bisher. Ein Bullet beginnt
+  einheitlich hinter dem breitesten Δ-Block, Brücke und Trend bleiben rechtsbündig.
+- **Inhalt über die Kartenbreite (Prüfstand 6).** Ist rechts nichts zu zeichnen (Balken aus oder ohne Basis, kein
+  Trend, kein Bullet), rückt der Δ-Block Richtung Kartenmitte statt direkt hinter dem Wert zu stehen. Gedeckelt:
+  höchstens bis zur Kartenmitte, höchstens 120 px·k hinter die Wertspalte (eine breite Karte reißt Wert und Δ nicht
+  auseinander) und nie über den rechten Rand. Mit Brücke, Trend oder Bullet bleibt er hinter der Wertspalte.
+- **Sortier- und Ausnahmeknopf mit eigenem Platz (Prüfstand 2, wie Stand B Punkt 8).** Vorher lagen die Knöpfe über
+  der letzten Karte und konnten den Δ-Block berühren. Nachher, in dieser Reihenfolge (Marker `card-chip-row`,
+  `data-place`):
+  - `title`: rechts in der Titelzeile des Visuals, wenn das Visual einen Titel hat, keine Small Multiples zeigt, kein
+    Modus-Chip (Kommentar, Struktur, Vergleich) aktiv ist und Titel und Botschaftszeile vor beiden Knöpfen enden
+    (`titleRightX`).
+  - `tile`: bei Small Multiples kompakt (14 px hoch) im Kachelkopf links vom ⤢, über dessen Klickfläche gezeichnet
+    (bleiben klickbar), der Kacheltitel wird davor gekürzt; die Klickfläche des Kacheltitels endet jetzt mit dem
+    Kopf (reichte 3 px in die Kachel). Vorher bekam jede Kachel eine zweite Kopfzeile, die Werte ragten unter den Rand.
+  - `strip`: eigene Kopfzeile der Kachel (18 px + 4 px), die Karten rücken darunter, aber nur, wenn die Karten danach
+    noch die Höhe ihres Layouts haben (flach mindestens 52 px·k bzw. Titel + Wert + 16 px·k, gestapelt Titel, Wert
+    und erste Δ-Zeile).
+  - `card`: sonst kompakt in der rechten oberen Ecke der letzten Karte der ersten Reihe; Δ-Block, Mini-Brücke,
+    Trend, Kommentarnummer, „+n Δ“ und (gestapelt) der Kartentitel der darunter liegenden Karten weichen nach links
+    aus. Reicht das nicht, zeigen die Knöpfe nur „↕“ und „⚠“ (`data-icons`); reicht auch das nicht, zeigen die
+    Karten unter den Knöpfen ihr Δ ohne den Δ %-Teil (voller Text als Tooltip der Zeile), gestapelte Karten
+    verzichten notfalls auf den Ausnahmeknopf (er bleibt im Formatbereich).
+  - `band`: ohne Titel und mit aktivem Modus-Chip (Kommentar, Struktur, Vergleich) reserviert das Visual oben ein
+    Band (6 + 18 + 4 px·k), der Chip liegt dort frei und klickbar, Sortier- und Ausnahmeknopf links davon. Gilt auch
+    für Small Multiples (der Chip lag dort über dem ⤢ der rechten oberen Kachel).
+  Ein aktiver Modus-Chip schiebt die Knöpfe nach links, wenn sie auf seiner Höhe liegen. Karten, die für ihren Inhalt
+  zu niedrig sind, verkleinern erst den Wert (flach und gestapelt), dann rücken Titel und Wert eng zusammen, zuletzt
+  steht der Wert allein (der Titel bleibt im Tooltip); bisher ragten Wert und Titel unter den Rand (z. B. 800 × 44,
+  900 × 64 gestapelt, ein Band 1240 × 72 mit Titel). Die Breite der Wertspalte rechnet mit dem verkleinerten Wert.
+  Export ohne Knöpfe unverändert.
+- **Verdeckte Δ-Zeilen werden gezählt (wie Stand B Punkt 12).** Zeilen ohne Platz (mehr als zwei Zeilen im flachen
+  Streifen, niedrige Karte, Block passt nicht) entfallen nicht mehr still: „+n Δ“ steht bei flachen Karten über dem
+  Δ-Block (nie über dem oberen Kartenrand), sonst oben rechts in der Karte, mit Tooltip der verdeckten Zeilen
+  („ΔBM −0,1M€ · −0,5%; …“, `data-icd="card-more"`, `data-n`) und demselben Text als `aria-label`; interaktiv per
+  Tastatur erreichbar, im Export sichtbar ohne Fokus. Sind Referenzwert-Zeilen dabei (`cardRefValues`), heißt die
+  Marke neutral „+n“. Leere Rasterplätze zählen nicht; „PY n.a.“ zählt als Zeile. Ist über dem Δ-Block kein Platz
+  (sehr niedrige Karte) oder liegen dort die Knöpfe, steht die Marke rechts neben dem Block; passt sie auch dort
+  nicht, entfällt sie (der Tooltip der Karte nennt alle Zeilen). Zeilenraster,
+  „PY n.a.“ und die Regel zur gerundeten Null in Karten bleiben wie oben.
+- **Keine gerundete Null mit Vorzeichen (Prüfstand 3).** Vorher „+0,0M€ · +0,1%“, „−0 · −0,6%“. Nachher druckt eine
+  Zahl, die ungleich 0 ist, aber auf 0 rundet, in den Karten immer ohne Vorzeichen (Entscheidung des Autors, keine
+  Option): „0,0M€ · +0,1%“, „0 tCO2“, im Finanzformat „0,0M€“ statt „(0,0M€)“. Geprüft wird nur der Zahlteil, Ziffern
+  in Einheiten („tCO2“, „m2“) zählen nicht. Eine exakte Null wie bisher. Die Karten tun das unabhängig von
+  `labels.roundedZero`; Δ-Beschriftungen in Diagrammen und Tabelle folgen `labels.roundedZero` (Standard `signed` mit
+  Vorzeichen wie seit 1.52.2, alle Vorlagen `plain`, siehe Punkt 10).
+- **Farbe bleibt am echten Δ.** Farbe, Pfeil (`deltaIcons`), Statusstreifen und Hintergrund-Tönung folgen wie bisher
+  dem ungerundeten Δ (Wesentlichkeit, Hervorhebungsfilter). Neutral grau mit ● wird eine Zeile zusätzlich nur, wenn
+  alles Sichtbare null liest: der Δ und sein Δ% (fehlt, n.a. oder ebenfalls 0,0 %). „0,0M€ · +10,0%“ bei fester
+  Einheit Mio. bleibt also grün bzw. rot, „0,0M€ · 0,0%“ wird grau.
+- **Einheitliches Minuszeichen (Prüfstand 4).** Der große Kartenwert, Referenzwert-Zeilen („PY 45.200“) und die
+  Trend-Beschriftung nutzen bei negativen Werten das typografische Minus U+2212 wie die Δ-Zeilen („−4,2M€“ statt
+  „-4,2M€“). Ersetzt wird nur das Vorzeichen: ein Bindestrich am Anfang oder direkt vor der Ziffer hinter einem
+  Währungszeichen. Textpräfixe und Einheiten bleiben („Non-GAAP 1.200“, „−Non-GAAP 300“).
+- **Zeilenraster und fehlende Basis (Prüfstand 5).** Alle Karten eines Bands teilen ein Zeilenraster aus den Zeilen,
+  die irgendeine Karte zeigt (Referenzwerte zuerst, dann ΔPL/ΔPY/ΔBM in fester Reihenfolge, mit Status-Basis Benchmark
+  ΔBM vorn). Fehlt einer Karte eine Basis, nennt sie sie an ihrem Platz grau: „PY n.a.“ bzw. „PL n.a.“ ohne Δ (Showcase
+  11A, Jahr 2024: vorher nur Titel und Wert). Mit Referenzwerten steht „PY n.a.“ in der PY-Wertzeile, die ΔPY-Zeile
+  bleibt frei. Zeigt im flachen Layout eine Karte zwei Zeilen, liegen die Zeilen aller Karten auf denselben zwei
+  Grundlinien; sonst bleibt die eine Zeile mittig wie bisher.
+- **Wirkung auf bestehende Berichte:** Alle KPI-Karten im flachen Layout zeigen den Δ-Block an neuer Position, bei
+  ausgeschalteten Balken weiter rechts (gedeckelt). Gerundete Nullen verlieren das Vorzeichen (Klammern im
+  Finanzformat), werden aber nur grau, wenn auch das Δ% null liest. Negative Kartenwerte zeigen „−“. Karten ohne eine
+  Basis zeigen „PY n.a.“ bzw. „PL n.a.“ im Zeilenraster der Nachbarn. Im Stapel-Layout ändern sich nur die Breite der
+  Label-Spalte und die n.a.-Zeilen.
+- Tests: neue Stufen kpi58a bis kpi58o (flacher Streifen mit und ohne Brücke, Jahreskarten wie 11A, fehlender Plan,
+  Stapel-Layout, schmal, breit, feste Einheit Mio. mit Tönung und Pfeilen, Finanzformat, Textpräfix „Non-GAAP“,
+  Einheit „tCO2“, Sortierknopf bei 5 Karten auf 1320×96 und 4 Karten auf 1240×72, eine Karte auf 1560 px,
+  Referenzwerte „Basiswert“). Geprüft: gleiche x-Position von Δ-Block und Δ-Werten, Block gezeichnet und ohne
+  Überlappung mit dem Wert, kein Überdecken durch den Sortierknopf (wo es nicht vermeidbar ist, bleibt der Block
+  direkt hinter der Wertspalte), Abstand höchstens 170 px bei einer Karte, keine
+  Null mit Vorzeichen oder in Klammern, nur U+2212 außer im Textpräfix, Farbe von Zeile, Streifen und Tönung bei
+  „Δ rundet auf null, Δ% deutlich“ und bei „alles null“, Position der n.a.-Zeilen.
+- Bildschirm und Export (der Export zeichnet keine Knöpfe): Titelzeile und Kachelkopf ändern die Karten nicht,
+  Bildschirm und Export sind gleich (geprüft an kpi58f, kpi58l, kpi58m gegen Export-Zwillinge). Mit eigener Kopfzeile
+  sind die Karten am Bildschirm 22 px niedriger als im Export. In der Kartenecke (niedrige Kacheln ohne Titel) weicht
+  der Δ-Block der Karten unter den Knöpfen am Bildschirm nach links aus, im Export nicht; dort sind Bildschirm und
+  Export also nicht deckungsgleich.
+- Offen (Backlog): Kommentarnummer der Karte kann bei sehr schmalen Karten auf Δ-Text oder Titel liegen; Modus-Chip
+  über einem langen Titel (Altbestand); lange Kacheltitel werden neben den Knöpfen im Kachelkopf gekürzt; Karten unter
+  etwa 10 px Höhe (sehr niedrige Kachel mit Titel) bleiben unlesbar; Kleinteile (8); `fmtSigned` erkennt eine Null mit Ziffer in der Einheit nicht („+0 tCO2“ in Diagrammen,
+  Altbestand).
+
 ## 1.57.0.0 (2026-11-22, Backlog IBCS-Templates Teil 4)
 
 - **B24 · Feste Spaltenzahl für Small Multiples (nach IBCS-Blatt 10G).** Vorher: Das Raster wählte die Spaltenzahl

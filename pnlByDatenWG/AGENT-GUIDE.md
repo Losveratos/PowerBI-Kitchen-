@@ -11,7 +11,7 @@ Fallen. Menschen lesen besser [README.md](README.md) und
 Geometrie und Notation des Mega-Tables: [SPEC-MEGATABLE.md](SPEC-MEGATABLE.md).
 Vorbild dieser Datei: `../ibcsInspiredChartDeck/AGENT-GUIDE.md` (ChartKitchen).
 
-Stand: **1.8.3.0** (22.11.2026). Bei Versionssprüngen: CHANGELOG.md zuerst lesen.
+Stand: **1.8.4.0** (25.11.2026). Bei Versionssprüngen: CHANGELOG.md zuerst lesen.
 
 ## Steckbrief
 
@@ -19,7 +19,7 @@ Stand: **1.8.3.0** (22.11.2026). Bei Versionssprüngen: CHANGELOG.md zuerst lese
 | --- | --- |
 | GUID | `pnlByDatenWG3F9A7D2C51E64B08A1C4E7F0B92D6358` |
 | visual.json `visualType` | GUID wie oben (Import ersetzt ältere Version automatisch) |
-| Paket | `dist/pnlByDatenWG3F9A7D2C51E64B08A1C4E7F0B92D6358.1.8.3.0.pbiviz` |
+| Paket | `dist/pnlByDatenWG3F9A7D2C51E64B08A1C4E7F0B92D6358.1.8.4.0.pbiviz` |
 | API | `powerbi-visuals-api` 5.11 |
 | Datenfenster | `dataReductionAlgorithm window 30000` Zeilen; weitere Segmente lädt das Visual per `fetchMoreData` nach (Ladebalken + „≈" an Summen, bis alles da ist) |
 | Fähigkeiten | Tooltips (default + canvas) · Tastaturfokus · Landing Page · Multi-Visual-Selektion · `supportsHighlight: true` (1.7: nur der Sankey zeigt eine Markierung anderer Visuals im Gesamt, alle anderen Ansichten verhalten sich wie gefiltert — Falle 22) |
@@ -102,7 +102,14 @@ Ansicht, sondern ein Template der Tabelle — `viewTable` gilt für beide.
 - Ab 150 sichtbaren Zeilen zeichnet der Mega-Table nur das Fenster um den Viewport
   (+30 Zeilen Puffer); Export zeichnet immer alles.
 
-## Settings-Referenz (aus Settings-Modell + capabilities.json generiert, 1.8.3.0)
+## Settings-Referenz (aus Settings-Modell + capabilities.json generiert, 1.8.4.0)
+
+**Neu in 1.8.4** (Notationskorrekturen Welle 1, 25.11.2026): `columns.capPins` (bool, Standard
+an) und `columns.capFactor` (numeric, Standard 4, 1 bis 20) direkt nach `capBars` in der Gruppe
+Mega-Table. Keine neue Rolle, kein neuer Zustand. Mit den Standards rendert ein Bericht wie 1.8.3,
+bis auf die Korrekturen der Falle 29 (Δ% n.a. über die Null, Schwellen-Rot auf der gedruckten
+Zahl, Kopf gekappter Pins auch in der klassischen Tabelle, Zahlen folgen einem Sprachwechsel des Hosts,
+`roundedZero = plain` in allen Templates). Neuer Text `UI_RelNa` („n.a.“).
 
 **Neu in 1.7** (Bestand vs. Fluss, in Arbeit): Objekt **`statement`** mit
 `stockMode` (`auto` · `allStock` · `allFlow`, Standard `auto`, eigene Karte
@@ -245,7 +252,9 @@ Enums als String-Wert aus der Tabelle. Leere Texte = Automatik.
 | `thresholdYtdPct` | numeric | `-10` | Schwelle Δ% (_YTD-Block): Schwelle des zweiten Blocks, in ganzen Prozent. Standard: −10 |
 | `scenarioMarks` | bool | `true` | Szenario-Unterstreichungen (Kopf + Schluss): AC voll, PY grau, PL doppelt, FC schraffiert unter den Spaltenköpfen. Standard: an |
 | `chartLabels` | bool | `true` | Zahlen an Balken / Pins / Kaskaden: Wertbeschriftung an jedem Diagramm-Element. Standard: an |
-| `capBars` | bool | `false` | Ausreißer-Pfeile auch für Δ-Balken: Pins kappen Ausreißer immer (Q3 + 4 × IQR); dies erweitert es auf die Δ-Balken. Standard: aus |
+| `capBars` | bool | `false` | Ausreißer-Pfeile auch für Δ-Balken: Pins kappen Ausreißer (Q3 + Faktor × IQR, Schalter und Faktor darunter); dies erweitert es auf die Δ-Balken. Standard: aus |
+| `capPins` | bool | `true` | Ausreißer-Pfeile für Pins (1.8.4): Ein Δ%-Pin weit jenseits der übrigen läuft in eine Ausreißerzone, wird von einem Bruchzeichen geschnitten und endet nach seinem Kopf in einem Dreieck; der Kopf behält seine Szenario-Kennung. Aus: jeder Pin in voller Länge auf einer Skala. Standard: an (= Verhalten bis 1.8.3). Sichtbar, sobald eine Pin-Spalte an ist |
+| `capFactor` | numeric | `4` | Ausreißer-Schwelle (× IQR) (1.8.4): Ein Wert gilt als Ausreißer jenseits von Q3 + Faktor × Interquartilsabstand seiner Spaltenfamilie (Pins; mit `capBars` auch die Δ-Balken), ab 8 Werten. Kleiner = mehr Pfeile. Bereich 1 bis 20, Standard: 4 (= bis 1.8.3 fest) |
 | `sort` | enum `cat` · `min` · `delta` · `pct` | `cat` | Sortierung (Strukturdaten): Je Zwischensummen-Block; Zeilen namens Sonstige … bleiben unten. `pct` (1.8) = Δ% der Sortier-Referenz. Standard: Kategoriereihenfolge |
 | `sortBlock` | enum `period` · `ytd` | `ytd` | Sortierender Block: Welcher Perioden-Block die Reihenfolge bestimmt. Standard: YTD-Block |
 | `keepBlockOrder` | bool | `false` | Blockreihenfolge beibehalten (1.8): Zwischensummen-Blöcke (Regionen) bleiben in Kategoriereihenfolge, sortiert werden nur die Zeilen darin, wie in den IBCS-Blättern. Aus: die Blöcke werden zusätzlich nach ihrer Summe sortiert (1.5.2). Zeilen namens Other … und die Gesamtzeile bleiben in beiden Fällen unten. Standard: aus |
@@ -291,7 +300,7 @@ Enums als String-Wert aus der Tabelle. Leere Texte = Automatik.
 | `pctDecimals` | numeric | `1` | Dezimalstellen (Δ%): Nachkommastellen von Δ% und Margen. Standard: 1 |
 | `sheetPctDecimals` | bool | `false` | Δ%-Dezimalen wie im Referenzblatt (1.8): Beim Anwenden eines Templates werden die Δ%-Dezimalen des Referenzblatts geschrieben (T03 und die 12er-Reihe ganzzahlig, T04B bis T04E zwei Stellen) statt einer Stelle für jedes Template. Standard: aus Margen und ihre pp behalten dabei mindestens eine Stelle (T03: `45.3%`, `+8.6%p`). Wirkt erst beim nächsten Anwenden: Template in der Galerie erneut anklicken. Galerie-Vorschauen zeigen die Standard-Notation.. 1.8.3, Anzeigename „Notation wie im Referenzblatt“: gestapelte FY-Kaskade „YTD“/„Jahr“ (12G), ein einzelner FY-Block trägt sein Jahr im Minuend-Kopf statt im Titel („PL 2026“), 12G-Margen ganzzahlig über Preset `sheetMdec`, solange `pctDecimals` = `sheetPdec`; pp behalten eine Stelle |
 | `ppUnit` | enum `pp` · `pctp` | `pp` | Einheit der Margen-Δ (1.8): Prozentpunkte als „pp" oder „%p" (wie in den IBCS-Blättern T03). Standard: pp |
-| `roundedZero` | enum `signed` · `plain` | `signed` | Gerundete Null (1.8): Eine Δ, die nicht null ist, aber auf null rundet: Vorzeichen behalten oder 0,0 wie in den Referenzblättern. Werte tragen bei null nie ein Vorzeichen (in allen Ansichten). Standard: Vorzeichen behalten |
+| `roundedZero` | enum `signed` · `plain` | `signed` | Gerundete Null (1.8): Eine Δ, die nicht null ist, aber auf null rundet: Vorzeichen behalten oder 0,0 wie in den Referenzblättern. Werte tragen bei null nie ein Vorzeichen (in allen Ansichten). Standard: Vorzeichen behalten. 1.8.4: jedes Template schreibt beim Anwenden `plain` (Falle 29) |
 | `marginRel` | bool | `false` | Relative Änderung der Margen (1.8.2): Margenzeilen zeigen im Δ%-Feld ihre relative Änderung (T03: +8,6 %p und +23 %), gerechnet über den Betrag der Referenz |
 | `marginAxisPp` | bool | `true` | Margen-Δ an der Achse (1.8.2): Punktdifferenz der Margen an der Achse von Δ-Balken und Δ-Wasserfall (T04); aus wie in den Blättern |
 | `financeFormat` | bool | `false` | Finance-Format (Klammern): Finanzkonvention: negative Werte in Klammern statt Minuszeichen — (1 234) — und Null als „–“. Gilt für Werte, Δ und Δ %; positive Δ behalten ihr „+“. Standard: aus |
@@ -971,6 +980,63 @@ Anfangsbestand und `stock` am Endbestand (Formel `[Anfangsbestand]+[Operativ]+�
     Äste, nie über eine ⚡ Rest-Karte hinweg und nur, wenn beide Eltern einen
     einheitlichen Operator haben; die Kanten treten getrennt ein (`twinOff`).
     `opGlyph` zeichnet `÷` als „:" in Baum und Mikrokarten.
+
+29. **Notationskorrekturen Welle 1 (1.8.4):**
+    - **Δ% n.a.:** Quelle ist `engine.relDelta(a, rv)`: Δ / |rv|, `null` bei `rv = 0` und bei
+      verschiedenen Vorzeichen von Wert und Referenz (Rohwerte, rechnerisches Vorzeichen). Beträge bis
+      1e−9 × max(1, |a|, |rv|) gelten als 0 (Gleitkomma-Rauschen: ein Wert so nah an null ergibt ±100 %,
+      eine Referenz so nah an null n.a.). Zwei negative Werte bleiben eine Zahl, sonst wäre jede
+      Kostenzeile (SignConvention −1) n.a.; bewusst anders als die ChartKitchen-Karte (Basis ≤ 0), die
+      Anzeigewerte liest. Alle Δ%-Stellen gehen darüber:
+      `varianceOf`, `displayVariance` (auch KPI/`marginRel`), `ytdVariance`/`blockVariance` im Visual,
+      Baumkarten und Kachel. Ist Δ da, Δ% aber `null`, steht „n.a.“ (`UI_RelNa`, `Visual.relNa()`):
+      Mega-Tabelle über `MegaInput.naText` (Δ%-Zelle; Pin-Spalte: `MegaCol.na`, Text
+      `data-pnl="mega-na"` an der Achse, kein Pin), klassische Pins (`data-pnl="pin-na"`), Tooltips,
+      Szenario-Raster (`data-pnl-na`, grau kursiv, nie Abweichungsfarbe) und Kartenköpfe (`relNaEl`,
+      Mikrokarte `micro-delta`, SVG-Kopf der Baumkarte `data-pnl="tree-na"`). Ohne `naText` bleibt die
+      Zelle leer (Altaufrufer). Margenzeilen zeigen n.a. nur mit `marginRel`. ⚡ und `sort = pct`
+      behandeln n.a. wie Referenz 0.
+    - **Schwellen-Rot:** `cellText` vergleicht `megaRound(D.impact, dec)` bzw.
+      `megaRound(D.impactPct × 100, pdec)` mit der Schwelle. Gleiche gedruckte Zahl = gleiche Farbe.
+      ⚡ und Wesentlichkeit prüfen weiter den Rohwert.
+    - **Gekappter Pin:** Kopf (`data-pnl="mega-pin-head"`, Notation des Minuenden) sitzt am Ende der
+      Ausreißerzone, die Spitze folgt; die Layoutbreite ist unverändert. `MegaInput.capPins` (Standard
+      an) und `capFactor` (Standard `MEGA_OUTLIER.fence` = 4) kommen aus `columns.capPins`/`capFactor`;
+      `outlierCap(values, factor)` fällt bei 0 oder NaN auf 4 zurück. Die klassische Tabelle hat eine
+      eigene, feste Pin-Kappung (±40 %, ohne Schalter); ihr gekappter Pin trägt den Kopf
+      (`data-pnl="pin-head"`, gleiche Füllung wie der ungekappte) direkt vor dem Dreieck. Der Kopf
+      eines AC&FC-Pins (FY) ist wie im Blatt 12G in Tinte umrandet und schraffiert (`data-pnl-fc`,
+      Muster `pnlpinfc…` aus Tinte und Papier, Periode 2,0, Strich 0,9), nur der Stiel trägt die
+      Abweichungsfarbe; das Muster steht einmal je Tabelle (`svg[data-pnl="pin-defs"]`, `tablePinHatch`),
+      seine Kennung enthält die Instanz (`this.uid`), damit ein verstecktes Zwillings-Visual es nicht
+      überdeckt. Tests, die das Markup zweier Visuals vergleichen, entfernen `pnlpinfc…` vorher.
+    - **Sprache:** `syncLocale()` übernimmt `host.locale` zu Beginn jedes `update()` (leer = die zuletzt
+      bekannte, im Konstruktor en-US). Zahlformat-Speicher (`treeNf`, `megaNf`) sind nach Sprache und
+      Dezimalen geschlüsselt. Damit folgen die Zahlen einem Sprachwechsel des Hosts zur Laufzeit; bis
+      1.8.3 zogen dabei nur die Texte nach. Der Prüfstand-Befund „4.28“ (11A) war ein Lesefehler, Power
+      BI und App zeigen dort Kommas.
+    - **Gerundete Null in Templates:** `MegaPreset.roundedZero = "plain"` in jedem Preset (aus `P_OFF`);
+      `templateSwitches().nums` trägt `roundedZero` neben den Dezimalen für jedes Template außer „off“
+      (gleicher `persistProperties`-Merge, gleicher Echo-Guard `megaPending.nums`). Wie die Dezimalen
+      zählt sie nicht in `templateDeviation()`: Bestandsberichte mit `templateApplied` bekommen kein „↺“.
+      PBIR: wer ein Template mit `templateApplied` vorkonfiguriert, setzt `numbers.roundedZero` selbst
+      (`'plain'`), sonst gilt der Standard `signed`.
+    - **Flache Listen:** `megaRows` setzt zwischen Elementen der obersten Ebene keine Leerzeile, wenn
+      im MODELL jedes Element der obersten Ebene (unter einer einzigen Wurzel deren Kinder) ein Blatt ist
+      (`flatTop`); die Gesamtzeile behält ihre Leerzeile. ⚡ ausblenden und Nullzeilen ändern das nicht.
+    - **Maximieren:** `fillHeight(cur, base, build(shrink), shrink, canShrink, chartW)` sucht den Faktor
+      auf einem Raster von 0,02: Klammer ab der Höhenschätzung des Aufbaus bei ×1 entlang der Schätzungen
+      der Aufbauten, dann Halbieren, bis passender und gescheiterter Schritt Nachbarn sind. Ein Kandidat
+      passt, wenn Höhe UND Breite passen (`bodyOverflow`, bei k ≤ 1 nur die Höhe) und bei k > 1 keine
+      Diagrammspalte unter 70 % ihrer Breite bei ×1 fällt (`chartW` aus `megaLast.charts`, `CHART_FLOOR`).
+      Jeder Kandidat nimmt seinen Diagramm-Abzug (`buildMega(fmt, shrink)`) frisch ab 0 und nur bei
+      Überstand, in bis zu sechs Schritten, zusammen höchstens 40 px (`SHRINK_MAX`). Ergebnis ist der
+      größte geprüft passende Schritt; endet die Suche auf einem anderen Aufbau, wird er neu gebaut.
+      Je Update im Mittel 5 bis 9 Aufbauten, einzeln bis etwa 35.
+    - **⚡ gedruckt:** `ExceptionRule.rd`/`rp`/`rpp` runden Δ (Anzeigeeinheit, Dezimalen), Δ% (Δ%-Dezimalen)
+      und die pp der Margen (Mega-Tabelle: `sheetMdec`, dann mindestens eine Stelle) wie die Tabelle
+      (`engine.roundShown`), bevor die Schwellen greifen; bei beiden Schwellen 0 zählt nur eine Δ, die
+      nicht als 0 gedruckt wird. Σ-treue Rundung bleibt außen vor (⚡ prüft die gerundete Rohdifferenz).
 
 ## Verwandte Dateien
 

@@ -687,10 +687,13 @@ test("displayVariance: cost rows, VarianceInvert costs, margin rows (%p)", () =>
     assert.equal(Math.round(k.d * 10) / 10, 8.6);
     assert.equal(Math.round(k.p * 100), 23);
     assert.equal(k.good, true);
-    // 1.8.2 a negative reference margin: −2 % → +3 % is +5 pp and +250 % (Δ over |reference|), never −250 %
+    // 1.8.2 a negative reference margin: −2 % → +3 % is +5 pp; its Δ% was +250 % (never −250 %),
+    // 1.8.4 n.a. (null) across zero like every Δ%
     const kn = E.displayVariance(kpi, 0.03, -0.02);
     assert.equal(Math.round(kn.d * 10) / 10, 5);
-    assert.equal(Math.round(kn.p * 100), 250);
+    assert.equal(kn.p, null);
+    // a negative reference margin on the same side stays a number over |reference|: −2 % → −1 % = +50 %
+    assert.equal(Math.round(E.displayVariance(kpi, -0.01, -0.02).p * 100), 50);
     assert.equal(E.displayVariance(kpi, 0.03, 0).p, null);
     assert.equal(E.displayVariance(rev ? row("x", null) : null, null, 3), null);
 });
@@ -1061,6 +1064,67 @@ test("1.7 ⚡ isExceptionVariance: |Δ%| or |Δ| (one is enough), direction in d
     assert.equal(X(rev, V(45, 0), { pct: 0, abs: 50, dir: "both" }), false);
     // both thresholds 0: every non-zero Δ
     assert.equal(X(rev, V(100.01, 100), { pct: 0, abs: 0, dir: "both" }), true);
+});
+
+// 1.8.4 Δ% across zero: n.a. (wave 1, point 6; sheets T05B / T03A printed +352.3 %)
+test("1.8.4 relDelta: Δ% n.a. on a sign change and against 0, same-sign negatives (costs) stay", () => {
+    const R = E.relDelta;
+    assert.strictEqual(R(110, 100), 0.1);
+    assert.strictEqual(R(-110, -100), -0.1, "cost row, calculation-signed: both negative = a number");
+    assert.strictEqual(R(-50, -100), 0.5, "a loss halved: +50 % over |reference|");
+    assert.strictEqual(R(69.6, -15), null, "−15 → +69.6 crosses zero: n.a. (was +564 %)");
+    assert.strictEqual(R(-10, 6), null, "+6 → −10: n.a.");
+    assert.strictEqual(R(5, 0), null, "reference 0: n.a. as before");
+    assert.strictEqual(R(0, 100), -1, "a minuend of exactly 0 is no sign change (−100 %)");
+    assert.strictEqual(R(0, -100), 1, "a loss to 0: +100 %");
+    assert.strictEqual(R(NaN, 100), null);
+    // float noise around zero is no sign change (review of 1a3b302): the value prints 0.0, its Δ% reads ±100 %
+    const noiseNeg = 0.3 - 0.1 - 0.2;                 // −5.55e−17
+    const noisePos = 0.1 + 0.2 - 0.3;                 // +5.55e−17
+    assert.ok(noiseNeg < 0 && noisePos > 0, "the noise really carries a sign");
+    assert.strictEqual(R(noiseNeg, 21), -1, "−5.6e−17 against PY 21: −100 %, not n.a.");
+    assert.strictEqual(R(noisePos, -43), 1, "+5.6e−17 against PY −43: +100 %, not n.a.");
+    assert.strictEqual(E.varianceOf(noiseNeg, 21, false).deltaPct, -1);
+    assert.strictEqual(R(5, noisePos), null, "a reference that is noise is a reference of 0");
+    assert.strictEqual(R(-1e-6, 21), null, "a real small value of the other sign stays a sign change");
+    // varianceOf: Δ stays, only Δ% is n.a.; the rating is unchanged
+    assert.deepEqual(E.varianceOf(70, -15, false), { delta: 85, deltaPct: null, good: true });
+    assert.deepEqual(E.varianceOf(-6, 10, false), { delta: -16, deltaPct: null, good: false });
+    // displayVariance of a cost row (sign −1, shown positive): cost 100 → 110 still +10 %
+    const cost = row("opex", null, { sign: -1, displayInvert: true });
+    const dc = E.displayVariance(cost, -110, -100);
+    assert.ok(Math.abs(dc.p - 0.1) < 1e-12 && Math.abs(dc.impactPct + 0.1) < 1e-12, "+10 % cost growth, impact −10 %");
+    // a value row across zero: Δ and impact stay, Δ% and impactPct n.a. (no threshold red on Δ%)
+    const dv = E.displayVariance(row("fin", null), 69.6, -15);
+    assert.ok(Math.abs(dv.d - 84.6) < 1e-9 && dv.p === null && dv.impactPct === null && dv.good === true);
+    // ⚡ an n.a. Δ% counts like a reference of 0 (an exception once the percent threshold is on)
+    assert.strictEqual(E.isExceptionVariance(row("fin", null), E.varianceOf(69.6, -15, false), { pct: 5, abs: 0, dir: "both" }), true);
+    assert.strictEqual(E.isExceptionVariance(row("fin", null), E.varianceOf(69.6, -15, false), { pct: 0, abs: 100, dir: "both" }), false);
+    // ⚡ on the printed numbers (rd / rp, 1.8.4): +9.96 % prints +10.0 % (Δ% decimals 1) = an exception at 10 %;
+    // Δ 499.6 prints 500 (0 decimals) = an exception at |Δ| ≥ 500; without the printers the raw values decide
+    const ex = (v, rule) => E.isExceptionVariance(row("r", null), v, rule);
+    const v996 = { delta: 9.96, deltaPct: 0.0996, good: true };
+    assert.strictEqual(ex(v996, { pct: 10, abs: 0, dir: "both" }), false);
+    assert.strictEqual(ex(v996, { pct: 10, abs: 0, dir: "both", rp: p => E.roundShown(p, 1) }), true);
+    assert.strictEqual(ex(v996, { pct: 10, abs: 0, dir: "both", rp: p => E.roundShown(p, 2) }), false);
+    const v4996 = { delta: 499.6, deltaPct: 0.01, good: true };
+    assert.strictEqual(ex(v4996, { pct: 0, abs: 500, dir: "both" }), false);
+    assert.strictEqual(ex(v4996, { pct: 0, abs: 500, dir: "both", rd: d => E.roundShown(d, 0) }), true);
+    assert.strictEqual(E.roundShown(-0.04, 1), 0, "a rounded zero is 0, not −0");
+    // margins: the pp difference is printed with its own decimals (rpp; mega table sheet margins: one decimal)
+    const kpiRow = { ...row("m", null, { rowType: "kpi" }) };
+    const vpp = { delta: 0.0996, deltaPct: 0.5, good: true };          // +9.96 pp
+    assert.strictEqual(E.isExceptionVariance(kpiRow, vpp, { pct: 10, abs: 0, dir: "both", rp: p => E.roundShown(p, 2), rpp: p => E.roundShown(p, 1) }), true);
+    assert.strictEqual(E.isExceptionVariance(kpiRow, vpp, { pct: 10, abs: 0, dir: "both", rp: p => E.roundShown(p, 1), rpp: p => E.roundShown(p, 2) }), false);
+    // both thresholds 0: a Δ that prints as 0 is no exception (+0.04 at 0 decimals prints 0), a printed +1 is one
+    const zero = { pct: 0, abs: 0, dir: "both", rd: d => E.roundShown(d, 0), rp: p => E.roundShown(p, 1), rpp: p => E.roundShown(p, 1) };
+    assert.strictEqual(ex({ delta: 0.04, deltaPct: 0.0004, good: true }, zero), false);
+    assert.strictEqual(ex({ delta: 0.6, deltaPct: 0.006, good: true }, zero), true);
+    assert.strictEqual(E.isExceptionVariance(kpiRow, { delta: 0.0004, deltaPct: 0.01, good: true }, zero), false, "+0.04 pp prints 0.0 pp");
+    assert.strictEqual(ex({ delta: 0.04, deltaPct: 0.0004, good: true }, { pct: 0, abs: 0, dir: "both" }), true, "without printers: every non-zero Δ, as before");
+    // variance() on a model: the PY window of a cash-flow row that turns from −6 to +10
+    const m = E.buildModel([row("wc", null, { values: { ac: 10, py: -6 } })], "U");
+    assert.strictEqual(E.variance(m.byId.get("wc"), "py").deltaPct, null);
 });
 
 // 1.7 cross-highlight (supportsHighlight): the visual runs the engine twice — the whole

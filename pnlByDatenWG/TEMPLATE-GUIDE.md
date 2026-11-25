@@ -1,6 +1,6 @@
 # IBCS-Templates mit „P&L Statement byDatenWG" nachstellen · Kurzanleitung
 
-Stand: **Visual 1.8.3.0** (22.11.2026), dazu die Bestands-Templates T05A/T05B
+Stand: **Visual 1.8.4.0** (25.11.2026), dazu die Bestands-Templates T05A/T05B
 (1.7, in Arbeit). Für die lokale Arbeit in Power BI Desktop —
 alles Nötige, um die offiziellen IBCS-Templates (T01A–T04E, 12A, 12G, 12H)
 nachzubauen, plus Bilanz (T05A) und Cashflow-Brücke (T05B). Referenzbilder liegen in `prototype/refs/`, der interaktive
@@ -98,7 +98,7 @@ Jedes Template ist nur ein Preset: Es setzt alle Schalter
 | **T01C** (1.8) | wie T01B, je Block nach ΔPY des _YTD-Blocks absteigend sortiert („ΔPY(↓)"; ohne PY-Rolle nach ΔPL), „Other" bleibt unten, Blöcke in Kategoriereihenfolge | wie T01B |
 | **T01D** (1.8) | wie T01B mit FC als analysiertem Szenario, je Block nach ΔPY% des Monats sortiert („ΔPY%(↓)") | wie T01B + FC |
 | **T02A** | PL·AC + ΔPL-Balken + ΔPL%-Pins, zwei Blöcke | AC/PL |
-| **T02B/C/D** | wie T02A, sortiert nach AC↓, ΔPL↓ bzw. (1.8) ΔPL%↓ („(↓)" im Kopf, bei D am Pin-Kopf); Blöcke seit 1.8 in Kategoriereihenfolge | — |
+| **T02B/C/D** | wie T02A, sortiert nach AC↓, ΔPL↓ bzw. (1.8) ΔPL%↓ („(↓)" im Kopf, bei D am Pin-Kopf); Blöcke seit 1.8 in Kategoriereihenfolge; 1.8.4: auf einer flachen Liste (Kunden, Biere ohne Hierarchie) dichte Zeilen ohne Leerzeilen, Leerzeile nur vor Gesamt | — |
 | **T02E/F** | FC statt AC (schraffierte Balken), Referenz PY bzw. PL (graue bzw. Doppellinien-Achse) | FC + PY bzw. PL |
 | **T03A/B** | GuV-Statement: +/−/=-Zeilen, PY·PL·AC(bzw. FC) + Δ-Zahlenspalten, Margen-Zeile in pp | Kontendimension mit RowType |
 | **T04A–E** | Statement mit **integriertem Δ-Wasserfall** (kaskadierende Balken, =-Anker) + Δ%-Pins; A/B = vs. PL, C = vs. PY, D/E = FC | wie T03 |
@@ -188,7 +188,8 @@ FC schraffiert · PL umrandet), Referenz bestimmt die Achse
   Richtung neben Balken und Pins lesbar bleibt. 1.8: **Zahlen → Gerundete Null →
   Ohne Vorzeichen** druckt `0.0%` wie das Blatt. Werte tragen bei null nie ein
   Vorzeichen, jetzt in jeder Ansicht gleich (die klassische Tabelle und der Baum
-  druckten bis 1.7 `−0,00`).
+  druckten bis 1.7 `−0,00`). 1.8.4: jedes Template schreibt beim Anwenden **Ohne
+  Vorzeichen** wie die Blätter. Der Standard der Eigenschaft bleibt „mit Vorzeichen“.
 
 ### 5.2 · Fehler in den Referenzblättern (Stand Abgleich 19.11.2026)
 

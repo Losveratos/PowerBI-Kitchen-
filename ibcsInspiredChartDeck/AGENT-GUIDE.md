@@ -10,8 +10,127 @@ Setting-Beschreibungen stehen in [src/settings.ts](src/settings.ts).
 **Property-Referenz wird generiert: `npm run guide`** (Prüfung: `npm run guide:check`) — die Tabellen
 im Abschnitt „Settings-Referenz“ nie von Hand ändern, sondern `settings.ts`/`capabilities.json` anpassen.
 
-Stand: **1.57.0.0** (22.11.2026): Backlog IBCS-Templates B13 Teil 1b, B18, B19, B20, B24, B25 (siehe „Neu in 1.57“); davor 1.56 mit B10 Teil 2, B11 Teil 2, B13 Teil 2, B15, B16, B17; davor 1.55 mit B09, B10, B11 (Teil 1), B12, B13; davor 1.54 mit B01, B04, B05, B06, B14.
+Stand: **1.58.0.0** (25.11.2026): Welle 1 aus dem Template-Prüfstand, Notation und KPI-Karten (siehe „Neu in 1.58“); davor **1.57.0.0** (22.11.2026): Backlog IBCS-Templates B13 Teil 1b, B18, B19, B20, B24, B25 (siehe „Neu in 1.57“); davor 1.56 mit B10 Teil 2, B11 Teil 2, B13 Teil 2, B15, B16, B17; davor 1.55 mit B09, B10, B11 (Teil 1), B12, B13; davor 1.54 mit B01, B04, B05, B06, B14.
 Bei Versionssprüngen: CHANGELOG.md zuerst lesen.
+
+**Neu in 1.58 (Welle 1 aus dem Template-Prüfstand: Notation und KPI-Karten, 25.11.2026):**
+
+*1/2 · Pinköpfe szenariocodiert.* `pinHeadScen(cfg, "ac" | "fc" | "pl")` liefert die Kopf-Attribute: AC `fill = cfg.ink`,
+FC `fcMarkFill(cfg)` mit Tintenrand 1, PL `cfg.paper` mit Tintenrand 1,2; jeweils `data-pin` = Szenario. Die
+Abweichungsfarbe (gut, schlecht, unwesentlich grau) steht nur noch am Stiel, Stielbreite `PIN_STEM_W` = 2 (wie die
+Tabelle; Wasserfall-Stufe `max(2, 1,4 · k)`). `pinHeadR(r, Länge)` kappt den Kopf auf `max(2, min(r, Länge − 3))`,
+damit kurze Pins mindestens 3 px farbigen Stiel zeigen. Bleibt weniger (Länge < Kopf + 3), färbt `pinLabelInk(cfg,
+Länge, Kopf, Stielfarbe, Text)` die Δ%-Beschriftung des Pins in der Abweichungsfarbe (nicht bei grauem Stiel, nicht im
+Hochkontrast, nicht mit `variance`, nicht wenn der gedruckte Text null liest, `Visual.zeroText`); die Beschriftung ist
+das nächste Element hinter dem Kopf (Prüfung `colourShown` in c1063 bis c1065).
+Runde 3: `chart.pinHeadColor` (`scenario` | `variance`, Standard `scenario`, Gruppe „Darstellung“ hinter `pinStyle`,
+nicht bei Scatter, Bestand & Fluss und Serienlinien), `cfg.pinHeadVar`. `pinScen(cfg)` = weder Hochkontrast noch
+`variance`: nur dann Kopf gekappt, Stiel 2 px, farbige Kurz-Pin-Beschriftung. `pinHeadScen(cfg, scen, Farbe, Strich,
+ac?)` gibt mit `variance` den farbigen Kopf (FC über `fineHatch(cfg, Farbe)`), sonst die Szenario-Kennung; `ac` hält
+einen bisher dunklen AC-Kopf bytegleich (Tabelle, Brücken, GuV). Aufrufer zusätzlich: Integrierte Brücke, Kategorie-Brücke
+(waagerecht und senkrecht, FC-Zeilen jetzt schraffiert), GuV-Statement (Stil `hatched` fein schraffiert); alle mit
+unverändertem Hochkontrast-Zweig. `fineHatch(cfg, Farbe)`: feines Muster je Farbe (`cfg.patMark` + Farbcode, AC-Farbe
+= `cfg.patMark`), `fcMarkFill(cfg)` ist `fineHatch` in AC-Farbe; die FC-Marken der Serienlinien (C22) nutzen es in
+Serienfarbe. Aufrufer: rel- und rel2-Pins in `renderChartBody` (Säulen,
+Balken, Linie; Plan gegen Plan behält `data-icd="var-plan"`), Δ%-Stufe des Wasserfalls (`tierPts[i].isFc`),
+Jahressäule (`anyFc` = `isFc` oder `fcPart`), Δ%-Kopf der Tabelle (FC fein schraffiert, AC bytegleich, Kopf gekappt).
+Alles über `pinHead(…, cfg.pinStyle, …)`, also für runde und eckige Köpfe gleich (`chart.pinStyle`, Standard `auto`,
+unverändert). Hochkontrast bleibt in allen Zweigen wie bisher (gut gefüllt, schlecht und FC hohl, Stiel 1,6 px, Kopf
+ungekappt), weil gut und schlecht dort dieselbe Farbe haben; dort gibt es kein `data-pin`.
+`fcMarkFill(cfg)` legt das feine Muster `cfg.patMark` (`icd-hatch-<id>-m`, Periode 2,4 px, Strich 1,3 in
+`colors.ac` auf `cfg.paper`) beim ersten Gebrauch in `defs` an (Charts ohne FC bleiben SVG-gleich, ein Muster je
+Render auch in Small Multiples). Das Säulenmuster `patId` (5 px) ließ Köpfe mit r 2,5 bis 4,5 leer oder als „⊘“
+erscheinen. FC-Punkte von Linie, R12-Linie, Dumbbell und Slope nutzen dasselbe Muster, auch im Hochkontrast. Die
+Quadrate von `lineMarkerShape=square` waren schon richtig (`lineSquare`). Der FC-Referenzpunkt der KPI-Trendlinie
+nutzt ebenfalls `fcMarkFill` (c1066). Bekannt und alt (1.57 gleich): in sehr
+flachen Small-Multiples-Kacheln kehrt sich die Δ%-Skala um, positive Pins zeigen nach unten (Backlog).
+
+*3 · Δ-Achsen der Tabelle.* `renderTable` zeichnet die Achsen von `dbar`, `pct` und `d2bar` über
+`varAxis(x, basis, avg, overBars)`: PY oder Ø-Basis wie bisher als graues 2-px-Rechteck (bytegleich), sonst
+`drawBaseline(…, "bars")` in einer Gruppe `data-icd="table-var-axis"` mit `data-basis` (`plan` Doppellinie, `fcrev`
+gestrichelte Doppellinie), alle im Hintergrund. Runde 3: an einer Doppellinie setzen die Δ-Balken mit `dOff`/`d2Off` =
+2,2 px an (sonst 1 px wie bisher), negative mit `max(Länge, 1)`; der Papierstreifen über den Balken entfällt. Ein Δ
+von genau null zeichnet an der Doppellinie keinen Balken. `fineHatch(cfg, Farbe, Periode)`: Periode 1,8 (Suffix `f`) für
+Serienmarken bis 5 px; C22-FC-Marken im Hochkontrast hohl. `d2bar` folgt `this.basis2Mode`, auch unter der Ø-Basis (wie die Säulen-Panels;
+unter Ø ist die zweite Abweichung heute ohnehin aus). Die Matrix (Mini-Δ-Balken je Block) ist unverändert.
+
+*4 · Scatter.* `chart.scatterTypeTitle` und `chart.scatterScenarioTag` (bool, Standard aus, Gruppe „Scatter / Bubble“
+nach `scatterTrendR2`, nur bei Scatter im Pane). Aus: kein Titelteil „Scatter · AC × X“, kein „(AC)“ hinter dem
+Measure-Namen der Y-Achse (ohne Namen bleibt das Kürzel allein) und kein Szenario im automatischen IBCS-Titel
+(`titleScenarios` gibt für Scatter dann leer zurück). Ist kein Paneltitelteil übrig, entfällt der Text; die Zeile
+behält `titleH`, die Plotfläche ist gleich (c1016 gegen c1017). Standard aus gilt für alle Berichte (Entscheidung
+24.11.2026); C09, C10, C18, C23, C24 setzen beide ausdrücklich `false`.
+
+*5 · Technische Paneltitel.* `chart.panelTypeTitles` (bool, Standard aus, Gruppe „Darstellung“, sichtbar bei
+`columns`, `bars`, `intwaterfall`), gelesen über `panelTypeTitlesOn()`. Aus: `renderStacked` ohne „AC · stacked“ und ohne
+`Title_StackMekko`; bei gemischten Szenarien bleibt die Kürzel-Liste, bei 100 % (ohne Marimekko) „shares in %“.
+`renderStackedArea` ebenso. Integrierte Brücke: „PY → AC/FC“ ohne `WfBridge_Title`, Faktor und Achsenschnitt bleiben.
+Leerer Titel wird nicht gezeichnet, der Platz bleibt (Geometrie gleich, c1020 gegen c1021, c1024 gegen c1025).
+Nicht betroffen: Pareto, Dumbbell (bewusst graue Kennung der Nicht-Kern-Typen), Wasserfall-Titel „PY → AC“,
+Linien-Serien. Standard aus für alle Berichte; C01, C02, C05, C07, C25 setzen `false`.
+
+*10 · Gerundete Null.* `labels.roundedZero` (`signed` | `plain`, Standard `signed`, nach `financeFormat`). Exportiert
+`deltaSign(v, body, plain)` (Vorzeichen eines Δ-Texts aus dem unsignierten Text in Beschriftungsgenauigkeit; signed
+gibt dasselbe wie die bisherigen Ternaries) und `Visual.roundedZeroPlain()`. Wirkt in `fmtSigned` (gibt bei plain die
+Null aus `zeroAt` ohne Vorzeichen und ohne Finanzklammer zurück), `fmtPercent`, `ppText` von Tabelle und Matrix, dem
+gerundeten Δ der Tabelle (`rf`), `ppT` und ganzzahligem Δ % von `renderPnlStatement` (mit plain auch ohne „±“), dem
+Index-Δ von `renderLineSeries` und den Pp-Labels der Differenzmarker. Die KPI-Karten laufen über `fmtSigned`/
+`fmtPercent` mit, wandeln das Ergebnis aber über `Visual.unsignZero` (gerundete Null immer ohne Vorzeichen,
+unabhängig von `labels.roundedZero`); `deltaSign` und `roundedZeroPlain()` sind für eigene Texte exportiert, die Karten
+nutzen sie nicht. **Alle Vorlagen** setzen
+`"labels.roundedZero": "plain"` (eigener Merge-Eintrag `labels`; C18 schreibt damit drei Einträge: chart, scale, labels).
+`TPL_SINCE_158` (`panelTypeTitles`, `scatterTypeTitle`, `scatterScenarioTag`, `labels.roundedZero`): in
+`templateDeviation()` keine Abweichung, solange der Schlüssel den Pane-Standard trägt, damit Berichte mit schon
+angewandter Vorlage keinen „↺ Zum Template zurück“-Chip bekommen. Achtung Tests: ein Host-Echo muss jetzt auch das
+Objekt `labels` enthalten, sonst endet der Echo-Guard erst über die TTL.
+
+Tests c1000 bis c1033 (Block `WELLE1`, Helfer über `window.__w1`) und c1040 bis c1062 (Block `WELLE1-REVIEW`):
+Pixelprobe in `test/shot.js` für c1040/c1041 (Stufen-SVG 4-fach im Browser gerastert, jeder FC-Kopf braucht dunkle
+Pixel; mit dem alten 5-px-Muster schlägt sie fehl), beide Kopfformen, kurze Pins, Dunkelmodus, Small Multiples mit
+Re-Render, Export, Bestandsberichte ohne Chip, GuV-Statement, negative und Finanz-Null, Pp. Prüfungen an c600, c701.
+Angepasst c278c, c829, c976 (schalten `panelTypeTitles` an), c959 (Paneltitel über „○“), `test/notation-cases.js`
+Punkt 7, c262 (drei Merge-Einträge), c195, c222, c223, c229 (Echo mit `labels`). Runde 3: c1070 bis c1084, c868 und
+c1010 angepasst. 1009 resjson-Keys je Sprache (`Chart_PinHeadColor`, `Desc_Chart_PinHeadColor`,
+`Enum_PinHeadColor_Scenario`, `Enum_PinHeadColor_Variance`).
+
+*KPI-Karten (1.58).* Keine neue Property. `renderCards` rechnet Texte und Zeilen aller Karten vorab (`cardModel`:
+`fmtV`, `refText`, `readsZero`, `deltas`/`vals` je Label). Zeilenraster: `valKeys`/`deltaKeys` = Zeilen, die irgendeine
+Karte hat (Werte zuerst; Δ in der Folge Basis, Basis 2, BM, mit Status-Basis Benchmark BM vorn); je Karte `rows` als
+`CardRow` (`kind` `delta` · `plain` · `na` = „PY n.a.“ ohne Δ für eine fehlende Basis · `blank` = freier Platz, wenn
+die Basis schon in der Wertzeile als n.a. steht). Flaches Layout (`flatLay`): eine Δ-Spalte für das ganze Band,
+`refDx = pad + colW + 20k`, `colW` = breitester Titel (≤ 170k) oder Wert, gedeckelt auf die Breite, bei der jeder
+Δ-Block passt, mindestens der breiteste Wert (`blockW` mit 5k Reserve). Ohne Brücke, Trend und Bullet (`rightFree`)
+rückt der Block auf `min(w/2, w − pad − blockMax, base + 120k)`, nie links von `base`. Runde 3 (Stand B Punkt 8 und
+Review M2): die Knöpfe haben eine eigene Zeile, entschieden in `renderCards` vor dem Raster: Titelzeile (`chipTop` =
+`cardChipRowY` = 6, gesetzt in `render()` nur bei einem Band ohne Small Multiples, mit Titel und ohne aktiven
+Modus-Chip), wenn `titleRightX` (rechtes Ende von Titel- und Botschaftszeile, aus `drawTitleBlock`) + 8k vor dem linken
+Rand beider Knöpfe endet und die Zeile über der ersten Kartenreihe liegt. Runde 3b: Small Multiples setzen
+`this.tileHead` je Kachel; `tile` = kompakte Knöpfe (14k, Schrift 9k) im Kachelkopf links vom ⤢, gezeichnet über
+`pendingTileChips` erst in `drawTileHeader` (über der Klickfläche), `tileChipReserve` kürzt den Kacheltitel, die
+Klickfläche ist `h − 1` hoch. Sonst eigene Kopfzeile (`strip`, `region` rückt um 18k + 4k), aber nur wenn
+`cardHFor(h − strip) ≥ needH` (flach `max(52k, Titel + Wert + 16k)`, gestapelt `pad + Titel + Wert + Δ-Zeile + 17k`),
+sonst `card`: kompakte Knöpfe in der Ecke der letzten Karte der ersten Reihe, `chipLeftNow()`/`chipEnd` wie bis Runde 2,
+`rEdge` begrenzt rechts Brücke, Trend, Kommentarnummer, „+n Δ“ und den gestapelten Titel, `flatLay.clear` falsch →
+`chipIcons` („↕“, „⚠“). `modeChipLeft` (aus `drawModeChip`) schiebt die Knöpfe links vom Modus-Chip, wenn sie auf
+seiner Höhe liegen. Runde 3c: `cardFit(h, lead)` liefert `vF`, Abstand und `tight`/`noTitle` (Standard, eng mit 1 px,
+Wert allein), flach vor `mkFlatLay` (`vFlat`, auch für `valueW`), gestapelt je Karte. `mkFlatLay(shortRel)`: `blockUnder`
+nur über die Karten unter den Knöpfen (`underAt`), nach `chipIcons` erneut geprüft, dann `shortRel` (Δ ohne Δ %, `<title>`
+mit vollem Text). Gestapelt in `card`: reicht der Wert an die Knöpfe, erst `chipIcons`, dann ohne Ausnahmeknopf.
+`render()`: `cardModeBand` (KPI-Karten ohne Titel mit Modus-Chip) erhöht `topOffset` um 6 + 18k + 4k und setzt
+`cardChipRowY = 6` → Platz `band`. `tileChipReserve` wird nach dem Ausweichen vor dem Modus-Chip gerechnet. „+n Δ“:
+neben dem Block, wenn oben kein Platz ist oder die Knöpfe dort liegen; ohne Platz entfällt die Marke.
+Marker `card-chip-row` (`data-place` = `title` | `band` | `tile` | `strip` | `card`, `data-icons`). Verdeckte Zeilen
+(Stand B Punkt 12): `shownRows` je Karte, „+n Δ“ (`card-more`, `data-n`, `<title>` mit den Zeilen, getrennt durch „; “,
+`aria-label`, interaktiv `tabindex`) über dem Δ-Block (flach, nie über dem Kartenrand) bzw. oben rechts (gestapelt);
+`blank` zählt nicht, mit verdeckten Wertzeilen (`plain`) heißt die Marke „+n“. `refLabelW` gilt für alle
+Karten; zwei Zeilen (`twoRows`) liegen in allen Karten auf `yMid − 2k` und `yMid + refF + 4k`. Gerundete Null:
+`cardSigned`/`cardPercent` über `Visual.unsignZero` immer ohne Vorzeichen und ohne Finanz-Klammer (Produktentscheidung, keine Option); `Visual.zeroText` prüft nur die erste Ziffernfolge (Einheiten wie „tCO2“). Farbe, Pfeil,
+Streifen und Tönung vom ungerundeten Δ wie bisher; `readsZero` macht eine Zeile nur neutral, wenn Δ und Δ% (fehlt,
+n.a. oder 0,0 %) null lesen. Diagramm- und Tabellenlabels folgen `labels.roundedZero` (Standard `signed`, alle Vorlagen
+`plain`), die Karten nicht. `cardMinus(t, v)`: nur
+bei v < 0 ein Bindestrich am Anfang oder hinter einem Währungszeichen vor der Ziffer wird U+2212 (Kartenwert,
+Referenzwerte, Trend-Beschriftung). Tests kpi58a bis kpi58r, Export-Zwillinge kpi58fx, kpi58lx, kpi58mx. Offen:
+`fmtSigned` mit Ziffer in der Einheit (Altbestand).
 
 **Neu in 1.57 (Backlog IBCS-Templates Teil 4, 22.11.2026):**
 
@@ -478,7 +597,7 @@ reserviert (Fläche, Boxplot). Zuordnung Vorlage → IBCS-Blatt:
 | C15 Balkentabelle nach ΔPL % | 04B | wie C14 mit tableSort=`drel_desc` |
 | C16 Balkentabelle nach AC | 04C | wie C14 mit tableSort=`ac_desc` |
 | C17 Kategorie-Brücke waagerecht | 06E (06F/06G/06H mit `sortMode` signed/pct/ac) | orientation=catbridge · bridgeOrientation=bars · comparisonMode=py · showAbs/showRel=true · dualVariance=false · pyTriangle=false · groupEvery=4 · driverNote=false |
-| C18 Abweichungs-Scatter | 10F | orientation=scatter · comparisonMode=auto · scatterQuadrant=off · scatterColorBy=group · scatterSizeLegend=true · scatterTrend=off · scatterArrows/scatterShapes=false · `scale.refLine`=0 · `scale.xRefLine`=0 |
+| C18 Abweichungs-Scatter | 10F | orientation=scatter · comparisonMode=auto · scatterQuadrant=off · scatterColorBy=group · scatterSizeLegend=true · scatterTrend=off · scatterArrows/scatterShapes=false · `scale.refLine`=0 · `scale.xRefLine`=0 · scatterTypeTitle=false · scatterScenarioTag=false (ab 1.58) |
 | C19 Säulen gegen Plan + Jahressäule | 03B (03A mit comparisonMode=py) | siehe B05 unten |
 
 Datenvertrag C18: `actual` = ΔPL %-Measure, `xValue` = ΔPY %-Measure, `series` = Produktlinie,
@@ -749,15 +868,15 @@ gleich setzen (dann wird nichts angewandt) — nur `template` ohne
 
 | Vorlage | Properties (Objekt `chart`) |
 | --- | --- |
-| C01 Gestapelte Säulen | orientation=columns · comparisonMode=auto · showAbs/showRel=false · dualVariance=false · waterfallStyle=false (Stapel über Rolle `series`) |
+| C01 Gestapelte Säulen | orientation=columns · comparisonMode=auto · showAbs/showRel=false · dualVariance=false · waterfallStyle=false (Stapel über Rolle `series`) · panelTypeTitles=false (ab 1.58) |
 | C02 Gestapelte Balken | wie C01 mit orientation=bars |
 | C03 Säulen + Varianzen | orientation=columns · comparisonMode=py · showAbs/showRel=true · dualVariance=false · waterfallStyle=false |
 | C04 Balken + Varianzen | orientation=bars · comparisonMode=plan · showAbs/showRel=true · dualVariance=false · waterfallStyle=false |
-| C05 Integrierte Brücke | orientation=intwaterfall · comparisonMode=py · showAbs/showRel=true · dualVariance=false |
+| C05 Integrierte Brücke | orientation=intwaterfall · comparisonMode=py · showAbs/showRel=true · dualVariance=false · panelTypeTitles=false (ab 1.58) |
 | C06 Kategorie-Brücke vertikal | orientation=catbridge · bridgeOrientation=columns · comparisonMode=py · showAbs/showRel=true · dualVariance=false |
-| C07 Gestapelte Fläche (08A, ab 1.56) | orientation=columns · comparisonMode=auto · showAbs/showRel=false · dualVariance=false · waterfallStyle=false · stackShape=area · areaTotalLine=true · areaValueLabels=auto · stackLegendDirect=true · stackLegendPos=end · showTotal=false · scenarioLabels=true (Rolle `series` binden, siehe B16) |
+| C07 Gestapelte Fläche (08A, ab 1.56) | orientation=columns · comparisonMode=auto · showAbs/showRel=false · dualVariance=false · waterfallStyle=false · stackShape=area · areaTotalLine=true · areaValueLabels=auto · stackLegendDirect=true · stackLegendPos=end · showTotal=false · scenarioLabels=true (Rolle `series` binden, siehe B16) · panelTypeTitles=false (ab 1.58) |
 | C08 Linie | orientation=line · comparisonMode=auto · showAbs=true · showRel=false · dualVariance=false |
-| C09 Scatter | orientation=scatter · comparisonMode=auto · scatterQuadrant=mean · scatterColorBy=single |
+| C09 Scatter | orientation=scatter · comparisonMode=auto · scatterQuadrant=mean · scatterColorBy=single · scatterTypeTitle=false · scatterScenarioTag=false (ab 1.58) |
 | C10 Bubble | wie C09 + scatterSizeLegend=true (Rolle `bubbleSize` binden) |
 | C12 Waterfall | orientation=waterfall · comparisonMode=auto · showAbs/showRel=true · dualVariance=false |
 | C13 Small Multiples | multiplesTotal=true · multiplesSameScale=true (orientation bleibt; Rolle `multiples` binden) |
@@ -765,9 +884,10 @@ gleich setzen (dann wird nichts angewandt) — nur `template` ohne
 | C20 Bestand und Fluss (08E bis 08H, ab 1.55) | orientation=stockflow · sfNet=true · sfArea=true · scenarioLabels=true · showTotal=false · highlightStyle=ellipse (Rollen `series` + `rowType` mit `stock`/`inflow`/`outflow`, siehe B11) |
 | C21 Kumulierte Linie mit R12 und Monatssäulen (07C, ab 1.56) | orientation=line · comparisonMode=plan · cumulative=true · cumulativeKind=ytd · lineR12=true · linePeriodColumns=same · lineGapMarkers=both · lineBasisLabels=true · lineMarkerShape=square · scenarioLabels=true · showAbs/showRel=false · dualVariance=false · showTotal=false (PL binden, siehe B15) |
 | C22 Serienlinien mit Index (07A, ab 1.56) | orientation=line · lineSeries=true · lineIndex=base100 · lineSeriesLabels=groups · lineSeriesColor=tones · lineMarkerShape=square · showAbs/showRel=false · dualVariance=false · cumulative=false · showTotal=false (Rolle `series` binden, siehe B17) |
-| C23 Scatter-Zeitpfad (07D, 07E, ab 1.57) | orientation=scatter · comparisonMode=auto · scatterPath=line · scatterPathLabels=auto · scatterColorBy=group · scatterQuadrant=off · scatterTrend=off · scatterArrows=false · scatterPlay=false (Rolle `xValue` binden, Quotenstrahlen über `scale.ratioRays`, siehe B18) |
-| C24 Blasen mit Anteil (10E, 10G, ab 1.57) | orientation=scatter · comparisonMode=auto · scatterQuadrant=off · scatterColorBy=group · scatterSizeLegend=false · scatterValueLabels=true · scatterBubbleOpacity=100 · scatterTotalBubble=true · scatterMaxRadius=100 · scatterTrend=off · scatterArrows=false · scatterPath=off · scatterPlay=false · scale.xRefLine=1 (Rollen `bubbleSize` und `bubbleShare` binden) |
-| C25 Marimekko (02F, ab 1.57) | orientation=bars · comparisonMode=auto · showAbs/showRel=false · dualVariance=false · waterfallStyle=false · stackNormalize=pct100 · stackThickness=total · stackShareColumn=true · showTotal=true · stackTotalRow=true · sortMode=ac · stackLegendDirect=true (Rolle `series` binden) |
+| C23 Scatter-Zeitpfad (07D, 07E, ab 1.57) | orientation=scatter · comparisonMode=auto · scatterPath=line · scatterPathLabels=auto · scatterColorBy=group · scatterQuadrant=off · scatterTrend=off · scatterArrows=false · scatterPlay=false (Rolle `xValue` binden, Quotenstrahlen über `scale.ratioRays`, siehe B18) · scatterTypeTitle=false · scatterScenarioTag=false (ab 1.58) |
+| C24 Blasen mit Anteil (10E, 10G, ab 1.57) | orientation=scatter · comparisonMode=auto · scatterQuadrant=off · scatterColorBy=group · scatterSizeLegend=false · scatterValueLabels=true · scatterBubbleOpacity=100 · scatterTotalBubble=true · scatterMaxRadius=100 · scatterTrend=off · scatterArrows=false · scatterPath=off · scatterPlay=false · scale.xRefLine=1 (Rollen `bubbleSize` und `bubbleShare` binden) · scatterTypeTitle=false · scatterScenarioTag=false (ab 1.58) |
+| C25 Marimekko (02F, ab 1.57) | orientation=bars · comparisonMode=auto · showAbs/showRel=false · dualVariance=false · waterfallStyle=false · stackNormalize=pct100 · stackThickness=total · stackShareColumn=true · showTotal=true · stackTotalRow=true · sortMode=ac · stackLegendDirect=true (Rolle `series` binden) · panelTypeTitles=false (ab 1.58) |
+| Alle Vorlagen (ab 1.58) | zusätzlich `labels.roundedZero=plain` (eigener Merge-Eintrag `labels`), siehe „Neu in 1.58“ |
 
 **Nicht enthalten:** C11 (Verteilung/Boxplot), die Darstellungsform gibt es
 im Visual nicht (siehe BACKLOG). C07 (Fläche) gibt es ab 1.56 (B16).
@@ -840,7 +960,7 @@ PBIR: `visual.json → objects.<objekt>.properties.<property>`. Enums als String
 
 <!-- gen:properties:start -->
 Generiert von `test/gen-agent-guide.js` (`npm run guide`) aus `capabilities.json` und
-`src/settings.ts`, Paketstand **1.57.0.0**. Nicht von Hand ändern — Korrekturen gehören in
+`src/settings.ts`, Paketstand **1.58.0.0**. Nicht von Hand ändern — Korrekturen gehören in
 `settings.ts`/`capabilities.json` (bzw. in die handgeschriebenen Abschnitte außerhalb dieses Blocks).
 Beschreibungen sind die deutschen Pane-Tooltips, in Tabellen auf ganze Sätze bis ca. 220 Zeichen
 gekürzt (`…` = gekürzt, Volltext in `src/settings.ts`). Enum-Labels stammen aus der
@@ -933,6 +1053,7 @@ deutschen Oberfläche. „Standard“ ist der Wert, der ohne Eintrag in `visual.
 | Property | Typ | Standard | Werte / Beschreibung |
 | --- | --- | --- | --- |
 | `pinStyle` | enum | `auto` | `auto` · `round` · `square` — Form des Lollipop-Kopfes der Δ%-Pins. „Automatisch" behält den bisherigen Stil je Modus (Säulen/Balken/Wasserfall rund, Brücken und Tabelle quadratisch); „Rund" oder „Quadratisch" vereinheitlichen alle Modi. |
+| `pinHeadColor` | enum | `scenario` | `scenario` · `variance` — Füllung des Kopfes der Δ%-Pins … |
 | `deltaIcons` | bool | `false` | Stellt den Δ-Werten in Tabelle und KPI-Karten Richtungspfeile voran: ▲ Anstieg, ▼ Rückgang, ● unwesentlich (unter der Materialitätsschwelle) … |
 | `driverNote` | bool | `true` | Kategorie-Brücke: kursive Notiz am größten Treiber („größter Treiber · n % der Gesamtabweichung“) — überlagert den Zeilenbereich, hier abschaltbar. |
 | `stackShape` | enum | `columns` | `columns` · `area` — Gestapelte Säulen (Feld „Stack-Serie“): als Säulen (Standard) oder als gestapelte Fläche über die Zeit mit Summenlinie, Punkten je Periode und Seriennamen am Ende. Ohne Serie und bei Balken ohne Wirkung. |
@@ -949,6 +1070,7 @@ deutschen Oberfläche. „Standard“ ist der Wert, der ohne Eintrag in `visual.
 | `stackBlocks` | enum | `off` | `off` · `gap` · `subtotals` · `subtotalsButLast` — Gestapelte Balken mit Kategorie-Hierarchie: die erste Ebene bildet Blöcke (z. B. Region), die Zeilen zeigen nur die unteren Ebenen. Abstand: halbe Zeile zwischen den Blöcken … |
 | `stackBlockShare` | bool | `false` | Mit Zwischensummen: der Anteil des Blocks an der Gesamtsumme in einer Ellipse hinter der Blocksumme, „100 %“ an der Σ-Zeile und der Anteil hervorgehobener Zeilen über ihrer Summe (unter einer längeren Nachbarzeile rechts daneben) … |
 | `scenarioLabels` | bool | `false` | Säulen, Linie, Bestand & Fluss: schreibt die Szenario-Kürzel an: AC unter den ersten Ist-Monat, FC unter den ersten Forecast-Monat, AC und FC neben die Teile der Jahressäule; in der Linie zusätzlich das Kürzel am Ende jeder Linie (FC, PL) … |
+| `panelTypeTitles` | bool | `false` | Graue Paneltitel, die nur den Charttyp nennen: „gestapelt“ über gestapelten Säulen, Balken und Flächen (bei AC allein entfällt der Titel ganz), „Brücke + Monatssäulen“ in der Integrierten Brücke und die Leseanleitung des Marimekko … |
 | `exportExpandAll` | bool | `true` | PDF-/PowerPoint-Export und Abo-Mails rendern Tabelle, Matrix und GuV-Statement mit allen Zeilen- und Spalten-Ebenen aufgeklappt — der Ausdruck zeigt alles, unabhängig vom Klapp-Zustand am Bildschirm … |
 
 **Bestand & Fluss**
@@ -1059,6 +1181,8 @@ deutschen Oberfläche. „Standard“ ist der Wert, der ohne Eintrag in `visual.
 | `scatterArrows` | bool | `false` | Nur mit Vorjahr (PY): jeder Punkt bekommt einen dünnen Pfeil vom kleinen grauen PY-Punkt zur AC-Position. Y = PY-Wert; X bleibt gleich, außer das Feld „X-Achse VJ (Scatter)" ist gebunden — dann volle 2D-Bewegung … |
 | `scatterTrend` | enum | `off` | `off` · `linear` — Lineare Regression über die sichtbaren Punkte (bei Small Multiples je Kachel) als dünne gepunktete Linie über die Plotbreite. Bei Log-Achsen im logarithmischen Raum gerechnet (Gerade bleibt gerade). Mindestens 3 Punkte. |
 | `scatterTrendR2` | bool | `false` | Beschriftet das Ende der Trendlinie mit dem Bestimmtheitsmaß („R² = 0,87"). |
+| `scatterTypeTitle` | bool | `false` | Scatter und Bubble: der graue Paneltitel beginnt mit „Scatter · AC × X-Name“. Die übrigen Teile (○ Blasengröße, Farbe = Δ, Punkte außerhalb der Achsen) bleiben immer. Standard aus. |
+| `scatterScenarioTag` | bool | `false` | Scatter und Bubble: hängt das Szenario-Kürzel an den Titel der Y-Achse („Umsatz (AC)“) und an den automatischen Diagrammtitel („Umsatz · AC“) … |
 | `scatterSizeLegend` | bool | `true` | Nur mit gebundener Blasengröße: drei Referenzkreise (klein · mittel · groß, auf runde Werte gerundet) kompakt in einer freien Ecke des Plots. Bei Small Multiples einmal in der ersten Kachel. |
 | `scatterValueLabels` | bool | `false` | Nur mit gebundener Blasengröße: schreibt den Wert der Blasengröße in die Blase (Schrift hell auf dunkler Blase, dunkel auf heller). Passt die Zahl nicht hinein, steht sie hinter dem Namen … |
 | `scatterMaxRadius` | numeric | `0` | Bereich 0–200 — Nur mit gebundener Blasengröße: Radius der größten Blase in Pixeln (bei Schrift-Presets mitskaliert). 0 = automatisch (höchstens 22 px) … |
@@ -1119,6 +1243,8 @@ Enum-Labels:
   `rest` = FC = Restmonat (additiv)
 - `highlightStyle`: `band` = Band hinter der Kategorie; `ellipse` = Ellipse um die Werte
 - `pinStyle`: `auto` = Automatisch (je Modus); `round` = Rund; `square` = Quadratisch
+- `pinHeadColor`: `scenario` = Szenario (AC massiv, FC schraffiert, PL hohl);
+  `variance` = Abweichungsfarbe (alle Modi, auch Tabelle und Brücken)
 - `stackShape`: `columns` = Säulen; `area` = Fläche
 - `areaValueLabels`: `auto` = Automatisch (ausdünnen); `ends` = Erste und letzte Periode; `off` = Aus
 - `stackLegendPos`: `end` = Rechts neben der letzten Säule; `start` = Links neben der ersten Säule
@@ -1188,6 +1314,7 @@ Enum-Labels:
 | `decimals` | numeric | `1` | Bereich 0–3 |
 | `displayUnits` | enum | `auto` | `auto` · `none` · `k` · `m` · `b` |
 | `financeFormat` | bool | `false` | Finanzkonvention für Zahlen: negative Werte in Klammern statt Minuszeichen — (1.234) — und Null als „–". Gilt für Wert- und Δ-Beschriftungen inkl. Δ %. |
+| `roundedZero` | enum | `signed` | `signed` · `plain` — Eine Abweichung, die nicht null ist, aber auf null rundet: Vorzeichen behalten („+0,0“, die Richtung bleibt neben Pin oder Balken lesbar) oder ohne Vorzeichen wie in den Referenzblättern („0,0“). Gilt für Δ, Δ % und Pp … |
 | `sumSafeRounding` | bool | `false` | Rundet die Wertbeschriftungen nach dem Restwertverfahren so, dass sie exakt auf die Σ-Kopfzeile aufaddieren — keine Rundungsdifferenz-Nachfragen mehr … |
 | `unitSuffix` | bool | `true` | An = jede Beschriftung trägt Größenordnung und Einheit („18,5M“). Aus = nur die Zahl („18,5“), die Einheit steht einmal im Titel („Nettoumsatz in Mio. EUR“), so wie es IBCS empfiehlt. |
 | `labelAc` | text | leer | Eigener Begriff für AC in Titeln, Spaltenköpfen und Legenden (z. B. „Ist"). Leer = AC. |
@@ -1202,6 +1329,7 @@ Enum-Labels:
 - `fontPreset`: `compact` = HD (Dashboard-Kachel); `fullhd` = Full HD (1080p);
   `presentation` = UHD (4K / Beamer)
 - `displayUnits`: `auto` = Auto; `none` = Keine; `k` = Tausend (k); `m` = Millionen (M); `b` = Milliarden (B)
+- `roundedZero`: `signed` = Vorzeichen behalten (+0,0); `plain` = Ohne Vorzeichen (0,0)
 
 ### Objekt `categoryAxis` (Karte „Kategorienachse“)
 

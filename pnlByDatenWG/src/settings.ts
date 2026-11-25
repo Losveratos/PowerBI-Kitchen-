@@ -487,7 +487,12 @@ export class ColumnsCardSettings extends formattingSettings.CompositeCard {
     chartLabels = megaToggle("chartLabels", "Numbers at bars / pins / cascades", true,
         "Value labels next to every chart element. Default: on");
     capBars = megaToggle("capBars", "Outlier arrows for Δ bars too", false,
-        "Pins always cap outliers (Q3 + 4 × IQR); this extends it to the Δ bars. Default: off");
+        "Pins cap outliers (Q3 + factor × IQR, switch and factor below); this extends it to the Δ bars. Default: off");
+    // 1.8.4 the pin cap can be switched off, its fence factor set (default = the behaviour before 1.8.4)
+    capPins = megaToggle("capPins", "Outlier arrows for pins", true,
+        "A Δ% pin far beyond the others runs into an outlier zone, is cut by a break mark and ends in a triangle after its head; the head keeps its scenario mark. Off: every pin at full length on one scale. Default: on");
+    capFactor = numUpDown("capFactor", "Mega_CapFactor", "Outlier threshold (× IQR)",
+        "A value counts as an outlier beyond Q3 + this factor × the interquartile range of its column family (pins; with the switch above also the Δ bars), from 8 values on. Smaller = more arrows. Default: 4", 4, 1, 20);
     sort = dropdown("sort", "Mega_Sort", "Sort (structure data)",
         "Per subtotal block; rows named Other … stay at the bottom. Default: category order", megaSortItems);
     sortBlock = dropdown("sortBlock", "Mega_SortBlock", "Sorting block",
@@ -519,7 +524,8 @@ export class ColumnsCardSettings extends formattingSettings.CompositeCard {
             this.pctOfRevenue, this.secondBlock, this.blockKind, this.leftBlockKind, this.structureSubtotals,
             this.structureTotal, this.structureTotalLabel, this.showPctRows,
             this.thresholds, this.thresholdAbs, this.thresholdPct, this.thresholdYtdAbs, this.thresholdYtdPct,
-            this.scenarioMarks, this.chartLabels, this.capBars, this.sort, this.sortBlock, this.keepBlockOrder]
+            this.scenarioMarks, this.chartLabels, this.capBars, this.capPins, this.capFactor,
+            this.sort, this.sortBlock, this.keepBlockOrder]
     });
 
     tree = new formattingSettings.Group({
@@ -995,7 +1001,12 @@ export function applyPaneGates(m: VisualFormattingSettingsModel, ctx: PaneContex
     const anyChart = (py && (c.dPyBar.value || c.dPyPin.value || c.dPyWaterfall.value))
         || (pl && (c.dPlBar.value || c.dPlPin.value || c.dPlWaterfall.value)) || c.valueCascade.value;
     c.chartLabels.visible = anyChart;
-    c.capBars.visible = (py && c.dPyBar.value) || (pl && c.dPlBar.value);
+    const bars = (py && c.dPyBar.value) || (pl && c.dPlBar.value);
+    const pins = (py && c.dPyPin.value) || (pl && c.dPlPin.value);
+    c.capBars.visible = bars;
+    // 1.8.4 the pin cap and the fence factor of every capped family
+    c.capPins.visible = pins;
+    c.capFactor.visible = (pins && c.capPins.value) || (bars && c.capBars.value);
 
     const t = m.titleCard;
     for (const s of [t.unitLine, t.measureLine, t.periodLine, t.message, t.autoMessage, t.headline, t.footer, t.filterFooter]) {

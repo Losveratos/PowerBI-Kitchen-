@@ -465,10 +465,10 @@ check("capabilities: new objects (numbers.financeFormat/sumSafeRounding/scaling 
         const v = __mk("f9", 1400, 820);
         v.__upd([dvRows(MEGA_DEMO.regions(), obj)]);
         // the template write is echoed — the pane now carries the T02A switches
-        // 1.8: the echo carries every switch the template wrote (structureTotal included)
+        // 1.8: the echo carries every switch the template wrote (structureTotal included; 1.8.4 roundedZero)
         const pane = { columns: { template: "T02A", templateApplied: "T02A", showPL: true, showMinuend: true, dPlBar: true, dPlPin: true, secondBlock: true,
             structureTotal: true },
-            numbers: { decimals: 0, pctDecimals: 1 }, toolbar: { showScenario: true }, hierarchy: { defaultLevel: 0 } };
+            numbers: { decimals: 0, pctDecimals: 1, roundedZero: "plain" }, toolbar: { showScenario: true }, hierarchy: { defaultLevel: 0 } };
         v.__upd([dvRows(MEGA_DEMO.regions(), pane)]);
         const caps = [...v.__el.querySelectorAll("button")].map(b => b.textContent);
         out.buttons = caps;
