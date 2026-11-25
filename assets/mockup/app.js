@@ -1,6 +1,6 @@
 /* MockupKitchen · App-Kern v0.2: Zustand (mehrere Seiten), Container-Layout, Rendering, Interaktion, Datenmodell (TMDL/Demo) */
 // Einzige Quelle der Tool-Version: Kopfzeile, meta.version der Spec, AGENT-BRIEF und WORKSHOP-DOKU lesen diesen Wert.
-window.MK_VERSION = '0.8.1';
+window.MK_VERSION = '0.9.0';
 (function () {
   'use strict';
   const CAT = window.MK_CATALOG;

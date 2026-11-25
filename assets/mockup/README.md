@@ -3,6 +3,26 @@
 Positionierung (aus dem Review): kein Report-Generator, sondern ein **Anforderungswerkzeug mit deterministischem
 Ausgang**. Der Workshop legt Struktur, Felder und Entscheidungen fest; der Bau ist eine Ableitung.
 
+## Neu in v0.9.0 (25.11.2026, `feat/mockup-kitchen`, PR #78)
+
+- **Arbeitsbereich „Visual einrichten“** (`studio.js`, `MK_STUDIO.open(leafId)`): „Einrichten“ in der Kachel-Leiste
+  öffnet einen ganzseitigen Dialog für genau eine Kachel. Links die Felder des Modells mit Suche, in der Mitte die
+  große Vorschau mit Titel und Untertitel, rechts die Rollen und die Darstellung, unten „Fertig“.
+- **Rollen erklären sich selbst:** jede Rolle zeigt Feldart, Pflicht oder freiwillig, die Höchstzahl und in einem Satz,
+  was sie im Visual bewirkt (Texte aus `tip.role.*`). Eine Rolle anklicken, dann links ein Feld wählen; unpassende
+  Felder treten zurück. Ziehen geht auch. Leere Rollen zeigen bis zu drei Vorschläge, „Felder vorschlagen“ füllt alle.
+- **Darstellung an einer Stelle:** Vergleich (Szenario), Abweichung absolut und in Prozent, Bewertung, Sortierung,
+  Top N, kumuliert, Small Multiples, die ChartKitchen-Optionen des Typs und die Kernaussage. Es erscheinen nur die
+  Schalter, die der Typ hat. Jede Änderung wirkt sofort auf Vorschau und Kachel (ein Rückgängig-Schritt je Änderung).
+- **„Das kann dieses Visual“:** kurze Liste je Umsetzung (ChartKitchen-Modus, P&L byDatenWG, Gantt, nativ, Deneb) mit
+  Etikett „hier einstellbar“, „über Typ ändern“ oder „im Bericht einstellbar“. Das Etikett wird an der Kachel
+  geprüft (`capWhere`), es verspricht also nie einen Schalter, den der Dialog nicht zeigt. Quelle der Liste sind die
+  AGENT-GUIDEs der Visuals; sie ist bewusst kurz und nennt keine Property-Namen.
+- **Typ und Alternativen im Kopf:** „Typ ändern“ öffnet die Typauswahl über dem Arbeitsbereich, die Fassungen einer
+  Kachel sind als Schalter sichtbar, „+ Alternative“ und „Alternative entfernen“ sitzen daneben.
+- Der frühere Zoom auf die Kachel (`MK.focusTile`) bleibt als Rückfall im Code, hat aber keinen Knopf mehr.
+- Nicht geändert: Spec-Format und Skill. Der Arbeitsbereich schreibt dieselben Felder wie der Kachel-Reiter.
+
 ## Neu in v0.8.1 (25.11.2026, lokal auf `feat/mockup-kitchen`)
 
 - **Feld-Vorschläge je Rolle** (`suggestFor`, `autoFill` in `appmode.js`): Leere Rollen im Kachel-Reiter zeigen bis zu
@@ -283,6 +303,7 @@ Datei (file://) funktioniert ebenfalls.
 | `catalog.js` | Visual-Katalog: 47 Typen (ChartKitchen, native PBI, Custom Visuals Gantt/P&L), Datenrollen, Engines, Mapping auf pbir- und Custom-Visual-Buckets, fünf Demo-Modelle, Seitenvorlagen mit Feldbindungen |
 | `sketches.js` | SVG-Skizzen je Typ, `MK_SKETCH(kind, w, h, {scenario, seed, variance, dense, label, scale, polarity, lang, unit, palette, ink, dark, paper})`, Farben je Aufruf aus `theme(o)` |
 | `app.js` | Zustand v2 (Seiten, Design, Chrome), Container-Split-Layout → Canvas-Pixel, Skalierung (`ui = canvas.w / 1280`), Drag-and-drop, TMDL-Parser (BOM-fest), Inspector, Undo |
+| `studio.js` | Arbeitsbereich „Visual einrichten“ (ab 0.9.0): ganzseitiger Dialog je Kachel mit Feldern, Vorschau, Rollen, Darstellung und „Das kann dieses Visual“ |
 | `pixelgrid.js` | Pixelraster: Zonen, Ränder, Linien, Kacheln aus Brüchen; gemeinsam mit der dwg cli (Test `pixelgrid-test.js`) |
 | `gridcheck.js` | Raster prüfen und ausrichten, `checkLattice()` für den Rastermodus (Test `gridcheck-test.js`) |
 | `export.js` | `mockup-spec.json` (specVersion 2), `AGENT-BRIEF.md`, `WORKSHOP-DOKU.md`, `pbir-visuals.<Seite>.json`, Prompt; Speichern/Öffnen als `.mockup.json` |

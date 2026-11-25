@@ -514,7 +514,8 @@
     if (b.dataset.tb === 'auto') { autoFill(); return; }
     if (b.dataset.tb === 'alt') { addAlt(); return; }
     if (b.dataset.tb === 'altdrop') { dropAlt(); return; }
-    if (MK.focusId) MK.unfocusTile(); else MK.focusTile(MK.sel);
+    // Ab 0.9.0 öffnet „Einrichten“ den Arbeitsbereich (studio.js); der Zoom auf die Kachel bleibt als Rückfall
+    if (MK.focusId) MK.unfocusTile(); else if (window.MK_STUDIO) window.MK_STUDIO.open(MK.sel); else MK.focusTile(MK.sel);
   });
   { const stg = $('#stage'); if (stg) stg.addEventListener('scroll', placeTileBar, { passive: true }); }
   // Auswahl per Klick oder Taste zeichnet nicht neu (kein mk:rendered), deshalb hier nachziehen
