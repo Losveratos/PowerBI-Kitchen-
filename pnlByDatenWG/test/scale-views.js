@@ -176,6 +176,22 @@ function tree(id) {
             return true;
         });
         const b = bo ? await page.evaluate(classic, "fy-bo") : null;
+        // a hidden twin (display:none) earlier in the DOM must not lend its pattern: every head finds
+        // the hatch inside its own visual (until the review the id had no instance part: empty rings)
+        const twin = await page.evaluate(() => {
+            const mk = (id, hidden) => { const d = document.createElement("div"); d.id = id; d.className = "stage";
+                d.style.cssText = `width:1900px;height:900px;${hidden ? "display:none;" : ""}`; document.body.prepend(d);
+                const v = new PnlByDatenWG.Visual({ element: d, host: makeHost("en-US") });
+                v.update({ dataViews: [dv({ titleBlock: TITLE, hierarchy: { defaultLevel: 2 } })], viewport: { width: 1900, height: 900 }, type: 2 }); return d; };
+            const vis = mk("fy-vis", false); mk("fy-hid", true);
+            const heads = [...vis.querySelectorAll("circle[data-pnl-fc]")];
+            const own = heads.every(c => { const id = (/url\(#([^)]+)\)/.exec(c.getAttribute("fill") || "") || [])[1]; return id && vis.querySelector("#" + id) != null
+                && document.getElementById(id) === vis.querySelector("#" + id); });
+            const ids = new Set([...document.querySelectorAll('svg[data-pnl="pin-defs"] pattern')].map(x => x.id));
+            return { n: heads.length, own, ids: ids.size };
+        });
+        check("1.8.4 a hidden twin visual earlier in the DOM does not lend its pattern: the heads use their own (instance id)",
+            twin.n > 0 && twin.own && twin.ids >= 2, JSON.stringify(twin));
         check("blue / orange: the AC&FC heads stay ink, the stems take #2C7BB6 / #E66101",
             b && b.fcHeads.length > 0 && b.fcHeads.every(h => h.stroke === "#404040") && b.stems.every(c => /#2C7BB6|#E66101/i.test(c || "")),
             JSON.stringify(b && { fc: b.fcHeads.slice(0, 1), stems: [...new Set(b.stems)] }));

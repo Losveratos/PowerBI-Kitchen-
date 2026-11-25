@@ -53,7 +53,9 @@ Punkte sind Notationskorrekturen und ändern das Bild bestehender Berichte gezie
   Streifen), ein gemeinsames Muster je Tabelle; gekappt und ungekappt, hell und dunkel, mit jedem
   Abweichungsfarben-Preset (blau-orange: nur der Stiel). Die klassische Tabelle hat keinen
   Hochkontrast-Pfad (nur Mega-Tabelle und Sankey), dort ändert sich nichts. **Wirkung:** klassische
-  Tabellen mit FY-Block zeigen schraffierte Tinten-Köpfe statt leerer Ringe in Abweichungsfarbe.
+  Tabellen mit FY-Block zeigen schraffierte Tinten-Köpfe statt leerer Ringe in Abweichungsfarbe. Das Muster
+  trägt die Kennung des Visuals: ein verstecktes zweites Visual davor auf derselben Seite leiht ihm nicht
+  mehr sein Muster (sonst wurden die Köpfe zu leeren Ringen, also zur Plan-Notation).
 - **Zahlen folgen einem Sprachwechsel des Hosts zur Laufzeit.** Das Visual las `host.locale` nur im
   Konstruktor; wechselte der Host die Sprache danach, zogen nur die Texte nach, die Zahlen blieben im
   alten Format. Jetzt übernimmt jedes Update die aktuelle Sprache des Hosts; alle Zahlen nutzen weiter
@@ -74,18 +76,26 @@ Punkte sind Notationskorrekturen und ändern das Bild bestehender Berichte gezie
   dichten Listen in 1400 × 742 px 119 px über den rechten Rand, und der Faktor sprang beim Ändern der Breite
   um wenige Pixel (1392 → 1,13, 1396 → 1,42). Jetzt baut das Visual jeden Kandidaten auf und prüft ihn: Höhe
   passt UND Breite passt (bei Faktor ≤ 1 zählt nur die Höhe, eine Tabelle, die schon bei ×1 breiter ist,
-  scrollt wie bisher). Ein kleiner Breitenüberstand (bis 40 px, meist 2 bis 3 px Beschriftung) kommt zuerst
-  aus den Diagrammspalten, wie im Erstaufbau, und kostet keine Schrift mehr (bis dahin bis zu 27 % in m40).
-  Der Faktor liegt auf einem Raster von 0,02; das Ergebnis ist der größte geprüft passende Schritt, nie ein
-  ungeprüfter. Messreihe 900 bis 1900 × 250 bis 1100 px über 12A, T05B, T02A, T02C: kein Überlauf, der
-  Faktor fällt nie mit mehr Breite oder Höhe; im Mittel etwa 70 ms je Update wie vorher, einzelne Größen
-  mit mehrfachem Abgeben von Diagrammplatz bis etwa 270 ms. **Wirkung:** Berichte mit `maximize` laufen nie mehr über die Kachel
-  und nutzen sie meist größer.
+  scrollt wie bisher) UND keine Diagrammspalte der Mega-Tabelle fällt unter 70 % ihrer Breite bei ×1: die
+  Schrift wächst vor den Diagrammen, aber halbiert sie nicht (m40 in 1400 × 742: Kaskaden bei 75 % ihrer
+  Breite). Ein kleiner Breitenüberstand kommt zuerst aus den Diagrammspalten, wie im Erstaufbau, und kostet
+  keine Schrift mehr (bis dahin bis zu 27 % in m40). Jeder Kandidat bestimmt diesen Abzug neu ab 0 und nur so
+  weit, wie er gebraucht wird, zusammen höchstens 40 px; der Abzug des Erstaufbaus, der oft nur vom
+  senkrechten Rollbalken kam, wird nicht übernommen (m82 in 1566 × 742: 0 statt 42 px, kein leerer Streifen
+  rechts). Der Faktor liegt auf einem Raster von 0,02; die Suche klammert den größten passenden Schritt ein
+  und halbiert, bis passender und gescheiterter Schritt Nachbarn sind. Ergebnis ist immer ein geprüfter
+  Schritt. Je Update braucht das im Mittel 5 bis 9 Aufbauten, in einzelnen Größen bis etwa 35 (Abgabe von
+  Diagrammplatz eingerechnet).
+  Abnahme-Messreihe 900 bis 1900 × 250 bis 1100 px in 50-px-Schritten über zwölf Bühnen (12A, T05B, T02A,
+  T02C, flache Liste, 12G, T04A, T04B, T03A, T01B, zwei klassische Tabellen): kein Überlauf, der Faktor fällt
+  in keiner Bühne mit mehr Breite oder Höhe; im Mittel 70 bis 100 ms je Update, einzelne Größen bis etwa 570 ms.
+  **Wirkung:** Berichte mit `maximize` laufen nie mehr über die Kachel und nutzen sie meist größer.
 - **⚡ Nur Ausnahmen auf dem gedruckten Wert** (übernommen). Die Schwellen von ⚡ prüfen das gedruckte Δ
   (Einheit und Dezimalen der Tabelle), Δ% (Δ%-Dezimalen) und die pp der Margen mit deren eigenen Dezimalen
   (Mega-Tabelle in Blattnotation mindestens eine Stelle), wie das Schwellen-Rot: −9,96 % druckt −10,0 % und
   ist bei 10 % eine Ausnahme. Sind beide Schwellen 0, zählt eine Δ, die als 0 gedruckt wird, nicht als
-  Ausnahme. Nicht umgesetzt: bei Σ-treuer Rundung (`numbers.sumSafeRounding`) prüft ⚡ weiter die gerundete
+  Ausnahme, auch wenn ihr Δ% sichtbar von 0 abweicht (Δ 0,04 bei 0 Dezimalen druckt 0, die Zeile ist keine
+  Ausnahme). Nicht umgesetzt: bei Σ-treuer Rundung (`numbers.sumSafeRounding`) prüft ⚡ weiter die gerundete
   Rohdifferenz, nicht die Differenz der gedruckten Werte (das bräuchte die Rundung des ganzen Baums vor ⚡).
   **Wirkung:** Zeilen genau an der Schwelle können ihre Einstufung wechseln.
 - **Gerundete Null ohne Vorzeichen in allen Templates** (wie ChartKitchen). Jedes Template schreibt beim
@@ -116,7 +126,9 @@ Kachel, Tooltip und Mega-Tooltip sowie es-ES „n.d.“ und ja-JP „N/A“. Nac
 Maximieren (m15, m40, m82, m5 über 900 bis 1900 × 250 bis 1100: kein Überlauf, Faktor monoton), m84 bis m86
 (Einkind-Gruppen und Mischliste behalten Blöcke, flache Liste unter ⚡ ausblenden bleibt dicht); scale-views
 p1/p13 und blau-orange (FY-Kopf in Tinte, Stiel in Abweichungsfarbe, ein Muster je Tabelle, kein leerer Ring
-auch auf dunklem Papier); engine-test ⚡ mit pp-Dezimalen und gedruckter Null. Angepasst: tree-interact „⚡ hide, Sankey“ bündelt jetzt
+auch auf dunklem Papier); engine-test ⚡ mit pp-Dezimalen und gedruckter Null. Letzte Runde: scale-views
+verstecktes Zwillings-Visual (Muster mit Instanzkennung); toolbar-interact und ease-interact vergleichen das
+Markup zweier Visuals ohne die Musterkennung. Angepasst: tree-interact „⚡ hide, Sankey“ bündelt jetzt
 bei 6 % statt 5 % (mit dem gedruckten Δ% zählt ein Strom mit +4,96 % bei 5 % als Ausnahme, das letzte Paar
 ruhiger Geschwister fiel weg).
 

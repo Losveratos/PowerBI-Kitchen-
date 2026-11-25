@@ -154,7 +154,7 @@ function check(label, cond, detail) {
             const rest = d.categorical.categories.filter(c => !c.source.roles.levels).reverse();
             return { ...d, categorical: { categories: [...rest, ...lv], values: [...d.categorical.values].reverse() } };
         }, { hierarchy: { defaultLevel: 1 } });
-        const strip = (id) => T.box(id).querySelector(".pnl-root").innerHTML.replace(/pnlh\w+|data-pnl-row="[^"]*"/g, "");
+        const strip = (id) => T.box(id).querySelector(".pnl-root").innerHTML.replace(/pnlh\w+|pnlpinfc\w+|data-pnl-row="[^"]*"/g, "");
         const a = strip("r1"); const b = strip("r2");
         return { same: a === b, rows: T.box("r1").querySelectorAll('[data-pnl-row]').length };
     });

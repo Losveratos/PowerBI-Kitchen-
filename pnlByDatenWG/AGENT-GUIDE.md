@@ -1007,7 +1007,9 @@ Anfangsbestand und `stock` am Endbestand (Formel `[Anfangsbestand]+[Operativ]+�
       (`data-pnl="pin-head"`, gleiche Füllung wie der ungekappte) direkt vor dem Dreieck. Der Kopf
       eines AC&FC-Pins (FY) ist wie im Blatt 12G in Tinte umrandet und schraffiert (`data-pnl-fc`,
       Muster `pnlpinfc…` aus Tinte und Papier, Periode 2,0, Strich 0,9), nur der Stiel trägt die
-      Abweichungsfarbe; das Muster steht einmal je Tabelle (`svg[data-pnl="pin-defs"]`, `tablePinHatch`).
+      Abweichungsfarbe; das Muster steht einmal je Tabelle (`svg[data-pnl="pin-defs"]`, `tablePinHatch`),
+      seine Kennung enthält die Instanz (`this.uid`), damit ein verstecktes Zwillings-Visual es nicht
+      überdeckt. Tests, die das Markup zweier Visuals vergleichen, entfernen `pnlpinfc…` vorher.
     - **Sprache:** `syncLocale()` übernimmt `host.locale` zu Beginn jedes `update()` (leer = die zuletzt
       bekannte, im Konstruktor en-US). Zahlformat-Speicher (`treeNf`, `megaNf`) sind nach Sprache und
       Dezimalen geschlüsselt. Damit folgen die Zahlen einem Sprachwechsel des Hosts zur Laufzeit; bis
@@ -1022,12 +1024,15 @@ Anfangsbestand und `stock` am Endbestand (Formel `[Anfangsbestand]+[Operativ]+�
     - **Flache Listen:** `megaRows` setzt zwischen Elementen der obersten Ebene keine Leerzeile, wenn
       im MODELL jedes Element der obersten Ebene (unter einer einzigen Wurzel deren Kinder) ein Blatt ist
       (`flatTop`); die Gesamtzeile behält ihre Leerzeile. ⚡ ausblenden und Nullzeilen ändern das nicht.
-    - **Maximieren:** `fillHeight(cur, base, build(shrink), shrink, canShrink)` sucht den Faktor auf
-      einem Raster von 0,02 ab der Höhenschätzung des Aufbaus bei ×1 und prüft jeden Kandidaten (Höhe
-      passt UND Breite passt über `bodyOverflow`, bei k ≤ 1 nur die Höhe). Die Mega-Tabelle gibt einen
-      Breitenüberstand bis 40 px zuerst aus den Diagrammspalten ab (`buildMega(fmt, shrink)`, bis zu
-      sechs Versuche, weil die Spalten nicht immer um den vollen Betrag schmaler werden). Ergebnis ist
-      der größte geprüft passende Schritt; endet die Suche auf einem anderen Aufbau, wird er neu gebaut.
+    - **Maximieren:** `fillHeight(cur, base, build(shrink), shrink, canShrink, chartW)` sucht den Faktor
+      auf einem Raster von 0,02: Klammer ab der Höhenschätzung des Aufbaus bei ×1 entlang der Schätzungen
+      der Aufbauten, dann Halbieren, bis passender und gescheiterter Schritt Nachbarn sind. Ein Kandidat
+      passt, wenn Höhe UND Breite passen (`bodyOverflow`, bei k ≤ 1 nur die Höhe) und bei k > 1 keine
+      Diagrammspalte unter 70 % ihrer Breite bei ×1 fällt (`chartW` aus `megaLast.charts`, `CHART_FLOOR`).
+      Jeder Kandidat nimmt seinen Diagramm-Abzug (`buildMega(fmt, shrink)`) frisch ab 0 und nur bei
+      Überstand, in bis zu sechs Schritten, zusammen höchstens 40 px (`SHRINK_MAX`). Ergebnis ist der
+      größte geprüft passende Schritt; endet die Suche auf einem anderen Aufbau, wird er neu gebaut.
+      Je Update im Mittel 5 bis 9 Aufbauten, einzeln bis etwa 35.
     - **⚡ gedruckt:** `ExceptionRule.rd`/`rp`/`rpp` runden Δ (Anzeigeeinheit, Dezimalen), Δ% (Δ%-Dezimalen)
       und die pp der Margen (Mega-Tabelle: `sheetMdec`, dann mindestens eine Stelle) wie die Tabelle
       (`engine.roundShown`), bevor die Schwellen greifen; bei beiden Schwellen 0 zählt nur eine Δ, die

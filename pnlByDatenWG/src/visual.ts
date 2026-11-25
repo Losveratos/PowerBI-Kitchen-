@@ -4582,7 +4582,8 @@ export class Visual implements IVisual {
             let used = shrink;
             if (this.maxi()) {
                 // 1.8.4 a small width overflow comes out of the chart columns (buildMega's shrink) first
-                const fit = this.fillHeight(table, ui.density === "compact" ? 11 : 13, s => this.buildMega(fmt, s), shrink, true);
+                const fit = this.fillHeight(table, ui.density === "compact" ? 11 : 13, s => this.buildMega(fmt, s), shrink, true,
+                    () => (this.megaLast?.charts ?? []).map(c => c.w));
                 table = fit.el; used = fit.shrink;
             }
             this.megaFitNotes(fmt, table, notes, used, footer);
@@ -4631,24 +4632,27 @@ export class Visual implements IVisual {
      * 9 px body font (`base` = body font size at scale 1), beyond that the
      * rows scroll. Growing never pushes the body past the tile width.
      *
-     * 1.8.4 a deterministic search instead of a feedback loop (which swung between
-     * steps, because rows round to whole pixels, and could end on an unchecked
-     * growth step: m15 ended 34 px below the tile edge). Every candidate k is
-     * built and checked: the page fits the height AND the body fits the width
-     * (at k ≤ 1 only the height counts, a body wider than the tile at ×1 scrolls
-     * as before). A small width overflow (≤ 40 px, typically 2 to 3 px of label
-     * room) first comes out of the chart columns, like the first build does
-     * (`build(shrink)`, `canShrink`), instead of costing type size. The result is
-     * the largest checked k that fits, rebuilt if the last build was another one.
-     * Starts from the build at ×1 (render resets bodyK), so the same tile always
-     * gives the same k: monotone in width and height up to pixel steps.
+     * 1.8.4 a checked search on a grid of 0.02 instead of a feedback loop (which
+     * swung between steps, because rows round to whole pixels, and could end on an
+     * unchecked growth step: m15 ended 34 px below the tile edge). A candidate k > 1
+     * fits when the page fits the height, the body fits the width and (mega table,
+     * `chartW`) no chart column falls below CHART_FLOOR of its width at ×1: the type
+     * grows before the charts, but never at the price of halving them. Each
+     * candidate takes its chart room fresh from 0 (`build(shrink)`): a small width
+     * overflow comes out of the chart columns, at most 40 px in all. The search brackets the largest fitting step and halves until
+     * the steps are neighbours, so a larger tile never gets a smaller step (as long
+     * as a step that fits keeps fitting with more room).
+     * Starts from the build at ×1 (render resets bodyK): the same tile, the same k.
      */
     private fillHeight(cur: HTMLElement, base: number, build: (shrink: number) => HTMLElement,
-        shrink0 = 0, canShrink = false): { el: HTMLElement; shrink: number } {
+        shrink0 = 0, canShrink = false, chartW?: () => number[]): { el: HTMLElement; shrink: number } {
         const avail = this.root.clientHeight;
         if (!avail) { return { el: cur, shrink: shrink0 }; }
         const lo = Math.round(Math.min(1, 9 / (base * this.fontScale())) * 1000) / 1000;
         const hi = 1.6;
+        const STEP = 0.02;
+        const CHART_FLOOR = 0.7;
+        const SHRINK_MAX = 40;
         let curS = shrink0;
         const put = (k: number, s: number): void => {
             this.bodyK = k; curS = s;
@@ -4657,76 +4661,70 @@ export class Visual implements IVisual {
             cur = fresh;
         };
         const room = (): { h: number; w: number } => ({ h: avail - this.contentHeight(), w: this.bodyOverflow(cur) });
-        // the state at ×1 (as rendered); its small width overflow comes out of the chart columns
-        let base1 = shrink0;
-        let m = room();
-        for (let a = 0; a < 6 && canShrink && m.w > 1 && base1 - shrink0 + m.w <= 40; a++) { base1 += Math.max(2, Math.ceil(m.w)); put(this.bodyK, base1); m = room(); }
+        // the state at ×1, as rendered (the first build already took its chart room)
         const k0 = this.bodyK;
+        const m = room();
         const h0 = this.rect(cur).height;
-        const wideAt1 = m.w > 1;
-        const upper = wideAt1 ? Math.min(hi, k0) : hi;
-        // one checked candidate: build, absorb a small width overflow, measure. `next` is this
-        // build's own estimate of the largest fitting k (height and width grow about linearly in k)
-        const cw = Math.max(1, this.root.clientWidth);
+        if (h0 <= 0) { return { el: cur, shrink: shrink0 }; }
+        const w1 = chartW ? chartW() : [];
+        const upper = m.w > 1 ? Math.min(hi, k0) : hi;
+        const grid = (k: number): number => Math.max(lo, Math.min(upper, Math.floor(k / STEP + 1e-6) * STEP));
+        const key = (k: number): number => Math.round(k * 1000) / 1000;
         const tried = new Map<number, { ok: boolean; s: number; next: number }>();
-        // the shrink the last candidate needed is the start of the next one (neighbouring k need
-        // about the same): fewer rebuilds; a little more shrink only narrows the chart columns
-        let sPrev = base1;
         const test = (k: number): { ok: boolean; next: number } => {
-            const kk = Math.round(k * 1000) / 1000;
+            const kk = key(k);
             const known = tried.get(kk);
             if (known) { return known; }
-            let s = Math.max(base1, sPrev);
+            // the chart room fresh from 0 for every candidate, only as far as needed (the first build's
+            // room often came from a vertical scrollbar that the fitted page no longer has)
+            let s = 0;
             put(kk, s);
             let r = room();
-            // the chart columns give up to 40 px; the table does not always narrow by the full
-            // amount (columns round, a minimum data span keeps its width), so it tries again
-            for (let a = 0; a < 6 && canShrink && r.w > 1 && s - base1 + r.w <= 40; a++) { s += Math.max(2, Math.ceil(r.w)); put(kk, s); r = room(); }
-            sPrev = s;
+            for (let a = 0; a < 6 && canShrink && r.w > 1 && s < SHRINK_MAX; a++) {
+                s = Math.min(SHRINK_MAX, s + Math.max(2, Math.ceil(r.w))); put(kk, s); r = room();
+            }
+            let charts = true;
+            if (kk > 1 && w1.length && chartW) {
+                const wk = chartW();
+                charts = wk.length !== w1.length || wk.every((w, n) => w >= CHART_FLOOR * w1[n] - 0.5);
+            }
             const hk = Math.max(1, this.rect(cur).height);
             const kh = kk * (hk + r.h - 2) / hk;
-            const kw = kk > 1 && r.w > 1 ? kk * cw / (cw + r.w) : Infinity;
-            const res = { ok: r.h >= 0 && (kk <= 1 || r.w <= 1), s, next: Math.min(kh, kw) };
+            const kw = kk > 1 && r.w > 1 ? kk * Math.max(1, this.root.clientWidth) / (Math.max(1, this.root.clientWidth) + r.w) : Infinity;
+            const res = { ok: r.h >= 0 && (kk <= 1 || (r.w <= 1 && charts)), s, next: Math.min(kh, kw) };
             tried.set(kk, res);
             return res;
         };
-        if (h0 <= 0) { return { el: cur, shrink: base1 }; }
-        // k lives on a grid of 0.02 (and the 9 px floor): the same tile always lands on the same
-        // step, and a wider tile never on a lower one (a step that fits stays fitting with more width)
-        const STEP = 0.02;
-        const grid = (k: number): number => Math.max(lo, Math.min(upper, Math.floor(k / STEP + 1e-6) * STEP));
-        // the build at ×1 is the first checked point; the start is its height estimate
-        const k0r = Math.round(k0 * 1000) / 1000;
-        tried.set(k0r, { ok: m.h >= 0, s: base1, next: k0 * (h0 + m.h - 2) / h0 });
-        let good = m.h >= 0 ? k0r : -1;
+        // ×1 itself is checked like every candidate (its chart room fresh as well); a first build
+        // without chart room is that check already
+        if (shrink0 === 0) { tried.set(key(k0), { ok: m.h >= 0, s: 0, next: k0 * (h0 + m.h - 2) / h0 }); }
+        let good = test(k0).ok ? key(k0) : -1;
         let fail = Infinity;
+        // bracket: from the height estimate, along the builds' own estimates
         let cand = grid(k0 * (h0 + m.h - 2) / h0);
-        // from the estimate: down along the estimates of the failing builds (after two misses in a
-        // row: halfway to the last fitting step, a width that does not shrink with k misleads the
-        // estimate), up from a fitting one, never past a failed step (≤ 8 builds)
-        let misses = 0;
-        for (let i = 0; i < 8; i++) {
+        for (let i = 0; i < 6; i++) {
             if (cand >= fail - 1e-6 || cand <= good + 1e-6) { break; }
             const t = test(cand);
             if (t.ok) {
-                misses = 0;
-                good = Math.max(good, cand);
-                const up = grid(Math.max(cand + STEP, Math.min(fail - STEP, t.next)));
-                if (up <= cand + 1e-6 || up >= fail - 1e-6) { break; }
-                cand = up;
+                good = cand;
+                if (cand >= upper - 1e-6) { break; }
+                cand = grid(Math.max(cand + STEP, Math.min(fail - STEP, t.next)));
             } else {
-                misses++;
-                fail = Math.min(fail, cand);
+                fail = cand;
                 if (cand <= lo + 1e-6) { break; }
-                let dn = grid(Math.min(t.next, cand - STEP));
-                if (misses >= 2 && good >= 0) { dn = Math.min(dn, grid((good + fail) / 2)); }
-                if (good >= 0 && dn <= good + 1e-6) { break; }
-                cand = dn;
+                cand = grid(Math.min(t.next, cand - STEP));
             }
         }
+        // halve until the largest fitting step and the smallest failing one are neighbours
+        if (good < 0 && isFinite(fail) && fail > lo + 1e-6 && test(lo).ok) { good = lo; }
+        for (let i = 0; i < 8 && good >= 0 && isFinite(fail) && fail - good > STEP + 1e-6; i++) {
+            const mid = grid((good + fail) / 2);
+            if (mid <= good + 1e-6 || mid >= fail - 1e-6) { break; }
+            if (test(mid).ok) { good = mid; } else { fail = mid; }
+        }
         // nothing fits (a tall statement): the smallest type, the rows scroll
-        const k = good >= 0 ? Math.round(good * 1000) / 1000 : lo;
-        const s = tried.get(k)?.s ?? base1;
+        const k = good >= 0 ? key(good) : lo;
+        const s = tried.get(k)?.s ?? 0;
         if (Math.abs(this.bodyK - k) > 1e-6 || curS !== s) { put(k, s); }
         return { el: cur, shrink: s };
     }
@@ -6780,12 +6778,11 @@ export class Visual implements IVisual {
         return cell;
     }
 
-    /**
-     * 1.8.4 id of the fine ink hatch of AC&FC pin heads. No instance id: two renders of the same
-     * statement stay byte-identical; ink and paper are part of it, so light and dark never mix
-     */
+    /** 1.8.4 id of the fine ink hatch of AC&FC pin heads (one per visual, light and dark apart) */
     private pinHatchId(): string {
-        return `pnlpinfc${(C.ac + C.paper).replace(/[^0-9a-z]/gi, "")}`;
+        // the instance id keeps two visuals on one page apart (a hidden twin before this one in the
+        // DOM would lend its pattern and the heads read as empty rings); ink and paper keep light and dark apart
+        return `pnlpinfc${this.uid}${(C.ac + C.paper).replace(/[^0-9a-z]/gi, "")}`;
     }
 
     /** 1.8.4 the one <defs> of a classic table with AC&FC pins: the ink hatch of their heads */
