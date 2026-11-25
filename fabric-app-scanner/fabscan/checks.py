@@ -160,10 +160,23 @@ def check_app(app: AppResult, files: list[tsscan.SourceFile], repo_root: str, ap
         for c in rf.connectors:
             if c.auth != "delegated":
                 sev = "fail" if c.type == "fabric-semanticmodel" else "warn"
+                owner = (" Die App-Identität ist derzeit der Besitzer des App-Items: Wechselt der Besitzer, verliert er "
+                         "Rechte oder scheidet er aus, ändert sich der Zugriff für alle Nutzer oder die App bricht."
+                         if c.auth == "application" else "")
+                if c.type == "fabric-semanticmodel":
+                    owner += " Für Semantikmodelle unterstützt Fabric nur delegierten Zugriff."
                 app.add("security", sev, "SEC-AUTH", f"Konnektor „{c.name}“ greift mit App-Identität zu ({c.auth})",
-                        f"Typ {c.type}. Alle Nutzer sehen, was die App-Identität sehen darf; Zeilensicherheit je Person greift nicht.",
+                        f"Typ {c.type}. Alle Nutzer sehen, was die App-Identität sehen darf; Zeilensicherheit je Person greift nicht.{owner}",
                         os.path.relpath(rf.path, repo_root), 0, f"auth:\n  type: {c.auth}",
                         "Auf auth.type: delegated umstellen oder bewusst dokumentieren, warum alle Nutzer alle Daten sehen dürfen.")
+            elif c.type == "fabric-semanticmodel":
+                app.add("security", "info", "SEC-BUILD", "Jeder App-Nutzer braucht Build auf dem Semantikmodell",
+                        "Delegierter Zugriff: Jeder Nutzer fragt das Modell mit eigener Identität ab und braucht dafür Build. "
+                        "Build gilt für jeden Weg (Excel, XMLA, REST, eigenes DAX aus der Browser-Konsole), nicht nur für die "
+                        "Abfragen der App, und bleibt bestehen, wenn der App-Zugriff entzogen wird.",
+                        os.path.relpath(rf.path, repo_root), 0, f"Konnektor {c.name}: auth.type: delegated",
+                        "Build über eine Gruppe vergeben und beim Entzug mit entfernen; Vertrauliches im Modell per RLS/OLS "
+                        "schützen, nicht über die Abfragen der App.")
         if rf.get("services", "auth", "password", "enabled") is True:
             app.add("security", "warn", "SEC-PASSWORD", "Passwort-Anmeldung ist aktiv",
                     "Neben Fabric-SSO ist eine eigene Passwort-Anmeldung eingeschaltet.", os.path.relpath(rf.path, repo_root),
@@ -186,6 +199,29 @@ def check_app(app: AppResult, files: list[tsscan.SourceFile], repo_root: str, ap
             app.add("security", "info", "SEC-NO-RLS", f"Modell „{b.model.name}“ hat keine Rollen (RLS)",
                     "Delegierter Zugriff schützt nur, wenn das Modell Zeilen nach Nutzer einschränkt. Ohne Rollen sieht jeder mit Lesezugriff alles.",
                     b.model.path, advice="Gewollt bei Demo- oder Gesamtdaten; sonst Rollen im Modell anlegen, nicht in der App.")
+
+    # ---------- Sicherheit: anonyme Datenrolle (@role('anonymous', …) an Entitäten)
+    for r in (tsscan.entity_roles(app_dir, repo_root) if app_dir and app.origin == "repo" else []):
+        if r["role"] != "anonymous":
+            continue
+        acts = r["actions"] or ["?"]
+        write = any(a in ("update", "delete", "*") for a in acts)
+        con = next((c for c in rf.connectors if c.name == r["connector"]), None) if rf and r["connector"] else None
+        if r["connector"]:
+            sev, title = "fail", "Daten aus Fabric ohne Anmeldung abrufbar (anonyme Rolle)"
+            where = f"Entität „{r['entity']}“ am Konnektor „{r['connector']}“" + (f" ({con.type})" if con else "")
+        else:
+            sev = "warn"
+            title = "App-Daten ohne Anmeldung änderbar (anonyme Rolle)" if write else "App-Daten ohne Anmeldung erreichbar (anonyme Rolle)"
+            where = f"Entität „{r['entity']}“"
+        app.add("security", sev, "SEC-ANON", title,
+                f"{where}: Jeder, der die Adresse der App kennt, darf ohne Anmeldung {', '.join(acts)} ausführen"
+                + (" (Felder eingeschränkt)" if r["fields"] else " (alle Felder)")
+                + ". Wirkt, sobald der Tenant-Schalter „Enable anonymous data access for Fabric Apps“ für den Besitzer an "
+                  "ist; den Schalter sieht fabscan im Repo nicht.",
+                r["file"], r["line"], r["evidence"],
+                "Rolle entfernen, wenn die Daten nicht öffentlich sein dürfen. Sonst nur read oder create, Felder mit "
+                "include/exclude begrenzen und Eingaben prüfen (Spam, Automatisierung).")
 
     for h in tsscan.security_hits(files):
         f, ln = h.file.rel, h.line

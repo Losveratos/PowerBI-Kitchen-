@@ -3,6 +3,40 @@
 Für den Agenten, der fabscan weiterbaut. Stand 19.11.2026, Branch `feat/fabscan-nonadmin-fallback`, PR #56.
 Neueste Version zuerst: 0.6.x, dann 0.5.x, darunter unverändert die Übergabe zu 0.4.0.
 
+## 0.6.3 · Rayfin-Regeln (Roadmap Punkt 8)
+
+Grundlage: `recherche/04-bewertung.md` (Punkt 8, Zeilen 10 und 11 der Bewertungstabelle), `recherche/03-clients.md`
+(R4, R8, R10, TEN-ANON-APPS) und die Microsoft-Doku zu anonymem Datenzugriff und Konnektoren (Stand 25.11.2026).
+Nur Repo-Modus, keine Tenant-Daten nötig.
+
+**SEC-ANON · anonyme Datenrolle** (`tsscan.entity_roles`)
+- Die Rolle steht nicht in `rayfin.yml`, sondern als Decorator an der Entität: `@role('anonymous', 'read')` oder
+  `@role('anonymous', ['create', 'read'], { include: [...] })`. `entity_roles` liest alle Code-Dateien der App, auch
+  unter `rayfin/` (Konnektor-Entitäten, die `list_sources` bewusst auslässt) und im Daten-Paket (`packages/data/src/`,
+  `rayfin/data/`). Kommentare zählen nicht, `node_modules` und versteckte Ordner (`.agents`) werden übersprungen.
+- ✗ an einer Entität unter `rayfin/connectors/<name>/` (Daten aus Lakehouse, Warehouse, SQL DB ohne Anmeldung). Sonst
+  ⚠, Titel „App-Daten ohne Anmeldung erreichbar“, bei `update`, `delete` oder `*` „… änderbar“. Das Detail nennt
+  Entität, Konnektor, Aktionen und ob `include`/`exclude` die Felder einschränkt. Im Gesamtbild direkt nach SEC-AUTH.
+- Wirkt in Fabric nur zusammen mit dem Tenant-Schalter „Enable anonymous data access for Fabric Apps“ (Standard aus).
+  Den sieht fabscan im Repo nicht; der Befund sagt das. Die Doku nennt außerdem eine App-Einstellung, ohne sie zu
+  beschreiben; nicht geprüft.
+
+**SEC-BUILD · Build für alle Nutzer** (ℹ, je delegiertem `fabric-semanticmodel`-Konnektor)
+- Delegiert heißt: jeder App-Nutzer braucht Build. Build gilt für Excel, XMLA, REST und eigenes DAX, und der Entzug
+  des App-Zugriffs entfernt es nicht. Nur Hinweis, zählt nicht für Ampel und Gesamtbild.
+
+**SEC-AUTH · Besitzer-Identität**
+- Bei `auth.type: application` sagt das Detail jetzt, dass die App-Identität der Besitzer des App-Items ist
+  (Besitzerwechsel, Rechteverlust, Ausscheiden ändern den Zugriff für alle). Bei einem Semantikmodell zusätzlich:
+  Fabric unterstützt dort nur delegiert. Titel unverändert, die Befund-IDs bleiben gleich.
+
+**Gegenprobe** an der Kopie von `Fabric-Apps-Demo\apps` (zehn Apps, Scratchpad), 0.6.2 gegen 0.6.3: kein Befund fällt
+weg, neu ist SEC-BUILD ℹ an neun Apps (dwg-spike 2×, zwei Modell-Konnektoren). Die Library-App (Lakehouse,
+`application`) behält SEC-AUTH ⚠ mit dem neuen Besitzer-Text. Keine App nutzt `anonymous`; die Library-App hat 12×
+`@role('authenticated', ['read'])`. Probeweise auf `anonymous` umgestellt (nur in der Kopie) wird daraus SEC-ANON ✗.
+
+Tests: 112 (neu `tests/test_rayfin_regeln.py`, 8 Tests).
+
 ## 0.6.2 · fabscan.json je App, sichtbare feste Filter, UTF-8-Ausgabe
 
 Aus dem Lauf über die dwg-Apps (Befunde aus dwg-cli, Branch `feat/fabscan-befunde`). Stand 24.11.2026.

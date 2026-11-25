@@ -15,9 +15,9 @@ als Bericht in Klartext:
 fabscan liest nur, führt nichts aus und braucht keine Verbindung zu Fabric. Es läuft mit Python ab 3.10 und hat
 keine weiteren Abhängigkeiten.
 
-**Stand 0.6.2** (24.11.2026): Abruf auch ohne Admin-Rechte, Workspace Monitoring über das Monitoring-Item, Lauf über
-den ganzen Tenant, Ausnahmen mit Begründung, Abdeckung im Bericht, weniger Fehlalarme, `fabscan.json` je App und
-sichtbare feste Filter. Was sich je Version
+**Stand 0.6.3** (25.11.2026): Abruf auch ohne Admin-Rechte, Workspace Monitoring über das Monitoring-Item, Lauf über
+den ganzen Tenant, Ausnahmen mit Begründung, Abdeckung im Bericht, weniger Fehlalarme, `fabscan.json` je App,
+sichtbare feste Filter und Rayfin-Regeln (anonyme Datenrolle, Build für alle Nutzer, Besitzer-Identität). Was sich je Version
 geändert hat, steht in [UEBERGABE-0.4.md](UEBERGABE-0.4.md); Recherche und Roadmap liegen unter
 [recherche/](recherche/00-ueberblick.md).
 
@@ -217,7 +217,9 @@ nennt der Bericht, damit veraltete auffallen.
 | `CALC-TS` | ⚠/ℹ | TypeScript rechnet mit Abfragefeldern |
 | `LIN-MISSING-TABLE`, `LIN-MISSING-FIELD` | ✗ | Verweis existiert im Modell nicht |
 | `LIN-NO-MODEL`, `LIN-OTHER-SOURCE` | ⚠ | Modell nicht im Repo, Datenweg am Modell vorbei |
-| `SEC-AUTH` | ✗/⚠/ℹ | Repo: App-Identität statt angemeldeter Nutzer. Tenant: Service Principal, ⚠ nur auf einem Modell mit RLS (RLS filtert Service Principals nicht), sonst ℹ |
+| `SEC-AUTH` | ✗/⚠/ℹ | Repo: App-Identität statt angemeldeter Nutzer; bei `application` ist das der Besitzer des App-Items. Tenant: Service Principal, ⚠ nur auf einem Modell mit RLS (RLS filtert Service Principals nicht), sonst ℹ |
+| `SEC-ANON` | ✗/⚠ | `@role('anonymous', …)` an einer Entität: Daten ohne Anmeldung erreichbar. ✗ an einer Konnektor-Entität (Daten aus Fabric), sonst ⚠ (eigener Titel bei update, delete, `*`). Wirkt nur mit dem Tenant-Schalter für anonymen Zugriff, den fabscan im Repo nicht sieht |
+| `SEC-BUILD` | ℹ | Delegierter Semantikmodell-Connector: jeder App-Nutzer braucht Build, und Build gilt auch für Excel, XMLA und REST |
 | `SEC-SECRET`, `SEC-TRACKED` | ✗ | Geheimnis im Code, `.env` o. Ä. im Repo |
 | `SEC-HIDDEN` | ⚠/ℹ | ausgeblendetes Feld abgefragt (⚠ bei vertraulich klingendem Namen); Sortier- und Schlüsselspalten zählen nicht |
 | `SEC-NO-RLS` | ℹ | Modell ohne Rollen |
@@ -236,7 +238,7 @@ Eintrag in den Tenant-Logs steckt, hängt davon ab, was der Client meldet.
 
 ```bash
 cd fabric-app-scanner
-python3 -m unittest discover -s tests          # 104 Tests
+python3 -m unittest discover -s tests          # 112 Tests
 python3 -m fabscan skill --ziel ../.claude/skills/fabscan   # Skill im Repo aktualisieren
 python3 -m fabscan skill --zip ../downloads/fabscan-skill.zip
 python3 -m fabscan notebook -o ../downloads/fabscan_tenant.ipynb

@@ -311,3 +311,67 @@ def query_fields(queries: list[dax.Query]) -> set[str]:
         for r in q.refs:
             out.add(r.name.lower())
     return out
+
+
+# ---------------------------------------------------------------- Rollen an Entitäten (@role)
+_ROLE_RX = re.compile(r"@role\s*\(")
+_CLASS_RX = re.compile(r"\bclass\s+([A-Za-z_$][\w$]*)")
+
+
+def _top_args(masked: str, start: int) -> tuple[list[tuple[int, int]], int]:
+    """Argumente eines Aufrufs ab start (hinter der öffnenden Klammer): [(von, bis)], Position der schließenden Klammer."""
+    depth, a0, args, i = 0, start, [], start
+    while i < len(masked):
+        c = masked[i]
+        if c in "([{":
+            depth += 1
+        elif c in ")]}":
+            if depth == 0:
+                args.append((a0, i))
+                return [a for a in args if masked[a[0]:a[1]].strip()], i
+            depth -= 1
+        elif c == "," and depth == 0:
+            args.append((a0, i))
+            a0 = i + 1
+        i += 1
+    return [], -1
+
+
+def entity_roles(app_dir: str, repo_root: str) -> list[dict]:
+    """Alle @role(...)-Angaben an Entitäten, auch unter rayfin/ (Konnektor-Entitäten) und im Daten-Paket.
+    Je Treffer: file, line, role, actions, entity, connector (Ordner unter rayfin/connectors/, sonst ""), fields
+    (True, wenn include/exclude die Felder einschränkt)."""
+    out = []
+    for dirpath, dirnames, filenames in os.walk(app_dir):
+        dirnames[:] = [d for d in dirnames if d not in SKIP_DIRS and not d.startswith(".")]
+        for fn in sorted(filenames):
+            if not fn.endswith(CODE_EXT) or fn.endswith(".d.ts") or TEST_RX.search(fn):
+                continue
+            p = os.path.join(dirpath, fn)
+            try:
+                with open(p, encoding="utf-8") as fh:
+                    text = fh.read()
+            except (OSError, UnicodeDecodeError):
+                continue
+            if "@role" not in text:
+                continue
+            masked, lits = mask_ts(text)
+            parts = os.path.relpath(p, app_dir).replace(os.sep, "/").split("/")
+            connector = parts[2] if len(parts) > 3 and parts[0] == "rayfin" and parts[1] == "connectors" else ""
+            for m in _ROLE_RX.finditer(masked):
+                args, close = _top_args(masked, m.end())
+                if not args:
+                    continue
+                inside = lambda a: [s.value for s in lits if a[0] <= s.start < a[1] and not s.interp]
+                name = inside(args[0])
+                if len(name) != 1:
+                    continue
+                actions = [a.strip().lower() for a in inside(args[1])] if len(args) > 1 else []
+                opts = masked[args[2][0]:args[2][1]] if len(args) > 2 else ""
+                cm = _CLASS_RX.search(masked, close)
+                out.append({"file": os.path.relpath(p, repo_root), "line": text.count("\n", 0, m.start()) + 1,
+                            "role": name[0].strip().lower(), "actions": actions,
+                            "entity": cm.group(1) if cm else "", "connector": connector,
+                            "fields": bool(re.search(r"\b(include|exclude)\s*:", opts)),
+                            "evidence": " ".join(text[m.start():close + 1].split())[:240]})
+    return out
