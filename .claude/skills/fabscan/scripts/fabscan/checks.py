@@ -5,7 +5,7 @@ import os
 import re
 from dataclasses import dataclass, field
 
-from . import dax, rayfin, tsscan
+from . import config, dax, rayfin, tsscan
 from .tmdl import Model, item_to_logical
 
 CATEGORIES = [
@@ -16,6 +16,7 @@ CATEGORIES = [
     ("deviation", "Abweichungen zum Modell"),
 ]
 SEV_ORDER = {"fail": 0, "warn": 1, "info": 2, "ok": 3}
+VISIBLE_TITLE = "Fester Filter, für Nutzer sichtbar"
 SENSITIVE = re.compile(r"(?i)gehalt|salary|lohn|iban|bic|steuer|tax.?id|ssn|geburt|birth|e-?mail|telefon|phone|adresse|address|passwort|password|personal|kranken|health|bonus")
 
 
@@ -150,7 +151,7 @@ def _loc(q: dax.Query, line: int) -> tuple[str, int]:
     return q.source, q.abs_line(line)
 
 
-def check_app(app: AppResult, files: list[tsscan.SourceFile], repo_root: str, app_dir: str) -> None:
+def check_app(app: AppResult, files: list[tsscan.SourceFile], repo_root: str, app_dir: str, visible=()) -> None:
     rf = app.rayfin
     sm_bind = [b for b in app.bindings if b.connector.type == "fabric-semanticmodel"]
 
@@ -345,6 +346,13 @@ def check_app(app: AppResult, files: list[tsscan.SourceFile], repo_root: str, ap
                     app.add("query", "info", "QRY-TRUNC", f"{c.func} schneidet das Ergebnis ab", "", f, ln, q.snippet(c.line))
             for ln0, ev in dax.literal_comparisons(q):
                 f, ln = _loc(q, ln0)
+                rel_app = os.path.relpath(os.path.join(repo_root, f), app_dir) if app_dir else f
+                if config.visible_match(ev, rel_app, list(visible)):
+                    app.add("query", "info", "QRY-HARDCODED", VISIBLE_TITLE,
+                            "Laut fabscan.json (visibleFilters) zeigt die App diesen Filter den Nutzern an. "
+                            "Er veraltet trotzdem still, zum Beispiel zum Jahreswechsel.", f, ln, ev[:400],
+                            "Prüfen, ob der Hinweis in der App stimmt; feste Jahre und Monate besser als Auswahl mit Vorgabewert.")
+                    continue
                 app.add("query", "warn", "QRY-HARDCODED", "Fest verdrahtete Filter in den Abfragen",
                         "Die App filtert auf einen festen Wert. Wer das Modell ändert, sieht diesen Filter nicht.", f, ln, ev[:400],
                         "Filter als Measure-Logik oder Parameter im Modell abbilden, oder in der App sichtbar machen.")
@@ -442,7 +450,8 @@ def _norm(s: str) -> str:
     return re.sub(r"\s+", "", dax.mask(s)).lower()
 
 
-def scan_app(app_dir: str, repo_root: str, models: list[Model], overrides: dict) -> AppResult:
+def scan_app(app_dir: str, repo_root: str, models: list[Model], overrides: dict, visible=()) -> AppResult:
+    """visible: feste Filter, die die App laut fabscan.json sichtbar anzeigt (config.VisibleFilter)."""
     name = os.path.basename(app_dir.rstrip("/"))
     rf = rayfin.load(app_dir)
     app = AppResult(name, os.path.relpath(app_dir, repo_root), rf)
@@ -459,7 +468,7 @@ def scan_app(app_dir: str, repo_root: str, models: list[Model], overrides: dict)
             queries.append(dax.parse(txt, f.rel, f.line(s.start)))
     assign_queries(app, queries)
     bind_models(app, models, overrides)
-    check_app(app, files, repo_root, app_dir)
+    check_app(app, files, repo_root, app_dir, visible)
     for b in app.bindings:
         usage(b)
     app.findings = group(app.findings)

@@ -17,7 +17,7 @@ import json
 import os
 import sys
 
-from . import __version__, ausnahmen, checks, export, fetch, querylog, report, scanapi, tenant, tmdl
+from . import __version__, ausnahmen, checks, config, export, fetch, querylog, report, scanapi, tenant, tmdl
 
 
 def _scan_parser(prog: str) -> argparse.ArgumentParser:
@@ -29,7 +29,8 @@ def _scan_parser(prog: str) -> argparse.ArgumentParser:
     ap.add_argument("--title", default="", help="Titel des Berichts")
     ap.add_argument("--app", action="append", default=[], help="nur diese App(s) prüfen (Ordnername)")
     ap.add_argument("--models", action="append", default=[], help="weitere Ordner mit *.SemanticModel")
-    ap.add_argument("--config", help="fabscan.json (Standard: <repo>/fabscan.json)")
+    ap.add_argument("--config", help="fabscan.json (Standard: <repo>/fabscan.json); dazu liest fabscan je App "
+                                     "<App-Ordner>/fabscan.json, deren Werte für diese App vorgehen")
     ap.add_argument("--scan-result", action="append", default=[], help="Antwort der Admin-Scanner-API (JSON)")
     ap.add_argument("--query-log", action="append", default=[], help="Export der SemanticModelLogs (CSV/JSON/JSONL)")
     ap.add_argument("--include-reports", action="store_true", help="auch Abfragen aus Power-BI-Berichten prüfen")
@@ -53,15 +54,19 @@ def cmd_scan(argv) -> int:
     if root and not os.path.isdir(root):
         print(f"Kein Ordner: {root}", file=sys.stderr)
         return 2
-    cfg_path = a.config or (os.path.join(root, "fabscan.json") if root else "")
-    cfg = {}
-    if cfg_path and os.path.exists(cfg_path):
-        with open(cfg_path, encoding="utf-8") as fh:
-            cfg = json.load(fh)
+    cfg_path = a.config or (os.path.join(root, config.FILE_NAME) if root else "")
+    try:
+        cfg = config.load(cfg_path, root or ".") if cfg_path and os.path.exists(cfg_path) else config.Config()
+    except ValueError as err:
+        print(f"Konfiguration: {err}", file=sys.stderr)
+        return 2
 
     models = tmdl.find_models(root) if root else []
-    for extra in a.models + cfg.get("models", []):
+    for extra in a.models:
         models += tmdl.find_models(extra if os.path.isabs(extra) else os.path.join(root or ".", extra))
+    for extra in cfg.models:
+        models += tmdl.find_models(extra)
+    models = _unique_models(models)
     for sr in a.scan_result:
         models += scanapi.load_scan(sr)
 
@@ -75,7 +80,15 @@ def cmd_scan(argv) -> int:
                   "Für den Tenant: fabscan --scan-result scan.json --query-log logs.csv, "
                   "oder das Notebook erzeugen: fabscan notebook", file=sys.stderr)
             return 2
-        apps = [checks.scan_app(d, root, models, cfg.get("connectors", {})) for d in app_dirs]
+        for d in app_dirs:
+            try:
+                app_cfg, app_models = _app_config(d, cfg, cfg_path, models)
+            except ValueError as err:
+                print(f"Konfiguration: {err}", file=sys.stderr)
+                return 2
+            apps.append(checks.scan_app(d, root, app_models, app_cfg.connectors, app_cfg.visible_filters))
+    for w in cfg.warnings:
+        print(f"Hinweis {w}", file=sys.stderr)
     if a.query_log or (a.scan_result and not apps):
         entries = []
         for ql in a.query_log:
@@ -106,6 +119,38 @@ def cmd_scan(argv) -> int:
     else:
         print(paths["html"])
     return _fail_code(apps, a.fail_on)
+
+
+def _unique_models(models: list) -> list:
+    """Gleicher *.SemanticModel-Ordner über mehrere Wege gefunden: nur einmal."""
+    seen, out = set(), []
+    for m in models:
+        key = os.path.normcase(m.folder) if getattr(m, "folder", "") else None
+        if key and key in seen:
+            continue
+        if key:
+            seen.add(key)
+        out.append(m)
+    return out
+
+
+def _app_config(app_dir: str, root_cfg, root_cfg_path: str, models: list):
+    """fabscan.json im App-Ordner: Pfade ab dem App-Ordner, Werte gehen der Wurzel vor. Modelle der App zuerst."""
+    path = os.path.join(app_dir, config.FILE_NAME)
+    if not os.path.exists(path) or (root_cfg_path and os.path.abspath(path) == os.path.abspath(root_cfg_path)):
+        return root_cfg, models
+    app_cfg = config.load(path, app_dir)
+    for w in app_cfg.warnings:
+        print(f"Hinweis {w}", file=sys.stderr)
+    own = []
+    for p in app_cfg.models:
+        own += tmdl.find_models(p)
+    if app_cfg.models and not own:
+        print(f"Hinweis {path}: unter models kein *.SemanticModel-Ordner gefunden", file=sys.stderr)
+    own = _unique_models(own)
+    folders = {os.path.normcase(m.folder) for m in own if m.folder}
+    rest = [m for m in models if not (m.folder and os.path.normcase(m.folder) in folders)]
+    return config.merge(root_cfg, app_cfg), own + rest
 
 
 def _apply_ausnahmen(apps, path: str, *folders: str) -> dict:
@@ -232,7 +277,19 @@ def cmd_skill(argv) -> int:
     return 0
 
 
+def utf8_output() -> None:
+    """Ausgabe als UTF-8, damit ✓, ✗ und Umlaute auch unter Git Bash/Windows (cp1252) nicht abstürzen."""
+    for stream in (sys.stdout, sys.stderr):
+        enc = (getattr(stream, "encoding", "") or "").lower().replace("-", "")
+        if enc != "utf8" and hasattr(stream, "reconfigure"):
+            try:
+                stream.reconfigure(encoding="utf-8", errors="replace")
+            except (ValueError, OSError):
+                pass
+
+
 def main(argv=None) -> int:
+    utf8_output()
     argv = list(sys.argv[1:] if argv is None else argv)
     if argv and argv[0] == "fetch":
         return cmd_fetch(argv[1:])
