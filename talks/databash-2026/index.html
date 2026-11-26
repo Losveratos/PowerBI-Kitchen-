@@ -192,26 +192,26 @@ pre.json .k{color:#9CC6FF} pre.json .s{color:#A8D8BD} pre.json .n{color:var(--ac
 .slide.stmt>h2.t,.slide.measuring>h2.t{text-wrap:balance;max-width:1120px!important}
 
 /* overview */
-#ov{position:absolute;inset:0;z-index:20;background:var(--bg);display:none;flex-direction:column;align-items:center;padding:44px 64px 40px}
+#ov{position:absolute;inset:0;z-index:20;background:var(--bg);display:none;flex-direction:column;align-items:center;padding:30px 18px 26px}
 #stage.ovopen #ov{display:flex}
 .ov-top{font-weight:800;font-size:44px;line-height:1.1;text-align:center;max-width:1600px}
 .ov-hint{font-size:20px;color:var(--soft);margin:8px 0 0}
-.ov-groups{flex:1;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:30px;width:100%}
-.ov-main{display:flex;align-items:flex-start;justify-content:center;gap:8px;flex-wrap:nowrap}
-.ov-arrow{align-self:flex-start;margin-top:180px;font-size:40px;color:#b9c2cc;line-height:1;padding:0 2px}
-.ov-g{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:12px 14px 14px}
+.ov-groups{flex:1;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:22px;width:100%}
+.ov-main{display:flex;align-items:flex-start;justify-content:center;gap:0;flex-wrap:nowrap}
+.ov-arrow{align-self:flex-start;margin-top:168px;font-size:26px;color:#b9c2cc;line-height:1;padding:0 3px}
+.ov-g{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:10px 10px 12px}
 .ov-g.here{border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent)}
-.ov-gt{display:flex;flex-direction:column;align-items:flex-start;gap:2px;margin:0 0 10px;cursor:pointer;font-weight:800;font-size:23px;line-height:1.1;min-height:62px}
+.ov-gt{display:flex;flex-direction:column;align-items:flex-start;gap:2px;margin:0 0 8px;cursor:pointer;font-weight:800;font-size:23px;line-height:1.1;min-height:62px}
 .ov-gt .no{font-size:15px;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);font-family:var(--mono);font-weight:600}
 .ov-gt small{font-weight:400;font-size:16px;color:var(--soft);white-space:nowrap}
 .ov-row{display:flex;flex-direction:column;gap:10px}
 .ov-appx .ov-gt{flex-direction:row;align-items:baseline;gap:14px;min-height:0;margin-bottom:10px}
 .ov-appx .ov-row{flex-direction:row;flex-wrap:wrap;gap:12px;max-width:1300px}
-.th{width:200px;height:113px;flex:0 0 auto;position:relative;overflow:hidden;border-radius:7px;background:var(--bg);box-shadow:0 0 0 1px var(--line);cursor:pointer}
+.th{width:224px;height:126px;flex:0 0 auto;position:relative;overflow:hidden;border-radius:7px;background:var(--bg);box-shadow:0 0 0 1px var(--line);cursor:pointer}
 .ov-appx .th{width:176px;height:99px}
 .th:hover{box-shadow:0 0 0 2px var(--soft)}
 .th.cur{box-shadow:0 0 0 3px var(--accent)}
-.th>.slide{display:flex;inset:auto;left:0;top:0;width:1920px;height:1080px;transform:scale(.10417);pointer-events:none}
+.th>.slide{display:flex;inset:auto;left:0;top:0;width:1920px;height:1080px;transform:scale(.11667);pointer-events:none}
 .ov-appx .th>.slide{transform:scale(.0917)}
 #chaps{position:fixed;left:0;right:0;bottom:0;height:4px;display:flex;gap:6px;z-index:6}
 #chaps i{display:block;position:relative;overflow:hidden;background:rgba(127,127,127,.3)}
@@ -794,7 +794,8 @@ function buildOv(){
 }
 function mark(){ov.querySelectorAll('.th').forEach(t=>t.classList.toggle('cur',+t.dataset.i===sel));
   ov.querySelectorAll('.ov-g').forEach((b,gi)=>b.classList.toggle('here',groups[gi].idx.includes(sel)));}
-function openOv(){if(ovOpen)return;if(!ov)buildOv();ovOpen=true;sel=cur;mark();stage.classList.add('ovopen');
+function fitOv(){const m=ov.querySelector('.ov-main');m.style.zoom=1;const w=m.scrollWidth,avail=1920-36;if(w>avail)m.style.zoom=(avail/w).toFixed(3);}
+function openOv(){if(ovOpen)return;if(!ov)buildOv();ovOpen=true;sel=cur;mark();stage.classList.add('ovopen');fitOv();
   if(!still())ov.animate([{opacity:0,transform:'scale(1.04)'},{opacity:1,transform:'none'}],{duration:220,easing:'ease-out'});}
 function closeOv(){if(!ovOpen)return;ovOpen=false;stage.classList.remove('ovopen');}
 function zoomTo(i){
