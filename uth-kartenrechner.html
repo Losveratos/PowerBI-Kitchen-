@@ -75,8 +75,13 @@ button:focus-visible, summary:focus-visible { outline: 2px solid var(--felt); ou
   display: flex; flex-direction: column; gap: 6px; }
 .verdict[data-tone="go"] { background: var(--felt); color: var(--felt-ink); border-color: var(--felt); }
 .verdict[data-tone="go"] .eyebrow, .verdict[data-tone="go"] .ev-pair { color: inherit; opacity: 0.88; }
+.verdict[data-tone="go"] .reset:focus-visible { outline-color: var(--felt-ink); }
 .verdict[data-tone="stop"] .action { color: var(--warn); }
-.verdict-row { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.verdict-top { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.reset { border: 1px solid currentColor; background: transparent; border-radius: 6px; padding: 5px 12px; cursor: pointer;
+  font: 600 0.76rem/1.2 var(--mono); letter-spacing: 0.06em; text-transform: uppercase; }
+.ev-cap { display: block; font-size: 0.72rem; letter-spacing: 0.06em; text-transform: uppercase; opacity: 0.8; }
+.verdict-row { display: flex; align-items: flex-end; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
 .action { font-size: 1.9rem; font-weight: 700; line-height: 1.05; letter-spacing: -0.02em; }
 .ev-pair { font: 0.86rem/1.3 var(--mono); font-variant-numeric: tabular-nums; color: var(--ink-soft); text-align: right; }
 .bar { height: 3px; border-radius: 2px; background: color-mix(in srgb, currentColor 18%, transparent); overflow: hidden; }
@@ -150,12 +155,12 @@ details > div { display: flex; flex-direction: column; gap: 8px; padding-top: 8p
 <div class="wrap">
   <div class="intro">
     <h1>Ultimate Hold'em Kartenrechner</h1>
-    <p class="lede">Tippe deine zwei Karten an und alle Karten, die du bei den Mitspielern siehst. Der Rechner geht jedes mögliche Board und jede Dealer-Hand durch und sagt dir, ob 4× Raise oder Check mehr bringt.</p>
+    <p class="lede">Tippe deine zwei Karten an und alle Karten, die du bei den Mitspielern siehst. Der Rechner geht jedes mögliche Board und jede Dealer-Hand durch und sagt dir, ob 4× Raise, 3× Raise oder Check mehr bringt.</p>
   </div>
 
   <section class="tool" aria-label="Rechner">
     <div class="verdict" id="verdict" aria-live="polite" data-tone="idle">
-      <div class="eyebrow" id="v-eyebrow">Preflop</div>
+      <div class="verdict-top"><div class="eyebrow" id="v-eyebrow">Preflop</div><button class="reset" type="button" id="reset">Reset</button></div>
       <div class="verdict-row">
         <div class="action" id="v-action">Hand wählen</div>
         <div class="ev-pair" id="v-evs"></div>
@@ -176,7 +181,6 @@ details > div { display: flex; flex-direction: column; gap: 8px; padding-top: 8p
         <button class="chip" type="button" id="ex-1">A‑5, drei Asse raus</button>
         <button class="chip" type="button" id="ex-2">Q‑7, Asse und Könige raus</button>
         <button class="chip" type="button" id="ex-3">3‑3, eine Drei raus</button>
-        <button class="chip" type="button" id="reset">Alles leeren</button>
       </div>
     </div>
 
@@ -718,11 +722,13 @@ function createUthEngine() {
     const v = $('verdict'); $('v-bar').hidden = true; $('v-eyebrow').textContent = streetLabel();
     const nd = state.dead.length;
     let html = '';
+    const evs = lines => '<span class="ev-cap">EV in Antes</span>' + lines.join('<br>');
     if (r.street === 'pre') {
+      const ev3 = r.evRaise - (r.pWin - r.pLose); // 3× = 4× minus eine Einheit Play-Einsatz
       const raise = r.evRaise > r.evCheck;
       v.dataset.tone = raise ? 'go' : 'hold';
       $('v-action').textContent = raise ? '4× Raise' : 'Check';
-      $('v-evs').innerHTML = '4× ' + fmt(r.evRaise) + '<br>Check ' + fmt(r.evCheck);
+      $('v-evs').innerHTML = evs(['4× ' + fmt(r.evRaise), '3× ' + fmt(ev3), 'Check ' + fmt(r.evCheck)]);
       const b = classOf(state.hand), baseRaise = b.evRaise > b.evCheck;
       const diff = Math.abs(r.evRaise - r.evCheck);
       if (nd === 0) {
@@ -733,7 +739,7 @@ function createUthEngine() {
         const now = Math.max(r.evRaise, r.evCheck), before = Math.max(b.evRaise, b.evCheck);
         html += '<p>Die Entscheidung bleibt wie ohne Zusatzwissen: <b>' + (raise ? '4× Raise' : 'Check') + '</b>. Deine Erwartung für ' + b.label + ' verschiebt sich aber von ' + fmt(before) + ' auf ' + fmt(now) + ' Antes.</p>';
       }
-      html += evRows([{ label: '4× Raise', ev: r.evRaise }, { label: 'Check', ev: r.evCheck }]);
+      html += evRows([{ label: '4× Raise', ev: r.evRaise }, { label: '3× Raise', ev: ev3 }, { label: 'Check', ev: r.evCheck }]);
       html += '<dl class="facts">' +
         '<div><dt>Noch im Deck</dt><dd>' + outsText() + '</dd></div>' +
         '<div><dt>Showdown gegen Dealer</dt><dd>' + pct(r.pWin) + ' gewinnt · ' + pct(r.pLose) + ' verliert</dd></div>' +
@@ -744,7 +750,7 @@ function createUthEngine() {
       const bet = r.evBet > r.evCheck;
       v.dataset.tone = bet ? 'go' : 'hold';
       $('v-action').textContent = bet ? '2× Bet' : 'Check';
-      $('v-evs').innerHTML = '2× ' + fmt(r.evBet) + '<br>Check ' + fmt(r.evCheck);
+      $('v-evs').innerHTML = evs(['2× ' + fmt(r.evBet), 'Check ' + fmt(r.evCheck)]);
       html += '<p>Gilt, wenn du preflop gecheckt hast. ' + (bet ? '2× setzen' : 'Checken') + ' ist um ' + Math.abs(r.evBet - r.evCheck).toFixed(2).replace('.', ',') + ' Antes besser.</p>';
       html += evRows([{ label: '2× Bet', ev: r.evBet }, { label: 'Check', ev: r.evCheck }]);
       html += '<dl class="facts"><div><dt>Showdown gegen Dealer</dt><dd>' + pct(r.pWin) + ' gewinnt · ' + pct(r.pLose) + ' verliert</dd></div>' +
@@ -753,13 +759,13 @@ function createUthEngine() {
       const bet = r.evBet > r.evFold;
       v.dataset.tone = bet ? 'go' : 'stop';
       $('v-action').textContent = bet ? '1× Bet' : 'Fold';
-      $('v-evs').innerHTML = '1× ' + fmt(r.evBet) + '<br>Fold ' + fmt(-2);
+      $('v-evs').innerHTML = evs(['1× ' + fmt(r.evBet), 'Fold ' + fmt(-2)]);
       html += '<p>Gilt, wenn du bisher nur gecheckt hast. Fold kostet Ante und Blind, also −2,00. ' + (bet ? 'Setzen verliert im Schnitt weniger oder gewinnt.' : 'Setzen wäre noch teurer.') + '</p>';
       html += evRows([{ label: '1× Bet', ev: r.evBet }, { label: 'Fold', ev: -2 }]);
       html += '<dl class="facts"><div><dt>Dealer-Hände</dt><dd>' + r.nDealer + ' möglich</dd></div>' +
         '<div><dt>Showdown gegen Dealer</dt><dd>' + pct(r.pWin) + ' gewinnt · ' + pct(r.pLose) + ' verliert</dd></div></dl>';
     }
-    html += '<p class="fine">Werte in Antes je Hand: +0,10 heißt, bei 10 € Ante erwartest du im Schnitt 1 € Gewinn.</p>';
+    html += '<p class="fine">EV ist der Erwartungswert: dein durchschnittlicher Gewinn oder Verlust pro Hand über Ante, Blind und Play-Einsatz zusammen, gemessen in Antes. +0,10 heißt, bei 10 € Ante erwartest du im Schnitt 1 € Gewinn.</p>';
     $('why').innerHTML = html;
   }
 
