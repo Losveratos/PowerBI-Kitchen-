@@ -80,7 +80,9 @@ button:focus-visible, summary:focus-visible { outline: 2px solid var(--felt); ou
 .verdict-top { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
 .reset { border: 1px solid currentColor; background: transparent; border-radius: 6px; padding: 5px 12px; cursor: pointer;
   font: 600 0.76rem/1.2 var(--mono); letter-spacing: 0.06em; text-transform: uppercase; }
-.ev-cap { display: block; font-size: 0.72rem; letter-spacing: 0.06em; text-transform: uppercase; opacity: 0.8; }
+.ante { display: inline-flex; align-items: center; gap: 6px; font-size: 0.72rem; letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 3px; }
+.ante select { font: 600 0.86rem/1.2 var(--mono); color: inherit; background: transparent; border: 1px solid currentColor; border-radius: 6px; padding: 4px 6px; cursor: pointer; }
+.ante select option { color: var(--ink); background: var(--surface); }
 .verdict-row { display: flex; align-items: flex-end; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
 .action { font-size: 1.9rem; font-weight: 700; line-height: 1.05; letter-spacing: -0.02em; }
 .ev-pair { font: 0.86rem/1.3 var(--mono); font-variant-numeric: tabular-nums; color: var(--ink-soft); text-align: right; }
@@ -120,7 +122,7 @@ button:focus-visible, summary:focus-visible { outline: 2px solid var(--felt); ou
 .why { grid-area: why; display: flex; flex-direction: column; gap: 16px; min-width: 0; }
 .why p { max-width: 62ch; }
 .rows { display: flex; flex-direction: column; gap: 8px; }
-.evrow { display: grid; grid-template-columns: 5.2em minmax(0, 1fr) 4.6em; gap: 10px; align-items: center; font-size: 0.9rem; }
+.evrow { display: grid; grid-template-columns: 5.2em minmax(0, 1fr) 6.2em; gap: 10px; align-items: center; font-size: 0.9rem; }
 .evrow .val { text-align: right; font-family: var(--mono); font-variant-numeric: tabular-nums; }
 .track { position: relative; height: 14px; background: linear-gradient(var(--line), var(--line)) center / 1px 100% no-repeat; }
 .track i { position: absolute; top: 2px; bottom: 2px; background: var(--ink-soft); border-radius: 2px; }
@@ -163,7 +165,15 @@ details > div { display: flex; flex-direction: column; gap: 8px; padding-top: 8p
       <div class="verdict-top"><div class="eyebrow" id="v-eyebrow">Preflop</div><button class="reset" type="button" id="reset">Reset</button></div>
       <div class="verdict-row">
         <div class="action" id="v-action">Hand wählen</div>
-        <div class="ev-pair" id="v-evs"></div>
+        <div class="ev-pair">
+          <label class="ante" for="ante">Ante
+            <select id="ante" aria-label="Ante in Euro">
+              <option value="1">1 €</option><option value="2">2 €</option><option value="5" selected>5 €</option><option value="10">10 €</option>
+              <option value="20">20 €</option><option value="25">25 €</option><option value="50">50 €</option><option value="100">100 €</option>
+            </select>
+          </label>
+          <div id="v-evs"></div>
+        </div>
       </div>
       <div class="bar" id="v-bar" hidden><i></i></div>
     </div>
@@ -561,9 +571,12 @@ function createUthEngine() {
   const $ = id => document.getElementById(id);
   const E = createUthEngine();
 
-  const state = { hand: [], dead: [], board: [], mode: 'hand' };
+  const state = { hand: [], dead: [], board: [], mode: 'hand', ante: 5 };
+  let last = null;
   const cardName = c => RANKS[c >> 2] + SUITS[c & 3];
-  const fmt = (x, d) => (x >= 0 ? '+' : '−') + Math.abs(x).toFixed(d === undefined ? 2 : d).replace('.', ',');
+  const money = v => Math.abs(v).toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' €';
+  const eur = x => (x >= 0 ? '+' : '−') + money(x * state.ante);   // EV in Antes -> Euro mit Vorzeichen
+  const eurAbs = x => money(x * state.ante);
   const pct = (x, d) => (100 * x).toFixed(d === undefined ? 1 : d).replace('.', ',') + ' %';
 
   // ---------- Kartenraster ----------
@@ -692,10 +705,12 @@ function createUthEngine() {
     return (nb === 0 ? 'Preflop' : nb === 3 ? 'Flop' : nb === 5 ? 'River' : 'Board') + ' · ' + (nd === 0 ? 'keine Karte raus' : nd === 1 ? '1 Karte raus' : nd + ' Karten raus');
   }
   function showIdle(text) {
+    last = null;
     $('verdict').dataset.tone = 'idle'; $('v-eyebrow').textContent = streetLabel(); $('v-action').textContent = text; $('v-evs').textContent = ''; $('v-bar').hidden = true;
     $('why').innerHTML = '<p>Erst deine zwei Karten antippen. Danach springt die Auswahl auf <b>Raus</b>: Jede Karte, die du offen bei anderen siehst, kann weder beim Dealer noch auf dem Board landen.</p>';
   }
   function showBusy(p) {
+    last = null;
     $('verdict').dataset.tone = 'idle'; $('v-eyebrow').textContent = streetLabel(); $('v-action').textContent = 'rechnet …';
     $('v-evs').textContent = Math.round(p * 100) + ' %'; $('v-bar').hidden = false; $('v-bar').firstElementChild.style.width = (p * 100) + '%';
   }
@@ -706,7 +721,7 @@ function createUthEngine() {
     return '<div class="rows">' + rows.map(r => {
       const w = (Math.abs(r.ev) / max * 50).toFixed(1);
       const pos = r.ev >= 0 ? 'left:50%' : 'right:50%';
-      return '<div class="evrow" data-best="' + (r.ev === best ? 1 : 0) + '"><span class="lab">' + r.label + '</span><span class="track"><i style="' + pos + ';width:' + w + '%"></i></span><span class="val">' + fmt(r.ev, 3) + '</span></div>';
+      return '<div class="evrow" data-best="' + (r.ev === best ? 1 : 0) + '"><span class="lab">' + r.label + '</span><span class="track"><i style="' + pos + ';width:' + w + '%"></i></span><span class="val">' + eur(r.ev) + '</span></div>';
     }).join('') + '</div>';
   }
 
@@ -719,39 +734,40 @@ function createUthEngine() {
   }
 
   function render(r) {
+    last = r;
     const v = $('verdict'); $('v-bar').hidden = true; $('v-eyebrow').textContent = streetLabel();
     const nd = state.dead.length;
     let html = '';
-    const evs = lines => '<span class="ev-cap">EV in Antes</span>' + lines.join('<br>');
+    const evs = lines => lines.join('<br>');
     if (r.street === 'pre') {
       const ev3 = r.evRaise - (r.pWin - r.pLose); // 3× = 4× minus eine Einheit Play-Einsatz
       const raise = r.evRaise > r.evCheck;
       v.dataset.tone = raise ? 'go' : 'hold';
       $('v-action').textContent = raise ? '4× Raise' : 'Check';
-      $('v-evs').innerHTML = evs(['4× ' + fmt(r.evRaise), '3× ' + fmt(ev3), 'Check ' + fmt(r.evCheck)]);
+      $('v-evs').innerHTML = evs(['4× ' + eur(r.evRaise), '3× ' + eur(ev3), 'Check ' + eur(r.evCheck)]);
       const b = classOf(state.hand), baseRaise = b.evRaise > b.evCheck;
       const diff = Math.abs(r.evRaise - r.evCheck);
       if (nd === 0) {
-        html += '<p><b>' + b.label + '</b> ohne Zusatzwissen: ' + (raise ? '4× Raise' : 'Check') + ' ist um ' + diff.toFixed(2).replace('.', ',') + ' Antes besser. Tippe jetzt Karten an, die raus sind, und schau, ob sich das dreht.</p>';
+        html += '<p><b>' + b.label + '</b> ohne Zusatzwissen: ' + (raise ? '4× Raise' : 'Check') + ' ist um ' + eurAbs(diff) + ' pro Hand besser. Tippe jetzt Karten an, die raus sind, und schau, ob sich das dreht.</p>';
       } else if (raise !== baseRaise) {
-        html += '<p><b>Die toten Karten drehen die Entscheidung.</b> Ohne sie wäre ' + b.label + ' ein ' + (baseRaise ? '4× Raise' : 'Check') + '. Mit ihnen bringt ' + (raise ? '4× Raise' : 'Check') + ' ' + diff.toFixed(2).replace('.', ',') + ' Antes mehr pro Hand.</p>';
+        html += '<p><b>Die toten Karten drehen die Entscheidung.</b> Ohne sie wäre ' + b.label + ' ein ' + (baseRaise ? '4× Raise' : 'Check') + '. Mit ihnen bringt ' + (raise ? '4× Raise' : 'Check') + ' ' + eurAbs(diff) + ' mehr pro Hand.</p>';
       } else {
         const now = Math.max(r.evRaise, r.evCheck), before = Math.max(b.evRaise, b.evCheck);
-        html += '<p>Die Entscheidung bleibt wie ohne Zusatzwissen: <b>' + (raise ? '4× Raise' : 'Check') + '</b>. Deine Erwartung für ' + b.label + ' verschiebt sich aber von ' + fmt(before) + ' auf ' + fmt(now) + ' Antes.</p>';
+        html += '<p>Die Entscheidung bleibt wie ohne Zusatzwissen: <b>' + (raise ? '4× Raise' : 'Check') + '</b>. Deine Erwartung für ' + b.label + ' verschiebt sich aber von ' + eur(before) + ' auf ' + eur(now) + ' pro Hand.</p>';
       }
       html += evRows([{ label: '4× Raise', ev: r.evRaise }, { label: '3× Raise', ev: ev3 }, { label: 'Check', ev: r.evCheck }]);
       html += '<dl class="facts">' +
         '<div><dt>Noch im Deck</dt><dd>' + outsText() + '</dd></div>' +
         '<div><dt>Showdown gegen Dealer</dt><dd>' + pct(r.pWin) + ' gewinnt · ' + pct(r.pLose) + ' verliert</dd></div>' +
         (r.pBetFlop !== undefined ? '<div><dt>Nach Check: 2× am Flop</dt><dd>bei ' + pct(r.pBetFlop, 0) + ' der Flops</dd></div>' : '') +
-        (nd ? '<div><dt>Ohne Zusatzwissen</dt><dd>4× ' + fmt(b.evRaise) + ' · Check ' + fmt(b.evCheck) + '</dd></div>' : '') +
+        (nd ? '<div><dt>Ohne Zusatzwissen</dt><dd>4× ' + eur(b.evRaise) + ' · Check ' + eur(b.evCheck) + '</dd></div>' : '') +
         '</dl>';
     } else if (r.street === 'flop') {
       const bet = r.evBet > r.evCheck;
       v.dataset.tone = bet ? 'go' : 'hold';
       $('v-action').textContent = bet ? '2× Bet' : 'Check';
-      $('v-evs').innerHTML = evs(['2× ' + fmt(r.evBet), 'Check ' + fmt(r.evCheck)]);
-      html += '<p>Gilt, wenn du preflop gecheckt hast. ' + (bet ? '2× setzen' : 'Checken') + ' ist um ' + Math.abs(r.evBet - r.evCheck).toFixed(2).replace('.', ',') + ' Antes besser.</p>';
+      $('v-evs').innerHTML = evs(['2× ' + eur(r.evBet), 'Check ' + eur(r.evCheck)]);
+      html += '<p>Gilt, wenn du preflop gecheckt hast. ' + (bet ? '2× setzen' : 'Checken') + ' ist um ' + eurAbs(r.evBet - r.evCheck) + ' pro Hand besser.</p>';
       html += evRows([{ label: '2× Bet', ev: r.evBet }, { label: 'Check', ev: r.evCheck }]);
       html += '<dl class="facts"><div><dt>Showdown gegen Dealer</dt><dd>' + pct(r.pWin) + ' gewinnt · ' + pct(r.pLose) + ' verliert</dd></div>' +
         '<div><dt>Nach Check: Fold am River</dt><dd>bei ' + pct(r.pFold, 0) + ' der Turn/River-Paare</dd></div></dl>';
@@ -759,13 +775,13 @@ function createUthEngine() {
       const bet = r.evBet > r.evFold;
       v.dataset.tone = bet ? 'go' : 'stop';
       $('v-action').textContent = bet ? '1× Bet' : 'Fold';
-      $('v-evs').innerHTML = evs(['1× ' + fmt(r.evBet), 'Fold ' + fmt(-2)]);
-      html += '<p>Gilt, wenn du bisher nur gecheckt hast. Fold kostet Ante und Blind, also −2,00. ' + (bet ? 'Setzen verliert im Schnitt weniger oder gewinnt.' : 'Setzen wäre noch teurer.') + '</p>';
+      $('v-evs').innerHTML = evs(['1× ' + eur(r.evBet), 'Fold ' + eur(-2)]);
+      html += '<p>Gilt, wenn du bisher nur gecheckt hast. Fold kostet Ante und Blind, also ' + eur(-2) + '. ' + (bet ? 'Setzen verliert im Schnitt weniger oder gewinnt.' : 'Setzen wäre noch teurer.') + '</p>';
       html += evRows([{ label: '1× Bet', ev: r.evBet }, { label: 'Fold', ev: -2 }]);
       html += '<dl class="facts"><div><dt>Dealer-Hände</dt><dd>' + r.nDealer + ' möglich</dd></div>' +
         '<div><dt>Showdown gegen Dealer</dt><dd>' + pct(r.pWin) + ' gewinnt · ' + pct(r.pLose) + ' verliert</dd></div></dl>';
     }
-    html += '<p class="fine">EV ist der Erwartungswert: dein durchschnittlicher Gewinn oder Verlust pro Hand über Ante, Blind und Play-Einsatz zusammen, gemessen in Antes. +0,10 heißt, bei 10 € Ante erwartest du im Schnitt 1 € Gewinn.</p>';
+    html += '<p class="fine">EV ist der Erwartungswert: dein durchschnittlicher Gewinn oder Verlust pro Hand über Ante, Blind und Play-Einsatz zusammen, hier in Euro bei ' + money(state.ante) + ' Ante und gleich hohem Blind. Die Ante wählst du oben rechts.</p>';
     $('why').innerHTML = html;
   }
 
@@ -787,6 +803,15 @@ function createUthEngine() {
     $('edge-note').textContent = SIM.note;
     $('sim-method').textContent = SIM.method;
   })();
+
+  const anteSel = $('ante');
+  try { const saved = localStorage.getItem('uth-ante'); if (saved && [...anteSel.options].some(o => o.value === saved)) anteSel.value = saved; } catch (e) {}
+  state.ante = +anteSel.value || 5;
+  anteSel.addEventListener('change', () => {
+    state.ante = +anteSel.value;
+    try { localStorage.setItem('uth-ante', anteSel.value); } catch (e) {}
+    if (last) render(last);
+  });
 
   load(C('As 5d'), C('Ah Ad Ac'));
   hint('Beispiel geladen: A‑5 mit drei toten Assen. Tippe Karten an, um es zu ändern.');
