@@ -1,0 +1,783 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Ultimate Hold'em Kartenrechner</title>
+<meta name="description" content="Rechen-Demo für Ultimate Texas Hold'em: eigene Hand und tote Karten antippen, 4× Raise oder Check ablesen.">
+<meta name="robots" content="noindex, nofollow">
+<meta name="color-scheme" content="light dark">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%E2%99%A0%3C/text%3E%3C/svg%3E">
+<link rel="stylesheet" href="assets/fonts/fraunces/fraunces.css">
+<link rel="stylesheet" href="assets/fonts/geist/geist.css">
+<link rel="stylesheet" href="assets/fonts/jetbrains-mono/jetbrains-mono.css">
+<style>
+/* Layout: Werkzeug zuerst. Links das Kartenraster (Rang je Zeile, Farbe je Spalte),
+   rechts Urteil und Begründung; auf dem Handy klebt das Urteil oben, während man Karten tippt. */
+:root {
+  --bg: #FAFAF7; --surface: #FFFFFF; --ink: #0F1E2E; --ink-soft: #475569; --line: #DEDCD3;
+  --felt: #0E6A50; --felt-ink: #FFFFFF; --felt-soft: #DCEDE6;
+  --board: #36468F; --board-ink: #FFFFFF;
+  --dead-bg: #ECEAE2; --dead-ink: #9A9F9B; --warn: #B3261E;
+  --s-spade: #0F1E2E; --s-heart: #C02B26; --s-diamond: #1B5BB8; --s-club: #1A7438;
+  --serif: 'Fraunces', Georgia, 'Times New Roman', serif;
+  --sans: 'Geist', system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --mono: 'JetBrains Mono', ui-monospace, "SF Mono", "Cascadia Mono", Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #0E1413; --surface: #172120; --ink: #E7EEEB; --ink-soft: #9DAFA8; --line: #2A3835;
+  --felt: #3DBD93; --felt-ink: #05130E; --felt-soft: #173229;
+  --board: #93A3F2; --board-ink: #0A0F2E;
+  --dead-bg: #111918; --dead-ink: #5A6A64; --warn: #FF8078;
+  --s-spade: #E7EEEB; --s-heart: #FF7C74; --s-diamond: #82B2FF; --s-club: #70D28E;
+  color-scheme: dark } }
+:root[data-theme="dark"] {
+  --bg: #0E1413; --surface: #172120; --ink: #E7EEEB; --ink-soft: #9DAFA8; --line: #2A3835;
+  --felt: #3DBD93; --felt-ink: #05130E; --felt-soft: #173229;
+  --board: #93A3F2; --board-ink: #0A0F2E;
+  --dead-bg: #111918; --dead-ink: #5A6A64; --warn: #FF8078;
+  --s-spade: #E7EEEB; --s-heart: #FF7C74; --s-diamond: #82B2FF; --s-club: #70D28E;
+  color-scheme: dark }
+
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+[hidden] { display: none !important; }
+img { max-width: 100%; }
+body { background: var(--bg); color: var(--ink); font: 15px/1.5 var(--sans); }
+.wrap { max-width: 980px; margin: 0 auto; padding-block: 20px 48px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
+  display: flex; flex-direction: column; gap: 28px; }
+h1, h2 { font-family: var(--serif); font-weight: 600; }
+h1 { font-size: 1.7rem; line-height: 1.15; margin: 0; letter-spacing: -0.01em; text-wrap: balance; }
+h2 { font-size: 1.15rem; line-height: 1.25; margin: 0; text-wrap: balance; }
+p { margin: 0; }
+.lede { color: var(--ink-soft); max-width: 62ch; }
+.intro { display: flex; flex-direction: column; gap: 6px; }
+.eyebrow { font: 600 0.72rem/1.2 var(--mono); letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-soft); }
+.num { font-family: var(--mono); font-variant-numeric: tabular-nums; }
+button { font: inherit; color: inherit; }
+button:focus-visible, summary:focus-visible { outline: 2px solid var(--felt); outline-offset: 2px; }
+
+/* ---------- Werkzeug ---------- */
+.tool { display: grid; gap: 16px; grid-template-columns: minmax(0, 1fr); grid-template-areas: "verdict" "picker" "why"; }
+@media (min-width: 760px) {
+  .tool { grid-template-columns: minmax(0, 340px) minmax(0, 1fr); grid-template-areas: "picker verdict" "picker why"; grid-template-rows: auto 1fr; column-gap: 28px; }
+}
+.verdict { grid-area: verdict; position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5;
+  background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px;
+  display: flex; flex-direction: column; gap: 6px; }
+.verdict[data-tone="go"] { background: var(--felt); color: var(--felt-ink); border-color: var(--felt); }
+.verdict[data-tone="go"] .eyebrow, .verdict[data-tone="go"] .ev-pair { color: inherit; opacity: 0.88; }
+.verdict[data-tone="stop"] .action { color: var(--warn); }
+.verdict-row { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.action { font-size: 1.9rem; font-weight: 700; line-height: 1.05; letter-spacing: -0.02em; }
+.ev-pair { font: 0.86rem/1.3 var(--mono); font-variant-numeric: tabular-nums; color: var(--ink-soft); text-align: right; }
+.bar { height: 3px; border-radius: 2px; background: color-mix(in srgb, currentColor 18%, transparent); overflow: hidden; }
+.bar > i { display: block; height: 100%; width: 0; background: currentColor; }
+
+.picker { grid-area: picker; display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+.modes { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; }
+.mode { border: 1px solid var(--line); background: var(--surface); border-radius: 8px; padding: 7px 8px; cursor: pointer;
+  display: flex; flex-direction: column; align-items: flex-start; gap: 1px; text-align: left; }
+.mode b { font-size: 0.95rem; }
+.mode span { font: 0.74rem/1.2 var(--mono); color: var(--ink-soft); }
+.mode[aria-pressed="true"] { border-color: var(--ink); box-shadow: inset 0 0 0 1px var(--ink); }
+.mode[data-mode="hand"][aria-pressed="true"] { background: var(--felt); color: var(--felt-ink); border-color: var(--felt); box-shadow: none; }
+.mode[data-mode="board"][aria-pressed="true"] { background: var(--board); color: var(--board-ink); border-color: var(--board); box-shadow: none; }
+.mode[data-mode="dead"][aria-pressed="true"] { background: var(--dead-bg); }
+.mode[aria-pressed="true"] span { color: inherit; opacity: 0.85; }
+
+.grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 4px; }
+.card { height: 34px; border: 1px solid var(--line); border-radius: 6px; background: var(--surface); cursor: pointer;
+  font-weight: 650; font-size: 0.98rem; display: flex; align-items: center; justify-content: center; gap: 3px; padding: 0;
+  -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
+.card .su { font-size: 0.9em; }
+.card[data-suit="3"] { color: var(--s-spade); } .card[data-suit="2"] { color: var(--s-heart); }
+.card[data-suit="1"] { color: var(--s-diamond); } .card[data-suit="0"] { color: var(--s-club); }
+.card[data-state="hand"] { background: var(--felt); border-color: var(--felt); color: var(--felt-ink); }
+.card[data-state="board"] { background: var(--board); border-color: var(--board); color: var(--board-ink); }
+.card[data-state="dead"] { background: repeating-linear-gradient(135deg, var(--dead-bg) 0 6px, transparent 6px 9px), var(--dead-bg);
+  color: var(--dead-ink); border-color: transparent; text-decoration: line-through; }
+.hint { font-size: 0.84rem; color: var(--ink-soft); min-height: 1.3em; }
+.hint[data-kind="warn"] { color: var(--warn); }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.chip { border: 1px solid var(--line); background: transparent; border-radius: 999px; padding: 4px 11px; cursor: pointer; font-size: 0.84rem; }
+.chip:hover { border-color: var(--ink-soft); }
+.chips .eyebrow { margin-right: 2px; }
+
+.why { grid-area: why; display: flex; flex-direction: column; gap: 16px; min-width: 0; }
+.why p { max-width: 62ch; }
+.rows { display: flex; flex-direction: column; gap: 8px; }
+.evrow { display: grid; grid-template-columns: 5.2em minmax(0, 1fr) 4.6em; gap: 10px; align-items: center; font-size: 0.9rem; }
+.evrow .val { text-align: right; font-family: var(--mono); font-variant-numeric: tabular-nums; }
+.track { position: relative; height: 14px; background: linear-gradient(var(--line), var(--line)) center / 1px 100% no-repeat; }
+.track i { position: absolute; top: 2px; bottom: 2px; background: var(--ink-soft); border-radius: 2px; }
+.evrow[data-best="1"] .track i { background: var(--felt); }
+.evrow[data-best="1"] .lab { font-weight: 650; }
+.facts { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px 20px; margin: 0; }
+.facts div { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
+.facts dt { font-size: 0.78rem; color: var(--ink-soft); }
+.facts dd { margin: 0; font-family: var(--mono); font-variant-numeric: tabular-nums; font-size: 0.92rem; }
+
+/* ---------- Hausvorteil ---------- */
+.edge { display: flex; flex-direction: column; gap: 14px; border-top: 1px solid var(--line); padding-top: 24px; }
+.edge p { max-width: 68ch; }
+.edge-chart { display: flex; flex-direction: column; gap: 7px; max-width: 640px; }
+.erow { display: grid; grid-template-columns: 8.6em minmax(0, 1fr) 7.2em; gap: 10px; align-items: center; font-size: 0.88rem; }
+.erow .val { font-family: var(--mono); font-variant-numeric: tabular-nums; text-align: right; white-space: nowrap; }
+.erow .val small { color: var(--ink-soft); font-size: 0.86em; }
+.etrack { position: relative; height: 16px; }
+.etrack i { position: absolute; top: 2px; bottom: 2px; border-radius: 2px; background: var(--ink-soft); }
+.etrack i.player { background: var(--felt); }
+.etrack u { position: absolute; top: -2px; bottom: -2px; width: 1px; background: var(--ink); }
+.etrack s { position: absolute; top: 7px; height: 2px; background: var(--ink); opacity: 0.55; }
+.axis-note { font-size: 0.8rem; color: var(--ink-soft); }
+details { border-top: 1px solid var(--line); padding-top: 10px; max-width: 68ch; }
+summary { cursor: pointer; font-weight: 600; }
+details > div { display: flex; flex-direction: column; gap: 8px; padding-top: 8px; color: var(--ink-soft); font-size: 0.92rem; }
+.fine { font-size: 0.84rem; color: var(--ink-soft); max-width: 68ch; }
+@media (prefers-reduced-motion: no-preference) { .bar > i { transition: width 0.15s linear; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="intro">
+    <h1>Ultimate Hold'em Kartenrechner</h1>
+    <p class="lede">Tippe deine zwei Karten an und alle Karten, die du bei den Mitspielern siehst. Der Rechner geht jedes mögliche Board und jede Dealer-Hand durch und sagt dir, ob 4× Raise oder Check mehr bringt.</p>
+  </div>
+
+  <section class="tool" aria-label="Rechner">
+    <div class="verdict" id="verdict" aria-live="polite" data-tone="idle">
+      <div class="eyebrow" id="v-eyebrow">Preflop</div>
+      <div class="verdict-row">
+        <div class="action" id="v-action">Hand wählen</div>
+        <div class="ev-pair" id="v-evs"></div>
+      </div>
+      <div class="bar" id="v-bar" hidden><i></i></div>
+    </div>
+
+    <div class="picker">
+      <div class="modes" role="group" aria-label="Was tippst du gerade an?">
+        <button class="mode" type="button" id="mode-hand" data-mode="hand" aria-pressed="true"><b>Meine Hand</b><span id="cnt-hand">0 von 2</span></button>
+        <button class="mode" type="button" id="mode-dead" data-mode="dead" aria-pressed="false"><b>Raus</b><span id="cnt-dead">0 Karten</span></button>
+        <button class="mode" type="button" id="mode-board" data-mode="board" aria-pressed="false"><b>Board</b><span id="cnt-board">leer</span></button>
+      </div>
+      <div class="grid" id="grid" role="group" aria-label="Alle 52 Karten"></div>
+      <div class="hint" id="hint"></div>
+      <div class="chips">
+        <span class="eyebrow">Beispiele</span>
+        <button class="chip" type="button" id="ex-1">A‑5, drei Asse raus</button>
+        <button class="chip" type="button" id="ex-2">Q‑7, Asse und Könige raus</button>
+        <button class="chip" type="button" id="ex-3">3‑3, eine Drei raus</button>
+        <button class="chip" type="button" id="reset">Alles leeren</button>
+      </div>
+    </div>
+
+    <div class="why" id="why"></div>
+  </section>
+
+  <section class="edge" aria-labelledby="edge-h">
+    <h2 id="edge-h">Ändert das den Hausvorteil?</h2>
+    <p id="edge-lede"></p>
+    <div class="edge-chart" id="edge-chart" role="img" aria-label="Hausvorteil nach Zahl der sichtbaren Mitspieler-Karten"></div>
+    <p class="axis-note" id="edge-note"></p>
+    <details>
+      <summary>So ist gerechnet</summary>
+      <div>
+        <p>Regeln: Ante und Blind je 1 Einheit. Preflop 4× oder Check, am Flop 2× oder Check, am River 1× oder Fold. Der Dealer braucht mindestens ein Paar, sonst geht die Ante zurück. Blind zahlt 500 (Royal Flush), 50 (Straight Flush), 10 (Vierling), 3 (Full House), 1,5 (Flush), 1 (Straße). Der Trips-Zusatzeinsatz ist nicht enthalten.</p>
+        <p>Für jede Eingabe zählt der Rechner alle Boards aus den noch lebenden Karten und dazu alle Dealer-Hände vollständig durch, ohne Zufall. Ohne tote Karten sind das 2.118.760 Boards mal 990 Dealer-Hände. Spätere Entscheidungen (Flop, River) sind dabei immer bestmöglich gespielt, ebenfalls mit Kenntnis der toten Karten.</p>
+        <p>Kontrolle: Über alle 169 Starthände ergibt die Rechnung ohne Zusatzwissen einen Hausvorteil von 2,185 % der Ante. Das ist der bekannte Wert für perfektes Spiel.</p>
+        <p id="sim-method"></p>
+      </div>
+    </details>
+    <p class="fine">Das ist eine Rechen-Demo. Am echten Tisch sind elektronische Hilfen verboten, und Karten untereinander zu zeigen ist nach den Tischregeln nicht erlaubt.</p>
+  </section>
+</div>
+
+<script>
+/* Ultimate Texas Hold'em – exakte EV-Engine (Browser + Node).
+   Karte = rang*4 + farbe, rang 0..12 (2..A), farbe 0..3.
+   Einheiten: Ante = Blind = 1. */
+function createUthEngine() {
+  'use strict';
+  const PAIR = 1 << 20;
+  const PC = new Uint8Array(8192);
+  for (let m = 1; m < 8192; m++) PC[m] = PC[m >> 1] + (m & 1);
+
+  function straightHigh(mask) {
+    for (let top = 12; top >= 4; top--) if (((mask >> (top - 4)) & 31) === 31) return top;
+    if ((mask & 0x100F) === 0x100F) return 3; // A-2-3-4-5
+    return -1;
+  }
+
+  // Flush-Wert aus der Rang-Maske einer Farbe (>= 5 Bits gesetzt)
+  const FLV = new Int32Array(8192);
+  for (let m = 0; m < 8192; m++) {
+    if (PC[m] < 5) continue;
+    const sh = straightHigh(m);
+    if (sh >= 0) { FLV[m] = (8 << 20) | (sh << 16); continue; }
+    let v = 5 << 20, shift = 16, k = 0;
+    for (let r = 12; r >= 0 && k < 5; r--) if (m & (1 << r)) { v |= r << shift; shift -= 4; k++; }
+    FLV[m] = v;
+  }
+
+  // Wert ohne Flush aus Rang-Zählern (7 Karten)
+  function evalCounts(cnt) {
+    let quad = -1, t1 = -1, t2 = -1, p1 = -1, p2 = -1, mask = 0;
+    for (let r = 12; r >= 0; r--) {
+      const c = cnt[r];
+      if (!c) continue;
+      mask |= 1 << r;
+      if (c >= 4) { if (quad < 0) quad = r; }
+      else if (c === 3) { if (t1 < 0) t1 = r; else if (t2 < 0) t2 = r; }
+      else if (c === 2) { if (p1 < 0) p1 = r; else if (p2 < 0) p2 = r; }
+    }
+    if (quad >= 0) {
+      let k = -1;
+      for (let r = 12; r >= 0; r--) if (r !== quad && cnt[r]) { k = r; break; }
+      return (7 << 20) | (quad << 16) | ((k < 0 ? 0 : k) << 12);
+    }
+    if (t1 >= 0 && (t2 >= 0 || p1 >= 0)) {
+      const pr = Math.max(t2, p1);
+      return (6 << 20) | (t1 << 16) | (pr << 12);
+    }
+    const sh = straightHigh(mask);
+    if (sh >= 0) return (4 << 20) | (sh << 16);
+    if (t1 >= 0) {
+      let v = (3 << 20) | (t1 << 16), shift = 12, k = 0;
+      for (let r = 12; r >= 0 && k < 2; r--) if (r !== t1 && cnt[r]) { v |= r << shift; shift -= 4; k++; }
+      return v;
+    }
+    if (p2 >= 0) {
+      let k = -1;
+      for (let r = 12; r >= 0; r--) if (r !== p1 && r !== p2 && cnt[r]) { k = r; break; }
+      return (2 << 20) | (p1 << 16) | (p2 << 12) | (k << 8);
+    }
+    if (p1 >= 0) {
+      let v = (1 << 20) | (p1 << 16), shift = 12, k = 0;
+      for (let r = 12; r >= 0 && k < 3; r--) if (r !== p1 && cnt[r]) { v |= r << shift; shift -= 4; k++; }
+      return v;
+    }
+    let v = 0, shift = 16, k = 0;
+    for (let r = 12; r >= 0 && k < 5; r--) if (cnt[r]) { v |= r << shift; shift -= 4; k++; }
+    return v;
+  }
+
+  // Index des Board-Rang-Multisets (5 Ränge, aufsteigend) -> 0..6187
+  const M2 = new Int32Array(13), M3 = new Int32Array(13), M4 = new Int32Array(13), M5 = new Int32Array(13);
+  function binom(n, k) { if (k > n) return 0; let x = 1; for (let i = 1; i <= k; i++) x = x * (n - k + i) / i; return Math.round(x); }
+  for (let r = 0; r < 13; r++) { M2[r] = binom(r + 1, 2); M3[r] = binom(r + 2, 3); M4[r] = binom(r + 3, 4); M5[r] = binom(r + 4, 5); }
+
+  // NF[multiset*169 + r1*13 + r2] = Wert von Board-Rängen + zwei weiteren Rängen (ohne Flush)
+  const NF = new Int32Array(6188 * 169);
+  (function build() {
+    const cnt = new Int32Array(13);
+    for (let a = 0; a < 13; a++) for (let b = a; b < 13; b++) for (let c = b; c < 13; c++)
+      for (let d = c; d < 13; d++) for (let e = d; e < 13; e++) {
+        const base = (a + M2[b] + M3[c] + M4[d] + M5[e]) * 169;
+        cnt.fill(0); cnt[a]++; cnt[b]++; cnt[c]++; cnt[d]++; cnt[e]++;
+        for (let x = 0; x < 13; x++) {
+          cnt[x]++;
+          for (let y = x; y < 13; y++) {
+            cnt[y]++;
+            const v = evalCounts(cnt);
+            NF[base + x * 13 + y] = v; NF[base + y * 13 + x] = v;
+            cnt[y]--;
+          }
+          cnt[x]--;
+        }
+      }
+  })();
+
+  const C2 = new Int32Array(53), C3 = new Int32Array(53);
+  for (let n = 0; n < 53; n++) { C2[n] = n * (n - 1) / 2; C3[n] = n * (n - 1) * (n - 2) / 6; }
+
+  function blindPay(v) {
+    const cat = v >> 20;
+    if (cat < 4) return 0;
+    if (cat === 4) return 1;
+    if (cat === 5) return 1.5;
+    if (cat === 6) return 3;
+    if (cat === 7) return 10;
+    return ((v >> 16) & 15) === 12 ? 500 : 50;
+  }
+
+  /* Job: hole = [c,c], dead = [c..], board = [] | [3] | [5] */
+  function createJob(hole, dead, board, opts) {
+    board = board || []; dead = dead || []; opts = opts || {};
+    const used = new Uint8Array(52);
+    hole.forEach(c => used[c] = 1); dead.forEach(c => used[c] = 1); board.forEach(c => used[c] = 1);
+    const L = [];
+    for (let c = 0; c < 52; c++) if (!used[c]) L.push(c);
+    const n = L.length;
+    const nr = new Int32Array(13);
+    const lsm = new Int32Array(4); // lebende Ränge je Farbe
+    for (const c of L) { nr[c >> 2]++; lsm[c & 3] |= 1 << (c >> 2); }
+    const h0 = hole[0], h1 = hole[1];
+    const hr0 = h0 >> 2, hr1 = h1 >> 2, hs0 = h0 & 3, hs1 = h1 & 3;
+    const hIdx = hr0 * 13 + hr1;
+    const onBoard = new Uint8Array(52);
+    const bm = new Int32Array(4);
+    let oD = 0, oY = 0, oW = 0, oL = 0;
+
+    // Dealer-Verteilung für ein fertiges Board. nr ist bereits um die Boardkarten reduziert.
+    function stats(b0, b1, b2, b3, b4, midx, nDealer, nr, lsm, L, n) {
+      bm[0] = 0; bm[1] = 0; bm[2] = 0; bm[3] = 0;
+      bm[b0 & 3] |= 1 << (b0 >> 2); bm[b1 & 3] |= 1 << (b1 >> 2); bm[b2 & 3] |= 1 << (b2 >> 2);
+      bm[b3 & 3] |= 1 << (b3 >> 2); bm[b4 & 3] |= 1 << (b4 >> 2);
+      const base = midx * 169;
+      let fs = -1, fm = 0;
+      for (let s = 0; s < 4; s++) if (PC[bm[s]] >= 3) { fs = s; fm = PC[bm[s]]; }
+      let pv = NF[base + hIdx];
+      if (fs >= 0) {
+        let m = bm[fs];
+        if (hs0 === fs) m |= 1 << hr0;
+        if (hs1 === fs) m |= 1 << hr1;
+        if (PC[m] >= 5) { const fv = FLV[m]; if (fv > pv) pv = fv; }
+      }
+      let W = 0, Lc = 0, Wq = 0, Lq = 0;
+      if (fm >= 4) {
+        // seltene Boards: alle Dealer-Hände einzeln
+        const bmask = bm[fs];
+        for (let i = 0; i < n; i++) {
+          const x = L[i]; if (onBoard[x]) continue;
+          const rx = x >> 2, mx = (x & 3) === fs ? bmask | (1 << rx) : bmask, bx = base + rx * 13;
+          for (let j = i + 1; j < n; j++) {
+            const y = L[j]; if (onBoard[y]) continue;
+            let v = NF[bx + (y >> 2)];
+            const m = (y & 3) === fs ? mx | (1 << (y >> 2)) : mx;
+            if (PC[m] >= 5) { const fv = FLV[m]; if (fv > v) v = fv; }
+            if (v < pv) { W++; if (v >= PAIR) Wq++; } else if (v > pv) { Lc++; if (v >= PAIR) Lq++; }
+          }
+        }
+      } else {
+        for (let r1 = 0; r1 < 13; r1++) {
+          const n1 = nr[r1]; if (!n1) continue;
+          const bx = base + r1 * 13;
+          let w = (n1 * (n1 - 1)) >> 1;
+          if (w) {
+            const v = NF[bx + r1];
+            if (v < pv) { W += w; Wq += w; } else if (v > pv) { Lc += w; Lq += w; }
+          }
+          for (let r2 = r1 + 1; r2 < 13; r2++) {
+            w = n1 * nr[r2]; if (!w) continue;
+            const v = NF[bx + r2];
+            if (v < pv) { W += w; if (v >= PAIR) Wq += w; } else if (v > pv) { Lc += w; if (v >= PAIR) Lq += w; }
+          }
+        }
+        if (fm === 3) {
+          // Dealer hält zwei Karten der Flush-Farbe: Wert korrigieren
+          const bmask = bm[fs];
+          const av = lsm[fs] & ~bmask;
+          for (let rx = 0; rx < 13; rx++) {
+            if (!(av & (1 << rx))) continue;
+            for (let ry = rx + 1; ry < 13; ry++) {
+              if (!(av & (1 << ry))) continue;
+              const v = NF[base + rx * 13 + ry];
+              const fv = FLV[bmask | (1 << rx) | (1 << ry)];
+              if (fv > v) {
+                if (v < pv) { W--; if (v >= PAIR) Wq--; } else if (v > pv) { Lc--; if (v >= PAIR) Lq--; }
+                if (fv < pv) { W++; Wq++; } else if (fv > pv) { Lc++; Lq++; }
+              }
+            }
+          }
+        }
+      }
+      oW = W; oL = Lc;
+      oD = (W - Lc) / nDealer;
+      oY = ((Wq - Lq) + W * blindPay(pv) - Lc) / nDealer;
+    }
+
+    function midxOf(a, b, c, d, e) { // beliebige Reihenfolge
+      const r = [a >> 2, b >> 2, c >> 2, d >> 2, e >> 2].sort((x, y) => x - y);
+      return r[0] + M2[r[1]] + M3[r[2]] + M4[r[3]] + M5[r[4]];
+    }
+
+    const useBase = !!opts.baseFlop && board.length === 0 && dead.length > 0;
+    const L0 = [], nr0 = new Int32Array(13), lsm0 = new Int32Array(4);
+    if (useBase) {
+      for (let c = 0; c < 52; c++) if (c !== hole[0] && c !== hole[1]) { L0.push(c); nr0[c >> 2]++; lsm0[c & 3] |= 1 << (c >> 2); }
+    }
+    const n0 = L0.length;
+    const fcB = useBase ? new Float64Array(22100) : null;
+
+    const job = { done: false, progress: 0, street: board.length === 0 ? 'pre' : board.length === 3 ? 'flop' : 'river', result: null };
+
+    if (board.length === 5) {
+      const nD = C2[n];
+      stats(board[0], board[1], board[2], board[3], board[4], midxOf(board[0], board[1], board[2], board[3], board[4]), nD, nr, lsm, L, n);
+      job.result = { street: 'river', evBet: oD + oY, evFold: -2, pWin: oW / nD, pLose: oL / nD, nDealer: nD };
+      job.done = true; job.progress = 1;
+      job.step = () => true;
+      return job;
+    }
+
+    if (board.length === 3) {
+      const nD = C2[n - 2];
+      let sBet = 0, sChk = 0, cnt = 0, sW = 0, sL = 0, nFold = 0;
+      for (let i = 0; i < n; i++) {
+        const x = L[i]; nr[x >> 2]--; onBoard[x] = 1;
+        for (let j = i + 1; j < n; j++) {
+          const y = L[j]; nr[y >> 2]--; onBoard[y] = 1;
+          stats(board[0], board[1], board[2], x, y, midxOf(board[0], board[1], board[2], x, y), nD, nr, lsm, L, n);
+          sBet += 2 * oD + oY;
+          const one = oD + oY;
+          if (one > -2) sChk += one; else { sChk += -2; nFold++; }
+          sW += oW; sL += oL; cnt++;
+          nr[y >> 2]++; onBoard[y] = 0;
+        }
+        nr[x >> 2]++; onBoard[x] = 0;
+      }
+      job.result = { street: 'flop', evBet: sBet / cnt, evCheck: sChk / cnt, pWin: sW / (cnt * nD), pLose: sL / (cnt * nD), pFold: nFold / cnt };
+      job.done = true; job.progress = 1;
+      job.step = () => true;
+      return job;
+    }
+
+    // Preflop: alle Boards, Ergebnisse je Flop sammeln
+    const fb = new Float64Array(22100), fc = new Float64Array(22100);
+    const nD = C2[n - 5], nD0 = C2[45];
+    let raiseSum = 0, sW = 0, sL = 0, nBoards = 0, i0 = 0;
+    const parts = opts.parts || 1, mod = opts.mod || 0;
+    const now = (typeof performance !== 'undefined') ? () => performance.now() : () => Date.now();
+
+    job.step = function (budgetMs) {
+      const tEnd = budgetMs ? now() + budgetMs : Infinity;
+      while (i0 <= n - 5) {
+        if (parts > 1 && i0 % parts !== mod) { i0++; continue; }
+        const a = L[i0], ra = a >> 2; nr[ra]--; onBoard[a] = 1;
+        for (let j = i0 + 1; j <= n - 4; j++) {
+          const b = L[j], rb = b >> 2; nr[rb]--; onBoard[b] = 1;
+          const mab = ra + M2[rb], iab = C2[b] + a;
+          for (let k = j + 1; k <= n - 3; k++) {
+            const c = L[k], rc = c >> 2; nr[rc]--; onBoard[c] = 1;
+            const mabc = mab + M3[rc];
+            const fabc = C3[c] + iab, iac = C2[c] + a, ibc = C2[c] + b;
+            for (let l = k + 1; l <= n - 2; l++) {
+              const d = L[l], rd = d >> 2; nr[rd]--; onBoard[d] = 1;
+              const mabcd = mabc + M4[rd];
+              const c3d = C3[d], c2d = C2[d];
+              const fabd = c3d + iab, facd = c3d + iac, fbcd = c3d + ibc;
+              const iad = c2d + a, ibd = c2d + b, icd = c2d + c;
+              for (let m = l + 1; m <= n - 1; m++) {
+                const e = L[m], re = e >> 2; nr[re]--; onBoard[e] = 1;
+                stats(a, b, c, d, e, mabcd + M5[re], nD, nr, lsm, L, n);
+                const two = 2 * oD + oY, one = oD + oY > -2 ? oD + oY : -2;
+                let oneB = 0;
+                if (useBase) {
+                  const tD = oD, tY = oY, tW = oW, tL = oL;
+                  nr0[ra]--; nr0[rb]--; nr0[rc]--; nr0[rd]--; nr0[re]--;
+                  stats(a, b, c, d, e, mabcd + M5[re], nD0, nr0, lsm0, L0, n0);
+                  nr0[ra]++; nr0[rb]++; nr0[rc]++; nr0[rd]++; nr0[re]++;
+                  oneB = oD + oY > -2 ? tD + tY : -2;
+                  oD = tD; oY = tY; oW = tW; oL = tL;
+                }
+                nr[re]++; onBoard[e] = 0;
+                raiseSum += 4 * oD + oY; sW += oW; sL += oL; nBoards++;
+                const c3e = C3[e], c2e = C2[e];
+                fb[fabc] += two; fc[fabc] += one;
+                fb[fabd] += two; fc[fabd] += one;
+                fb[facd] += two; fc[facd] += one;
+                fb[fbcd] += two; fc[fbcd] += one;
+                let f = c3e + iab; fb[f] += two; fc[f] += one;
+                f = c3e + iac; fb[f] += two; fc[f] += one;
+                f = c3e + ibc; fb[f] += two; fc[f] += one;
+                f = c3e + iad; fb[f] += two; fc[f] += one;
+                f = c3e + ibd; fb[f] += two; fc[f] += one;
+                f = c3e + icd; fb[f] += two; fc[f] += one;
+                if (useBase) {
+                  fcB[fabc] += oneB; fcB[fabd] += oneB; fcB[facd] += oneB; fcB[fbcd] += oneB;
+                  fcB[c3e + iab] += oneB; fcB[c3e + iac] += oneB; fcB[c3e + ibc] += oneB;
+                  fcB[c3e + iad] += oneB; fcB[c3e + ibd] += oneB; fcB[c3e + icd] += oneB;
+                }
+              }
+              nr[rd]++; onBoard[d] = 0;
+            }
+            nr[rc]++; onBoard[c] = 0;
+          }
+          nr[rb]++; onBoard[b] = 0;
+        }
+        nr[ra]++; onBoard[a] = 0;
+        i0++;
+        // Fortschritt: Anteil der Boards mit kleinster Karte < i0
+        job.progress = 1 - binom(n - i0, 5) / binom(n, 5);
+        if (now() > tEnd) return false;
+      }
+      if (!opts.noFinish) job.finish();
+      job.done = true; job.progress = 1;
+      return true;
+    };
+    job.partial = () => ({ raiseSum, sW, sL, nBoards, fb, fc });
+    job.merge = function (p) {
+      raiseSum += p.raiseSum; sW += p.sW; sL += p.sL; nBoards += p.nBoards;
+      for (let f = 0; f < 22100; f++) { fb[f] += p.fb[f]; fc[f] += p.fc[f]; }
+    };
+    job.finish = function () {
+      const nTR = C2[n - 3];
+      let chk = 0, chkB = 0, nFlops = 0, nBet2 = 0;
+      const flopBet = opts.wantFlop ? new Uint8Array(22100) : null;
+      for (let i = 0; i < n; i++) for (let j = i + 1; j < n; j++) for (let k = j + 1; k < n; k++) {
+        const f = C3[L[k]] + C2[L[j]] + L[i];
+        if (fb[f] > fc[f]) { chk += fb[f]; nBet2++; if (flopBet) flopBet[f] = 1; } else chk += fc[f];
+        if (useBase) chkB += opts.baseFlop[f] ? fb[f] : fcB[f];
+        nFlops++;
+      }
+      job.result = {
+        street: 'pre', evRaise: raiseSum / nBoards, evCheck: chk / (nFlops * nTR),
+        pWin: sW / (nBoards * nD), pLose: sL / (nBoards * nD), pBetFlop: nBet2 / nFlops, nBoards
+      };
+      if (flopBet) job.result.flopBet = flopBet;
+      if (useBase) job.result.evBaseCheck = chkB / (nFlops * nTR);
+      job.done = true; job.progress = 1;
+    };
+    return job;
+  }
+
+  return { createJob, evalCounts, FLV, NF, blindPay };
+}
+
+</script>
+<script>
+(function () {
+  'use strict';
+  const BASE = {"12_12_p":[3.6011,2.1929,0.8493,0.1452],"12_10_o":[1.0806,0.5144,0.6351,0.3465],"12_8_o":[0.9061,0.4096,0.6157,0.3612],"12_6_o":[0.5753,0.1995,0.5837,0.3863],"12_4_o":[0.3398,0.0709,0.5587,0.4051],"12_2_o":[0.2494,0.0337,0.5473,0.4127],"12_0_o":[0.0417,-0.0823,0.5295,0.4309],"11_9_s":[1.2275,0.7676,0.6148,0.3634],"11_7_s":[0.6946,0.3448,0.5864,0.3866],"11_5_s":[0.4039,0.1672,0.5585,0.4077],"11_3_s":[0.2191,0.0706,0.5383,0.4225],"11_1_s":[0.022,-0.0302,0.5207,0.4396],"10_10_p":[3.0186,1.8216,0.7963,0.1978],"10_8_o":[0.3695,0.1759,0.5595,0.4137],"10_6_o":[-0.0694,-0.0926,0.5193,0.4473],"10_4_o":[-0.353,-0.2487,0.49,0.4695],"10_2_o":[-0.5612,-0.3503,0.4692,0.4867],"10_0_o":[-0.7716,-0.4522,0.4511,0.5052],"9_7_s":[0.3178,0.2282,0.5411,0.4279],"9_5_s":[-0.1066,-0.0344,0.5045,0.458],"9_3_s":[-0.3848,-0.1941,0.4782,0.4785],"9_1_s":[-0.5839,-0.2891,0.4604,0.4958],"8_8_p":[2.4808,1.4803,0.7466,0.2464],"8_6_o":[-0.439,-0.1935,0.4782,0.4838],"8_4_o":[-0.8518,-0.4167,0.4385,0.5166],"8_2_o":[-1.1435,-0.5617,0.4106,0.5405],"8_0_o":[-1.3545,-0.6595,0.3924,0.559],"7_5_s":[-0.3835,-0.0717,0.4699,0.4875],"7_3_s":[-0.8125,-0.3235,0.4331,0.5187],"7_1_s":[-1.1161,-0.4825,0.4081,0.5428],"6_6_p":[1.8115,1.0452,0.6872,0.3039],"6_4_o":[-1.1383,-0.4463,0.407,0.5421],"6_2_o":[-1.5744,-0.6705,0.3671,0.5782],"6_0_o":[-1.8782,-0.8201,0.3409,0.6043],"5_3_s":[-0.9606,-0.2642,0.4098,0.5363],"5_1_s":[-1.4273,-0.5209,0.373,0.5723],"4_4_p":[1.1599,0.6326,0.627,0.3613],"4_2_o":[-1.6992,-0.6311,0.35,0.5898],"4_0_o":[-2.1582,-0.8614,0.3108,0.6293],"3_1_s":[-1.3931,-0.4237,0.3676,0.5737],"2_2_p":[0.4616,0.2106,0.5626,0.4221],"2_0_o":[-2.2437,-0.8726,0.3012,0.6372],"0_0_p":[-0.2879,-0.1795,0.4939,0.4872],"12_11_s":[1.6583,0.9867,0.6622,0.3213],"12_9_s":[1.4895,0.886,0.644,0.3361],"12_7_s":[0.9536,0.4582,0.6151,0.3595],"12_5_s":[0.7674,0.352,0.5939,0.3742],"12_3_s":[0.6902,0.3297,0.5806,0.3822],"12_1_s":[0.4967,0.2214,0.5634,0.3989],"11_11_p":[3.2894,1.9935,0.8212,0.1733],"11_9_o":[0.692,0.3186,0.5944,0.383],"11_7_o":[0.371,0.1162,0.5641,0.4078],"11_5_o":[0.0814,-0.0494,0.5342,0.4304],"11_3_o":[-0.1176,-0.1511,0.5125,0.4463],"11_1_o":[-0.3324,-0.2583,0.4933,0.4648],"10_9_s":[1.0242,0.6936,0.5907,0.3855],"10_7_s":[0.4892,0.2741,0.5622,0.4089],"10_5_s":[0.0628,0.0078,0.5252,0.4392],"10_3_s":[-0.0957,-0.0745,0.5071,0.4517],"10_1_s":[-0.2942,-0.1721,0.4894,0.469],"9_9_p":[2.7497,1.651,0.7715,0.2221],"9_7_o":[-0.07,-0.0385,0.5164,0.4514],"9_5_o":[-0.4781,-0.2698,0.4773,0.4836],"9_3_o":[-0.754,-0.4159,0.449,0.5054],"9_1_o":[-0.9708,-0.5167,0.4297,0.5242],"8_7_s":[0.1852,0.2055,0.5238,0.4432],"8_5_s":[-0.2449,-0.0534,0.4865,0.4737],"8_3_s":[-0.6763,-0.308,0.4494,0.5051],"8_1_s":[-0.8472,-0.3843,0.4338,0.5199],"7_7_p":[2.1325,1.2503,0.7167,0.2755],"7_5_o":[-0.8142,-0.342,0.4407,0.5148],"7_3_o":[-1.2267,-0.5605,0.4014,0.548],"7_1_o":[-1.5323,-0.7087,0.3743,0.5739],"6_5_s":[-0.4747,-0.0528,0.4568,0.4981],"6_3_s":[-0.903,-0.3007,0.4199,0.529],"6_1_s":[-1.3728,-0.5578,0.3828,0.5654],"5_5_p":[1.4869,0.8386,0.6573,0.3325],"5_3_o":[-1.4277,-0.5386,0.3767,0.5665],"5_1_o":[-1.8829,-0.767,0.3372,0.6051],"4_3_s":[-0.9845,-0.2269,0.4035,0.5408],"4_1_s":[-1.4463,-0.4798,0.3669,0.5762],"3_3_p":[0.8316,0.4299,0.5964,0.3899],"3_1_o":[-1.8906,-0.7083,0.3316,0.6064],"2_1_s":[-1.5119,-0.4727,0.3573,0.5844],"1_1_p":[0.0885,0.0075,0.5284,0.4545],"12_11_o":[1.1719,0.5689,0.6447,0.3383],"12_9_o":[0.9918,0.4613,0.6254,0.3541],"12_7_o":[0.6677,0.2525,0.5945,0.379],"12_5_o":[0.466,0.1392,0.5717,0.3949],"12_3_o":[0.3585,0.0936,0.5574,0.4035],"12_1_o":[0.1474,-0.0232,0.5386,0.4217],"11_10_s":[1.3126,0.8164,0.6241,0.3561],"11_8_s":[1.1485,0.7213,0.6059,0.3701],"11_6_s":[0.4816,0.2091,0.5679,0.4017],"11_4_s":[0.3091,0.1165,0.548,0.4152],"11_2_s":[0.117,0.0189,0.5289,0.4312],"11_0_s":[-0.0745,-0.0799,0.5124,0.4482],"10_9_o":[0.4557,0.2243,0.5691,0.4064],"10_7_o":[0.1325,0.0262,0.5386,0.4314],"10_5_o":[-0.2776,-0.2094,0.499,0.4637],"10_3_o":[-0.4493,-0.2975,0.4796,0.4772],"10_1_o":[-0.6655,-0.4009,0.4602,0.4959],"9_8_s":[0.7788,0.6019,0.5615,0.411],"9_6_s":[0.1074,0.0963,0.5231,0.4428],"9_4_s":[-0.3227,-0.1636,0.4857,0.4736],"9_2_s":[-0.4879,-0.2425,0.4687,0.4873],"9_0_s":[-0.6816,-0.3362,0.452,0.5045],"8_7_o":[-0.2315,-0.0795,0.4982,0.4675],"8_5_o":[-0.6456,-0.3058,0.4583,0.5001],"8_3_o":[-1.0606,-0.5273,0.4186,0.5336],"8_1_o":[-1.2481,-0.61,0.4016,0.5497],"7_6_s":[-0.1705,0.0511,0.4886,0.4725],"7_4_s":[-0.597,-0.1966,0.4515,0.5029],"7_2_s":[-1.0492,-0.4525,0.4141,0.5368],"7_0_s":[-1.2135,-0.5279,0.3997,0.5514],"6_5_o":[-0.9329,-0.3402,0.4269,0.5259],"6_3_o":[-1.3447,-0.5562,0.3874,0.5589],"6_1_o":[-1.8031,-0.7849,0.3475,0.5978],"5_4_s":[-0.7463,-0.141,0.4283,0.5209],"5_2_s":[-1.1941,-0.3921,0.3911,0.5541],"5_0_s":[-1.6673,-0.6504,0.3544,0.5913],"4_3_o":[-1.4751,-0.5206,0.3701,0.5712],"4_1_o":[-1.925,-0.7452,0.3307,0.6091],"3_2_s":[-1.1662,-0.299,0.3853,0.5563],"3_0_s":[-1.6295,-0.5524,0.3493,0.5923],"2_1_o":[-2.0169,-0.7601,0.3207,0.6177],"1_0_s":[-1.8428,-0.6493,0.3309,0.6112],"12_10_s":[1.5727,0.9357,0.6531,0.329],"12_8_s":[1.4093,0.8379,0.6349,0.3428],"12_6_s":[0.8689,0.4096,0.6051,0.3662],"12_4_s":[0.6493,0.2857,0.5818,0.3837],"12_2_s":[0.5901,0.2741,0.5714,0.3907],"12_0_s":[0.3999,0.1665,0.5551,0.4075],"11_10_o":[0.7829,0.3705,0.6043,0.3752],"11_8_o":[0.6075,0.2694,0.5849,0.3902],"11_6_o":[0.1663,-0.004,0.5443,0.4239],"11_4_o":[-0.0208,-0.103,0.523,0.4385],"11_2_o":[-0.2288,-0.206,0.5023,0.4557],"11_0_o":[-0.4377,-0.3113,0.4842,0.4741],"10_8_s":[0.9436,0.648,0.5817,0.3924],"10_6_s":[0.2789,0.1402,0.5442,0.4238],"10_4_s":[-0.0061,-0.0281,0.5168,0.4445],"10_2_s":[-0.1984,-0.1244,0.4976,0.4605],"10_0_s":[-0.3914,-0.2204,0.481,0.4776],"9_8_o":[0.174,0.1103,0.5383,0.4333],"9_6_o":[-0.2721,-0.1549,0.4971,0.4673],"9_4_o":[-0.6862,-0.3829,0.4571,0.5002],"9_2_o":[-0.8661,-0.467,0.4387,0.515],"9_0_o":[-1.0772,-0.5672,0.4205,0.5335],"8_6_s":[-0.0303,0.0754,0.5051,0.4584],"8_4_s":[-0.4593,-0.181,0.468,0.4892],"8_2_s":[-0.7511,-0.3394,0.442,0.5114],"8_0_s":[-0.9449,-0.4298,0.4254,0.5286],"7_6_o":[-0.6094,-0.2361,0.4607,0.4987],"7_4_o":[-1.0196,-0.45,0.421,0.5312],"7_2_o":[-1.458,-0.6747,0.3809,0.5674],"7_0_o":[-1.6384,-0.7582,0.3652,0.5832],"6_4_s":[-0.6882,-0.175,0.4382,0.5133],"6_2_s":[-1.1383,-0.4295,0.401,0.547],"6_0_s":[-1.4403,-0.5887,0.3768,0.5714],"5_4_o":[-1.2219,-0.4309,0.3965,0.5501],"5_2_o":[-1.6556,-0.6522,0.3566,0.5856],"5_0_o":[-2.1176,-0.8828,0.3171,0.6254],"4_2_s":[-1.2146,-0.3518,0.3848,0.5581],"4_0_s":[-1.6849,-0.6097,0.3484,0.595],"3_2_o":[-1.67,-0.5977,0.3507,0.5876],"3_0_o":[-2.1214,-0.8233,0.3119,0.6262],"2_0_s":[-1.7445,-0.5991,0.3392,0.6026],"1_0_o":[-2.3481,-0.9258,0.2924,0.6463]};
+  const SIM = {"base":0.021849713762905426,"rows":[{"k":1,"edge":0.019737281055221805,"se":0.0005212786646138567,"n":581,"gainPre":0.0018672443432508718,"changed":0.0378657487091222},{"k":2,"edge":0.017755783868757147,"se":0.000732344862343119,"n":712,"gainPre":0.0034423197037434083,"changed":0.04353932584269663},{"k":3,"edge":0.013273647113899011,"se":0.001050443747033862,"n":1122,"gainPre":0.0075135877528632825,"changed":0.0873440285204991},{"k":4,"edge":0.012705101474525204,"se":0.0009114125574371279,"n":1422,"gainPre":0.007466874469165318,"changed":0.07946554149085795},{"k":5,"edge":0.006996646172902731,"se":0.0013823991882123724,"n":1299,"gainPre":0.012624863967966696,"changed":0.09468822170900693}],"lede":"Ja, er schrumpft deutlich, bleibt aber beim Haus. Ohne Zusatzwissen liegt der Hausvorteil bei perfektem Spiel bei <b>2,185 %</b> der Ante. Siehst du die Karten von 5 Mitspielern (10 Karten) und nutzt sie auf jeder Setzrunde perfekt, sinkt er auf rund <b>0,70 %</b>. Die zwei Karten eines einzigen Mitspielers bringen 0,21 Prozentpunkte.","note":"Balken: Hausvorteil in Prozent der Ante, grün heißt Vorteil beim Spieler. Der Strich zeigt den Standardfehler der Simulation. Allein die Preflop-Entscheidung (das, was der Rechner oben ausgibt) ändert sich bei 5 Mitspielern in 9 % der Hände und bringt 1,26 Prozentpunkte; der Rest kommt von besseren Flop- und River-Entscheidungen. Zwischen benachbarten Tischgrößen ist der Unterschied teils kleiner als die Unsicherheit.","method":"Simulation: je Tischgröße 581, 712, 1122, 1422, 1299 zufällige Hände (für 1, 2, 3, 4, 5 Mitspieler). Für jede Hand ist exakt ausgezählt, was ein Spieler mit Kenntnis der toten Karten erwartet und was derselbe Spieler ohne dieses Wissen mit der Standardstrategie tatsächlich bekommt. Der Unterschied ist der Gewinn durch die Information."};
+  const RANKS = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A'];
+  const RCH = '23456789TJQKA';
+  const SUITS = ['♣\uFE0E', '♦\uFE0E', '♥\uFE0E', '♠\uFE0E'];
+  const SUITNAME = ['Kreuz', 'Karo', 'Herz', 'Pik'];
+  const PLURAL = ['Zweien', 'Dreien', 'Vieren', 'Fünfen', 'Sechsen', 'Siebenen', 'Achten', 'Neunen', 'Zehnen', 'Buben', 'Damen', 'Könige', 'Asse'];
+  const $ = id => document.getElementById(id);
+  const E = createUthEngine();
+
+  const state = { hand: [], dead: [], board: [], mode: 'hand' };
+  const cardName = c => RANKS[c >> 2] + SUITS[c & 3];
+  const fmt = (x, d) => (x >= 0 ? '+' : '−') + Math.abs(x).toFixed(d === undefined ? 2 : d).replace('.', ',');
+  const pct = (x, d) => (100 * x).toFixed(d === undefined ? 1 : d).replace('.', ',') + ' %';
+
+  // ---------- Kartenraster ----------
+  const grid = $('grid');
+  const cells = [];
+  for (let r = 12; r >= 0; r--) for (let s = 3; s >= 0; s--) {
+    const c = r * 4 + s;
+    const b = document.createElement('button');
+    b.type = 'button'; b.className = 'card'; b.id = 'card-' + c; b.dataset.suit = s; b.dataset.state = 'free';
+    b.innerHTML = RANKS[r] + '<span class="su">' + SUITS[s] + '</span>';
+    b.setAttribute('aria-label', SUITNAME[s] + ' ' + RANKS[r]);
+    b.addEventListener('click', () => tap(c));
+    grid.appendChild(b); cells[c] = b;
+  }
+
+  function hint(text, kind) { const h = $('hint'); h.textContent = text || ''; h.dataset.kind = kind || ''; }
+
+  function tap(c) {
+    hint('');
+    for (const key of ['hand', 'dead', 'board']) {
+      const i = state[key].indexOf(c);
+      if (i >= 0) { state[key].splice(i, 1); changed(); return; }
+    }
+    if (state.mode === 'hand') {
+      if (state.hand.length === 2) state.hand.shift();
+      state.hand.push(c);
+      if (state.hand.length === 2) state.mode = 'dead';
+    } else if (state.mode === 'board') {
+      if (state.board.length === 5) { hint('Das Board hat höchstens 5 Karten.', 'warn'); return; }
+      state.board.push(c);
+    } else {
+      if (state.dead.length === 30) { hint('Mehr als 30 tote Karten sind nicht vorgesehen.', 'warn'); return; }
+      state.dead.push(c);
+    }
+    changed();
+  }
+
+  document.querySelectorAll('.mode').forEach(b => b.addEventListener('click', () => { state.mode = b.dataset.mode; hint(''); paint(); }));
+  function load(hand, dead, board) { state.hand = hand.slice(); state.dead = dead.slice(); state.board = (board || []).slice(); state.mode = 'dead'; hint(''); changed(); }
+  const C = s => s.split(' ').map(x => RCH.indexOf(x[0]) * 4 + 'cdhs'.indexOf(x[1]));
+  $('ex-1').addEventListener('click', () => load(C('As 5d'), C('Ah Ad Ac')));
+  $('ex-2').addEventListener('click', () => load(C('Qs 7d'), C('Ah Ad Kc Kh')));
+  $('ex-3').addEventListener('click', () => load(C('3s 3d'), C('3h')));
+  $('reset').addEventListener('click', () => { state.hand = []; state.dead = []; state.board = []; state.mode = 'hand'; hint(''); changed(); });
+
+  function paint() {
+    for (let c = 0; c < 52; c++) cells[c].dataset.state = 'free';
+    state.hand.forEach(c => cells[c].dataset.state = 'hand');
+    state.dead.forEach(c => cells[c].dataset.state = 'dead');
+    state.board.forEach(c => cells[c].dataset.state = 'board');
+    document.querySelectorAll('.mode').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.mode === state.mode)));
+    $('cnt-hand').textContent = state.hand.length ? state.hand.map(cardName).join(' ') : '0 von 2';
+    $('cnt-dead').textContent = state.dead.length + (state.dead.length === 1 ? ' Karte' : ' Karten');
+    const nb = state.board.length;
+    $('cnt-board').textContent = nb === 0 ? 'leer' : nb === 3 ? 'Flop' : nb === 5 ? 'River' : nb + ' Karten';
+  }
+
+  // ---------- Rechnen ----------
+  let runId = 0, timer = 0, workers = null, useWorkers = typeof Worker !== 'undefined';
+  function makeWorkers() {
+    const glue = 'const E=(' + createUthEngine.toString() + ')();let cur=0;onmessage=function(ev){const m=ev.data;cur=m.id;if(!m.hole)return;' +
+      'const job=E.createJob(m.hole,m.dead,[],{parts:m.parts,mod:m.mod,noFinish:true});' +
+      '(function tick(){if(cur!==m.id)return;if(!job.step(40)){postMessage({id:m.id,mod:m.mod,progress:job.progress});setTimeout(tick,0);}' +
+      'else{const p=job.partial();postMessage({id:m.id,mod:m.mod,partial:p},[p.fb.buffer,p.fc.buffer]);}})();};';
+    const url = URL.createObjectURL(new Blob([glue], { type: 'text/javascript' }));
+    const n = Math.max(1, Math.min(4, (navigator.hardwareConcurrency || 2) - 1));
+    const list = [];
+    for (let i = 0; i < n; i++) { const w = new Worker(url); w.onerror = () => { useWorkers = false; workers = null; schedule(0); }; list.push(w); }
+    return list;
+  }
+
+  function classOf(hand) {
+    let a = hand[0], b = hand[1]; if ((a >> 2) < (b >> 2)) { const t = a; a = b; b = t; }
+    const type = (a >> 2) === (b >> 2) ? 'p' : (a & 3) === (b & 3) ? 's' : 'o';
+    const label = RANKS[a >> 2] + '‑' + RANKS[b >> 2] + (type === 's' ? ' in einer Farbe' : '');
+    const v = BASE[(a >> 2) + '_' + (b >> 2) + '_' + type];
+    return { label, evRaise: v[0], evCheck: v[1], pWin: v[2], pLose: v[3] };
+  }
+
+  function changed() { paint(); schedule(state.dead.length || state.board.length ? 280 : 0); }
+
+  function schedule(delay) {
+    runId++; clearTimeout(timer);
+    if (workers) workers.forEach(w => w.postMessage({ id: runId }));
+    const nb = state.board.length;
+    if (state.hand.length < 2) { showIdle(state.hand.length ? 'Noch eine Karte' : 'Hand wählen'); return; }
+    if (nb !== 0 && nb !== 3 && nb !== 5) { showIdle('Board unvollständig'); hint('Das Board braucht 3 Karten (Flop) oder 5 Karten (River).', 'warn'); return; }
+    const id = runId;
+    if (nb === 0 && state.dead.length === 0) { const b = classOf(state.hand); render({ street: 'pre', evRaise: b.evRaise, evCheck: b.evCheck, pWin: b.pWin, pLose: b.pLose }); return; }
+    if (nb > 0) { timer = setTimeout(() => { if (id === runId) render(E.createJob(state.hand, state.dead, state.board).result); }, 0); return; }
+    showBusy(0);
+    timer = setTimeout(() => startPre(id), delay);
+  }
+
+  function startPre(id) {
+    if (id !== runId) return;
+    const hole = state.hand.slice(), dead = state.dead.slice();
+    if (useWorkers) {
+      try { if (!workers) workers = makeWorkers(); } catch (e) { useWorkers = false; workers = null; }
+    }
+    if (useWorkers && workers) {
+      const parts = workers.length, prog = new Array(parts).fill(0);
+      const col = E.createJob(hole, dead, [], { parts: parts + 1, mod: parts + 5, noFinish: true });
+      let got = 0;
+      workers.forEach((w, i) => {
+        w.onmessage = ev => {
+          const m = ev.data; if (m.id !== id || id !== runId) return;
+          if (m.partial) { col.merge(m.partial); prog[i] = 1; got++; if (got === parts) { col.finish(); render(col.result); return; } }
+          else prog[i] = m.progress;
+          showBusy(prog.reduce((a, b) => a + b, 0) / parts);
+        };
+        w.postMessage({ id, hole, dead, parts, mod: i });
+      });
+      return;
+    }
+    const job = E.createJob(hole, dead, []);
+    (function tick() {
+      if (id !== runId) return;
+      if (job.step(30)) render(job.result); else { showBusy(job.progress); setTimeout(tick, 0); }
+    })();
+  }
+
+  // ---------- Anzeige ----------
+  function streetLabel() {
+    const nb = state.board.length, nd = state.dead.length;
+    return (nb === 0 ? 'Preflop' : nb === 3 ? 'Flop' : nb === 5 ? 'River' : 'Board') + ' · ' + (nd === 0 ? 'keine Karte raus' : nd === 1 ? '1 Karte raus' : nd + ' Karten raus');
+  }
+  function showIdle(text) {
+    $('verdict').dataset.tone = 'idle'; $('v-eyebrow').textContent = streetLabel(); $('v-action').textContent = text; $('v-evs').textContent = ''; $('v-bar').hidden = true;
+    $('why').innerHTML = '<p>Erst deine zwei Karten antippen. Danach springt die Auswahl auf <b>Raus</b>: Jede Karte, die du offen bei anderen siehst, kann weder beim Dealer noch auf dem Board landen.</p>';
+  }
+  function showBusy(p) {
+    $('verdict').dataset.tone = 'idle'; $('v-eyebrow').textContent = streetLabel(); $('v-action').textContent = 'rechnet …';
+    $('v-evs').textContent = Math.round(p * 100) + ' %'; $('v-bar').hidden = false; $('v-bar').firstElementChild.style.width = (p * 100) + '%';
+  }
+
+  function evRows(rows) {
+    const max = Math.max(0.5, ...rows.map(r => Math.abs(r.ev)));
+    const best = Math.max(...rows.map(r => r.ev));
+    return '<div class="rows">' + rows.map(r => {
+      const w = (Math.abs(r.ev) / max * 50).toFixed(1);
+      const pos = r.ev >= 0 ? 'left:50%' : 'right:50%';
+      return '<div class="evrow" data-best="' + (r.ev === best ? 1 : 0) + '"><span class="lab">' + r.label + '</span><span class="track"><i style="' + pos + ';width:' + w + '%"></i></span><span class="val">' + fmt(r.ev, 3) + '</span></div>';
+    }).join('') + '</div>';
+  }
+
+  function outsText() {
+    const gone = new Set([...state.hand, ...state.dead, ...state.board]);
+    const r0 = state.hand[0] >> 2, r1 = state.hand[1] >> 2;
+    const live = r => { let n = 0; for (let s = 0; s < 4; s++) if (!gone.has(r * 4 + s)) n++; return n; };
+    const one = r => PLURAL[r] + ' ' + live(r) + ' von ' + (r0 === r1 ? 2 : 3);
+    return r0 === r1 ? one(r0) : one(Math.max(r0, r1)) + ' · ' + one(Math.min(r0, r1));
+  }
+
+  function render(r) {
+    const v = $('verdict'); $('v-bar').hidden = true; $('v-eyebrow').textContent = streetLabel();
+    const nd = state.dead.length;
+    let html = '';
+    if (r.street === 'pre') {
+      const raise = r.evRaise > r.evCheck;
+      v.dataset.tone = raise ? 'go' : 'hold';
+      $('v-action').textContent = raise ? '4× Raise' : 'Check';
+      $('v-evs').innerHTML = '4× ' + fmt(r.evRaise) + '<br>Check ' + fmt(r.evCheck);
+      const b = classOf(state.hand), baseRaise = b.evRaise > b.evCheck;
+      const diff = Math.abs(r.evRaise - r.evCheck);
+      if (nd === 0) {
+        html += '<p><b>' + b.label + '</b> ohne Zusatzwissen: ' + (raise ? '4× Raise' : 'Check') + ' ist um ' + diff.toFixed(2).replace('.', ',') + ' Antes besser. Tippe jetzt Karten an, die raus sind, und schau, ob sich das dreht.</p>';
+      } else if (raise !== baseRaise) {
+        html += '<p><b>Die toten Karten drehen die Entscheidung.</b> Ohne sie wäre ' + b.label + ' ein ' + (baseRaise ? '4× Raise' : 'Check') + '. Mit ihnen bringt ' + (raise ? '4× Raise' : 'Check') + ' ' + diff.toFixed(2).replace('.', ',') + ' Antes mehr pro Hand.</p>';
+      } else {
+        const now = Math.max(r.evRaise, r.evCheck), before = Math.max(b.evRaise, b.evCheck);
+        html += '<p>Die Entscheidung bleibt wie ohne Zusatzwissen: <b>' + (raise ? '4× Raise' : 'Check') + '</b>. Deine Erwartung für ' + b.label + ' verschiebt sich aber von ' + fmt(before) + ' auf ' + fmt(now) + ' Antes.</p>';
+      }
+      html += evRows([{ label: '4× Raise', ev: r.evRaise }, { label: 'Check', ev: r.evCheck }]);
+      html += '<dl class="facts">' +
+        '<div><dt>Noch im Deck</dt><dd>' + outsText() + '</dd></div>' +
+        '<div><dt>Showdown gegen Dealer</dt><dd>' + pct(r.pWin) + ' gewinnt · ' + pct(r.pLose) + ' verliert</dd></div>' +
+        (r.pBetFlop !== undefined ? '<div><dt>Nach Check: 2× am Flop</dt><dd>bei ' + pct(r.pBetFlop, 0) + ' der Flops</dd></div>' : '') +
+        (nd ? '<div><dt>Ohne Zusatzwissen</dt><dd>4× ' + fmt(b.evRaise) + ' · Check ' + fmt(b.evCheck) + '</dd></div>' : '') +
+        '</dl>';
+    } else if (r.street === 'flop') {
+      const bet = r.evBet > r.evCheck;
+      v.dataset.tone = bet ? 'go' : 'hold';
+      $('v-action').textContent = bet ? '2× Bet' : 'Check';
+      $('v-evs').innerHTML = '2× ' + fmt(r.evBet) + '<br>Check ' + fmt(r.evCheck);
+      html += '<p>Gilt, wenn du preflop gecheckt hast. ' + (bet ? '2× setzen' : 'Checken') + ' ist um ' + Math.abs(r.evBet - r.evCheck).toFixed(2).replace('.', ',') + ' Antes besser.</p>';
+      html += evRows([{ label: '2× Bet', ev: r.evBet }, { label: 'Check', ev: r.evCheck }]);
+      html += '<dl class="facts"><div><dt>Showdown gegen Dealer</dt><dd>' + pct(r.pWin) + ' gewinnt · ' + pct(r.pLose) + ' verliert</dd></div>' +
+        '<div><dt>Nach Check: Fold am River</dt><dd>bei ' + pct(r.pFold, 0) + ' der Turn/River-Paare</dd></div></dl>';
+    } else {
+      const bet = r.evBet > r.evFold;
+      v.dataset.tone = bet ? 'go' : 'stop';
+      $('v-action').textContent = bet ? '1× Bet' : 'Fold';
+      $('v-evs').innerHTML = '1× ' + fmt(r.evBet) + '<br>Fold ' + fmt(-2);
+      html += '<p>Gilt, wenn du bisher nur gecheckt hast. Fold kostet Ante und Blind, also −2,00. ' + (bet ? 'Setzen verliert im Schnitt weniger oder gewinnt.' : 'Setzen wäre noch teurer.') + '</p>';
+      html += evRows([{ label: '1× Bet', ev: r.evBet }, { label: 'Fold', ev: -2 }]);
+      html += '<dl class="facts"><div><dt>Dealer-Hände</dt><dd>' + r.nDealer + ' möglich</dd></div>' +
+        '<div><dt>Showdown gegen Dealer</dt><dd>' + pct(r.pWin) + ' gewinnt · ' + pct(r.pLose) + ' verliert</dd></div></dl>';
+    }
+    html += '<p class="fine">Werte in Antes je Hand: +0,10 heißt, bei 10 € Ante erwartest du im Schnitt 1 € Gewinn.</p>';
+    $('why').innerHTML = html;
+  }
+
+  // ---------- Hausvorteil ----------
+  (function edge() {
+    const rows = SIM.rows, base = SIM.base;
+    const lo = Math.min(0, ...rows.map(r => r.edge - r.se)), hi = Math.max(base, ...rows.map(r => r.edge + r.se)) * 1.04;
+    const x = v => ((v - lo) / (hi - lo) * 100).toFixed(2);
+    const all = [{ k: 0, edge: base, se: 0 }].concat(rows);
+    $('edge-chart').innerHTML = all.map(r => {
+      const a = Math.min(0, r.edge), b = Math.max(0, r.edge);
+      const lab = r.k === 0 ? 'nur eigene Hand' : r.k === 1 ? '1 Mitspieler' : r.k + ' Mitspieler';
+      const val = r.edge >= 0 ? (100 * r.edge).toFixed(r.k === 0 ? 3 : 2).replace('.', ',') + ' %' : '−' + (100 * -r.edge).toFixed(2).replace('.', ',') + ' %';
+      return '<div class="erow"><span>' + lab + '</span><span class="etrack"><i class="' + (r.edge < 0 ? 'player' : '') + '" style="left:' + x(a) + '%;width:' + (x(b) - x(a)).toFixed(2) + '%"></i>' +
+        (r.se ? '<s style="left:' + x(r.edge - r.se) + '%;width:' + (x(r.edge + r.se) - x(r.edge - r.se)).toFixed(2) + '%"></s>' : '') +
+        '<u style="left:' + x(0) + '%"></u></span><span class="val">' + val + (r.se ? ' <small>±' + (100 * r.se).toFixed(2).replace('.', ',') + '</small>' : '') + '</span></div>';
+    }).join('');
+    $('edge-lede').innerHTML = SIM.lede;
+    $('edge-note').textContent = SIM.note;
+    $('sim-method').textContent = SIM.method;
+  })();
+
+  load(C('As 5d'), C('Ah Ad Ac'));
+  hint('Beispiel geladen: A‑5 mit drei toten Assen. Tippe Karten an, um es zu ändern.');
+})();
+</script>
+</body>
+</html>
