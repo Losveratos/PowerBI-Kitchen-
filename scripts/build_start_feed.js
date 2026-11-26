@@ -42,7 +42,7 @@ const SHOT_FOR = {
   'zwei-heimaten.html': 'story-zwei-heimaten', 'koelner-raser-story.html': 'story-koeln-blitzt',
   'koelner-raser-post.html': 'story-koeln-blitzt', 'rhein-story.html': 'story-rhein',
   'waermestreifen-3d.html': 'story-waermestreifen', 'strommix-story.html': 'story-strommix',
-  'whitepaper-strommix.html': 'story-strommix', 'talks/budapest-bi26/': 'talk-budapest',
+  'whitepaper-strommix.html': 'story-strommix', 'talks/budapest-bi26/': 'talk-budapest', 'talks/databash-2026/': 'talk-databash',
   'finance-reporting-budapest-post.html': 'talk-budapest', 'morally_aligned_ai.html': 'talk-morally-aligned',
   'power-bi-on-claude.html': 'talk-pbi-on-claude', 'sessions/how-i-started-to-build-custom-visuals.html': 'talk-custom-visuals',
   'wohlstandsatlas.html': 'tool-wohlstandsatlas', 'laender-indikatoren-explorer.html': 'tool-laender',
