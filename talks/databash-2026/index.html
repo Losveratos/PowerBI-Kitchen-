@@ -80,6 +80,16 @@ code,.mono{font-family:var(--mono);font-size:.88em}
 svg text{font-family:var(--sans)}
 svg text:not([fill]){fill:var(--ink)}
 
+/* mid: content block centred in the free height of the slide */
+.mid{flex:0 0 auto!important;margin-top:auto!important;margin-bottom:auto!important}
+.mid .cols,.mid .vs,.mid .waves{flex:0 0 auto}
+.nw{white-space:nowrap}
+/* zoom: click an image, it grows from its place to full size (Prezi/Miro feel) */
+.fig img,.thumbs img{cursor:zoom-in}
+#zoom{position:fixed;inset:0;z-index:50;display:none;background:rgba(15,30,46,.9);cursor:zoom-out}
+#zoom.on{display:block}
+#zoom img{position:absolute;max-width:none;border-radius:6px;box-shadow:0 30px 90px rgba(0,0,0,.5);background:#fff}
+#zoom .zcap{position:absolute;left:0;right:0;bottom:18px;text-align:center;color:#E6EBF2;font:500 17px var(--sans);opacity:.85}
 /* hug: figures take the height of their image */
 .hug{align-items:start;flex:0 0 auto}
 .hug .fig img{height:auto;flex:0 0 auto}
@@ -91,16 +101,17 @@ svg text:not([fill]){fill:var(--ink)}
 
 /* SUCCESS */
 .success{display:grid;grid-template-columns:repeat(7,1fr);gap:16px}
-.success .r{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:20px 22px 24px;min-height:330px}
+.success .r{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:22px 22px 26px;min-height:400px}
 .success .r>b{display:block;font-size:52px;line-height:1;font-weight:800;color:var(--accent)}
-.success .r span{font-size:25px;line-height:1.3;color:var(--soft);display:block;margin-top:6px}
-.success .r span b{display:block;font-size:29px;color:var(--ink);margin:10px 0 4px}
+.success .r span{font-size:27px;line-height:1.3;color:var(--soft);display:block;margin-top:6px}
+.success .r span b{display:block;font-size:32px;color:var(--ink);margin:10px 0 4px}
 .brackets{display:grid;grid-template-columns:repeat(7,1fr);gap:16px;margin:4px 0 10px}
 .brackets div{border-top:4px solid var(--accent);padding-top:8px;font-size:21px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--accent);font-family:var(--mono)}
 .brackets div span{color:var(--soft);font-weight:500;letter-spacing:.02em;text-transform:none}
 
 /* contrast slide */
 .vs{display:grid;grid-template-columns:1fr 90px 1fr;gap:0;align-items:stretch;flex:1;min-height:0}
+.vs .card{min-height:420px}
 .vs .arrow{display:flex;align-items:center;justify-content:center;font-size:64px;color:var(--accent);font-weight:800}
 .vs .card h3{font-size:42px;margin-bottom:22px}
 .vs .card li{font-size:31px;margin-bottom:20px}
@@ -124,12 +135,13 @@ table.mx tr.warn td{background:#FBF1EA}
 
 /* waves (roadmap) */
 .waves{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;flex:1;min-height:0}
+.waves .wave{min-height:440px}
 .wave{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:20px 22px;display:flex;flex-direction:column}
 .wave.done{border-left:8px solid var(--good)}
 .wave.next{border:2px dashed #9AA5B1;background:transparent}
 .wave .no{font-family:var(--mono);font-weight:700;font-size:20px;color:var(--accent);letter-spacing:.06em}
 .wave h3{font-size:34px;margin:8px 0 10px;line-height:1.15}
-.wave li{font-size:26px;line-height:1.32;margin-bottom:14px;color:var(--ink)}
+.wave li{font-size:27px;line-height:1.32;margin-bottom:14px;color:var(--ink)}
 .wave ul{margin:0;padding-left:1.05em}
 .wave .tag{margin-top:auto;align-self:flex-start;font-size:19px;background:var(--tint);border-radius:6px;padding:6px 10px;font-family:var(--mono)}
 
@@ -138,7 +150,8 @@ pre.json{font-family:var(--mono);font-size:21px;line-height:1.42;margin:0;paddin
 pre.json .k{color:#9CC6FF} pre.json .s{color:#A8D8BD} pre.json .n{color:var(--accent-l)} pre.json .c{color:#7F8EA3}
 .cmds{display:flex;flex-direction:column;gap:12px}
 .cmd{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 18px}
-.cmd code{display:block;font-size:21px;color:var(--ink);font-weight:600}
+.cmd>code{display:block;font-size:21px;color:var(--ink);font-weight:600;overflow-wrap:anywhere}
+.cmd p code{font-weight:600;color:var(--ink)}
 .cmd p{font-size:21px;color:var(--soft);margin:4px 0 0;line-height:1.3}
 
 /* demo */
@@ -155,6 +168,12 @@ pre.json .k{color:#9CC6FF} pre.json .s{color:#A8D8BD} pre.json .n{color:var(--ac
 .thumbs figure{margin:0;display:flex;flex-direction:column;min-height:0}
 .thumbs img{width:100%;flex:1;min-height:0;object-fit:cover;object-position:left top;border:1px solid var(--line);border-radius:8px;background:#fff}
 .thumbs figcaption{font-size:19px;color:var(--soft);margin-top:6px}
+/* takeaways */
+.take{display:grid;grid-template-columns:1fr 1fr;gap:24px}
+.take .card{padding:30px 34px}
+.take .card h3{font-size:38px;margin:0 0 12px}
+.take .card p{font-size:28px;line-height:1.4;color:var(--soft)}
+.take .card .k{font-weight:800;font-size:64px;line-height:1;color:var(--accent);margin-bottom:10px}
 /* close */
 .close{display:grid;grid-template-columns:1fr 360px;gap:80px;align-items:center}
 .close .thesis{font-weight:800;font-size:62px;line-height:1.12;margin:0 0 36px;letter-spacing:-.01em}
@@ -202,7 +221,7 @@ pre.json .k{color:#9CC6FF} pre.json .s{color:#A8D8BD} pre.json .n{color:var(--ac
 body.hud #hud{display:block}
 .slide.appx .fig img{object-position:center center}
 @page{size:1920px 1080px;margin:0}
-@media print{*{-webkit-print-color-adjust:exact;print-color-adjust:exact}html,body{overflow:visible;background:#fff;height:auto}#stage{position:static;transform:none!important}.slide{position:relative;display:flex!important;width:1920px;height:1080px;page-break-after:always;break-after:page}#hud,#chaps,#ov{display:none!important}.slide>*{opacity:1!important;transform:none!important}}
+@media print{#zoom{display:none!important}*{-webkit-print-color-adjust:exact;print-color-adjust:exact}html,body{overflow:visible;background:#fff;height:auto}#stage{position:static;transform:none!important}.slide{position:relative;display:flex!important;width:1920px;height:1080px;page-break-after:always;break-after:page}#hud,#chaps,#ov{display:none!important}.slide>*{opacity:1!important;transform:none!important}}
 </style>
 </head>
 <body>
@@ -219,8 +238,8 @@ body.hud #hud{display:block}
   <span class="k">Visuals </span> <span class="p">=</span> <span class="p">@(</span><span class="s">"ChartKitchen 1.58"</span><span class="p">,</span> <span class="s">"P&amp;L Statement 1.8.4"</span><span class="p">)</span>
   <span class="k">Notation</span> <span class="p">=</span> <span class="s">"IBCS-inspired"</span>
 <span class="p">}</span></div>
-    <h1 class="de">Ein Playbook für <em>IBCS-inspirierte</em>, reproduzierbare Fabric Apps</h1>
-    <h1 class="en">A Playbook for Generating <em>IBCS-Inspired</em> Reproducible Fabric Apps</h1>
+    <h1 class="de">Ein Playbook für <em class="nw">IBCS-inspirierte</em>, reproduzierbare Fabric Apps</h1>
+    <h1 class="en">A Playbook for Generating <em class="nw">IBCS-Inspired</em> Reproducible Fabric Apps</h1>
     <p class="sub" data-en="for controlling and finance. One spec, two targets, the same visuals. And a standard as the guardrail when AI can build anything.">für Controlling und Finance. Eine Spec, zwei Ziele, dieselben Visuals. Und ein Standard als Leitplanke, wenn KI alles bauen kann.</p>
     <p class="who">Michael Tenner <span>· Daten-WG by platformimpulse · Köln</span></p>
   </div>
@@ -248,11 +267,11 @@ body.hud #hud{display:block}
 <!-- 3 FABRIC APPS -->
 <section class="slide" data-chapter="Warum Standards" data-chapter-en="Why standards">
   <div class="kicker">Fabric Apps · Preview</div>
-  <h2 class="t" data-en="Fabric Apps shine. Finance needs a workhorse.">Fabric Apps glänzen. Finance braucht ein Arbeitspferd.</h2>
+  <h2 class="t" style="max-width:none" data-en="Fabric Apps shine. Finance needs a workhorse.">Fabric Apps glänzen. Finance braucht ein Arbeitspferd.</h2>
   <p class="lead" style="margin-bottom:20px" data-en="React code hosted in Fabric, Entra sign-in, live DAX against the semantic model. A coding agent builds one in hours. That is the opportunity, and the risk.">React-Code, gehostet in Fabric, mit Entra-Anmeldung und Live-DAX gegen das Semantikmodell. Ein Coding-Agent baut so eine App in Stunden. Das ist die Chance, und das Risiko.</p>
   <div class="cols c2 hug" style="gap:28px">
-    <div class="fig"><p class="fig-title" data-en="<b>Finance cockpit</b> · AC vs PY/PL/FC"><b>Finance-Cockpit</b> · AC gegen PY/PL/FC</p><img style="max-height:310px;object-fit:contain" src="assets/fa-cockpit-uebersicht.jpg" alt="Fabric App Finance-Cockpit"></div>
-    <div class="fig"><p class="fig-title" data-en="<b>Sales</b> · zoom into small multiples"><b>Vertrieb</b> · Zoom in Small Multiples</p><img style="max-height:310px;object-fit:contain" src="assets/fa-vertrieb-zoom-small-multiples.jpg" alt="Fabric App Vertrieb mit Zoom in Small Multiples"></div>
+    <div class="fig"><p class="fig-title" data-en="<b>Finance cockpit</b> · AC vs PY/PL/FC"><b>Finance-Cockpit</b> · AC gegen PY/PL/FC</p><img style="max-height:360px;object-fit:contain" src="assets/fa-cockpit-uebersicht.jpg" alt="Fabric App Finance-Cockpit"></div>
+    <div class="fig"><p class="fig-title" data-en="<b>Sales</b> · zoom into small multiples"><b>Vertrieb</b> · Zoom in Small Multiples</p><img style="max-height:360px;object-fit:contain" src="assets/fa-vertrieb-zoom-small-multiples.jpg" alt="Fabric App Vertrieb mit Zoom in Small Multiples"></div>
   </div>
   <div class="cols c2" style="gap:28px;margin-top:20px;flex:0 0 auto">
       <div class="card acc"><div class="n" data-en="What an app adds">Was eine App mehr kann</div><ul style="margin-top:10px">
@@ -271,7 +290,7 @@ body.hud #hud{display:block}
 <section class="slide" data-chapter="Warum Standards" data-chapter-en="Why standards">
   <div class="kicker" data-en="When AI can build anything">Wenn KI alles bauen kann</div>
   <h2 class="t" data-en="Standards matter more in a world where everything is possible">Standards werden wichtiger in einer Welt, in der alles geht</h2>
-  <div class="vs" style="margin-top:22px">
+  <div class="mid"><div class="vs">
     <div class="card off"><div class="n" data-en="Without a standard">Ohne Standard</div><h3 data-en="Every prompt, a new chart language">Jeder Prompt, eine neue Diagrammsprache</h3><ul>
       <li data-en="Plan blue on page 1, green on page 2">Plan blau auf Seite 1, grün auf Seite 2</li>
       <li data-en="Each chart scaled on its own: small looks big">Jedes Diagramm eigen skaliert: klein wirkt groß</li>
@@ -284,7 +303,7 @@ body.hud #hud{display:block}
       <li data-en="<b>Polarity:</b> less cost is favourable"><b>Polarität:</b> weniger Kosten ist gut</li>
       <li data-en="<b>Message:</b> a sentence above every chart"><b>Aussage:</b> ein Satz über jedem Diagramm</li></ul></div>
   </div>
-  <div class="legend" style="margin-top:28px"><span><i class="ac"></i>AC <span data-en="actual">Ist</span></span><span><i class="py"></i>PY <span data-en="previous year">Vorjahr</span></span><span><i class="pl"></i>PL <span data-en="plan">Plan</span></span><span><i class="fc"></i>FC <span data-en="forecast">Forecast</span></span><span><i class="g"></i><span data-en="favourable">gut</span></span><span><i class="b"></i><span data-en="unfavourable">schlecht</span></span></div>
+  <div class="legend" style="margin-top:34px"><span><i class="ac"></i>AC <span data-en="actual">Ist</span></span><span><i class="py"></i>PY <span data-en="previous year">Vorjahr</span></span><span><i class="pl"></i>PL <span data-en="plan">Plan</span></span><span><i class="fc"></i>FC <span data-en="forecast">Forecast</span></span><span><i class="g"></i><span data-en="favourable">gut</span></span><span><i class="b"></i><span data-en="unfavourable">schlecht</span></span></div></div>
   <div class="foot"><span data-en="The agent writes the spec. The visual enforces the notation. A test measures it.">Der Agent schreibt die Spec. Das Visual erzwingt die Notation. Ein Test misst es.</span><span data-en="Guardrail, not decoration">Leitplanke, keine Deko</span></div>
 </section>
 
@@ -293,7 +312,7 @@ body.hud #hud{display:block}
   <div class="kicker" data-en="The notation has a name">Die Notation hat einen Namen</div>
   <h2 class="t" data-en="IBCS on one page">IBCS auf einer Seite</h2>
   <p class="lead" style="margin-bottom:16px" data-en="The SUCCESS rules. Not a member, not certified: inspiration, with the notation taken literally.">Die SUCCESS-Regeln. Nicht Mitglied, nicht zertifiziert: Inspiration, die Notation wörtlich genommen.</p>
-  <div class="brackets"><div style="grid-column:span 3"><span class="de">Notation</span><span class="en">Notation</span> <span>· Simplify · Unify · Check</span></div><div style="grid-column:span 4"><span data-en="Composition">Aufbau</span> <span>· Say · Express · Structure · Condense</span></div></div>
+  <div class="mid"><div class="brackets"><div style="grid-column:span 3"><span class="de">Notation</span><span class="en">Notation</span> <span>· Simplify · Unify · Check</span></div><div style="grid-column:span 4"><span data-en="Composition">Aufbau</span> <span>· Say · Express · Structure · Condense</span></div></div>
   <div class="success">
     <div class="r"><b>S</b><span><b>Simplify</b><span data-en="no clutter, no decoration, no 3D">kein Ballast, keine Deko, kein 3D</span></span></div>
     <div class="r"><b>U</b><span><b>Unify</b><span data-en="the notation: scenarios, variances, time, structure">die Notation: Szenarien, Abweichungen, Zeit, Struktur</span></span></div>
@@ -302,7 +321,7 @@ body.hud #hud{display:block}
     <div class="r"><b>E</b><span><b>Express</b><span data-en="the right chart type for the question">der passende Diagrammtyp zur Frage</span></span></div>
     <div class="r"><b>S</b><span><b>Structure</b><span data-en="consistent, hierarchical, MECE">einheitlich, hierarchisch, MECE</span></span></div>
     <div class="r"><b>C</b><span><b>Condense</b><span data-en="more information per page, small multiples">mehr Information je Seite, Small Multiples</span></span></div>
-  </div>
+  </div></div>
   <div class="foot"><span data-en="SUCCESS cards adapted from the IBCS® Standards 2.0 by the IBCS Association, CC BY-SA 4.0 (ibcs.com/standards); this slide is shared under the same licence · IBCS® is a registered trademark of the IBCS Institute">SUCCESS-Karten nach den IBCS®-Standards 2.0 der IBCS Association, CC BY-SA 4.0 (ibcs.com/standards); diese Folie steht unter derselben Lizenz · IBCS® ist eine eingetragene Marke des IBCS Institute</span><span data-en="IBCS 2.0 is aligned with ISO 24896">IBCS 2.0 ist an ISO 24896 ausgerichtet</span></div>
 </section>
 
@@ -342,11 +361,11 @@ body.hud #hud{display:block}
       <path d="M860,276 C920,276 930,140 990,140" fill="none" stroke="#0F1E2E" stroke-width="2.5" marker-end="url(#ar)"/>
       <path d="M860,304 C920,304 930,440 990,440" fill="none" stroke="#0F1E2E" stroke-width="2.5" marker-end="url(#ar)"/>
       <!-- visuals -->
-      <rect x="720" y="20" width="560" height="64" rx="12" fill="#FBE9DF" stroke="#C25A2D" stroke-width="2"/>
+      <rect x="720" y="20" width="655" height="64" rx="12" fill="#FBE9DF" stroke="#C25A2D" stroke-width="2"/>
       <text x="740" y="61" font-size="23" font-weight="700" class="de">Original-Visuals (.pbiviz): ChartKitchen 1.58 · P&amp;L 1.8.4</text>
       <text x="740" y="61" font-size="23" font-weight="700" class="en">Original visuals (.pbiviz): ChartKitchen 1.58 · P&amp;L 1.8.4</text>
             <path d="M1180,84 V96" stroke="#C25A2D" stroke-width="2.5" marker-end="url(#arA)"/>
-      <path d="M1250,84 C1300,84 1300,380 1240,380" fill="none" stroke="#C25A2D" stroke-width="2.5" stroke-dasharray="2 0" marker-end="url(#arA)"/>
+      <path d="M1300,84 C1300,240 1300,300 1300,374" fill="none" stroke="#C25A2D" stroke-width="2.5" marker-end="url(#arA)"/>
       <!-- app -->
       <rect x="995" y="100" width="380" height="120" rx="12" fill="#fff" stroke="#0F1E2E" stroke-width="2"/>
       <text x="1015" y="138" font-size="18" fill="#C25A2D" font-weight="700" letter-spacing="2" class="de">3A · ZIEL</text><text x="1015" y="138" font-size="18" fill="#C25A2D" font-weight="700" letter-spacing="2" class="en">3A · TARGET</text>
@@ -359,8 +378,8 @@ body.hud #hud{display:block}
       <text x="1015" y="484" font-size="20" fill="#475569">PBIR · Git · dwg validate</text>
       <!-- parity -->
       <line x1="1185" y1="226" x2="1185" y2="374" stroke="#C25A2D" stroke-width="2.5" stroke-dasharray="7 6"/>
-      <text x="1200" y="300" font-size="21" font-weight="700" fill="#C25A2D" class="de">Paritätstest</text><text x="1200" y="300" font-size="21" font-weight="700" fill="#C25A2D" class="en">parity test</text>
-      <text x="1200" y="326" font-size="18" fill="#475569" class="de">Mini-DAX, ohne Fabric</text><text x="1200" y="326" font-size="18" fill="#475569" class="en">Mini-DAX, no Fabric</text>
+      <text x="1170" y="300" font-size="21" font-weight="700" fill="#C25A2D" text-anchor="end" class="de">Paritätstest</text><text x="1170" y="300" font-size="21" font-weight="700" fill="#C25A2D" text-anchor="end" class="en">parity test</text>
+      <text x="1170" y="326" font-size="18" fill="#475569" text-anchor="end" class="de">Mini-DAX, ohne Fabric</text><text x="1170" y="326" font-size="18" fill="#475569" text-anchor="end" class="en">Mini-DAX, no Fabric</text>
       <!-- deploy + scan -->
       <line x1="1375" y1="160" x2="1450" y2="250" stroke="#0F1E2E" stroke-width="2.5" marker-end="url(#ar)"/>
       <line x1="1375" y1="440" x2="1450" y2="340" stroke="#0F1E2E" stroke-width="2.5" marker-end="url(#ar)"/>
@@ -380,7 +399,7 @@ body.hud #hud{display:block}
   <div class="kicker" data-en="Step 1 · MockupKitchen">Schritt 1 · MockupKitchen</div>
   <h2 class="t" data-en="Start in the workshop, not on an empty canvas">Start im Workshop, nicht auf der leeren Leinwand</h2>
   <p class="lead" data-en="The business sketches the page together with you. The export is not a picture but a machine-readable spec: templates, roles, polarity, sort order.">Der Fachbereich skizziert die Seite mit dir. Heraus kommt kein Bild, sondern eine maschinenlesbare Spec: Templates, Rollen, Polarität, Sortierung.</p>
-  <div class="cols c2 hug">
+  <div class="cols c2 hug mid">
     <div class="fig"><p class="fig-title" data-en="<b>Sketch</b> · MockupKitchen in the browser"><b>Skizze</b> · MockupKitchen im Browser</p><img src="assets/dwg-mockup-sketch.webp" alt="MockupKitchen-Skizze einer Vertriebsseite"></div>
     <div class="fig"><p class="fig-title" data-en="<b>Generated</b> · <code>dwg mockup import</code> → app page"><b>Erzeugt</b> · <code>dwg mockup import</code> → App-Seite</p><img src="assets/dwg-mockup-to-app.webp" alt="Dieselbe Seite, von dwg aus der Skizze erzeugt"></div>
   </div>
@@ -392,7 +411,7 @@ body.hud #hud{display:block}
   <div class="kicker" data-en="Step 2 · the spec">Schritt 2 · die Spec</div>
   <h2 class="t" style="max-width:none" data-en="The spec is text: checkable, versioned, readable by agents">Die Spec ist Text: prüfbar, versioniert, für Agenten lesbar</h2>
   <div class="cols c2" style="margin-top:16px">
-<pre class="json"><span class="c">// demo/spec/databash.json (Auszug / excerpt)</span>
+<pre class="json"><span class="c">// demo/spec/databash.json <span class="de">(Auszug)</span><span class="en">(excerpt)</span></span>
 { <span class="k">"name"</span>: <span class="s">"Data Bash 2026"</span>,
   <span class="k">"slicers"</span>: [ <span class="c">/* Jahr, Kanal */</span> ],
   <span class="k">"pages"</span>: [{ <span class="k">"name"</span>: <span class="s">"Überblick"</span>,
@@ -427,11 +446,11 @@ body.hud #hud{display:block}
 <section class="slide" data-chapter="Der Weg" data-chapter-en="The path">
   <div class="kicker" data-en="Step 3 · two targets">Schritt 3 · zwei Ziele</div>
   <h2 class="t" style="max-width:none" data-en="The same tile, in the app and in Power BI">Dieselbe Kachel, in der App und in Power BI</h2>
-  <div class="cols c2 hug" style="margin-top:14px">
+  <div class="mid"><div class="cols c2 hug">
     <div class="fig"><p class="fig-title" data-en="<b>Fabric App</b> · generated React page, P&amp;L Statement 1.8.4"><b>Fabric App</b> · erzeugte React-Seite, P&amp;L Statement 1.8.4</p><img src="assets/app-t04b-crop.webp" alt="T04B GuV mit Plan-Wasserfall in der Fabric App"></div>
     <div class="fig"><p class="fig-title" data-en="<b>Power BI</b> · same spec as PBIR, Service, Direct Lake"><b>Power BI</b> · dieselbe Spec als PBIR, im Service, Direct Lake</p><img src="assets/pbi-t04b-crop.webp" alt="T04B GuV mit Plan-Wasserfall im Power-BI-Bericht"></div>
   </div>
-  <p class="cap" style="font-size:27px;color:var(--ink);margin-top:22px;max-width:none" data-en="Same numbers, same sentence: EBIT 1.19 m EUR (−47.6 %) below plan. The parity test renders every tile the way Power BI hands data to the visual and the way the app does, and fails if they differ.">Gleiche Zahlen, gleicher Satz: EBIT 1,19 Mio. EUR (−47,6 %) unter Plan. Der Paritätstest rendert jede Kachel so, wie Power BI dem Visual die Daten übergibt, und so, wie die App es tut, und schlägt fehl, wenn sie abweichen.</p>
+  <p class="cap" style="font-size:27px;color:var(--ink);margin-top:22px;max-width:none" data-en="Same numbers, same sentence: EBIT 1.19 m EUR (−47.6 %) below plan. The parity test renders every tile the way Power BI hands data to the visual and the way the app does, and fails if they differ.">Gleiche Zahlen, gleicher Satz: EBIT 1,19 Mio. EUR (−47,6 %) unter Plan. Der Paritätstest rendert jede Kachel so, wie Power BI dem Visual die Daten übergibt, und so, wie die App es tut, und schlägt fehl, wenn sie abweichen.</p></div>
   <div class="foot"><span data-en="Template T04B · P&amp;L with plan variance as integrated waterfall · synthetic brewery data">Template T04B · GuV mit Planabweichung als integriertem Wasserfall · synthetische Brauereidaten</span><span data-en="Captured 26.11.2026">Aufgenommen 26.11.2026</span></div>
 </section>
 
@@ -448,11 +467,10 @@ body.hud #hud{display:block}
     <div class="thumbs">
       <figure><img src="assets/demo-ueberblick.webp" alt=""><figcaption data-en="Live build result · A1">Ergebnis Live-Build · A1</figcaption></figure>
       <figure><img src="assets/dwg-mockup-to-app.webp" alt=""><figcaption>MockupKitchen → dwg</figcaption></figure>
-      <figure style="display:none"><img src="assets/app-c03.webp" alt=""><figcaption data-en="C03 · columns with ΔPY">C03 · Säulen mit ΔPY</figcaption></figure>
-      <figure><img src="assets/app-c13.webp" alt=""><figcaption>C13 · Small Multiples</figcaption></figure>
+      <figure><img src="assets/app-c13-crop.webp" alt=""><figcaption>C13 · Small Multiples</figcaption></figure>
       <figure><img src="assets/app-t04b.webp" alt=""><figcaption data-en="T04B · app">T04B · App</figcaption></figure>
       <figure><img src="assets/pbi-t04b.webp" alt=""><figcaption data-en="T04B · Power BI">T04B · Power BI</figcaption></figure>
-      <figure><img src="assets/app-t05b.webp" alt=""><figcaption data-en="T05B · cash flow">T05B · Cashflow</figcaption></figure>
+      <figure><img src="assets/app-t05b-crop.webp" alt=""><figcaption data-en="T05B · cash flow">T05B · Cashflow</figcaption></figure>
     </div>
   </div>
   <div class="foot"><span data-en="If the network fails: appendix A1 to A4 shows the live build and the showcase as screenshots">Falls das Netz streikt: Anhang A1 bis A4 zeigt Live-Build und Showcase als Bilder</span><span>github.com/Losveratos/Data-Bash-2026</span></div>
@@ -463,7 +481,7 @@ body.hud #hud{display:block}
   <div class="kicker" data-en="Test bench">Prüfstand</div>
   <h2 class="t" style="max-width:none" data-en="47 templates, measured instead of claimed">47 Templates, gemessen statt behauptet</h2>
   <p class="lead" style="max-width:none;margin-bottom:18px" data-en="Each template against its reference sheet, the app and Power BI. One model judges, a second one reviews. Status ChartKitchen 1.58, P&amp;L 1.8.4.">Jedes Template gegen sein Vorlagenblatt, die App und Power BI. Ein Modell urteilt, ein zweites prüft gegen. Stand ChartKitchen 1.58, P&amp;L 1.8.4.</p>
-  <div class="cols c21 hug">
+  <div class="cols c21 hug mid">
     <div class="fig"><p class="fig-title" data-en="<b>All 47 app pages</b> · generated from one spec, rendered by the test suite"><b>Alle 47 App-Seiten</b> · aus einer Spec erzeugt, von der Testsuite gerendert</p><img src="assets/app-alle-47.webp" alt="Kontaktabzug aller 47 Seiten der Showcase-App"></div>
     <div class="stack">
       <div class="nums">
@@ -486,7 +504,7 @@ body.hud #hud{display:block}
   <div class="kicker" data-en="Who carries which rule">Wer welche Regel trägt</div>
   <h2 class="t" style="max-width:none" data-en="The app computes nothing of its own">Die App rechnet nichts selbst</h2>
   <p class="lead" style="max-width:none" data-en="Every layer has one job, and every job has a check that runs without a human looking at pixels.">Jede Schicht hat eine Aufgabe, und jede Aufgabe hat eine Prüfung, die ohne Pixelgucken läuft.</p>
-  <table class="mx">
+  <table class="mx mid">
     <thead><tr><th data-en="Layer">Schicht</th><th data-en="Carries">Trägt</th><th data-en="Checked by">Geprüft mit</th></tr></thead>
     <tbody>
       <tr><td data-en="Semantic model">Semantikmodell</td><td data-en="Measures, sign trio, time windows, currency, RLS">Measures, Vorzeichen-Trio, Zeitfenster, Währung, RLS</td><td class="chk">te validate · BPA</td></tr>
@@ -503,7 +521,7 @@ body.hud #hud{display:block}
 <section class="slide" data-chapter="Governance" data-chapter-en="Governance">
   <div class="kicker">fabscan</div>
   <h2 class="t" style="max-width:none" data-en="An app is code. Code needs a reviewer.">Eine App ist Code. Code braucht einen Prüfer.</h2>
-  <div class="cols c21 hug" style="margin-top:14px">
+  <div class="cols c21 hug mid">
     <div class="fig"><p class="fig-title" data-en="<b>This morning</b> · fabscan over my own demo repository (report in German)"><b>Heute früh</b> · fabscan über mein eigenes Demo-Repository</p><img src="assets/fabscan-gesamtbild.webp" alt="fabscan-Bericht: Gesamtbild über 11 Apps"></div>
     <div class="stack">
       <div class="nums">
@@ -525,7 +543,7 @@ body.hud #hud{display:block}
 <section class="slide" data-chapter="Was fehlt" data-chapter-en="What's missing">
   <div class="kicker" data-en="Honest roadmap">Ehrliche Roadmap</div>
   <h2 class="t" style="max-width:none" data-en="What is still missing">Was noch fehlt</h2>
-  <div class="waves" style="margin-top:20px">
+  <div class="mid"><div class="waves">
     <div class="wave done"><div class="no" data-en="WAVE 1 · LIVE">WELLE 1 · LIVE</div><h3 data-en="Notation right">Notation richtig</h3><ul>
       <li data-en="Forecast pin heads hatched, not hollow">FC-Pinköpfe schraffiert statt hohl</li>
       <li data-en="Variance axis by base: double line for PL">Abweichungsachse nach Basis: Doppellinie bei PL</li>
@@ -541,7 +559,7 @@ body.hud #hud{display:block}
       <li data-en="Microsoft certification: without it no PDF, PowerPoint or subscriptions">Microsoft-Zertifizierung: ohne sie kein PDF, PowerPoint, Abo</li>
       <li data-en="Thousands of categories, cold Direct Lake">Tausende Kategorien, Direct Lake kalt</li></ul><span class="tag" data-en="weeks, not days">Wochen, nicht Tage</span></div>
   </div>
-  <div class="card acc" style="margin-top:18px;padding:16px 24px"><p style="font-size:24px" data-en="<b>Next for the CLI:</b> notation rules as a check that blocks the deploy, a page-wide scale across tiles, the app takes the visuals straight from the release. Fabric Apps itself: Git sync, Pro/PPU, regions."><b>Als Nächstes in der CLI:</b> Notationsregeln als Prüfung, die den Deploy sperrt, eine seitenweite Skala über Kacheln, die App bezieht die Visuals direkt aus dem Release. Bei Fabric Apps selbst: Git-Sync, Pro/PPU, Regionen.</p></div>
+  <div class="card acc" style="margin-top:18px;padding:16px 24px"><p style="font-size:24px" data-en="<b>Next for the CLI:</b> notation rules as a check that blocks the deploy, a page-wide scale across tiles, the app takes the visuals straight from the release. Fabric Apps itself: Git sync, Pro/PPU, regions."><b>Als Nächstes in der CLI:</b> Notationsregeln als Prüfung, die den Deploy sperrt, eine seitenweite Skala über Kacheln, die App bezieht die Visuals direkt aus dem Release. Bei Fabric Apps selbst: Git-Sync, Pro/PPU, Regionen.</p></div></div>
   <div class="foot"><span data-en="Plan from the test bench, 24.11.2026">Plan aus dem Prüfstand, Stand 24.11.2026</span><span data-en="No date promises">Keine Terminzusagen</span></div>
 </section>
 
@@ -549,11 +567,11 @@ body.hud #hud{display:block}
 <section class="slide" data-chapter="Was fehlt" data-chapter-en="What's missing">
   <div class="kicker" data-en="To take home">Zum Mitnehmen</div>
   <h2 class="t" style="max-width:none" data-en="Four things you can do on Monday">Vier Dinge für Montag</h2>
-  <div class="stack" style="margin-top:20px;gap:14px">
-    <div class="card acc"><h3 data-en="1 · Rules in the model">1 · Regeln ins Modell</h3><p data-en="Sign, full-year scalar, time windows, RLS. Then every front end can be replaced, app or report.">Vorzeichen, Jahreswert als Skalar, Zeitfenster, RLS. Dann ist jedes Frontend austauschbar, App oder Bericht.</p></div>
-    <div class="card"><h3 data-en="2 · Notation in the visual, not in the prompt">2 · Notation ins Visual, nicht in den Prompt</h3><p data-en="An agent forgets the hatching. A visual does not.">Ein Agent vergisst die Schraffur. Ein Visual nicht.</p></div>
-    <div class="card"><h3 data-en="3 · Spec before code">3 · Spec vor Code</h3><p data-en="Sketch with the business, keep the spec in Git, generate app and report from it.">Mit dem Fachbereich skizzieren, die Spec in Git, App und Bericht daraus erzeugen.</p></div>
-    <div class="card"><h3 data-en="4 · Measure and scan">4 · Messen und scannen</h3><p data-en="Test bench for the notation, parity test for the numbers, fabscan for the app code.">Prüfstand für die Notation, Paritätstest für die Zahlen, fabscan für den App-Code.</p></div>
+  <div class="take mid">
+    <div class="card acc"><div class="k">1</div><h3 data-en="Rules in the model">Regeln ins Modell</h3><p data-en="Sign, full-year scalar, time windows, RLS. Then every front end can be replaced, app or report.">Vorzeichen, Jahreswert als Skalar, Zeitfenster, RLS. Dann ist jedes Frontend austauschbar, App oder Bericht.</p></div>
+    <div class="card"><div class="k">2</div><h3 data-en="Notation in the visual, not in the prompt">Notation ins Visual, nicht in den Prompt</h3><p data-en="An agent forgets the hatching. A visual does not.">Ein Agent vergisst die Schraffur. Ein Visual nicht.</p></div>
+    <div class="card"><div class="k">3</div><h3 data-en="Spec before code">Spec vor Code</h3><p data-en="Sketch with the business, keep the spec in Git, generate app and report from it.">Mit dem Fachbereich skizzieren, die Spec in Git, App und Bericht daraus erzeugen.</p></div>
+    <div class="card"><div class="k">4</div><h3 data-en="Measure and scan">Messen und scannen</h3><p data-en="Test bench for the notation, parity test for the numbers, fabscan for the app code.">Prüfstand für die Notation, Paritätstest für die Zahlen, fabscan für den App-Code.</p></div>
   </div>
 </section>
 
@@ -562,11 +580,11 @@ body.hud #hud{display:block}
   <div class="topline"><span><span class="dot"></span><span class="de">DATA_BASH 2026</span><span class="en">DATA_BASH 2026</span></span><span data-en="IBCS-inspired Fabric Apps">IBCS-inspirierte Fabric Apps</span></div>
   <div class="grow close">
     <div>
-      <p class="thesis" data-en="First the standard, then the agent. One spec, two targets, one reviewer.">Erst der Standard, dann der Agent. Eine Spec, zwei Ziele, ein Prüfer.</p>
+      <p class="thesis" data-en="First the standard, then the agent.<br>One spec, two targets, one reviewer.">Erst der Standard, dann der Agent.<br>Eine Spec, zwei Ziele, ein Prüfer.</p>
       <p class="thanks" data-en="Thank you">Danke</p>
       <p class="who">Michael Tenner <span>· Daten-WG by platformimpulse · Köln</span></p>
     </div>
-    <div class="qr"><img src="assets/qr-repo.svg" alt="QR-Code zum Repository"><div><b data-en="Slides &amp; material">Folien &amp; Material</b><span>github.com/Losveratos/Data-Bash-2026</span></div></div>
+    <div class="qr"><img src="assets/qr-repo.svg" alt="QR-Code zum Repository"><div><b data-en="Slides &amp; material">Folien &amp; Material</b><span>github.com/Losveratos/<br>Data-Bash-2026</span></div></div>
   </div>
   <div class="bottom"><span>github.com/Losveratos/dwg-cli · datenwgknowledgekitchen.com</span><span class="pill" data-en="Questions?">Fragen?</span></div>
 </section>
@@ -575,7 +593,7 @@ body.hud #hud{display:block}
 <section class="slide appx" data-chapter="Anhang" data-chapter-en="Appendix">
   <div class="kicker" data-en="A1 · fallback · live build">A1 · Rückfall · Live-Build</div>
   <h2 class="t" style="max-width:none" data-en="Three tiles, one spec, rendered without Fabric">Drei Kacheln, eine Spec, ohne Fabric gerendert</h2>
-  <div class="cols c21 hug" style="margin-top:10px">
+  <div class="cols c21 hug mid">
     <div class="fig"><p class="fig-title" data-en="<b>App page “Überblick”</b> · dwg app page, browser harness, Mini-DAX"><b>App-Seite „Überblick“</b> · dwg app page, Browser-Test, Mini-DAX</p><img src="assets/demo-ueberblick.webp" alt="Ergebnis des Live-Builds: Seite Überblick mit C03, C13 und T04B"></div>
     <div class="cmds">
       <div class="cmd"><code>dwg tile add ×3</code><p data-en="C03, C13, T04B from the showcase model; C13 first stops and asks for the channel field">C03, C13, T04B aus dem Showcase-Modell; C13 hält zuerst an und fragt nach dem Kanalfeld</p></div>
@@ -591,34 +609,34 @@ body.hud #hud{display:block}
 <section class="slide appx" data-chapter="Anhang" data-chapter-en="Appendix">
   <div class="kicker" data-en="A2 · fallback · showcase">A2 · Rückfall · Showcase</div>
   <h2 class="t" style="max-width:none" data-en="Columns with prior-year variance, app and Power BI">Säulen mit Vorjahresabweichung, App und Power BI</h2>
-  <div class="cols c2" style="margin-top:10px">
-    <div class="fig"><p class="fig-title"><b>Fabric App</b> · C03</p><img src="assets/app-c03.webp" alt="C03 in der App"></div>
-    <div class="fig"><p class="fig-title"><b>Power BI</b> · C03</p><img src="assets/pbi-c03.webp" alt="C03 in Power BI"></div>
+  <div class="cols c2 hug mid">
+    <div class="fig"><p class="fig-title"><b>Fabric App</b> · C03</p><img src="assets/app-c03-crop.webp" alt="C03 in der App"></div>
+    <div class="fig"><p class="fig-title"><b>Power BI</b> · C03</p><img src="assets/pbi-c03-crop.webp" alt="C03 in Power BI"></div>
   </div>
 </section>
 
 <section class="slide appx" data-chapter="Anhang" data-chapter-en="Appendix">
   <div class="kicker" data-en="A3 · fallback · showcase">A3 · Rückfall · Showcase</div>
   <h2 class="t" style="max-width:none" data-en="Small multiples on one scale, ranking with month and YTD">Small Multiples auf einer Skala, Ranking mit Monat und YTD</h2>
-  <div class="cols c2" style="margin-top:10px">
+  <div class="cols c2 hug mid">
     <div class="fig"><p class="fig-title"><b>Fabric App</b> · C13</p><img src="assets/app-c13.webp" alt="C13 in der App"></div>
-    <div class="fig"><p class="fig-title"><b>Power BI</b> · T02B</p><img src="assets/pbi-t02b.webp" alt="T02B in Power BI"></div>
+    <div class="fig"><p class="fig-title"><b>Power BI</b> · T02B</p><img src="assets/pbi-t02b-crop.webp" alt="T02B in Power BI"></div>
   </div>
 </section>
 
 <section class="slide appx" data-chapter="Anhang" data-chapter-en="Appendix">
   <div class="kicker" data-en="A4 · fallback · showcase">A4 · Rückfall · Showcase</div>
   <h2 class="t" style="max-width:none" data-en="Cash-flow bridge and value cascades">Cashflow-Brücke und Wert-Kaskaden</h2>
-  <div class="cols c2" style="margin-top:10px">
+  <div class="cols c2 hug mid">
     <div class="fig"><p class="fig-title"><b>Fabric App</b> · T05B</p><img src="assets/app-t05b.webp" alt="T05B in der App"></div>
-    <div class="fig"><p class="fig-title"><b>Power BI</b> · 12A</p><img src="assets/pbi-12a.webp" alt="12A in Power BI"></div>
+    <div class="fig"><p class="fig-title"><b>Power BI</b> · 12A</p><img src="assets/pbi-12a-crop.webp" alt="12A in Power BI"></div>
   </div>
 </section>
 
 <section class="slide appx" data-chapter="Anhang" data-chapter-en="Appendix">
   <div class="kicker" data-en="A5 · links and commands">A5 · Links und Befehle</div>
   <h2 class="t" style="max-width:none" data-en="Everything you need to try it">Alles zum Nachbauen</h2>
-  <div class="cols c2" style="margin-top:16px">
+  <div class="cols c2 hug mid">
     <div class="cmds">
       <div class="cmd"><code>github.com/Losveratos/dwg-cli</code><p data-en="dwg cli, MIT, examples, handbook, skill for Claude">dwg cli, MIT, Beispiele, Handbuch, Skill für Claude</p></div>
       <div class="cmd"><code>github.com/Losveratos/Power-BI-Custom-Visuals-byDatenWG</code><p data-en="ChartKitchen 1.58 and P&amp;L Statement 1.8.4 as .pbiviz">ChartKitchen 1.58 und P&amp;L Statement 1.8.4 als .pbiviz</p></div>
@@ -637,7 +655,7 @@ body.hud #hud{display:block}
 <section class="slide appx" data-chapter="Anhang" data-chapter-en="Appendix">
   <div class="kicker" data-en="A6 · sources and notes">A6 · Quellen und Hinweise</div>
   <h2 class="t" style="max-width:none" data-en="Sources, licences, data">Quellen, Lizenzen, Daten</h2>
-  <div class="cols c2" style="margin-top:16px">
+  <div class="cols c2 hug mid" style="align-items:stretch">
     <div class="card"><ul>
       <li data-en="Fabric Apps (preview): learn.microsoft.com/fabric/apps">Fabric Apps (Preview): learn.microsoft.com/fabric/apps</li>
       <li data-en="IBCS® Standards 2.0, IBCS Association, CC BY-SA 4.0, aligned with ISO 24896. IBCS® is a registered trademark of the IBCS Institute.">IBCS®-Standards 2.0, IBCS Association, CC BY-SA 4.0, ausgerichtet an ISO 24896. IBCS® ist eine eingetragene Marke des IBCS Institute.</li>
@@ -652,6 +670,7 @@ body.hud #hud{display:block}
 
 </div>
 <div id="hud"></div>
+<div id="zoom" aria-hidden="true"><img alt=""><div class="zcap"></div></div>
 
 <script>
 // ---- language: ?lang=en or key L. DE text inline, EN in data-en (and .de/.en pairs)
@@ -719,6 +738,30 @@ function next(){const s=slides[cur];
   if(cur<slides.length-1)enter(cur+1,{stmt:true});}
 function prev(){const s=slides[cur];
   if(cur>0)enter(cur-1);}
+// zoom: image grows from its place to full size, click or Esc returns
+const zoom=document.getElementById('zoom'),zimg=zoom.querySelector('img'),zcap=zoom.querySelector('.zcap');let zfrom=null;
+function zoomIn(img){
+  const r=img.getBoundingClientRect(),nw=img.naturalWidth,nh=img.naturalHeight;
+  const k=Math.min(innerWidth*.96/nw,innerHeight*.9/nh,1.6),w=nw*k,h=nh*k,l=(innerWidth-w)/2,t=(innerHeight-h)/2-10;
+  // start rect: the visible box of the image (object-fit contain/cover keeps aspect)
+  const s=Math.max(r.width/w,r.height/h);
+  zimg.src=img.currentSrc||img.src;Object.assign(zimg.style,{left:l+'px',top:t+'px',width:w+'px',height:h+'px'});
+  zcap.textContent=LANG==='en'?'click or Esc to return':'Klick oder Esc zurück';
+  zoom.classList.add('on');zfrom={l,t,w,h,r};
+  if(!still()){zimg.animate([{transform:`translate(${r.left+r.width/2-(l+w/2)}px,${r.top+r.height/2-(t+h/2)}px) scale(${Math.min(r.width/w,r.height/h)})`,opacity:.6},{transform:'none',opacity:1}],{duration:420,easing:'cubic-bezier(.2,.7,.2,1)'});
+    zoom.animate([{background:'rgba(15,30,46,0)'},{background:'rgba(15,30,46,.9)'}],{duration:300});}
+}
+function zoomOut(){if(!zoom.classList.contains('on'))return;const f=zfrom;
+  if(still()||!f){zoom.classList.remove('on');return;}
+  const r=f.r,an=zimg.animate([{transform:'none',opacity:1},{transform:`translate(${r.left+r.width/2-(f.l+f.w/2)}px,${r.top+r.height/2-(f.t+f.h/2)}px) scale(${Math.min(r.width/f.w,r.height/f.h)})`,opacity:.4}],{duration:320,easing:'cubic-bezier(.4,0,.6,1)'});
+  zoom.animate([{background:'rgba(15,30,46,.9)'},{background:'rgba(15,30,46,0)'}],{duration:320});
+  an.onfinish=()=>zoom.classList.remove('on');}
+addEventListener('click',e=>{
+  if(zoom.classList.contains('on')){e.stopImmediatePropagation();zoomOut();return;}
+  const img=e.target.closest('#stage>.slide.on .fig img,#stage>.slide.on .thumbs img');
+  if(img&&!ovOpen){e.stopImmediatePropagation();zoomIn(img);}
+},true);
+addEventListener('keydown',e=>{if(zoom.classList.contains('on')){e.preventDefault();e.stopImmediatePropagation();zoomOut();}},true);
 window.deckState=()=>({slide:cur,revealed,overview:ovOpen,lang:LANG,count:slides.length});
 window.deckShow=show;
 
