@@ -194,8 +194,17 @@ pre.json .k{color:#9CC6FF} pre.json .s{color:#A8D8BD} pre.json .n{color:var(--ac
 /* overview */
 #ov{position:absolute;inset:0;z-index:20;background:var(--bg);display:none;flex-direction:column;align-items:center;padding:30px 18px 26px}
 #stage.ovopen #ov{display:flex}
-.ov-top{font-weight:800;font-size:44px;line-height:1.1;text-align:center;max-width:1600px}
-.ov-hint{font-size:20px;color:var(--soft);margin:8px 0 0}
+.ov-head{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:24px;width:100%}
+.ov-top{font-weight:800;font-size:40px;line-height:1.1;text-align:center;max-width:1300px;text-wrap:balance}
+.ov-top em{font-style:normal;color:var(--accent)}
+.ov-pill{justify-self:start;display:inline-flex;align-items:center;gap:10px;border:1.5px solid var(--line);background:var(--card);border-radius:999px;padding:10px 20px;font:600 18px var(--sans);color:var(--ink);text-decoration:none;white-space:nowrap}
+.ov-pill:hover{border-color:var(--accent);color:var(--accent)}
+.ov-pill .dot{width:10px;height:10px;border-radius:2px;background:var(--accent)}
+.ov-lang{justify-self:end;display:inline-flex;border:1.5px solid var(--line);background:var(--card);border-radius:999px;padding:4px}
+.ov-lang button{font:600 17px var(--mono);letter-spacing:.06em;border:0;background:transparent;color:var(--soft);padding:7px 16px;border-radius:999px;cursor:pointer}
+.ov-lang button.on{background:var(--ink);color:#fff}
+.ov-lang button:not(.on):hover{color:var(--accent)}
+.ov-hint{font-size:19px;color:var(--soft);margin:6px 0 0}
 .ov-groups{flex:1;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:22px;width:100%}
 .ov-main{display:flex;align-items:flex-start;justify-content:center;gap:0;flex-wrap:nowrap}
 .ov-arrow{align-self:flex-start;margin-top:168px;font-size:26px;color:#b9c2cc;line-height:1;padding:0 3px}
@@ -773,8 +782,14 @@ function sanitize(c){
 }
 function buildOv(){
   ov=document.createElement('div');ov.id='ov';
+  const head=document.createElement('div');head.className='ov-head';ov.appendChild(head);
+  const pill=document.createElement('a');pill.className='ov-pill';pill.href='https://datenwgknowledgekitchen.com/';
+  pill.innerHTML='<span class="dot"></span><span></span>';pill.lastChild.textContent=LANG==='en'?'Back to the Knowledge Kitchen':'Zurück zur Knowledge Kitchen';head.appendChild(pill);
   const h1=slides[0].querySelector(LANG==='en'?'h1.en':'h1.de'),top=document.createElement('div');top.className='ov-top';
-  top.textContent=h1?h1.textContent:document.title;ov.appendChild(top);
+  if(h1)top.innerHTML=h1.innerHTML;else top.textContent=document.title;head.appendChild(top);
+  const lg=document.createElement('div');lg.className='ov-lang';lg.setAttribute('role','group');lg.setAttribute('aria-label',LANG==='en'?'Language':'Sprache');
+  ['de','en'].forEach(l=>{const b=document.createElement('button');b.type='button';b.textContent=l.toUpperCase();b.dataset.lang=l;b.className=l===LANG?'on':'';b.setAttribute('aria-pressed',l===LANG);lg.appendChild(b);});
+  head.appendChild(lg);
   const hint=document.createElement('div');hint.className='ov-hint';hint.textContent=LANG==='en'?'Click a slide to open it · o or Esc to return':'Folie anklicken zum Öffnen · o oder Esc zurück';ov.appendChild(hint);
   const wrap=document.createElement('div');wrap.className='ov-groups';ov.appendChild(wrap);
   const main=document.createElement('div');main.className='ov-main';wrap.appendChild(main);let step=0;
@@ -789,7 +804,8 @@ function buildOv(){
     b.appendChild(row);
     if(isApp){wrap.appendChild(b);}else{if(main.children.length){const ar=document.createElement('div');ar.className='ov-arrow';ar.textContent='→';main.appendChild(ar);}main.appendChild(b);}});
   stage.appendChild(ov);
-  ov.addEventListener('click',e=>{const th=e.target.closest('.th');if(th){zoomTo(+th.dataset.i);return;}
+  ov.addEventListener('click',e=>{const lb=e.target.closest('.ov-lang button');if(lb){e.stopPropagation();if(lb.dataset.lang!==LANG)toggleLang();return;}
+    const th=e.target.closest('.th');if(th){zoomTo(+th.dataset.i);return;}
     const gt=e.target.closest('.ov-gt');if(gt)zoomTo(groups[+gt.dataset.g].idx[0]);});
 }
 function mark(){ov.querySelectorAll('.th').forEach(t=>t.classList.toggle('cur',+t.dataset.i===sel));
