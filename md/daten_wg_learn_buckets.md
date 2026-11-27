@@ -2,15 +2,15 @@
 
 > Markdown-Fassung von [daten_wg_learn_buckets.html](../daten_wg_learn_buckets.html) · https://datenwgknowledgekitchen.com/daten_wg_learn_buckets.html · generiert mit scripts/build_learn_md.py aus den Episodendaten — bei Abweichungen gilt die HTML-Fassung.
 
-Kanal: [@Daten-WG](https://www.youtube.com/@Daten-WG) · **181 Folgen** insgesamt · Sprachverteilung: 159 DE / 22 EN.
+Kanal: [@Daten-WG](https://www.youtube.com/@Daten-WG) · **183 Folgen** insgesamt · Sprachverteilung: 161 DE / 22 EN.
 
 ## Übersicht
 
 | Bucket | Folgen |
 | --- | --- |
-| 01 · Quarterly · Updates & News | 25 |
+| 01 · Quarterly · Updates & News | 26 |
 | 02 · Microsoft Fabric | 29 |
-| 03 · Datenmodellierung & Architektur | 36 |
+| 03 · Datenmodellierung & Architektur | 37 |
 | 04 · Self-Service & Governance | 5 |
 | 05 · Visualisierung & IBCS | 12 |
 | 06 · Power BI · Deep Dive & Vergleiche | 33 |
@@ -22,6 +22,31 @@ Kanal: [@Daten-WG](https://www.youtube.com/@Daten-WG) · **181 Folgen** insgesam
 ## 01 · Quarterly · Updates & News
 
 _Vier Mal im Jahr räumt das Quarterly-Format auf, was sich in der Microsoft Data Platform getan hat: neue Power BI Features, Fabric-Ankündigungen, was GA geht, was Preview bleibt. Wenn du nur ein Format hörst, dann das hier — komprimiertes Branchen-Briefing._
+
+### Power BI Update November 2026
+
+November 2026 · 9 min · DE · Tags: Update, Power BI, Desktop für Apps, DE
+
+YouTube: https://www.youtube.com/watch?v=pCtvleKEMxA
+
+Viele kleine Verbesserungen und ein großes Thema: Trendachsen in nativen Karten, Stilvoreinstellungen zum Übertragen von Formatierungen, Listenslicer, Datepicker und OneDrive/SharePoint-Speichern sind GA, die Matrix bekommt Aktionsschaltflächen. Dazu Power BI Desktop für Apps, das per Chat aus einem Semantikmodell einen Report baut, mit Setup und Grenzen der Preview.
+
+Kapitel:
+- [00:00](https://www.youtube.com/watch?v=pCtvleKEMxA&t=0s) Intro: ein großes Update und viele kleine Verbesserungen
+- [00:15](https://www.youtube.com/watch?v=pCtvleKEMxA&t=15s) Trendachse in nativen Karten
+- [00:47](https://www.youtube.com/watch?v=pCtvleKEMxA&t=47s) Stilvoreinstellungen für Visuals speichern
+- [02:01](https://www.youtube.com/watch?v=pCtvleKEMxA&t=121s) Listenslicer ist GA
+- [02:41](https://www.youtube.com/watch?v=pCtvleKEMxA&t=161s) Datepicker standardmäßig aktiv
+- [02:55](https://www.youtube.com/watch?v=pCtvleKEMxA&t=175s) Matrix mit Aktionsschaltflächen am Visual
+- [03:28](https://www.youtube.com/watch?v=pCtvleKEMxA&t=208s) Weitere GA-Features: OneDrive und SharePoint Speichern
+- [04:16](https://www.youtube.com/watch?v=pCtvleKEMxA&t=256s) Gantt-Visual Updates (Preview)
+- [04:27](https://www.youtube.com/watch?v=pCtvleKEMxA&t=267s) Fabric: Semantic Views und M-Parameter für Direct Lake
+- [04:44](https://www.youtube.com/watch?v=pCtvleKEMxA&t=284s) Power BI Desktop für Apps: die neue Berichts-App
+- [05:25](https://www.youtube.com/watch?v=pCtvleKEMxA&t=325s) Semantikmodell verbinden und per Chat beschreiben
+- [06:07](https://www.youtube.com/watch?v=pCtvleKEMxA&t=367s) Report per Chat erweitern: Diagramme im Zeitverlauf
+- [06:44](https://www.youtube.com/watch?v=pCtvleKEMxA&t=404s) Veröffentlichtes Ergebnis: Dark Mode und Drillthrough
+- [07:20](https://www.youtube.com/watch?v=pCtvleKEMxA&t=440s) Bearbeiten per Chat, Setup und Veröffentlichung
+- [08:25](https://www.youtube.com/watch?v=pCtvleKEMxA&t=505s) Fazit: schöne neue Welt
 
 ### Power BI Update Oktober 2026
 
@@ -956,6 +981,14 @@ Basic walkthrough of Fabric and which Skill will help you with which task.
 ## 03 · Datenmodellierung & Architektur
 
 _Das Datenmodell entscheidet, ob ein Report skaliert oder kollabiert. Hier geht es um Stern-Schema vs. Data Vault, Tabellen-Denken statt Listen-Denken, Metadaten als Werkzeug — und warum Modellierung am Ende auch Governance ist._
+
+### BI Thinkers Talk nr.85
+
+Gast: Daniel Mager · November 2026 · 61 min · DE · Tags: Semantic Views, Fabric, Ossie, Datenmodell, DE
+
+YouTube: https://www.youtube.com/watch?v=u9qtU4Gs0vs
+
+Artur hat schon mit den neuen Semantic Views in Fabric gebaut und zeigt die Fallstricke: Bekommen wir jetzt wirklich wiederverwendbare Semantikmodelle? Daniel Mager stellt seine Experimente mit anwendungsübergreifender Semantik und Apache Ossie vor und fragt, wie Daten für KI und BI aussehen sollen.
 
 ### BI Thinkers Talk nr.84
 

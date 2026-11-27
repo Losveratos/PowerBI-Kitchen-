@@ -1508,7 +1508,7 @@ body.sheet-open .to-top, body.nav-open .to-top { display: none; }
 <header class="hero" id="top">
   <div class="eyebrow">Daten-WG · Knowledge Kitchen</div>
   <h1 class="title">Power BI lernen, <em>strukturiert &amp; durchsuchbar.</em></h1>
-  <p class="subtitle">181 Folgen aus dem <strong>Daten-WG-Podcast</strong>, nach Thema sortiert und bis in die Transkripte durchsuchbar. Dazu Lernpfade, Werkzeuge und Beiträge.</p>
+  <p class="subtitle">183 Folgen aus dem <strong>Daten-WG-Podcast</strong>, nach Thema sortiert und bis in die Transkripte durchsuchbar. Dazu Lernpfade, Werkzeuge und Beiträge.</p>
   <form class="hero-search" id="hero-search-form" role="search" action="#suche">
     <label class="visually-hidden" for="hero-search">Folgen durchsuchen</label>
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
@@ -1516,7 +1516,7 @@ body.sheet-open .to-top, body.nav-open .to-top { display: none; }
     <button class="hero-search-btn" type="submit">Suchen</button>
   </form>
   <div class="header-stats">
-    <span class="header-stat"><strong>181</strong>Folgen</span>
+    <span class="header-stat"><strong>183</strong>Folgen</span>
     <span class="header-stat"><strong>105</strong>Transkripte</span>
     <span class="header-stat"><strong>10</strong>Buckets</span>
   </div>
@@ -1586,7 +1586,7 @@ body.sheet-open .to-top, body.nav-open .to-top { display: none; }
     <div class="bucket-tile-num">01 · QUARTERLY</div>
     <div class="bucket-tile-name">Updates & News</div>
     <div class="bucket-tile-teaser">Quarterly Updates: was ist neu in Power BI &amp; Fabric.</div>
-    <div class="bucket-tile-count">25 Folgen</div>
+    <div class="bucket-tile-count">26 Folgen</div>
   </a>
   <a class="bucket-tile" href="#bucket-2" style="--bucket-color: var(--c-fabric);">
     <div class="bucket-tile-num">02 · PLATTFORM</div>
@@ -1598,7 +1598,7 @@ body.sheet-open .to-top, body.nav-open .to-top { display: none; }
     <div class="bucket-tile-num">03 · GRUNDLAGE</div>
     <div class="bucket-tile-name">Datenmodellierung</div>
     <div class="bucket-tile-teaser">Stern-Schema, Data Vault, DAX-Patterns — Modelle, die halten.</div>
-    <div class="bucket-tile-count">36 Folgen</div>
+    <div class="bucket-tile-count">37 Folgen</div>
   </a>
   <a class="bucket-tile" href="#bucket-4" style="--bucket-color: var(--c-gov);">
     <div class="bucket-tile-num">04 · GOVERNANCE</div>
@@ -1799,7 +1799,7 @@ body.sheet-open .to-top, body.nav-open .to-top { display: none; }
       </div>
     </div>
     <div class="filter-meta">
-      <span class="filter-count-text"><strong id="result-count">181</strong> von 181 Folgen</span>
+      <span class="filter-count-text"><strong id="result-count">183</strong> von 183 Folgen</span>
       <span class="active-filters" id="active-filters" aria-live="polite"></span>
       <button class="filter-reset" id="reset-filters" type="button">Zurücksetzen</button>
     </div>
@@ -1828,7 +1828,7 @@ body.sheet-open .to-top, body.nav-open .to-top { display: none; }
     </div>
     <div class="filter-panel-foot">
       <button class="sheet-reset" id="sheet-reset" type="button">Zurücksetzen</button>
-      <button class="sheet-done" id="sheet-done" type="button"><span id="sheet-done-count">181</span> Folgen anzeigen</button>
+      <button class="sheet-done" id="sheet-done" type="button"><span id="sheet-done-count">183</span> Folgen anzeigen</button>
     </div>
   </div>
 
@@ -2054,6 +2054,36 @@ const BUCKETS = [
 const EPISODES = [
 
   /* ========== BUCKET 1: QUARTERLY ========== */
+  {
+    bucket: 'bucket-1',
+    title: 'Power BI Update November 2026',
+    guest: 'Solo',
+    solo: true,
+    date: 'November 2026',
+    duration: '9 min',
+    lang: 'DE',
+    desc: 'Viele kleine Verbesserungen und ein großes Thema: Trendachsen in nativen Karten, Stilvoreinstellungen zum Übertragen von Formatierungen, Listenslicer, Datepicker und OneDrive/SharePoint-Speichern sind GA, die Matrix bekommt Aktionsschaltflächen. Dazu Power BI Desktop für Apps, das per Chat aus einem Semantikmodell einen Report baut, mit Setup und Grenzen der Preview.',
+    tags: ['Update', 'Power BI', 'Desktop für Apps', 'DE'],
+    podcastUrl: null,
+    ytId: 'pCtvleKEMxA',
+    chapters: [
+      ['00:00', 'Intro: ein großes Update und viele kleine Verbesserungen'],
+      ['00:15', 'Trendachse in nativen Karten'],
+      ['00:47', 'Stilvoreinstellungen für Visuals speichern'],
+      ['02:01', 'Listenslicer ist GA'],
+      ['02:41', 'Datepicker standardmäßig aktiv'],
+      ['02:55', 'Matrix mit Aktionsschaltflächen am Visual'],
+      ['03:28', 'Weitere GA-Features: OneDrive und SharePoint Speichern'],
+      ['04:16', 'Gantt-Visual Updates (Preview)'],
+      ['04:27', 'Fabric: Semantic Views und M-Parameter für Direct Lake'],
+      ['04:44', 'Power BI Desktop für Apps: die neue Berichts-App'],
+      ['05:25', 'Semantikmodell verbinden und per Chat beschreiben'],
+      ['06:07', 'Report per Chat erweitern: Diagramme im Zeitverlauf'],
+      ['06:44', 'Veröffentlichtes Ergebnis: Dark Mode und Drillthrough'],
+      ['07:20', 'Bearbeiten per Chat, Setup und Veröffentlichung'],
+      ['08:25', 'Fazit: schöne neue Welt']
+    ]
+  },
   {
     bucket: 'bucket-1',
     title: 'Power BI Update Oktober 2026',
@@ -3261,6 +3291,20 @@ const EPISODES = [
   },
 
   /* ========== BUCKET 3: DATENMODELLIERUNG ========== */
+  {
+    bucket: 'bucket-3',
+    title: 'BI Thinkers Talk nr.85',
+    guest: 'Daniel Mager',
+    solo: false,
+    date: 'November 2026',
+    duration: '61 min',
+    lang: 'DE',
+    desc: 'Artur hat schon mit den neuen Semantic Views in Fabric gebaut und zeigt die Fallstricke: Bekommen wir jetzt wirklich wiederverwendbare Semantikmodelle? Daniel Mager stellt seine Experimente mit anwendungsübergreifender Semantik und Apache Ossie vor und fragt, wie Daten für KI und BI aussehen sollen.',
+    tags: ['Semantic Views', 'Fabric', 'Ossie', 'Datenmodell', 'DE'],
+    podcastUrl: null,
+    ytId: 'u9qtU4Gs0vs',
+    chapters: []
+  },
   {
     bucket: 'bucket-3',
     title: 'BI Thinkers Talk nr.84',
