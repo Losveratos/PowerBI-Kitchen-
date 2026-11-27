@@ -6,7 +6,7 @@ Power-BI-Visual · Enddokumentation
 
 Das IBCS-inspirierte GuV-Visual für Power BI: ein Statement direkt aus deiner Kontendimension — als klassische Tabelle oder als Mega-Table mit den IBCS-Templates T01–T04, 12A, 12G und 12H sowie Bilanz und Cashflow (T05A/T05B), dazu Struktur-Bars, Zeilen-Waterfall, Werttreiberbaum, Sankey und Kachel-Zoom. Diese Dokumentation führt vom Import über Datenmodell, Ansichten und Templates bis zur vollständigen Einstellungs-Referenz.
 
-Version · **1.8.4.0** · Stand · **2026-11-25** · IBCS-inspired
+Version · **1.8.5.0** · Stand · **2026-11-27** · IBCS-inspired
 
 ## Inhalt
 
@@ -21,7 +21,7 @@ Version · **1.8.4.0** · Stand · **2026-11-25** · IBCS-inspired
 9. [Interaktion](#interaction)
 10. [Abweichungen von den IBCS-Blättern](#deviations)
 11. [Troubleshooting](#faq)
-12. [Versionshinweis 1.8.4.0](#version)
+12. [Versionshinweis 1.8.5.0](#version)
 
 ## 01 · Was ist das Visual?
 
@@ -47,7 +47,7 @@ Die Notation folgt den **IBCS®-Prinzipien**: AC ausgefüllt in Dunkelgrau (#404
 
 > **Danke an IBCS.** Das Visual ist stark von den Ideen der IBCS® – International Business Communication Standards inspiriert. Ohne ihre großartigen Ressourcen, die außergewöhnlichen Inhalte und vor allem die bahnbrechende konzeptionelle Arbeit wäre so etwas wie dieses Visual nicht möglich gewesen. Dafür: Danke. Nicht gesponsert, nicht lizenziert und nicht mit der IBCS Association verbunden.
 
-Diese Anleitung beschreibt den Stand der Version **1.8.4.0**. Alle Standardwerte der Einstellungs-Referenz sind gegen das Settings-Modell des Visuals geprüft. Neu in 1.8.4: Δ% „n.a.“ bei Vorzeichenwechsel und Referenz 0, Schwellen-Rot und ⚡ am gedruckten Wert, gekappte Pins mit Kopf und einstellbarer Ausreißer-Schwelle, der FY-Kopf AC&FC nach Blatt 12G, flache Listen ohne Leerzeilen, „Ganze Kachel nutzen“ ohne Überlauf und die gerundete Null ohne Vorzeichen in allen Templates (Kapitel 06, 08 und 09, [Notation seit 1.8.4](#notation184)). Neu in 1.8.3: Margenwerte in der Wertkaskade (12G), die Notation wie im Referenzblatt für 11A, 12G und 12H (Kapitel 08). Neu in 1.8.2: Ellipse um die Δ-Zahl hervorgehobener Zeilen, relative Änderung der Margen im Δ%-Feld und Margen-Δ an der Achse abschaltbar (Kapitel 08). Neu in 1.7.1: Kachel-Zoom mit eigener Abweichungszone und Skalierungshinweis, Bestände in der Kachel als Stände, Ist = 0 in ungebuchten Monaten als nicht gebucht (Kapitel 06 und 11). Neu in 1.7: **Bestand & Fluss** mit den Templates T05A Bilanz und T05B Cashflow (Kapitel 05 und 07), **⚡ Nur Ausnahmen** (Kapitel 09), die Karten **Fläche** und **Toolbar-Farben** (Kapitel 08) sowie **Cross-Highlight** im Sankey (Kapitel 06 und 09). Neu in 1.6: die fünfte Ansicht Sankey (Kapitel 06) und die Schalter „Ansichten anbieten“ (Kapitel 08). Neu seit 1.5: die Skalierung nach IBCS 2.0 / ISO 24896 als Standard in allen Ansichten (eine Skala je Einheit, Ausreißerzone, Skalenhinweis; Kapitel 06), einklappbare Bedienleisten (☰, Kapitel 08) und die Auto-Headline als ganzer Satz. Seit 1.3 und 1.4: der Start-Hub (Kapitel 03) mit Template-Galerie nach Zweck, „🚀 Loslegen“, Schriftgrößen-Leiste HD · Full HD · UHD und Doku-Knopf, ☰ Start als erster Toolbar-Knopf, „↺ Zum Template zurück“ samt Wiederanwenden und die ruhige Landing-Karte für Leser.
+Diese Anleitung beschreibt den Stand der Version **1.8.5.0**. Alle Standardwerte der Einstellungs-Referenz sind gegen das Settings-Modell des Visuals geprüft. Neu in 1.8.5: Der fixierte Spaltenkopf steht bei Tabellen, die breiter als die Kachel sind, wieder über seinen Spalten. Neu in 1.8.4: Δ% „n.a.“ bei Vorzeichenwechsel und Referenz 0, Schwellen-Rot und ⚡ am gedruckten Wert, gekappte Pins mit Kopf und einstellbarer Ausreißer-Schwelle, der FY-Kopf AC&FC nach Blatt 12G, flache Listen ohne Leerzeilen, „Ganze Kachel nutzen“ ohne Überlauf und die gerundete Null ohne Vorzeichen in allen Templates (Kapitel 06, 08 und 09, [Notation seit 1.8.4](#notation184)). Neu in 1.8.3: Margenwerte in der Wertkaskade (12G), die Notation wie im Referenzblatt für 11A, 12G und 12H (Kapitel 08). Neu in 1.8.2: Ellipse um die Δ-Zahl hervorgehobener Zeilen, relative Änderung der Margen im Δ%-Feld und Margen-Δ an der Achse abschaltbar (Kapitel 08). Neu in 1.7.1: Kachel-Zoom mit eigener Abweichungszone und Skalierungshinweis, Bestände in der Kachel als Stände, Ist = 0 in ungebuchten Monaten als nicht gebucht (Kapitel 06 und 11). Neu in 1.7: **Bestand & Fluss** mit den Templates T05A Bilanz und T05B Cashflow (Kapitel 05 und 07), **⚡ Nur Ausnahmen** (Kapitel 09), die Karten **Fläche** und **Toolbar-Farben** (Kapitel 08) sowie **Cross-Highlight** im Sankey (Kapitel 06 und 09). Neu in 1.6: die fünfte Ansicht Sankey (Kapitel 06) und die Schalter „Ansichten anbieten“ (Kapitel 08). Neu seit 1.5: die Skalierung nach IBCS 2.0 / ISO 24896 als Standard in allen Ansichten (eine Skala je Einheit, Ausreißerzone, Skalenhinweis; Kapitel 06), einklappbare Bedienleisten (☰, Kapitel 08) und die Auto-Headline als ganzer Satz. Seit 1.3 und 1.4: der Start-Hub (Kapitel 03) mit Template-Galerie nach Zweck, „🚀 Loslegen“, Schriftgrößen-Leiste HD · Full HD · UHD und Doku-Knopf, ☰ Start als erster Toolbar-Knopf, „↺ Zum Template zurück“ samt Wiederanwenden und die ruhige Landing-Karte für Leser.
 
 ## 02 · Die Produktfamilie
 
@@ -183,7 +183,7 @@ Leser, PDF-Export und Abos sehen nie Hub, Overlay oder Leiste. Ohne Daten zeigt 
 
 ### 1 · Visual importieren
 
-1. Lade die Datei [`pnlByDatenWG…1.8.4.0.pbiviz`](https://raw.githubusercontent.com/Losveratos/PowerBI-Kitchen-/main/pnlByDatenWG/dist/pnlByDatenWG3F9A7D2C51E64B08A1C4E7F0B92D6358.1.8.4.0.pbiviz) herunter (Endung `.pbiviz`, auch über den Button oben rechts).
+1. Lade die Datei [`pnlByDatenWG…1.8.5.0.pbiviz`](https://raw.githubusercontent.com/Losveratos/PowerBI-Kitchen-/main/pnlByDatenWG/dist/pnlByDatenWG3F9A7D2C51E64B08A1C4E7F0B92D6358.1.8.5.0.pbiviz) herunter (Endung `.pbiviz`, auch über den Button oben rechts).
 2. In Power BI Desktop: *Visualisierungen* → *⋯* → *Visual aus einer Datei importieren* und die `.pbiviz` wählen. Eine ältere Version wird dabei ersetzt.
 3. Das Visual großzügig aufziehen (mindestens etwa 1200 × 800 px) — Toolbar und zwei Spaltenblöcke brauchen Breite. Frisch auf der Seite zeigt es im Bearbeitungsmodus den **Start-Hub** (Kapitel 03): „🚀 Loslegen“ führt mit Häkchen durch Felder, Template und Feinschliff, „Demo ansehen“ öffnet die Beispiel-GuV, auf der Ansichten, Toolbar und Templates schon funktionieren.
 
@@ -958,10 +958,11 @@ Nur im Bearbeitungsmodus: Eine Formel oder Summe mischt Bestände und Flüsse, o
 
 Gewollt (Cross-Highlight, seit 1.7): Der Sankey zeigt die Markierung im Gesamt — das Ganze grau, der markierte Teil farbig, in der Fußzeile „… 923 von 1 685 …“. Alle anderen Ansichten verhalten sich wie gefiltert. Soll auch der Sankey filtern, stelle die Interaktion in Power BI Desktop unter Format → *Interaktionen bearbeiten* am auslösenden Visual auf das Filter-Symbol um (Kapitel 09).
 
-## 12 · Versionshinweis 1.8.4.0
+## 12 · Versionshinweis 1.8.5.0
 
-Diese Dokumentation beschreibt **Version 1.8.4.0** vom 25.11.2026 (GUID `pnlByDatenWG3F9A7D2C51E64B08A1C4E7F0B92D6358`). Das Visual ist nicht im Microsoft AppSource gelistet und damit nicht von Microsoft zertifiziert. Feldrollen, Property-Namen und der gespeicherte Toolbar-Zustand sind seit 1.0 stabil; jede neue Einstellung steht per Standard aus oder verhält sich wie bisher. Standard-Änderungen seit 1.2: Im Bearbeitungsmodus ohne Felder erscheint der Start-Hub statt der Demo-GuV (1.3); seit 1.5 gilt die Skalierung nach IBCS 2.0 / ISO 24896 als Standard, bestehende Berichte ändern dadurch ihr Bild.
+Diese Dokumentation beschreibt **Version 1.8.5.0** vom 27.11.2026 (GUID `pnlByDatenWG3F9A7D2C51E64B08A1C4E7F0B92D6358`). Das Visual ist nicht im Microsoft AppSource gelistet und damit nicht von Microsoft zertifiziert. Feldrollen, Property-Namen und der gespeicherte Toolbar-Zustand sind seit 1.0 stabil; jede neue Einstellung steht per Standard aus oder verhält sich wie bisher. Standard-Änderungen seit 1.2: Im Bearbeitungsmodus ohne Felder erscheint der Start-Hub statt der Demo-GuV (1.3); seit 1.5 gilt die Skalierung nach IBCS 2.0 / ISO 24896 als Standard, bestehende Berichte ändern dadurch ihr Bild.
 
+- **1.8.5.0 · Fixierter Spaltenkopf:** Ist die klassische Tabelle breiter als die Kachel, steht der fixierte Spaltenkopf wieder genau über seinen Spalten, ungescrollt und beim waagerechten Scrollen (bis 1.8.4 war er gestaucht und rückte bis zu 134 px nach links). Bei mehr als 300 Zeilen folgt der Kopf auch den Spaltenbreiten des gerade sichtbaren Zeilenfensters.
 - **1.8.4.0 · Notationskorrekturen:** Δ% „n.a.“ bei Vorzeichenwechsel und Referenz 0 (Kostenzeilen mit beidseitig negativen Werten behalten ihr Δ%), Schwellen-Rot und ⚡ am gedruckten Wert, gekappte Pins behalten ihren Kopf (neu: „Ausreißer-Pfeile für Pins“ und „Ausreißer-Schwelle (× IQR)“), FY-Kopf AC&FC der klassischen Tabelle schraffiert nach Blatt 12G, flache Listen ohne Leerzeilen, „Ganze Kachel nutzen“ als geprüfte Suche ohne Überlauf mit Untergrenze für die Diagrammspalten, gerundete Null ohne Vorzeichen in allen Templates (Standard der Einstellung bleibt „Vorzeichen behalten“), Zahlen folgen einem Sprachwechsel des Hosts zur Laufzeit. Mit den Standards rendert ein Bericht wie 1.8.3, bis auf diese Korrekturen.
 - **1.8.3.0 · Blatt-Notation 11A, 12G, 12H:** Margenwerte kursiv in der Wertkaskade (12G); im ROI-Baum mit allen Perioden einheitliche Nachkommastellen je Karte, Linie zwischen Ist und Plan, negative Ist-Werte mittelgrau, Planperioden hell; „Notation wie im Referenzblatt“ mit Köpfen „YTD / Jahr“ und „PL 2026“ und ganzzahligen 12G-Margen.
 - **1.8.2.0 · Blatt-Optionen und schnellere Hervorhebung:** Ellipse um die Δ-Zahl hervorgehobener Zeilen (12G, 12H, auch im Δ-Wasserfall), relative Änderung der Margen im Δ%-Feld (T03), Margen-Δ an der Achse abschaltbar (T04); Δ% einer Marge mit negativer Referenz jetzt mit richtigem Vorzeichen (seit 1.8.4 bei Vorzeichenwechsel „n.a.“); Hervorhebung aus anderen Visuals rund doppelt so schnell.
@@ -986,13 +987,13 @@ Diese Dokumentation beschreibt **Version 1.8.4.0** vom 25.11.2026 (GUID `pnlByDa
 
 Die vollständige Versionshistorie steht im [CHANGELOG](https://github.com/Losveratos/PowerBI-Kitchen-/blob/main/pnlByDatenWG/CHANGELOG.md).
 
-**P&L Statement byDatenWG** · Version 1.8.4.0
+**P&L Statement byDatenWG** · Version 1.8.5.0
 
 Schwester-Visual: [ChartKitchen byDatenWG – Dokumentation](../chartkitchen-doku.html) · Für IT & Admins: [Sicherheit & Betrieb](../visuals-sicherheit.html)
 
 Kontakt: Michael Tenner · [michael.tenner84@gmail.com](mailto:michael.tenner84@gmail.com)
 
-Schnellstart: [pnl-schnellstart.html](../pnl-schnellstart.html) · Download: [.pbiviz 1.8.4.0](https://raw.githubusercontent.com/Losveratos/PowerBI-Kitchen-/main/pnlByDatenWG/dist/pnlByDatenWG3F9A7D2C51E64B08A1C4E7F0B92D6358.1.8.4.0.pbiviz) · Quellcode und Änderungsprotokoll: [pnlByDatenWG im Repository](https://github.com/Losveratos/PowerBI-Kitchen-/tree/main/pnlByDatenWG) · Für KI-Agenten: [AGENT-GUIDE](https://github.com/Losveratos/PowerBI-Kitchen-/blob/main/pnlByDatenWG/AGENT-GUIDE.md)
+Schnellstart: [pnl-schnellstart.html](../pnl-schnellstart.html) · Download: [.pbiviz 1.8.5.0](https://raw.githubusercontent.com/Losveratos/PowerBI-Kitchen-/main/pnlByDatenWG/dist/pnlByDatenWG3F9A7D2C51E64B08A1C4E7F0B92D6358.1.8.5.0.pbiviz) · Quellcode und Änderungsprotokoll: [pnlByDatenWG im Repository](https://github.com/Losveratos/PowerBI-Kitchen-/tree/main/pnlByDatenWG) · Für KI-Agenten: [AGENT-GUIDE](https://github.com/Losveratos/PowerBI-Kitchen-/blob/main/pnlByDatenWG/AGENT-GUIDE.md)
 
 > Notation nach den IBCS®-Standards 2.0 (ISO 24896) der IBCS Association (CC BY-SA 4.0, ibcs.com). Dokumentierte Abweichung: Teal ersetzt das IBCS-Varianz-Grün, um bei Rot-Grün-Sehschwäche lesbar zu bleiben. IBCS® ist eine eingetragene Marke des IBCS Institute. Dieses Visual ist nicht von der IBCS Association zertifiziert und steht in keiner Verbindung zu ihr.
 

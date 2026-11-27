@@ -1,5 +1,27 @@
 # Changelog — P&L Statement byDatenWG
 
+## 1.8.5.0 (2026-11-27): fixierter Spaltenkopf bei breiter Tabelle
+
+- **Der fixierte Spaltenkopf der klassischen Tabelle steht wieder über seinen Spalten**
+  (`buildFloatHead`). Ist die Tabelle breiter als die Kachel (`columns.fitWidth` aus, Standard, oder an,
+  wenn die Tabelle sich nicht weit genug stauchen lässt) und der fixierte Kopf an (`style.stickyHeader`,
+  Standard), wurde der überlagerte Kopf auf den Platz rechts seines linken Rands gestaucht: bei 1400 px
+  Kachelbreite 1386 statt 1520 px, die Kopfzellen standen bis zu 134 px links ihrer Spalten, „ΔPL%“ im
+  FY-Block und „FY 2026 · Ausblick (FC)“ etwa 95 px zu früh, schon ohne Scrollen und an jeder
+  Scrollposition. Der Kopf bekommt jetzt die Breite der Tabelle. Der Fehler bestand seit 0.13.1.0
+  (überlagerter Kopf); die Mega-Tabelle war nicht betroffen.
+- **Der Kopf folgt gefensterten Zeilen** (`refreshFloatHead`). Bei mehr als 300 sichtbaren Zeilen rendert die
+  Tabelle nur ein Zeilenfenster; bringt das Fenster beim Scrollen einen längeren Kontonamen oder eine
+  breitere Zahl, verschieben sich die Spalten. Der Kopf behielt bisher die Breiten vom ersten Aufbau
+  (Beispiel 420 Zeilen, langer Name in Zeile 400: Tabelle 1064 statt 872 px, Kopf bis 204 px daneben).
+  Er wird jetzt neu gebaut, sobald sich Tabellen- oder Spaltenbreite ändern; ohne Änderung kostet das
+  je Fensterwechsel eine Messung pro Kopfzelle.
+- **Wirkung auf bestehende Berichte:** nur das Bild des Kopfs bei breiten oder langen Tabellen, Werte
+  und Spalten bleiben gleich. Neue Tests in `test/tree-interact.js`: 21b (Kopf so breit wie die
+  Tabelle, jede Kopfzelle über ihrer Spalte ungescrollt, ganz rechts gescrollt und nach neuem Aufbau
+  in dieser Lage), 21c (420 Zeilen, Kopf folgt dem Fenster nach unten und zurück, ohne zusätzlichen
+  Scrollweg).
+
 ## 1.8.4.0 (2026-11-25): Notationskorrekturen Welle 1
 
 Korrekturen aus dem Template-Prüfstand vom 24.11.2026 (Welle 1, Punkte 6 bis 10), dazu flache Listen,
