@@ -5,6 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Fabric-App-Werkzeugkette · Daten-WG</title>
 <link rel="canonical" href="https://datenwgknowledgekitchen.com/fabric-app-werkzeugkette.html">
+<link rel="alternate" hreflang="de" href="https://datenwgknowledgekitchen.com/fabric-app-werkzeugkette.html">
+<link rel="alternate" hreflang="en" href="https://datenwgknowledgekitchen.com/fabric-app-werkzeugkette_en.html">
+<link rel="alternate" hreflang="x-default" href="https://datenwgknowledgekitchen.com/fabric-app-werkzeugkette.html">
 <link rel="alternate" type="text/markdown" title="Markdown" href="md/fabric-app-werkzeugkette.md">
 <meta name="description" content="Wie die Daten-WG Fabric Apps und Power-BI-Berichte baut: von der Skizze über App-Spec und dwg cli bis zur geprüften Auslieferung, mit Rolle, Grund und Vorteil jedes Werkzeugs.">
 <meta property="og:type" content="article">
@@ -32,6 +35,9 @@ main {
   padding-right: max(16px, env(safe-area-inset-right, 0px));
   display: grid; gap: 52px;
 }
+.eyebrow-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.lang-switch { font-family: var(--mono); font-size: 11px; font-weight: 600; letter-spacing: .16em; color: var(--muted); text-decoration: none; border: 1px solid var(--ring); padding: 5px 12px; }
+.lang-switch:hover { color: var(--flow); border-color: var(--flow); }
 .intro { display: grid; gap: 14px; max-width: 74ch; }
 .eyebrow { font-family: var(--mono); font-size: 12px; letter-spacing: .22em; text-transform: uppercase; color: var(--flow); }
 h1 { font-size: clamp(32px, 5.4vw, 58px); line-height: 1.05; margin: 0; font-weight: 700; letter-spacing: -.015em; color: var(--ink); text-wrap: balance; }
@@ -112,7 +118,7 @@ dd.plus { color: var(--good); }
 <script src="assets/js/site-chrome.js" data-chrome="mini"></script>
 <main>
   <header class="intro">
-    <div class="eyebrow">Daten-WG · Stand 27.11.2026</div>
+    <div class="eyebrow-row"><div class="eyebrow">Daten-WG · Stand 27.11.2026</div><a class="lang-switch" href="fabric-app-werkzeugkette_en.html" hreflang="en" lang="en">EN</a></div>
     <h1>Fabric-App-Werkzeugkette</h1>
     <p class="lead">So entstehen die Fabric Apps und Power-BI-Berichte der Daten-WG: Aus einer Skizze wird eine Spec, aus der Spec erzeugt die dwg cli eine Fabric App, einen Power-BI-Bericht oder beides mit denselben Visuals, und jede Auslieferung wird geprüft, bevor das Publikum sie sieht. Die Daten kommen aus einer vorhandenen Quelle oder werden für eine Demo synthetisch erzeugt.</p>
   </header>

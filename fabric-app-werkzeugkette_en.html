@@ -1,0 +1,469 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Fabric App Toolchain · Daten-WG</title>
+<link rel="canonical" href="https://datenwgknowledgekitchen.com/fabric-app-werkzeugkette_en.html">
+<link rel="alternate" hreflang="de" href="https://datenwgknowledgekitchen.com/fabric-app-werkzeugkette.html">
+<link rel="alternate" hreflang="en" href="https://datenwgknowledgekitchen.com/fabric-app-werkzeugkette_en.html">
+<link rel="alternate" hreflang="x-default" href="https://datenwgknowledgekitchen.com/fabric-app-werkzeugkette.html">
+<link rel="alternate" type="text/markdown" title="Markdown" href="md/fabric-app-werkzeugkette_en.md">
+<meta name="description" content="How Daten-WG builds Fabric apps and Power BI reports: from the sketch through app spec and dwg cli to a checked delivery, with the role, reason and benefit of every tool.">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Fabric App Toolchain">
+<meta property="og:description" content="From the sketch through app spec and dwg cli to a checked Fabric app and Power BI report, with the role, reason and benefit of every tool.">
+<meta property="og:url" content="https://datenwgknowledgekitchen.com/fabric-app-werkzeugkette_en.html">
+<link rel="stylesheet" href="assets/fonts/geist/geist.css">
+<link rel="stylesheet" href="assets/fonts/jetbrains-mono/jetbrains-mono.css">
+<style>
+/* Layout: dark Kitchen story style; wide flow diagram left to right, tool cards below in phase order */
+:root {
+  --bg: #0d0d0d; --surface: #161616; --ring: rgba(255,255,255,.13);
+  --ink: #ffffff; --ink-2: #c9c7bd; --muted: #8e8c86; --grid: #2a2a28;
+  --own: #d9a441; --own-tint: rgba(217,164,65,.12); --flow: #5b9be6; --good: #8fbfa8;
+  --sans: "Geist", "Segoe UI", system-ui, -apple-system, Arial, sans-serif;
+  --mono: "JetBrains Mono", ui-monospace, Consolas, monospace;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--ink-2); font-family: var(--sans); font-size: 16px; line-height: 1.6; -webkit-font-smoothing: antialiased; }
+main {
+  max-width: 1240px; margin: 0 auto;
+  padding-block: 72px 72px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  display: grid; gap: 52px;
+}
+.eyebrow-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.lang-switch { font-family: var(--mono); font-size: 11px; font-weight: 600; letter-spacing: .16em; color: var(--muted); text-decoration: none; border: 1px solid var(--ring); padding: 5px 12px; }
+.lang-switch:hover { color: var(--flow); border-color: var(--flow); }
+.intro { display: grid; gap: 14px; max-width: 74ch; }
+.eyebrow { font-family: var(--mono); font-size: 12px; letter-spacing: .22em; text-transform: uppercase; color: var(--flow); }
+h1 { font-size: clamp(32px, 5.4vw, 58px); line-height: 1.05; margin: 0; font-weight: 700; letter-spacing: -.015em; color: var(--ink); text-wrap: balance; }
+h2 { font-size: clamp(22px, 2.6vw, 28px); margin: 0; font-weight: 700; letter-spacing: -.01em; color: var(--ink); text-wrap: balance; }
+.lead { font-size: clamp(16px, 2vw, 19px); margin: 0; color: var(--ink-2); }
+code { font-family: var(--mono); font-size: .86em; color: var(--ink); }
+a { color: var(--flow); text-underline-offset: 3px; }
+a:focus-visible, .diagram:focus-visible { outline: 2px solid var(--flow); outline-offset: 3px; }
+
+figure { margin: 0; display: grid; gap: 14px; }
+.diagram { overflow-x: auto; background: var(--surface); border: 1px solid var(--ring); padding: 18px 12px; }
+.diagram svg { display: block; width: 100%; min-width: 980px; height: auto; color: var(--ink-2); }
+figcaption { color: var(--muted); font-size: 14.5px; max-width: 82ch; }
+.legend { display: flex; flex-wrap: wrap; gap: 8px 22px; font-size: 13px; color: var(--muted); font-family: var(--mono); }
+.legend span { display: inline-flex; align-items: center; gap: 8px; }
+.sw { width: 16px; height: 12px; border: 1.5px solid; display: inline-block; }
+.sw.own { background: var(--own-tint); border-color: var(--own); }
+.sw.ext { background: var(--surface); border-color: var(--muted); }
+.sw.fb { width: 22px; height: 0; border: 0; border-top: 2px dashed var(--own); }
+
+svg .n-own { fill: var(--own-tint); stroke: var(--own); stroke-width: 1.4; }
+svg .n-hub { fill: var(--own-tint); stroke: var(--own); stroke-width: 2.4; }
+svg .n-ext { fill: var(--bg); stroke: var(--muted); stroke-width: 1.1; }
+svg .band { fill: #1d1d1b; stroke: var(--grid); }
+svg .t-name { fill: var(--ink); font: 600 14px var(--sans); }
+svg .t-big { fill: var(--own); font: 700 20px var(--sans); }
+svg .t-sub { fill: var(--ink-2); font: 400 12px var(--sans); }
+svg .t-cmd { fill: var(--ink); font: 400 11.5px var(--mono); }
+svg .t-own { fill: var(--own); font: 600 13px var(--sans); }
+svg .t-phase { fill: var(--flow); font: 500 11px var(--mono); letter-spacing: .1em; }
+svg .lbl { fill: var(--muted); font: 400 11px var(--mono); }
+svg .lbl-acc { fill: var(--own); font: 500 11.5px var(--mono); }
+svg .edge { fill: none; stroke: currentColor; stroke-width: 1.4; }
+svg .edge-fb { fill: none; stroke: var(--own); stroke-width: 1.6; stroke-dasharray: 6 5; }
+svg .sep { stroke: var(--grid); stroke-width: 1; }
+svg .mk-acc { fill: var(--own); }
+svg a { cursor: pointer; }
+svg a:hover rect, svg a:focus-visible rect { stroke: var(--flow); stroke-width: 2.2; }
+svg a:hover text, svg a:focus-visible text { text-decoration: underline; text-decoration-color: var(--flow); }
+svg a:focus { outline: none; }
+.card { scroll-margin-top: 64px; }
+.card:target { outline: 2px solid var(--flow); outline-offset: 3px; animation: ping 1.6s ease-out 1; }
+@keyframes ping { from { box-shadow: 0 0 0 0 rgba(91,155,230,.55); } to { box-shadow: 0 0 0 18px rgba(91,155,230,0); } }
+html { scroll-behavior: smooth; }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } .card:target { animation: none; } }
+
+
+.why { display: grid; gap: 18px; }
+.why-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(240px, 100%), 1fr)); gap: 18px; }
+.why-grid div { border-top: 2px solid var(--own); padding-top: 12px; display: grid; gap: 6px; align-content: start; min-width: 0; }
+.why-grid h3 { margin: 0; font-size: 16.5px; font-weight: 600; color: var(--ink); }
+.why-grid p { margin: 0; color: var(--ink-2); font-size: 14.5px; }
+
+.phase { display: grid; gap: 16px; }
+.phase-head { display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap; }
+.phase-head .num { font-family: var(--mono); color: var(--flow); font-size: 13px; letter-spacing: .1em; }
+.phase-head p { margin: 0; color: var(--muted); font-size: 14.5px; }
+.cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(320px, 100%), 1fr)); gap: 14px; }
+.card { background: var(--surface); border: 1px solid var(--ring); padding: 18px 20px; display: grid; gap: 12px; align-content: start; min-width: 0; }
+.card.own { border-left: 3px solid var(--own); }
+.card-top { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+.card h3 { margin: 0; font-size: 17px; font-weight: 600; color: var(--ink); }
+.card h3 a { color: inherit; }
+.card h3 a:hover { color: var(--flow); }
+.chip { font-family: var(--mono); font-size: 11px; letter-spacing: .04em; padding: 2px 8px; border: 1px solid var(--ring); color: var(--muted); white-space: nowrap; }
+.card.own .chip { color: var(--own); border-color: var(--own); background: var(--own-tint); }
+dl { margin: 0; display: grid; grid-template-columns: 74px 1fr; gap: 7px 12px; font-size: 14.5px; }
+dt { font-family: var(--mono); font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); padding-top: 4px; }
+dd { margin: 0; min-width: 0; overflow-wrap: anywhere; }
+dd.plus { color: var(--good); }
+
+.note { color: var(--muted); font-size: 13px; border-top: 1px solid var(--ring); padding-top: 16px; margin: 0; }
+@media (max-width: 480px) { dl { grid-template-columns: 1fr; gap: 2px; } dd { margin-bottom: 8px; } }
+</style>
+<!--seo-ld:start--><script type="application/ld+json">{"@context":"https://schema.org","@type":"WebPage","url":"https://datenwgknowledgekitchen.com/fabric-app-werkzeugkette_en.html","name":"Fabric App Toolchain","inLanguage":"en","isPartOf":{"@id":"https://datenwgknowledgekitchen.com/#website"},"description":"How Daten-WG builds Fabric apps and Power BI reports: from the sketch through app spec and dwg cli to a checked delivery, with the role, reason and benefit of every tool.","image":"https://datenwgknowledgekitchen.com/assets/start/shots/p-fabric-app-werkzeugkette.webp","publisher":{"@type":"Organization","@id":"https://datenwgknowledgekitchen.com/#org","name":"Daten-WG","url":"https://www.daten-wg.com/","logo":"https://datenwgknowledgekitchen.com/assets/favicon-192.png","sameAs":["https://www.youtube.com/@Daten-WG","https://podcasters.spotify.com/pod/show/daten-wg","https://www.daten-wg.com/"]}}</script><!--seo-ld:end-->
+</head>
+<body>
+<script src="assets/js/site-chrome.js" data-chrome="mini"></script>
+<main>
+  <header class="intro">
+    <div class="eyebrow-row"><div class="eyebrow">Daten-WG · As of 27 Nov 2026</div><a class="lang-switch" href="fabric-app-werkzeugkette.html" hreflang="de" lang="de">DE</a></div>
+    <h1>Fabric App Toolchain</h1>
+    <p class="lead">This is how Daten-WG builds its Fabric apps and Power BI reports: a sketch becomes a spec, the dwg cli turns the spec into a Fabric app, a Power BI report or both with the same visuals, and every delivery is checked before an audience sees it. The data comes from an existing source or is generated synthetically for a demo.</p>
+  </header>
+
+  <figure>
+    <div class="diagram" tabindex="0" role="region" aria-label="Flow diagram, scrolls sideways on narrow screens">
+      <svg viewBox="0 0 1220 592" role="group" aria-labelledby="dg-title dg-desc">
+        <title id="dg-title">Toolchain from sketch to a checked Fabric app</title>
+        <desc id="dg-desc">MockupKitchen and the data source prepare. The app spec, the visuals ChartKitchen and P&amp;L Statement and the semantic model flow into the dwg cli. It generates a Fabric app, a Power BI report or both. Both are checked with pbir, the test bench, fabscan and Playwright, and the findings flow back into the next releases of the visuals.</desc>
+        <defs>
+          <marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+            <path d="M0,0 L10,5 L0,10 z" fill="currentColor"/>
+          </marker>
+          <marker id="aha" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+            <path d="M0,0 L10,5 L0,10 z" class="mk-acc"/>
+          </marker>
+        </defs>
+
+        <a href="#claude" aria-label="Claude Code and Fable">
+        <rect x="20" y="16" width="1180" height="48" rx="0" class="band"/>
+        <text x="40" y="46" class="t-name">Claude Code orchestrates</text>
+        <text x="262" y="46" class="t-sub">Agent plans · CLI executes · check verifies · parallel sessions · review with Fable · humans approve releases</text>
+        </a>
+
+        <text x="105" y="102" text-anchor="middle" class="t-phase">1 PREPARE</text>
+        <text x="360" y="102" text-anchor="middle" class="t-phase">2 BUILDING BLOCKS</text>
+        <text x="625" y="102" text-anchor="middle" class="t-phase">3 GENERATE</text>
+        <text x="910" y="102" text-anchor="middle" class="t-phase">4 DELIVER</text>
+        <text x="1130" y="102" text-anchor="middle" class="t-phase">5 CHECK</text>
+
+        <a href="#mockupkitchen" aria-label="MockupKitchen">
+        <rect x="20" y="120" width="170" height="72" class="n-own"/>
+        <text x="105" y="150" text-anchor="middle" class="t-name">MockupKitchen</text>
+        <text x="105" y="172" text-anchor="middle" class="t-sub">sketch the pages</text>
+        </a>
+
+        <a href="#datenquelle" aria-label="Data source">
+        <rect x="20" y="404" width="170" height="86" class="n-ext"/>
+        <text x="105" y="440" text-anchor="middle" class="t-name">Data source</text>
+        <text x="105" y="462" text-anchor="middle" class="t-sub">existing or demo</text>
+        </a>
+
+        <a href="#app-spec" aria-label="App spec">
+        <rect x="270" y="120" width="180" height="72" class="n-own"/>
+        <text x="360" y="150" text-anchor="middle" class="t-name">App spec (JSON)</text>
+        <text x="360" y="172" text-anchor="middle" class="t-sub">pages, tiles, roles</text>
+        </a>
+
+        <a href="#chartkitchen" aria-label="ChartKitchen">
+        <rect x="270" y="252" width="180" height="96" class="n-own"/>
+        <text x="360" y="280" text-anchor="middle" class="t-name">ChartKitchen 1.58</text>
+        <text x="360" y="328" text-anchor="middle" class="t-sub">from the GitHub repo</text>
+        </a>
+        <a href="#pnl" aria-label="P&amp;L Statement"><text x="360" y="302" text-anchor="middle" class="t-name">P&amp;L Statement 1.8.4</text></a>
+
+        <a href="#te" aria-label="Semantic model, fab and te">
+        <rect x="270" y="404" width="180" height="86" class="n-ext"/>
+        <text x="360" y="432" text-anchor="middle" class="t-name">Semantic model</text>
+        <text x="360" y="452" text-anchor="middle" class="t-sub">existing or new</text>
+        <text x="360" y="474" text-anchor="middle" class="t-cmd">with fab and te</text>
+        </a>
+
+        <a href="#dwg" aria-label="dwg cli">
+        <rect x="540" y="196" width="170" height="204" class="n-hub"/>
+        <text x="625" y="234" text-anchor="middle" class="t-big">dwg cli</text>
+        <text x="625" y="258" text-anchor="middle" class="t-sub">spec + model + visuals</text>
+        <line x1="560" y1="274" x2="690" y2="274" class="sep"/>
+        <text x="625" y="298" text-anchor="middle" class="t-cmd">DAX queries</text>
+        <text x="625" y="320" text-anchor="middle" class="t-cmd">pages and tiles</text>
+        <text x="625" y="342" text-anchor="middle" class="t-cmd">PBIR visuals</text>
+        <text x="625" y="364" text-anchor="middle" class="t-cmd">test without Fabric</text>
+        </a>
+        <a href="#paritaet" aria-label="Parity test"><text x="625" y="386" text-anchor="middle" class="t-cmd">check · lint · parity</text></a>
+
+        <a href="#rayfin" aria-label="Fabric app, Rayfin CLI">
+        <rect x="820" y="140" width="180" height="84" class="n-ext"/>
+        <text x="910" y="168" text-anchor="middle" class="t-name">Fabric app</text>
+        <text x="910" y="190" text-anchor="middle" class="t-cmd">rayfin up</text>
+        <text x="910" y="210" text-anchor="middle" class="t-sub">model via connector</text>
+        </a>
+
+        <text x="772" y="302" class="lbl-acc">app, report or both</text>
+
+        <a href="#pbir" aria-label="Power BI report, pbir CLI">
+        <rect x="820" y="370" width="180" height="84" class="n-ext"/>
+        <text x="910" y="398" text-anchor="middle" class="t-name">Power BI report</text>
+        <text x="910" y="420" text-anchor="middle" class="t-cmd">fab import · pbir</text>
+        <text x="910" y="440" text-anchor="middle" class="t-sub">PBIP, same visuals</text>
+        </a>
+
+        <a href="#pbir" aria-label="pbir visuals test">
+        <rect x="1060" y="130" width="140" height="64" class="n-ext"/>
+        <text x="1130" y="158" text-anchor="middle" class="t-cmd">pbir visuals test</text>
+        <text x="1130" y="178" text-anchor="middle" class="t-sub">every query</text>
+        </a>
+
+        <a href="#pruefstand" aria-label="Template test bench">
+        <rect x="1060" y="206" width="140" height="64" class="n-own"/>
+        <text x="1130" y="234" text-anchor="middle" class="t-own">Test bench</text>
+        <text x="1130" y="254" text-anchor="middle" class="t-sub">reference · app · PBI</text>
+        </a>
+
+        <a href="#fabscan" aria-label="fabscan">
+        <rect x="1060" y="282" width="140" height="64" class="n-own"/>
+        <text x="1130" y="310" text-anchor="middle" class="t-own">fabscan</text>
+        <text x="1130" y="330" text-anchor="middle" class="t-sub">governance</text>
+        </a>
+
+        <a href="#playwright" aria-label="Playwright">
+        <rect x="1060" y="358" width="140" height="64" class="n-ext"/>
+        <text x="1130" y="386" text-anchor="middle" class="t-name">Playwright</text>
+        <text x="1130" y="406" text-anchor="middle" class="t-sub">browser tests</text>
+        </a>
+
+        <path d="M190,156 H266" class="edge" marker-end="url(#ah)"/>
+        <text x="230" y="148" text-anchor="middle" class="lbl">import</text>
+
+        <path d="M190,446 H266" class="edge" marker-end="url(#ah)"/>
+        <text x="218" y="438" text-anchor="middle" class="lbl">load</text>
+
+        <path d="M450,156 H495 V230 H536" class="edge" marker-end="url(#ah)"/>
+        <text x="472" y="148" text-anchor="middle" class="lbl">pages</text>
+
+        <path d="M450,300 H536" class="edge" marker-end="url(#ah)"/>
+        <text x="495" y="292" text-anchor="middle" class="lbl">packages</text>
+
+        <path d="M450,446 H495 V366 H536" class="edge" marker-end="url(#ah)"/>
+        <text x="472" y="438" text-anchor="middle" class="lbl">TMDL</text>
+
+        <path d="M710,250 H765 V182 H816" class="edge" marker-end="url(#ah)"/>
+        <text x="790" y="174" text-anchor="middle" class="lbl">app code</text>
+
+        <path d="M710,346 H765 V412 H816" class="edge" marker-end="url(#ah)"/>
+        <text x="790" y="404" text-anchor="middle" class="lbl">PBIR</text>
+
+        <path d="M1000,182 H1056" class="edge" marker-end="url(#ah)"/>
+        <text x="1030" y="174" text-anchor="middle" class="lbl">live</text>
+
+        <path d="M1000,412 H1056" class="edge" marker-end="url(#ah)"/>
+        <text x="1030" y="404" text-anchor="middle" class="lbl">live</text>
+
+        <path d="M1130,422 V556 H252 V300 H266" class="edge-fb" marker-end="url(#aha)"/>
+        <text x="680" y="548" text-anchor="middle" class="lbl-acc">Findings flow into the next releases</text>
+      </svg>
+    </div>
+    <div class="legend">
+      <span><i class="sw own" aria-hidden="true"></i>built by us</span>
+      <span><i class="sw ext" aria-hidden="true"></i>tool we use</span>
+      <span><i class="sw fb" aria-hidden="true"></i>feedback from the checks</span>
+      <span>Click a box to jump to its description</span>
+    </div>
+    <figcaption>The dwg cli is the hub: it reads the app spec, the columns and formats from the semantic model and the visual packages, and generates a Fabric app, a Power BI report or both. The data comes from an existing lakehouse, warehouse or semantic model; for demos it is generated synthetically. The parity test runs locally in the dwg cli when app and report come from the same spec on the same semantic model. Whatever the checks find goes into the next releases, as with ChartKitchen 1.58 and P&amp;L 1.8.4.</figcaption>
+  </figure>
+
+  <section class="why" aria-labelledby="why-h">
+    <h2 id="why-h">Why it works this way</h2>
+    <div class="why-grid">
+      <div><h3>One spec, one or two targets</h3><p>The same file produces only a Fabric app, only a Power BI report, or both. When both are built, they show the same numbers with the same visuals, and nobody maintains two reports side by side.</p></div>
+      <div><h3>Same command, same result</h3><p>Every step is a CLI call instead of clicks in the portal. An agent can plan it, a person can follow it, and tomorrow the same thing comes out.</p></div>
+      <div><h3>Notation as a guardrail</h3><p>ChartKitchen and P&amp;L bring scenario notation, scaling and templates. Even an app built quickly follows a consistent notation.</p></div>
+      <div><h3>Checking is part of the chain</h3><p>Parity, service queries, test bench and governance run before an audience sees anything. Findings turn into releases instead of surprises.</p></div>
+    </div>
+  </section>
+
+  <section class="phase" aria-labelledby="p1">
+    <div class="phase-head"><span class="num">1</span><h2 id="p1">Prepare</h2><p>What the page should show and where the numbers come from.</p></div>
+    <div class="cards">
+      <article class="card own" id="mockupkitchen">
+        <div class="card-top"><h3><a href="mockup-kitchen.html">MockupKitchen</a></h3><span class="chip">ours · on this website</span></div>
+        <dl>
+          <dt>Does</dt><dd>Mockups for Power BI pages and Fabric apps in the browser: more than 60 visual types, app templates, phone layout, colour schemes, visual setup.</dd>
+          <dt>Where</dt><dd>Right at the start, in the conversation with the business team, before a single line of code exists.</dd>
+          <dt>Why</dt><dd>Pages should be agreed before anything is built. Changing a mockup takes minutes, changing code takes hours.</dd>
+          <dt>Benefit</dt><dd class="plus">The business team sees the result early. <code>dwg mockup import</code> turns the sketch into a spec.</dd>
+        </dl>
+      </article>
+      <article class="card" id="datenquelle">
+        <div class="card-top"><h3>Data source</h3><span class="chip">existing or generated</span></div>
+        <dl>
+          <dt>Does</dt><dd>Delivers the numbers. Usually an existing lakehouse, warehouse or semantic model. For demos, Python with pyarrow generates synthetic data as Parquet, plus control totals for the sums.</dd>
+          <dt>Where</dt><dd>In a project, the customer's source; in the examples, the showcase and the demos from the talks.</dd>
+          <dt>Why</dt><dd>The chain does not depend on a particular source. The dwg cli only needs a semantic model with measures and columns.</dd>
+          <dt>Benefit</dt><dd class="plus">The same path for real data and demos. Demos never show customer data and can be regenerated at any time.</dd>
+        </dl>
+      </article>
+    </div>
+  </section>
+
+  <section class="phase" aria-labelledby="p2">
+    <div class="phase-head"><span class="num">2</span><h2 id="p2">Building blocks</h2><p>Spec, visuals and semantic model.</p></div>
+    <div class="cards">
+      <article class="card own" id="app-spec">
+        <div class="card-top"><h3>App spec (JSON)</h3><span class="chip">ours · part of the dwg cli</span></div>
+        <dl>
+          <dt>Does</dt><dd>Describes pages, tiles, roles (measures and columns), filters, formats, navigation and the template for each tile.</dd>
+          <dt>Where</dt><dd>In the <code>specs/</code> folder of the dwg cli, for example the showcase spec with 47 pages.</dd>
+          <dt>Why</dt><dd>One file that people and agents can read. The command decides which target is built: <code>dwg app page</code>, <code>dwg pbip pages</code> or both.</dd>
+          <dt>Benefit</dt><dd class="plus">Versioned in Git; <code>dwg check</code> validates it against the model before the build.</dd>
+        </dl>
+      </article>
+      <article class="card own" id="chartkitchen">
+        <div class="card-top"><h3><a href="chartkitchen-doku_en.html">ChartKitchen byDatenWG</a></h3><span class="chip">ours · 1.58.0.0</span></div>
+        <dl>
+          <dt>Does</dt><dd>Custom visual with 14 chart modes and 24 templates (C01 to C25): columns, bridges, tables, scatter, KPI cards, small multiples, with scenario notation and scaling.</dd>
+          <dt>Where</dt><dd>In Power BI and, unchanged, in the Fabric app.</dd>
+          <dt>Why</dt><dd>Standard visuals do not come with scenario notation and shared scaling. The templates are inspired by IBCS.</dd>
+          <dt>Benefit</dt><dd class="plus">One visual for both worlds, the same rendering in app and report.</dd>
+        </dl>
+      </article>
+      <article class="card own" id="pnl">
+        <div class="card-top"><h3><a href="pnl-doku_en.html">P&amp;L Statement byDatenWG</a></h3><span class="chip">ours · 1.8.4.0</span></div>
+        <dl>
+          <dt>Does</dt><dd>Income statements and financial tables: account hierarchy, formula rows, Δ columns with pins, 23 templates, ROI tree, Sankey, balance sheet and cash flow.</dd>
+          <dt>Where</dt><dd>On every P&amp;L and table page in app and report.</dd>
+          <dt>Why</dt><dd>A financial table with variances is a lot of manual work in standard Power BI and looks different in every report.</dd>
+          <dt>Benefit</dt><dd class="plus">Pick a template instead of formatting; numbers stay the same, the notation is right.</dd>
+        </dl>
+      </article>
+      <article class="card" id="fab">
+        <div class="card-top"><h3>fab · Fabric CLI</h3><span class="chip">used · Microsoft</span></div>
+        <dl>
+          <dt>Does</dt><dd>Workspaces and folders, uploads to the lakehouse, <code>table load</code>, import of model and report, refresh, rebind.</dd>
+          <dt>Where</dt><dd>When setting up every demo environment and when delivering.</dd>
+          <dt>Why</dt><dd>Everything by command instead of clicks in the portal.</dd>
+          <dt>Benefit</dt><dd class="plus">Scriptable, the same steps for every environment, traceable in the log.</dd>
+        </dl>
+      </article>
+      <article class="card" id="te">
+        <div class="card-top"><h3>te · Tabular Editor CLI</h3><span class="chip">used · Tabular Editor · preview</span></div>
+        <dl>
+          <dt>Does</dt><dd>Loads semantic models as TMDL, validates them (<code>te validate</code>), changes them by script, queries them.</dd>
+          <dt>Where</dt><dd>New models such as the showcase's Direct Lake model, and just as well an existing model that an app is put on top of.</dd>
+          <dt>Why</dt><dd>Numbers and formats come from the model; the dwg cli reads them from there.</dd>
+          <dt>Benefit</dt><dd class="plus">Model changes as text, validated before deployment.</dd>
+        </dl>
+      </article>
+    </div>
+  </section>
+
+  <section class="phase" aria-labelledby="p3">
+    <div class="phase-head"><span class="num">3</span><h2 id="p3">Generate</h2><p>The building blocks become an app, a report or both.</p></div>
+    <div class="cards">
+      <article class="card own" id="dwg">
+        <div class="card-top"><h3><a href="https://github.com/Losveratos/dwg-cli">dwg cli</a></h3><span class="chip">ours · public · early preview</span></div>
+        <dl>
+          <dt>Does</dt><dd>Builds the Fabric app pages (React), the report as PBIP/PBIR, or both from spec and model. Generates the DAX queries, binds the visuals, pulls in new releases with <code>visuals update</code>, tests with mini-DAX in the browser without Fabric, checks with <code>dwg check</code> and <code>dwg lint</code>.</dd>
+          <dt>Where</dt><dd>In the showcase with 47 templates and in the live demo of the <a href="talks/databash-2026/">Data Bash talk</a>.</dd>
+          <dt>Why</dt><dd>Fabric apps have no report canvas, so every page would be handwork in React. And where both exist, Power BI should show exactly the same.</dd>
+          <dt>Benefit</dt><dd class="plus">Same spec, same result. One command brings a new visual release into the CLI; app and report are then regenerated from it.</dd>
+        </dl>
+      </article>
+      <article class="card own" id="paritaet">
+        <div class="card-top"><h3>Parity test</h3><span class="chip">ours · in the dwg cli</span></div>
+        <dl>
+          <dt>Does</dt><dd>Renders each tile the way Power BI hands the data to the visual and the way the app does, and fails if the two differ. Runs locally with mini-DAX, before delivery.</dd>
+          <dt>Where</dt><dd>Only when app and report come from the same spec on the same semantic model, for example in the showcase on every test run. With only an app or only a report it does not apply.</dd>
+          <dt>Why</dt><dd>Two targets from one spec are only worth something if they really are the same.</dd>
+          <dt>Benefit</dt><dd class="plus">Differences show up while building, not at the customer.</dd>
+        </dl>
+      </article>
+    </div>
+  </section>
+
+  <section class="phase" aria-labelledby="p4">
+    <div class="phase-head"><span class="num">4</span><h2 id="p4">Deliver</h2><p>The targets land in Fabric.</p></div>
+    <div class="cards">
+      <article class="card" id="rayfin">
+        <div class="card-top"><h3>Rayfin CLI · Fabric apps</h3><span class="chip">used · Microsoft · preview</span></div>
+        <dl>
+          <dt>Does</dt><dd>Creates the Fabric app item and deploys it (<code>rayfin up</code>), binds connectors to the semantic model, provides hosting and Entra sign-in.</dd>
+          <dt>Where</dt><dd>For every Fabric app, for example the showcase app.</dd>
+          <dt>Why</dt><dd>The scriptable way to create and deploy a Fabric app. The Fabric REST API cannot do it.</dd>
+          <dt>Benefit</dt><dd class="plus">Backend, sign-in and hosting come from Fabric; the app reads the model directly.</dd>
+        </dl>
+      </article>
+      <article class="card" id="pbir">
+        <div class="card-top"><h3>pbir CLI</h3><span class="chip">used</span></div>
+        <dl>
+          <dt>Does</dt><dd>Checks and changes PBIR reports, binds them to the model (<code>rebind</code>), tests every visual query against the service.</dd>
+          <dt>Where</dt><dd>After publishing the report; in the showcase 282 of 282 queries without errors (as of 25 Nov 2026).</dd>
+          <dt>Why</dt><dd>Editing report JSON by hand is error-prone.</dd>
+          <dt>Benefit</dt><dd class="plus">The CLI finds errors in the report, not the audience.</dd>
+        </dl>
+      </article>
+      <article class="card" id="git">
+        <div class="card-top"><h3>Git and GitHub</h3><span class="chip">used</span></div>
+        <dl>
+          <dt>Does</dt><dd>Spec, PBIP and visual code live in Git. GitHub Actions run the tests and the showcase run on every change. Fabric Git integration is the second route for the report next to <code>fab import</code>.</dd>
+          <dt>Where</dt><dd>dwg cli, visuals, website.</dd>
+          <dt>Why</dt><dd>Every change should be visible, testable and reversible.</dd>
+          <dt>Benefit</dt><dd class="plus">Releases with a pull request and green tests instead of copies on a drive.</dd>
+        </dl>
+      </article>
+    </div>
+  </section>
+
+  <section class="phase" aria-labelledby="p5">
+    <div class="phase-head"><span class="num">5</span><h2 id="p5">Check</h2><p>Before an audience sees it.</p></div>
+    <div class="cards">
+      <article class="card own" id="pruefstand">
+        <div class="card-top"><h3>Template test bench</h3><span class="chip">ours</span></div>
+        <dl>
+          <dt>Does</dt><dd>Checks each template element by element against the reference and puts Fabric app and Power BI side by side, with measurements of load time, queries and load.</dd>
+          <dt>Where</dt><dd>For all 47 showcase templates, 39 of them with a reference.</dd>
+          <dt>Why</dt><dd>"Can be built" should be measured, element by element.</dd>
+          <dt>Benefit</dt><dd class="plus">The findings become the wave plan. Wave 1 delivered ChartKitchen 1.58 and P&amp;L 1.8.4.</dd>
+        </dl>
+      </article>
+      <article class="card own" id="fabscan">
+        <div class="card-top"><h3>fabscan</h3><span class="chip">ours · CLI and skill</span></div>
+        <dl>
+          <dt>Does</dt><dd>Governance check for Fabric apps: calculations in the app, lineage, security (app identity, external servers, external fonts), modified queries and deviations from the model.</dd>
+          <dt>Where</dt><dd>Across the demo apps and the dwg cli output; findings flow back into the dwg cli.</dd>
+          <dt>Why</dt><dd>AI builds apps fast. Someone has to check what they load and what they access.</dd>
+          <dt>Benefit</dt><dd class="plus">Findings with a stable ID, exceptions with a reason, coverage in the report.</dd>
+        </dl>
+      </article>
+      <article class="card" id="playwright">
+        <div class="card-top"><h3>Playwright</h3><span class="chip">used · Microsoft</span></div>
+        <dl>
+          <dt>Does</dt><dd>Browser tests and screenshots for visuals, apps and documentation pages.</dd>
+          <dt>Where</dt><dd>Visual self-tests, showcase run, test bench images.</dd>
+          <dt>Why</dt><dd>Compiled does not mean drawn correctly.</dd>
+          <dt>Benefit</dt><dd class="plus">The actual rendering is proven, down to the details of the notation.</dd>
+        </dl>
+      </article>
+    </div>
+  </section>
+
+  <section class="phase" aria-labelledby="p6">
+    <div class="phase-head"><span class="num">∞</span><h2 id="p6">Above it all</h2><p>Who plans, builds and approves.</p></div>
+    <div class="cards">
+      <article class="card" id="claude">
+        <div class="card-top"><h3>Claude Code · Fable</h3><span class="chip">used · Anthropic</span></div>
+        <dl>
+          <dt>Does</dt><dd>Sessions plan and build in parallel, one each for data, frame and templates. Skills for dwg, fabscan and mockups teach the agents the commands. Fable reviews independently.</dd>
+          <dt>Where</dt><dd>In every phase, steered from a coordinating session.</dd>
+          <dt>Why</dt><dd>Speed with the same care.</dd>
+          <dt>Benefit</dt><dd class="plus">The agent plans, the CLI executes, the check verifies. A person approves push, merge and deployment.</dd>
+        </dl>
+      </article>
+    </div>
+  </section>
+
+  <p class="note">ChartKitchen and P&amp;L Statement are inspired by IBCS. They are not certified, and there is no affiliation with the IBCS Association. The data in the examples mentioned is synthetic.</p>
+</main>
+</body>
+</html>
