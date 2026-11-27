@@ -68,6 +68,16 @@ svg .edge { fill: none; stroke: currentColor; stroke-width: 1.4; }
 svg .edge-fb { fill: none; stroke: var(--own); stroke-width: 1.6; stroke-dasharray: 6 5; }
 svg .sep { stroke: var(--grid); stroke-width: 1; }
 svg .mk-acc { fill: var(--own); }
+svg a { cursor: pointer; }
+svg a:hover rect, svg a:focus-visible rect { stroke: var(--flow); stroke-width: 2.2; }
+svg a:hover text, svg a:focus-visible text { text-decoration: underline; text-decoration-color: var(--flow); }
+svg a:focus { outline: none; }
+.card { scroll-margin-top: 64px; }
+.card:target { outline: 2px solid var(--flow); outline-offset: 3px; animation: ping 1.6s ease-out 1; }
+@keyframes ping { from { box-shadow: 0 0 0 0 rgba(91,155,230,.55); } to { box-shadow: 0 0 0 18px rgba(91,155,230,0); } }
+html { scroll-behavior: smooth; }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } .card:target { animation: none; } }
+
 
 .why { display: grid; gap: 18px; }
 .why-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(240px, 100%), 1fr)); gap: 18px; }
@@ -108,7 +118,7 @@ dd.plus { color: var(--good); }
 
   <figure>
     <div class="diagram" tabindex="0" role="region" aria-label="Ablaufdiagramm, auf schmalen Bildschirmen seitlich scrollbar">
-      <svg viewBox="0 0 1220 592" role="img" aria-labelledby="dg-title dg-desc">
+      <svg viewBox="0 0 1220 592" role="group" aria-labelledby="dg-title dg-desc">
         <title id="dg-title">Werkzeugkette von der Skizze zur geprüften Fabric App</title>
         <desc id="dg-desc">MockupKitchen und die Datenquelle bereiten vor. App-Spec, die Visuals ChartKitchen und P&amp;L Statement und das Semantikmodell fließen in die dwg cli. Sie erzeugt daraus eine Fabric App, einen Power-BI-Bericht oder beides. Beides wird mit pbir, Prüfstand, fabscan und Playwright geprüft, die Befunde fließen in die nächsten Releases der Visuals zurück.</desc>
         <defs>
@@ -120,9 +130,11 @@ dd.plus { color: var(--good); }
           </marker>
         </defs>
 
+        <a href="#claude" aria-label="Claude Code und Fable">
         <rect x="20" y="16" width="1180" height="48" rx="0" class="band"/>
         <text x="40" y="46" class="t-name">Claude Code orchestriert</text>
         <text x="250" y="46" class="t-sub">Agent plant · CLI führt aus · Check prüft · parallele Sessions · Review mit Fable · Freigaben bleiben beim Menschen</text>
+        </a>
 
         <text x="105" y="102" text-anchor="middle" class="t-phase">1 VORBEREITEN</text>
         <text x="360" y="102" text-anchor="middle" class="t-phase">2 BAUSTEINE</text>
@@ -130,28 +142,40 @@ dd.plus { color: var(--good); }
         <text x="910" y="102" text-anchor="middle" class="t-phase">4 AUSLIEFERN</text>
         <text x="1130" y="102" text-anchor="middle" class="t-phase">5 PRÜFEN</text>
 
+        <a href="#mockupkitchen" aria-label="MockupKitchen">
         <rect x="20" y="120" width="170" height="72" class="n-own"/>
         <text x="105" y="150" text-anchor="middle" class="t-name">MockupKitchen</text>
         <text x="105" y="172" text-anchor="middle" class="t-sub">Seiten skizzieren</text>
+        </a>
 
+        <a href="#datenquelle" aria-label="Datenquelle">
         <rect x="20" y="404" width="170" height="86" class="n-ext"/>
         <text x="105" y="440" text-anchor="middle" class="t-name">Datenquelle</text>
         <text x="105" y="462" text-anchor="middle" class="t-sub">vorhanden oder Demo</text>
+        </a>
 
+        <a href="#app-spec" aria-label="App-Spec">
         <rect x="270" y="120" width="180" height="72" class="n-own"/>
         <text x="360" y="150" text-anchor="middle" class="t-name">App-Spec (JSON)</text>
         <text x="360" y="172" text-anchor="middle" class="t-sub">Seiten, Kacheln, Rollen</text>
+        </a>
 
+        <a href="#chartkitchen" aria-label="ChartKitchen">
         <rect x="270" y="252" width="180" height="96" class="n-own"/>
         <text x="360" y="280" text-anchor="middle" class="t-name">ChartKitchen 1.58</text>
-        <text x="360" y="302" text-anchor="middle" class="t-name">P&amp;L Statement 1.8.4</text>
+        
         <text x="360" y="328" text-anchor="middle" class="t-sub">aus dem GitHub-Repo</text>
+        </a>
+        <a href="#pnl" aria-label="P&amp;L Statement"><text x="360" y="302" text-anchor="middle" class="t-name">P&amp;L Statement 1.8.4</text></a>
 
+        <a href="#te" aria-label="Semantikmodell, fab und te">
         <rect x="270" y="404" width="180" height="86" class="n-ext"/>
         <text x="360" y="432" text-anchor="middle" class="t-name">Semantikmodell</text>
         <text x="360" y="452" text-anchor="middle" class="t-sub">vorhanden oder neu</text>
         <text x="360" y="474" text-anchor="middle" class="t-cmd">mit fab und te</text>
+        </a>
 
+        <a href="#dwg" aria-label="dwg cli">
         <rect x="540" y="196" width="170" height="204" class="n-hub"/>
         <text x="625" y="234" text-anchor="middle" class="t-big">dwg cli</text>
         <text x="625" y="258" text-anchor="middle" class="t-sub">Spec + Modell + Visuals</text>
@@ -160,35 +184,48 @@ dd.plus { color: var(--good); }
         <text x="625" y="320" text-anchor="middle" class="t-cmd">Seiten und Kacheln</text>
         <text x="625" y="342" text-anchor="middle" class="t-cmd">PBIR-Visuals</text>
         <text x="625" y="364" text-anchor="middle" class="t-cmd">Test ohne Fabric</text>
-        <text x="625" y="386" text-anchor="middle" class="t-cmd">check · lint · Parität</text>
+        </a>
+        <a href="#paritaet" aria-label="Paritätstest"><text x="625" y="386" text-anchor="middle" class="t-cmd">check · lint · Parität</text></a>
 
+        <a href="#rayfin" aria-label="Fabric App, Rayfin CLI">
         <rect x="820" y="140" width="180" height="84" class="n-ext"/>
         <text x="910" y="168" text-anchor="middle" class="t-name">Fabric App</text>
         <text x="910" y="190" text-anchor="middle" class="t-cmd">rayfin up</text>
         <text x="910" y="210" text-anchor="middle" class="t-sub">Modell per Konnektor</text>
+        </a>
 
         <text x="772" y="302" class="lbl-acc">App, Bericht oder beides</text>
 
+        <a href="#pbir" aria-label="Power-BI-Bericht, pbir CLI">
         <rect x="820" y="370" width="180" height="84" class="n-ext"/>
         <text x="910" y="398" text-anchor="middle" class="t-name">Power-BI-Bericht</text>
         <text x="910" y="420" text-anchor="middle" class="t-cmd">fab import · pbir</text>
         <text x="910" y="440" text-anchor="middle" class="t-sub">PBIP, gleiche Visuals</text>
+        </a>
 
+        <a href="#pbir" aria-label="pbir visuals test">
         <rect x="1060" y="130" width="140" height="64" class="n-ext"/>
         <text x="1130" y="158" text-anchor="middle" class="t-cmd">pbir visuals test</text>
         <text x="1130" y="178" text-anchor="middle" class="t-sub">jede Abfrage</text>
+        </a>
 
+        <a href="#pruefstand" aria-label="Template-Prüfstand">
         <rect x="1060" y="206" width="140" height="64" class="n-own"/>
         <text x="1130" y="234" text-anchor="middle" class="t-own">Prüfstand</text>
         <text x="1130" y="254" text-anchor="middle" class="t-sub">Referenz · App · PBI</text>
+        </a>
 
+        <a href="#fabscan" aria-label="fabscan">
         <rect x="1060" y="282" width="140" height="64" class="n-own"/>
         <text x="1130" y="310" text-anchor="middle" class="t-own">fabscan</text>
         <text x="1130" y="330" text-anchor="middle" class="t-sub">Governance</text>
+        </a>
 
+        <a href="#playwright" aria-label="Playwright">
         <rect x="1060" y="358" width="140" height="64" class="n-ext"/>
         <text x="1130" y="386" text-anchor="middle" class="t-name">Playwright</text>
         <text x="1130" y="406" text-anchor="middle" class="t-sub">Browser-Tests</text>
+        </a>
 
         <path d="M190,156 H266" class="edge" marker-end="url(#ah)"/>
         <text x="230" y="148" text-anchor="middle" class="lbl">Import</text>
@@ -225,6 +262,7 @@ dd.plus { color: var(--good); }
       <span><i class="sw own" aria-hidden="true"></i>eigene Entwicklung</span>
       <span><i class="sw ext" aria-hidden="true"></i>genutztes Werkzeug</span>
       <span><i class="sw fb" aria-hidden="true"></i>Rückkopplung aus der Prüfung</span>
+      <span>Kasten anklicken: springt zur Beschreibung</span>
     </div>
     <figcaption>Die dwg cli ist der Knoten: Sie liest die App-Spec, die Spalten und Formate aus dem Semantikmodell und die Visual-Pakete, und erzeugt daraus eine Fabric App, einen Power-BI-Bericht oder beides. Die Daten kommen aus einem vorhandenen Lakehouse, Warehouse oder Semantikmodell, für Demos werden sie synthetisch erzeugt. Der Paritätstest läuft lokal in der dwg cli, wenn App und Bericht aus derselben Spec auf demselben Semantikmodell entstehen. Was die Prüfung findet, landet in den nächsten Releases, so wie ChartKitchen 1.58 und P&amp;L 1.8.4.</figcaption>
   </figure>
@@ -242,7 +280,7 @@ dd.plus { color: var(--good); }
   <section class="phase" aria-labelledby="p1">
     <div class="phase-head"><span class="num">1</span><h2 id="p1">Vorbereiten</h2><p>Was die Seite zeigen soll und woher die Zahlen kommen.</p></div>
     <div class="cards">
-      <article class="card own">
+      <article class="card own" id="mockupkitchen">
         <div class="card-top"><h3><a href="mockup-kitchen.html">MockupKitchen</a></h3><span class="chip">eigen · auf dieser Website</span></div>
         <dl>
           <dt>Macht</dt><dd>Mockups für Power-BI-Seiten und Fabric Apps im Browser: über 60 Visualtypen, App-Vorlagen, Handy-Format, Farbschemata, Visual einrichten.</dd>
@@ -251,7 +289,7 @@ dd.plus { color: var(--good); }
           <dt>Vorteil</dt><dd class="plus">Der Fachbereich sieht das Ergebnis früh. <code>dwg mockup import</code> macht aus der Skizze eine Spec.</dd>
         </dl>
       </article>
-      <article class="card">
+      <article class="card" id="datenquelle">
         <div class="card-top"><h3>Datenquelle</h3><span class="chip">vorhanden oder generiert</span></div>
         <dl>
           <dt>Macht</dt><dd>Liefert die Zahlen. Im Normalfall ein vorhandenes Lakehouse, Warehouse oder Semantikmodell. Für Demos erzeugt Python mit pyarrow synthetische Daten als Parquet, dazu Kontrollwerte für die Summen.</dd>
@@ -266,7 +304,7 @@ dd.plus { color: var(--good); }
   <section class="phase" aria-labelledby="p2">
     <div class="phase-head"><span class="num">2</span><h2 id="p2">Bausteine</h2><p>Spec, Visuals und Semantikmodell.</p></div>
     <div class="cards">
-      <article class="card own">
+      <article class="card own" id="app-spec">
         <div class="card-top"><h3>App-Spec (JSON)</h3><span class="chip">eigen · Teil der dwg cli</span></div>
         <dl>
           <dt>Macht</dt><dd>Beschreibt Seiten, Kacheln, Rollen (Measures und Spalten), Filter, Formate, Navigation und das Template je Kachel.</dd>
@@ -275,7 +313,7 @@ dd.plus { color: var(--good); }
           <dt>Vorteil</dt><dd class="plus">Versioniert in Git, <code>dwg check</code> prüft sie vor dem Bau gegen das Modell.</dd>
         </dl>
       </article>
-      <article class="card own">
+      <article class="card own" id="chartkitchen">
         <div class="card-top"><h3><a href="chartkitchen-doku.html">ChartKitchen byDatenWG</a></h3><span class="chip">eigen · 1.58.0.0</span></div>
         <dl>
           <dt>Macht</dt><dd>Custom Visual mit 14 Chart-Modi und 24 Vorlagen (C01 bis C25): Säulen, Brücken, Tabellen, Scatter, KPI-Karten, Small Multiples, mit Szenario-Notation und Skalierung.</dd>
@@ -284,7 +322,7 @@ dd.plus { color: var(--good); }
           <dt>Vorteil</dt><dd class="plus">Ein Visual für beide Welten, gleiche Darstellung in App und Bericht.</dd>
         </dl>
       </article>
-      <article class="card own">
+      <article class="card own" id="pnl">
         <div class="card-top"><h3><a href="pnl-doku.html">P&amp;L Statement byDatenWG</a></h3><span class="chip">eigen · 1.8.4.0</span></div>
         <dl>
           <dt>Macht</dt><dd>GuV und Finanztabellen: Konten-Hierarchie, Formelzeilen, Δ-Spalten mit Pins, 23 Templates, ROI-Baum, Sankey, Bilanz und Cashflow.</dd>
@@ -293,7 +331,7 @@ dd.plus { color: var(--good); }
           <dt>Vorteil</dt><dd class="plus">Template wählen statt formatieren, Zahlen bleiben gleich, Notation stimmt.</dd>
         </dl>
       </article>
-      <article class="card">
+      <article class="card" id="fab">
         <div class="card-top"><h3>fab · Fabric CLI</h3><span class="chip">genutzt · Microsoft</span></div>
         <dl>
           <dt>Macht</dt><dd>Workspaces und Ordner, Upload ins Lakehouse, <code>table load</code>, Import von Modell und Bericht, Refresh, Rebind.</dd>
@@ -302,7 +340,7 @@ dd.plus { color: var(--good); }
           <dt>Vorteil</dt><dd class="plus">Skriptbar, gleiche Schritte für jede Umgebung, nachvollziehbar im Protokoll.</dd>
         </dl>
       </article>
-      <article class="card">
+      <article class="card" id="te">
         <div class="card-top"><h3>te · Tabular Editor CLI</h3><span class="chip">genutzt · Tabular Editor · Preview</span></div>
         <dl>
           <dt>Macht</dt><dd>Lädt Semantikmodelle als TMDL, prüft sie (<code>te validate</code>), ändert sie per Skript, fragt sie ab.</dd>
@@ -317,7 +355,7 @@ dd.plus { color: var(--good); }
   <section class="phase" aria-labelledby="p3">
     <div class="phase-head"><span class="num">3</span><h2 id="p3">Erzeugen</h2><p>Aus den Bausteinen wird eine App, ein Bericht oder beides.</p></div>
     <div class="cards">
-      <article class="card own">
+      <article class="card own" id="dwg">
         <div class="card-top"><h3><a href="https://github.com/Losveratos/dwg-cli">dwg cli</a></h3><span class="chip">eigen · öffentlich · frühe Vorschau</span></div>
         <dl>
           <dt>Macht</dt><dd>Baut aus Spec und Modell die Seiten der Fabric App (React), den Bericht als PBIP/PBIR oder beides. Erzeugt die DAX-Abfragen, bindet die Visuals, spielt mit <code>visuals update</code> neue Releases ein, testet mit Mini-DAX im Browser ohne Fabric, prüft mit <code>dwg check</code> und <code>dwg lint</code>.</dd>
@@ -326,7 +364,7 @@ dd.plus { color: var(--good); }
           <dt>Vorteil</dt><dd class="plus">Gleiche Spec, gleiches Ergebnis. Ein Befehl holt ein neues Visual-Release in die CLI, danach werden App und Bericht daraus neu erzeugt.</dd>
         </dl>
       </article>
-      <article class="card own">
+      <article class="card own" id="paritaet">
         <div class="card-top"><h3>Paritätstest</h3><span class="chip">eigen · in der dwg cli</span></div>
         <dl>
           <dt>Macht</dt><dd>Rendert jede Kachel so, wie Power BI dem Visual die Daten übergibt, und so, wie die App es tut, und schlägt fehl, wenn beide abweichen. Läuft lokal mit Mini-DAX, vor der Auslieferung.</dd>
@@ -341,7 +379,7 @@ dd.plus { color: var(--good); }
   <section class="phase" aria-labelledby="p4">
     <div class="phase-head"><span class="num">4</span><h2 id="p4">Ausliefern</h2><p>Die Ziele landen in Fabric.</p></div>
     <div class="cards">
-      <article class="card">
+      <article class="card" id="rayfin">
         <div class="card-top"><h3>Rayfin CLI · Fabric Apps</h3><span class="chip">genutzt · Microsoft · Preview</span></div>
         <dl>
           <dt>Macht</dt><dd>Legt das Fabric-App-Item an und deployt (<code>rayfin up</code>), bindet Konnektoren zum Semantikmodell, bringt Hosting und Entra-Anmeldung.</dd>
@@ -350,7 +388,7 @@ dd.plus { color: var(--good); }
           <dt>Vorteil</dt><dd class="plus">Backend, Anmeldung und Hosting kommen von Fabric, die App liest das Modell direkt.</dd>
         </dl>
       </article>
-      <article class="card">
+      <article class="card" id="pbir">
         <div class="card-top"><h3>pbir CLI</h3><span class="chip">genutzt</span></div>
         <dl>
           <dt>Macht</dt><dd>Prüft und ändert PBIR-Berichte, hängt sie ans Modell (<code>rebind</code>), testet jede Visual-Abfrage gegen den Service.</dd>
@@ -359,7 +397,7 @@ dd.plus { color: var(--good); }
           <dt>Vorteil</dt><dd class="plus">Fehler im Bericht findet die CLI, nicht das Publikum.</dd>
         </dl>
       </article>
-      <article class="card">
+      <article class="card" id="git">
         <div class="card-top"><h3>Git und GitHub</h3><span class="chip">genutzt</span></div>
         <dl>
           <dt>Macht</dt><dd>Spec, PBIP und Visual-Code liegen im Git. GitHub Actions lassen die Tests und den Showcase-Lauf bei jeder Änderung laufen. Die Fabric-Git-Integration ist neben <code>fab import</code> der zweite Weg für den Bericht.</dd>
@@ -374,7 +412,7 @@ dd.plus { color: var(--good); }
   <section class="phase" aria-labelledby="p5">
     <div class="phase-head"><span class="num">5</span><h2 id="p5">Prüfen</h2><p>Bevor das Publikum es sieht.</p></div>
     <div class="cards">
-      <article class="card own">
+      <article class="card own" id="pruefstand">
         <div class="card-top"><h3>Template-Prüfstand</h3><span class="chip">eigen</span></div>
         <dl>
           <dt>Macht</dt><dd>Prüft je Template Element für Element gegen die Referenz und stellt Fabric App und Power BI nebeneinander, mit Messwerten zu Ladezeit, Abfragen und Last.</dd>
@@ -383,7 +421,7 @@ dd.plus { color: var(--good); }
           <dt>Vorteil</dt><dd class="plus">Aus den Befunden entsteht der Wellenplan. Welle 1 brachte ChartKitchen 1.58 und P&amp;L 1.8.4.</dd>
         </dl>
       </article>
-      <article class="card own">
+      <article class="card own" id="fabscan">
         <div class="card-top"><h3>fabscan</h3><span class="chip">eigen · CLI und Skill</span></div>
         <dl>
           <dt>Macht</dt><dd>Governance-Prüfung für Fabric Apps: Berechnungen in der App, Lineage, Sicherheit (App-Identität, fremde Server, externe Schriften), veränderte Abfragen und Abweichungen zum Modell.</dd>
@@ -392,7 +430,7 @@ dd.plus { color: var(--good); }
           <dt>Vorteil</dt><dd class="plus">Befunde mit stabiler ID, Ausnahmen mit Begründung, Abdeckung im Bericht.</dd>
         </dl>
       </article>
-      <article class="card">
+      <article class="card" id="playwright">
         <div class="card-top"><h3>Playwright</h3><span class="chip">genutzt · Microsoft</span></div>
         <dl>
           <dt>Macht</dt><dd>Browser-Tests und Screenshots für Visuals, Apps und Doku-Seiten.</dd>
@@ -407,7 +445,7 @@ dd.plus { color: var(--good); }
   <section class="phase" aria-labelledby="p6">
     <div class="phase-head"><span class="num">∞</span><h2 id="p6">Über allem</h2><p>Wer plant, baut und freigibt.</p></div>
     <div class="cards">
-      <article class="card">
+      <article class="card" id="claude">
         <div class="card-top"><h3>Claude Code · Fable</h3><span class="chip">genutzt · Anthropic</span></div>
         <dl>
           <dt>Macht</dt><dd>Sessions planen und bauen parallel, je eine für Daten, Rahmen und Templates. Skills für dwg, fabscan und Mockups bringen den Agenten die Befehle bei. Fable prüft unabhängig gegen.</dd>
