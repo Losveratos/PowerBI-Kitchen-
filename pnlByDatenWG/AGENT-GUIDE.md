@@ -11,7 +11,7 @@ Fallen. Menschen lesen besser [README.md](README.md) und
 Geometrie und Notation des Mega-Tables: [SPEC-MEGATABLE.md](SPEC-MEGATABLE.md).
 Vorbild dieser Datei: `../ibcsInspiredChartDeck/AGENT-GUIDE.md` (ChartKitchen).
 
-Stand: **1.8.4.0** (25.11.2026). Bei Versionssprüngen: CHANGELOG.md zuerst lesen.
+Stand: **1.8.5.0** (27.11.2026). Bei Versionssprüngen: CHANGELOG.md zuerst lesen.
 
 ## Steckbrief
 
@@ -19,7 +19,7 @@ Stand: **1.8.4.0** (25.11.2026). Bei Versionssprüngen: CHANGELOG.md zuerst lese
 | --- | --- |
 | GUID | `pnlByDatenWG3F9A7D2C51E64B08A1C4E7F0B92D6358` |
 | visual.json `visualType` | GUID wie oben (Import ersetzt ältere Version automatisch) |
-| Paket | `dist/pnlByDatenWG3F9A7D2C51E64B08A1C4E7F0B92D6358.1.8.4.0.pbiviz` |
+| Paket | `dist/pnlByDatenWG3F9A7D2C51E64B08A1C4E7F0B92D6358.1.8.5.0.pbiviz` |
 | API | `powerbi-visuals-api` 5.11 |
 | Datenfenster | `dataReductionAlgorithm window 30000` Zeilen; weitere Segmente lädt das Visual per `fetchMoreData` nach (Ladebalken + „≈" an Summen, bis alles da ist) |
 | Fähigkeiten | Tooltips (default + canvas) · Tastaturfokus · Landing Page · Multi-Visual-Selektion · `supportsHighlight: true` (1.7: nur der Sankey zeigt eine Markierung anderer Visuals im Gesamt, alle anderen Ansichten verhalten sich wie gefiltert — Falle 22) |
@@ -102,7 +102,7 @@ Ansicht, sondern ein Template der Tabelle — `viewTable` gilt für beide.
 - Ab 150 sichtbaren Zeilen zeichnet der Mega-Table nur das Fenster um den Viewport
   (+30 Zeilen Puffer); Export zeichnet immer alles.
 
-## Settings-Referenz (aus Settings-Modell + capabilities.json generiert, 1.8.4.0)
+## Settings-Referenz (aus Settings-Modell + capabilities.json generiert, 1.8.5.0)
 
 **Neu in 1.8.4** (Notationskorrekturen Welle 1, 25.11.2026): `columns.capPins` (bool, Standard
 an) und `columns.capFactor` (numeric, Standard 4, 1 bis 20) direkt nach `capBars` in der Gruppe
@@ -1037,6 +1037,19 @@ Anfangsbestand und `stock` am Endbestand (Formel `[Anfangsbestand]+[Operativ]+�
       und die pp der Margen (Mega-Tabelle: `sheetMdec`, dann mindestens eine Stelle) wie die Tabelle
       (`engine.roundShown`), bevor die Schwellen greifen; bei beiden Schwellen 0 zählt nur eine Δ, die
       nicht als 0 gedruckt wird. Σ-treue Rundung bleibt außen vor (⚡ prüft die gerundete Rohdifferenz).
+
+30. **Fixierter Spaltenkopf (1.8.5):** Die klassische Tabelle zeichnet ihre zwei Kopfzeilen als
+    überlagerten Klon (`buildFloatHead`, `data-pnl="float-head"`, `position:absolute; display:table;
+    table-layout:fixed`), die Originalzeilen (`data-pnl="hdr-row"`) bleiben unsichtbar als Breitengeber.
+    Der Klon braucht die Breite der Tabelle (`wrap.style.width = tb.width`): ohne sie schrumpft ein
+    absolutes `display:table` auf den Platz rechts seines `left`, und bei `fitWidth` aus stehen die
+    Köpfe vor ihren Spalten. Ab `VIRT_MIN_ROWS` Zeilen rendert die Tabelle ein Zeilenfenster und
+    ihre Spalten folgen den Zeilen im DOM; `renderWindow` ruft deshalb `refreshFloatHead()`, das die
+    Breiten der ersten Kopfzeile und der Tabelle mit der Signatur `floatSig` vom Aufbau vergleicht und
+    den Klon nur bei einer Änderung neu baut. Im Aufbau läuft `measureWindow()` vor `applySticky()`:
+    so entsteht der Kopf einmal aus dem endgültigen Fenster, und die Messung kostet beim Aufbau nichts
+    (umgekehrt wurde „expand rerender“ in `test/perf.js` messbar langsamer). Tests: `tree-interact.js`
+    Abschnitte 21b und 21c.
 
 ## Verwandte Dateien
 

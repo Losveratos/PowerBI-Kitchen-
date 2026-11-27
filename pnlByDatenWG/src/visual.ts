@@ -725,6 +725,8 @@ export class Visual implements IVisual {
     /** floating clone of the sticky table header rows (see stickyHeaderRow) */
     private floatHeadEl: HTMLElement | null = null;
     private floatTop = 0;
+    /** 1.8.5 table width + column widths the floating header was built from */
+    private floatSig = "";
     private wfSegs = new Map<string, Map<string, { s: number; e: number }>>();
     private stateLoaded = false;
     private pendingPersist: string | null = null;
@@ -4622,8 +4624,10 @@ export class Visual implements IVisual {
             }
             this.root.scrollTop = keepScroll;
         }
-        this.applySticky();
+        // 1.8.5: the row window first, then the floating head, so the head is
+        // built once from the final columns (refreshFloatHead has no head yet)
         this.measureWindow();
+        this.applySticky();
     }
 
     /**
@@ -5071,6 +5075,7 @@ export class Visual implements IVisual {
         this.setSpacer(vs.top, vs.offsets[from]);
         this.setSpacer(vs.bottom, vs.offsets[vs.visible.length] - vs.offsets[to]);
         vs.from = from; vs.to = to;
+        this.refreshFloatHead();
     }
 
     /** anchor the body inside the scroll container, then align the window */
@@ -6383,6 +6388,7 @@ export class Visual implements IVisual {
         wrap.style.cssText = "position:absolute;z-index:25;pointer-events:none;" +
             `display:table;table-layout:fixed;background:${bg};` +
             `box-shadow:0 1px 0 ${bg},0 -1px 0 ${bg};`;
+        const sig: string[] = [];
         for (let r = 0; r < rows.length; r++) {
             const row = rows[r] as HTMLElement;
             const clone = row.cloneNode(true) as HTMLElement;
@@ -6391,7 +6397,9 @@ export class Visual implements IVisual {
             for (let i = 0; i < src.length; i++) {
                 const d = dst[i] as HTMLElement;
                 d.style.visibility = "visible";
-                d.style.width = this.rect(src[i] as HTMLElement).width.toFixed(2) + "px";
+                const w = this.rect(src[i] as HTMLElement).width.toFixed(2);
+                d.style.width = w + "px";
+                if (r === 0) { sig.push(w); }
                 d.style.boxSizing = "border-box";
                 d.style.overflow = "hidden";
             }
@@ -6400,10 +6408,37 @@ export class Visual implements IVisual {
         const rb = this.rect(this.root);
         const tb = this.rect(table);
         wrap.style.left = (tb.left - rb.left + this.root.scrollLeft).toFixed(2) + "px";
+        // 1.8.5: the clone takes the table's own width. Without it an absolute
+        // `display:table` shrinks to fit the space right of `left`, so a table
+        // wider than the tile (fitWidth off) got a squeezed head whose columns
+        // no longer sat over the body columns.
+        wrap.style.width = tb.width.toFixed(2) + "px";
+        sig.push(tb.width.toFixed(2));
+        this.floatSig = sig.join(",");
         this.floatTop = topOffset;
         this.root.appendChild(wrap);
         this.floatHeadEl = wrap;
         this.syncFloatHead();
+    }
+
+    /**
+     * 1.8.5 rebuild the floating header when the columns under it moved. The
+     * classic table lays out automatically, so a row window (more than
+     * VIRT_MIN_ROWS rows) that brings a longer account name or a wider number
+     * changes the column widths and the table width; the clone keeps the
+     * widths it was built with. Cheap when nothing changed: one rect per head
+     * cell of the first header row.
+     */
+    private refreshFloatHead(): void {
+        if (!this.floatHeadEl) { return; }
+        const row = this.root.querySelector('[data-pnl="hdr-row"]') as HTMLElement | null;
+        if (!row || !row.parentElement) { return; }
+        const sig: string[] = [];
+        for (let i = 0; i < row.children.length; i++) {
+            sig.push(this.rect(row.children[i] as HTMLElement).width.toFixed(2));
+        }
+        sig.push(this.rect(row.parentElement).width.toFixed(2));
+        if (sig.join(",") !== this.floatSig) { this.buildFloatHead(this.floatTop); }
     }
 
     /** pin the floating header just under the frozen head, in content space */
