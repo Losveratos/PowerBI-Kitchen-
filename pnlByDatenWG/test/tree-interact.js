@@ -1154,6 +1154,107 @@ function tidyChecks(geom, tag) {
         && stickyRes.off.floatRowTops.length === 0 && !stickyRes.off.stuck,
         JSON.stringify(stickyRes.off.srcHidden) + " float=" + stickyRes.off.floatRowTops.length);
 
+    // ---- 21b) 1.8.5: a table wider than the tile (fitWidth off) keeps its
+    // floating head on the columns. Until 1.8.4 the absolute clone shrank to
+    // the room right of its left edge, so its cells ran early against the body,
+    // before any scrolling and at every scroll position. Also after a re-render
+    // while the table is scrolled sideways (the clone's left edge adds scrollLeft).
+    const wideHead = await page.evaluate(() => {
+        const d = document.createElement("div");
+        d.className = "stage"; d.id = "sticky-wide"; d.style.cssText = "width:560px;height:420px;";
+        document.body.appendChild(d);
+        const objects = { titleBlock: { measureLine: "wide head" }, hierarchy: { defaultLevel: 0 },
+            state: { uiState: JSON.stringify({ view: "table" }) } };
+        const v = new PnlByDatenWG.Visual({ element: d, host: makeHost("en-US") });
+        const upd = () => v.update({ dataViews: [dv(objects)], viewport: { width: 560, height: 420 }, type: 2 });
+        upd();
+        const box = (e) => e.getBoundingClientRect();
+        const worst = () => {
+            const fh = d.querySelector('[data-pnl="float-head"]');
+            const src = [...d.querySelectorAll('[data-pnl="hdr-row"]')];
+            if (!fh || !src.length) { return null; }
+            let w = Math.abs(box(fh).width - box(src[0].parentElement).width);
+            [...fh.children].forEach((row, r) => {
+                [...row.children].forEach((c, i) => {
+                    const a = box(c), b = box(src[r].children[i]);
+                    w = Math.max(w, Math.abs(a.left - b.left), Math.abs(a.right - b.right));
+                });
+            });
+            return Math.round(w * 100) / 100;
+        };
+        const root = d.querySelector(".pnl-root");
+        const fh0 = d.querySelector('[data-pnl="float-head"]');
+        const out = {
+            overflow: root.scrollWidth - root.clientWidth,
+            fhW: fh0 ? Math.round(box(fh0).width) : null,
+            tblW: Math.round(box(d.querySelector('[data-pnl="hdr-row"]').parentElement).width),
+            at0: worst(),
+        };
+        root.scrollLeft = root.scrollWidth;
+        root.dispatchEvent(new Event("scroll"));
+        out.scrolledX = root.scrollLeft;
+        out.atEnd = worst();
+        upd();
+        const root2 = d.querySelector(".pnl-root");
+        if (root2.scrollLeft === 0) { root2.scrollLeft = root2.scrollWidth; upd(); }
+        out.rerenderX = d.querySelector(".pnl-root").scrollLeft;
+        out.afterRerender = worst();
+        return out;
+    });
+    check("a table wider than the tile keeps the floating head as wide as the table",
+        wideHead.overflow > 50 && wideHead.fhW !== null && Math.abs(wideHead.fhW - wideHead.tblW) <= 1,
+        JSON.stringify(wideHead));
+    check("each floating head cell sits on its column, unscrolled, scrolled sideways and re-rendered there",
+        wideHead.scrolledX > 0 && wideHead.rerenderX > 0 && wideHead.at0 !== null
+        && wideHead.at0 <= 1 && wideHead.atEnd <= 1 && wideHead.afterRerender <= 1,
+        JSON.stringify(wideHead));
+
+    // ---- 21c) 1.8.5: more than VIRT_MIN_ROWS rows render in a window. A long
+    // account name far down widens the name column only once its rows are in
+    // the DOM; the floating head follows the new column widths (and narrows
+    // again on the way back, without adding scroll width).
+    const virtHead = await page.evaluate(async () => {
+        const rows = [];
+        for (let i = 0; i < 420; i++) {
+            const name = i === 400 ? "Konto 400 mit einem ausgesprochen langen Namen für die Spaltenbreite der Tabelle" : "Konto " + i;
+            rows.push({ levels: [name], account: "A" + i, sort: i, rowType: "account", formulaDef: null, sign: 1,
+                displayInvert: false, varianceInvert: false, month: null, comment: null,
+                values: { ac: 100 + i, py: 90 + i, pl: 95 + i } });
+        }
+        const d = document.createElement("div");
+        d.className = "stage"; d.id = "sticky-virt"; d.style.cssText = "width:900px;height:500px;";
+        document.body.appendChild(d);
+        runRows("sticky-virt", rows, { titleBlock: { measureLine: "virt head" }, toolbar: { show: false },
+            hierarchy: { defaultLevel: 0 } }, "de-DE");
+        const root = d.querySelector(".pnl-root");
+        const frame = () => new Promise(res => requestAnimationFrame(() => requestAnimationFrame(res)));
+        const meas = () => {
+            const fh = d.querySelector('[data-pnl="float-head"]');
+            const src = [...d.querySelectorAll('[data-pnl="hdr-row"]')];
+            if (!fh || !src.length) { return null; }
+            const tb = src[0].parentElement.getBoundingClientRect();
+            let w = Math.abs(fh.getBoundingClientRect().width - tb.width);
+            [...fh.children].forEach((row, r) => [...row.children].forEach((c, i) => {
+                const a = c.getBoundingClientRect(), b = src[r].children[i].getBoundingClientRect();
+                w = Math.max(w, Math.abs(a.left - b.left), Math.abs(a.right - b.right));
+            }));
+            return { tblW: Math.round(tb.width), worst: Math.round(w * 100) / 100,
+                extraX: root.scrollWidth - root.clientWidth };
+        };
+        const top = meas();
+        root.scrollTop = root.scrollHeight; root.dispatchEvent(new Event("scroll")); await frame();
+        const bottom = meas();
+        root.scrollTop = 0; root.dispatchEvent(new Event("scroll")); await frame();
+        const back = meas();
+        return { domRows: d.querySelectorAll("[data-pnl-row]").length, top, bottom, back };
+    });
+    check("a row window that widens the name column moves the floating head along",
+        !!virtHead.top && !!virtHead.bottom && !!virtHead.back && virtHead.domRows < 200
+        && virtHead.bottom.tblW > virtHead.top.tblW + 50
+        && virtHead.top.worst <= 1 && virtHead.bottom.worst <= 1 && virtHead.back.worst <= 1
+        && virtHead.back.extraX === virtHead.top.extraX,
+        JSON.stringify(virtHead));
+
     // ---- 22) v0.13: the tile view fits the viewport without vertical scrolling
     const fitZoom = await page.evaluate(() => {
         const mk = (id, h) => {
